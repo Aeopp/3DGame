@@ -11,11 +11,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="App">
+      <UniqueIdentifier>{57ec84a9-9cf7-44f6-9c82-29f3edaf17a7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Client.h">
-      <Filter>Client</Filter>
-    </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>Default</Filter>
     </ClInclude>
@@ -28,13 +28,22 @@
     <ClInclude Include="stdafx.h">
       <Filter>Default</Filter>
     </ClInclude>
+    <ClInclude Include="Client.h">
+      <Filter>Client</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\App.h">
+      <Filter>App</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Default</Filter>
+    </ClCompile>
     <ClCompile Include="Client.cpp">
       <Filter>Client</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Default</Filter>
+    <ClCompile Include="Codes\App.cpp">
+      <Filter>App</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
