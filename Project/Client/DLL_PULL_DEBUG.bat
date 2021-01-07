@@ -1,1 +1,1 @@
-xcopy /y 		.\..\Reference\Lib\Debug\*.dll		.\Bin\Debug\
+xcopy /y 		.\..\Reference\Lib\Debug\*.dll		.\Run\Debug\

@@ -1,1 +1,1 @@
-xcopy /y 		.\..\Reference\Lib\Release\*.dll		.\Bin\Release\
+xcopy /y 		.\..\Reference\Lib\Release\*.dll		.\Run\Release\
