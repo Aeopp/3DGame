@@ -1,0 +1,1 @@
+xcopy /y 		.\..\Reference\Lib\Release\*.dll		.\Bin\Release\

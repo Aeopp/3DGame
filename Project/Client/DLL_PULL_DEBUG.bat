@@ -1,0 +1,1 @@
+xcopy /y 		.\..\Reference\Lib\Debug\*.dll		.\Bin\Debug\

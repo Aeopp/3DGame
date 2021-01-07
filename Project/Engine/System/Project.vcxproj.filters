@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="GraphicDevice">
+      <UniqueIdentifier>{c0accf1e-250d-462c-9482-c3842437bcf7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Codes\GraphicDevice.h">
+      <Filter>GraphicDevice</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Codes\GraphicDevice.cpp">
+      <Filter>GraphicDevice</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
