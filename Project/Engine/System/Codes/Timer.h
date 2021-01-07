@@ -68,28 +68,28 @@ namespace Engine
 
 
 
-float Engine::Timer::GetDelta()
+inline float Engine::Timer::GetDelta()
 {
 	return DeltaTime;
 }
 
-float Engine::Timer::GetT()
+inline float Engine::Timer::GetT()
 {
 	return _T;
 }
 
 
-void Engine::Timer::SetDelta(const float DeltaTime)&
+inline void Engine::Timer::SetDelta(const float DeltaTime)&
 {
 	this->DeltaTime = std::clamp(DeltaTime * TimeScale, 0.f, (std::numeric_limits<float>::max)());
 }
 
-void Engine::Timer::SetTimeScale(const float TimeScale)&
+inline void Engine::Timer::SetTimeScale(const float TimeScale)&
 {
 	this->TimeScale = std::clamp(TimeScale, 0.f, (std::numeric_limits<float>::max)());
 }
 
-void Engine::Timer::SetT(const float GetT)
+inline void Engine::Timer::SetT(const float GetT)
 {
 	this->_T = std::clamp(GetT, 0.f, (std::numeric_limits<float>::max)());
 }

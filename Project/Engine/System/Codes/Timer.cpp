@@ -37,8 +37,12 @@ void Engine::Timer::Update()
 		_T += DeltaTime;
 		Accumulator -= LimitDelta;
 
-		ApplicationUpdate(GetDelta());
-		ApplicationLateUpdate(GetDelta());
+		NotificationCheck();
+
+		if(ApplicationUpdate)
+			ApplicationUpdate(GetDelta());
+		if(ApplicationLateUpdate)
+			ApplicationLateUpdate(GetDelta());
 	}
 
 	if (SecCheck >= 1000ms)
@@ -50,7 +54,8 @@ void Engine::Timer::Update()
 	else
 		++_FPSCount;
 
-	ApplicationRender();
+	if(ApplicationRender)
+		ApplicationRender();
 }
 
 void Engine::Timer::Render()
@@ -117,7 +122,6 @@ void Engine::Timer::RenderFPS() const& noexcept
 		L"DeltaTime : " << DeltaTime <<
 		L"TimeScale : " << TimeScale <<
 		L"PlayTime  : " << _T << std::endl;
-
 }
 
 

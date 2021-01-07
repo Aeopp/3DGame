@@ -5,6 +5,9 @@
 
 #include "Client.h"
 #include "GraphicDevice.h"
+#include "App.h"
+#include "Timer.h"
+
 
 #define MAX_LOADSTRING 100
 
@@ -60,7 +63,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             }
         }
 
-
+        else
+        {
+            Engine::Timer::Instance().Update();
+        }
     }
 
     return (int) msg.wParam;
@@ -107,9 +113,15 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
+   auto& _App = App::Instance();
+   const auto ClientSize = _App.GetClientSize();
+
+   RECT	rc{ 0, 0, ClientSize.first, ClientSize.second};
 
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+       CW_USEDEFAULT, 0,
+       rc.right - rc.left,
+       rc.bottom - rc.top, nullptr, nullptr, hInstance, nullptr);
 
    if (!hWnd)
    {
@@ -118,8 +130,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
-   Engine::GraphicDevice::Instance().Initialize(hWnd, false, {800u,600u},
-       D3DMULTISAMPLE_TYPE::D3DMULTISAMPLE_16_SAMPLES);
+   App::Instance().Initialize(hWnd);
 
    return TRUE;
 }
@@ -139,30 +150,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message)
     {
     case WM_COMMAND:
+    {
+        int wmId = LOWORD(wParam);
+        // 메뉴 선택을 구문 분석합니다.
+        switch (wmId)
         {
-            int wmId = LOWORD(wParam);
-            // 메뉴 선택을 구문 분석합니다:
-            switch (wmId)
-            {
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
-            }
+        case IDM_EXIT:
+            DestroyWindow(hWnd);
+            break;
+        default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+    }
+    break;
+    case WM_KEYDOWN:
+        switch (wParam)
+        {
+        case VK_ESCAPE:
+            PostQuitMessage(0);
+            break;
         }
         break;
-    case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-            // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            EndPaint(hWnd, &ps);
-        }
-        break;
+
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
