@@ -109,6 +109,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
+   Engine::GraphicDevice::Instance().Initialize(hWnd, false, {800u,600u},
+       D3DMULTISAMPLE_TYPE::D3DMULTISAMPLE_16_SAMPLES);
 
    return TRUE;
 }
