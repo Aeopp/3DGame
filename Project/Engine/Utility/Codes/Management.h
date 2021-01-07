@@ -21,7 +21,7 @@ namespace Engine
 template<typename SceneType>
 inline void Engine::Management::SetScene() & noexcept
 {
-	static_assert(std::is_base_of_v < Scene, SceneType>\
+	static_assert(std::is_base_of_v < Scene, SceneType>
 		"is_base_of_v <Scene,SceneType>");
 
 	_CurrentScene = std::make_unique<SceneType>();

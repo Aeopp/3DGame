@@ -187,18 +187,20 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Codes\Class.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Codes\Class.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Resources\Resources.vcxproj">
       <Project>{5c77863d-5236-4351-b11e-df61367aa692}</Project>
     </ProjectReference>
     <ProjectReference Include="..\System\Project.vcxproj">
       <Project>{7c4f9dfe-83f0-4233-9121-4ad5108b523e}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Codes\Management.cpp" />
+    <ClCompile Include="Codes\Scene.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Codes\Management.h" />
+    <ClInclude Include="Codes\Scene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
