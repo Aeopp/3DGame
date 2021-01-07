@@ -177,9 +177,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Codes\GraphicDevice.h" />
+    <ClInclude Include="Codes\Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\GraphicDevice.cpp" />
+    <ClCompile Include="Codes\Timer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

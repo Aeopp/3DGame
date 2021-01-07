@@ -4,15 +4,24 @@
     <Filter Include="GraphicDevice">
       <UniqueIdentifier>{c0accf1e-250d-462c-9482-c3842437bcf7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Time">
+      <UniqueIdentifier>{06b18e2c-f156-4ede-962b-11005239f9d3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\GraphicDevice.h">
       <Filter>GraphicDevice</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\Timer.h">
+      <Filter>Time</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\GraphicDevice.cpp">
       <Filter>GraphicDevice</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Timer.cpp">
+      <Filter>Time</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
