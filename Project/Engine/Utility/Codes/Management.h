@@ -9,21 +9,20 @@ namespace Engine
 	{
 	public:
 		template<typename SceneType>
-		void SetScene() & noexcept;
+		void SetScene(IDirect3DDevice9& _Device) & noexcept;
 		void Update(const float DeltaTime)&;
 		void Render()&;
 	private:
 		std::unique_ptr<Scene> _CurrentScene{ nullptr };
 	};
-	
 };
 
 template<typename SceneType>
-inline void Engine::Management::SetScene() & noexcept
+inline void Engine::Management::SetScene(IDirect3DDevice9& _Device) & noexcept
 {
-	static_assert(std::is_base_of_v < Scene, SceneType>
+	static_assert(std::is_base_of_v < Scene, SceneType>,
 		"is_base_of_v <Scene,SceneType>");
 
-	_CurrentScene = std::make_unique<SceneType>();
+	_CurrentScene = std::make_unique<SceneType>(_Device);
 	_CurrentScene->Initialize();
 }
