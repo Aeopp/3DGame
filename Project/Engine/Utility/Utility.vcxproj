@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -197,11 +197,13 @@
   <ItemGroup>
     <ClCompile Include="Codes\Layer.cpp" />
     <ClCompile Include="Codes\Management.cpp" />
+    <ClCompile Include="Codes\Object.cpp" />
     <ClCompile Include="Codes\Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Layer.h" />
     <ClInclude Include="Codes\Management.h" />
+    <ClInclude Include="Codes\Object.h" />
     <ClInclude Include="Codes\Scene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

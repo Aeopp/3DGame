@@ -11,7 +11,6 @@ namespace Engine
 		template<typename SceneType>
 		void SetScene(IDirect3DDevice9& _Device) & noexcept;
 		void Update(const float DeltaTime)&;
-		void Render()&;
 	private:
 		std::unique_ptr<Scene> _CurrentScene{ nullptr };
 	};

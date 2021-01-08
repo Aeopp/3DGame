@@ -12,13 +12,13 @@ namespace Engine
 	{
 	public:
 		explicit Scene(IDirect3DDevice9& _Device);
-		virtual ~Scene() noexcept = default; 
+	protected:
+		virtual ~Scene() noexcept = default;
 	public:
 		virtual void Initialize()&abstract;
 		void Update(const float DeltaTime)&;
-		void Render()&;
 	private:
-		std::unordered_map<std::wstring, std::unique_ptr<Layer>> _LayerMap;
+		std::unordered_map<std::wstring,std::unique_ptr<Layer>> _LayerMap;
 		std::reference_wrapper<IDirect3DDevice9> _Device;
 	};
 };
