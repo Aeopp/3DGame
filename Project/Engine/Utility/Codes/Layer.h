@@ -10,13 +10,12 @@ namespace Engine
 {
 	class DLL_DECL Layer 
 	{
-	
 	public:
 		virtual ~Layer()noexcept = default;
+	public:
 		void Update(const float DeltaTime)&;
 		void LateUpdate(const float DeltaTime)&;
 		void PendingKill() & noexcept;
-
 		std::vector<std::weak_ptr<Component>>& RefComponents(const Component::Property _Property) &;
 	private:
 		std::unordered_map<std::wstring/*Class Type Info*/,

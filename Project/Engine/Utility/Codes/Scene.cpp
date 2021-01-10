@@ -3,7 +3,6 @@
 #include "Component.h"
 #include <iterator>
 
-
 Engine::Scene::Scene(IDirect3DDevice9& _Device):_Device{ _Device }{}
 
 void Engine::Scene::Update(const float DeltaTime)&
@@ -28,10 +27,10 @@ void Engine::Scene::Update(const float DeltaTime)&
 		};
 	}
 
-	// 렌더 컴포넌트는 렌더링 순서에 맞게 또다시 정렬해야함.
+	// 렌더 컴포넌트는 렌더링 순서에 맞게 또 다시 정렬해야함.
 	//_Components[Component::Property::Render];
 
-	/// 트랜스폼 충돌 렌더.
+	/// 기본 트랜스폼 충돌 렌더 순으로 컴포넌트 업데이트 수행.
 	for (auto& CurrentComponents : _Components)
 	{
 		for (auto& CurrentComponent : CurrentComponents)
@@ -45,9 +44,14 @@ void Engine::Scene::Update(const float DeltaTime)&
 		}
 	}
 
+
+}
+void Engine::Scene::PendingKill() & noexcept
+{
 	for (auto& [Key, CurrentLayer] : _LayerMap)
 	{
 		CurrentLayer->PendingKill();
 	}
-};
+}
+;
 

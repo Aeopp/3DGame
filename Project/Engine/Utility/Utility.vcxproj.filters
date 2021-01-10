@@ -4,11 +4,17 @@
     <Filter Include="Management">
       <UniqueIdentifier>{e958f860-ed3f-4041-94d9-7007eb3061a6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Scene">
-      <UniqueIdentifier>{ae1fa2be-e305-4917-910a-3320c6e17628}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Layer">
       <UniqueIdentifier>{541c6b2e-3c73-4bb7-9fbe-5e00805d3b10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component">
+      <UniqueIdentifier>{444a7713-0b78-4126-aebf-9f91addbf475}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object">
+      <UniqueIdentifier>{bfa96606-52b2-46ef-b9cc-2b78f10310fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Scene">
+      <UniqueIdentifier>{ae1fa2be-e305-4917-910a-3320c6e17628}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -16,10 +22,16 @@
       <Filter>Management</Filter>
     </ClInclude>
     <ClInclude Include="Codes\Scene.h">
-      <Filter>Scene</Filter>
+      <Filter>Object\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Codes\Layer.h">
       <Filter>Layer</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\Component.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\Object.h">
+      <Filter>Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -27,10 +39,16 @@
       <Filter>Management</Filter>
     </ClCompile>
     <ClCompile Include="Codes\Scene.cpp">
-      <Filter>Scene</Filter>
+      <Filter>Object\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Codes\Layer.cpp">
       <Filter>Layer</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Component.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Object.cpp">
+      <Filter>Object</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
