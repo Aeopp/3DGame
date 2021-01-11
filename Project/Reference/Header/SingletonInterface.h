@@ -7,23 +7,25 @@ class SingletonInterface
 protected:
 	SingletonInterface() = default;
 public:
-	friend class std::shared_ptr<SubType>;
+	friend class std::unique_ptr<SubType>;
 	~SingletonInterface()noexcept = default;
 	SingletonInterface(const   SingletonInterface&) = delete;
 	SingletonInterface(SingletonInterface&&) = delete;
 	SingletonInterface& operator=(const  SingletonInterface&) = delete;
 	SingletonInterface& operator=(SingletonInterface&&) = delete;
 public:
-	static SubType& Instance();
+	template<typename... Params>
+	static  SubType* Init(Params&&... _Params);
+	static inline std::unique_ptr<SubType> Instance{ nullptr };
+	//static SubType& Ref() { return *Instance; };
 };
 
 template<typename SubType>
-inline SubType& SingletonInterface<SubType>::Instance()
+template<typename... Params>
+static SubType* SingletonInterface<SubType>::Init(Params&&... _Params)
 {
-	static std::shared_ptr<SubType> _Instance;
+	Instance = std::make_unique<SubType>();
+	Instance->Initialize(std::forward<Params>(_Params)...);
+	return Instance.get();
+};
 
-	if (!_Instance)
-		_Instance = std::make_shared<SubType>();
-
-	return *_Instance;
-}

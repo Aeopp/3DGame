@@ -3,6 +3,7 @@
 #include "GraphicDevice.h"
 #include <chrono>
 #include "Controller.h"
+#include "Sound.h"
 
 
 
@@ -18,13 +19,13 @@ void Engine::Management::Initialize(
 	Hwnd = _Hwnd;
 	this->ClientSize = ClientSize;
 
-	Engine::GraphicDevice::Instance().Initialize(
+	_GraphicDevice = Engine::GraphicDevice::Init(
 		_Hwnd,
 		bFullScreen,
 		ClientSize,
 		MultiSample);
 
-	Engine::Timer::Instance().Initialize(
+	_Timer = Engine::Timer::Init(
 		LimitFrame, 
 		std::chrono::milliseconds(LimitDeltaMilliSec),
 		[this]() {BeforeUpdateEvent(); },
@@ -32,23 +33,26 @@ void Engine::Management::Initialize(
 		[this]() {Render(); },
 		[this]() {LastEvent(); });
 
-	Engine::Sound::Instance().Initialize(SoundPath);
+	_Sound =Engine::Sound::Init(SoundPath);
+	_Controller = Engine::Controller::Init();
 }
 
 void Engine::Management::GameLoop()&
 {
-	Timer::Instance().Update();
+	_Timer->Update();
 }
 
 void Engine::Management::BeforeUpdateEvent()&
 {
-	Controller::Instance().Update();
+	_Controller->Update();
 }
 
 void Engine::Management::Update(const float DeltaTime)&
 {
 	if(_CurrentScene)
 		_CurrentScene->Update(DeltaTime);
+
+	_Sound->Update(DeltaTime);
 }
 
 void Engine::Management::Render()&

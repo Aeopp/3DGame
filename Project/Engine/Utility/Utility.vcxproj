@@ -190,6 +190,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Component.cpp" />
+    <ClCompile Include="Codes\ExportUtility.cpp" />
     <ClCompile Include="Codes\Layer.cpp" />
     <ClCompile Include="Codes\Management.cpp" />
     <ClCompile Include="Codes\Object.cpp" />
@@ -199,6 +200,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Component.h" />
+    <ClInclude Include="Codes\ExportUtility.h" />
     <ClInclude Include="Codes\Layer.h" />
     <ClInclude Include="Codes\Management.h" />
     <ClInclude Include="Codes\Object.h" />

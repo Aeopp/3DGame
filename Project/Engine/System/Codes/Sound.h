@@ -33,19 +33,12 @@ namespace Engine
 		void Update(const float DeltaTime)&;
 		bool IsPlay(const std::string& SoundKey)const&;
 		void RandSoundKeyPlay(const std::string& SoundKey,
-			const std::pair<uint32, uint32> Range, const float Volume)&;
+			const std::pair<uint32, uint32> Range,
+			const float Volume,
+			const bool bBeginIfPlaying)&;
 	private:
 		std::unordered_map<std::string, SoundType> Sounds;
 		std::string CurrentBgmKey{};
 	};
-
-	void SoundPlay(const std::string& Key, 
-		const float Volume = 1.f, 
-		const bool IsBgm = false);
-
-	void RandSoundPlay(const std::string& Key, 
-		const std::pair<uint32, uint32> Range,
-		const float Volume = 1.f, 
-		const bool IsBgm = false);
 };
 

@@ -45,13 +45,9 @@ void Engine::Sound::Play(
 		{
 			Channel->isPlaying(&bPlay);
 
-			if (bPlay && bBeginIfPlaying)
+			if ( (bPlay && bBeginIfPlaying) || !bPlay)
 			{
 				Result = FmodSystem->playSound(Sound.get(), nullptr, false, &Channel);	
-			}
-			else if (!bPlay)
-			{
-				Result = FmodSystem->playSound(Sound.get(), nullptr, false, &Channel);
 			}
 
 			Channel->setVolume(Volume);
@@ -81,19 +77,17 @@ void Engine::Sound::Load(const std::string& FullPath, std::string Key)&
 		FMOD::Channel* Channel{ nullptr };
 		FMOD::Sound* LoadSound{ nullptr };
 		FMOD_RESULT HR = FmodSystem->createSound(FullPath.c_str(), FMOD_DEFAULT, 0,&LoadSound);
-	/*	SoundType InsertSound;
-		auto& [Sound, Channel] = InsertSound;*/
 		if (HR != FMOD_OK)
 		{
 			// ½ÇÆÐ..
 		};
-		Channel->setVolume(0.5f);
-
 		SoundType Sound = 
 			SoundType{  std::move(std::unique_ptr<FMOD::Sound, decltype(FmodDeleter)>(LoadSound,
 			FmodDeleter)) ,Channel};
 
-		Sounds.insert(iter, { std::move(Key)  , std::move(Sound) });
+		Sounds.insert(iter, { (Key)  , std::move(Sound) });
+
+	//	Play(Key, 1.f, true, true);
 	}
 };
 
@@ -137,25 +131,11 @@ bool  Engine::Sound::IsPlay(const std::string& SoundKey)const &
 void  Engine::Sound::RandSoundKeyPlay(
 	const std::string& SoundKey, 
 	const std::pair<uint32, uint32> Range,
-	const float Volume)&
+	const float Volume ,
+	const bool bBeginIfPlaying)&
 {
 	static std::random_device Device;
 	static std::mt19937 Mt19937(Device());
 	std::uniform_int_distribution<uint32> Distribution(Range.first, Range.second);
-	Play(SoundKey + "_" + std::to_string(Distribution(Mt19937)), false, Volume);
+	Play(SoundKey + "_" + std::to_string(Distribution(Mt19937)), Volume, bBeginIfPlaying);
 };
-
-void Engine::SoundPlay(const std::string& Key, float Volume, bool IsBgm)
-{
-	Engine::Sound::Instance().Play(Key, Volume, IsBgm);
-}
-
-void Engine::RandSoundPlay(const std::string& Key, 
-	const std::pair<uint32, uint32> Range, 
-	const float Volume, 
-	const bool IsBgm)
-{
-	Engine::Sound::Instance().RandSoundKeyPlay(Key, Range, Volume);
-}
-
-

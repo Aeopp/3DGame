@@ -28,6 +28,9 @@
     <Filter Include="Scene">
       <UniqueIdentifier>{ae1fa2be-e305-4917-910a-3320c6e17628}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Export">
+      <UniqueIdentifier>{26382073-e170-40df-a814-6fe745d811eb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
@@ -51,6 +54,9 @@
     <ClInclude Include="Codes\Object.h">
       <Filter>Object</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\ExportUtility.h">
+      <Filter>Export</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">
@@ -73,6 +79,9 @@
     </ClCompile>
     <ClCompile Include="Codes\Object.cpp">
       <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\ExportUtility.cpp">
+      <Filter>Export</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

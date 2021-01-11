@@ -5,6 +5,7 @@
 #include "TypeAlias.h"
 #include <filesystem>
 
+
 namespace Engine
 {
 	class DLL_DECL Management : public SingletonInterface<Management>
@@ -36,6 +37,11 @@ namespace Engine
 		std::pair<uint32, uint32> ClientSize;
 		HWND Hwnd;
 		std::unique_ptr<Scene> _CurrentScene{ nullptr };
+	public:
+		class Sound* _Sound{ nullptr };
+		class Timer* _Timer{ nullptr };
+		class Controller* _Controller{ nullptr };
+		class GraphicDevice* _GraphicDevice{ nullptr };
 	};
 };
 

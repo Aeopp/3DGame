@@ -1,16 +1,19 @@
 #pragma once
 #include "SingletonInterface.h"
 #include "TypeAlias.h"
+#include "Management.h"
 
 class App : public SingletonInterface<App>
 {
 public:
 	void Initialize(const HWND _Hwnd)&;
 public:
-	const auto& GetClientSize()const& { return ClientSize; };
-	const auto& GetHwnd()const&       { return _Hwnd; };
+	static const auto& GetClientSize() { return ClientSize; };
+	const auto& GetHwnd()const& { return _Hwnd; };
+	Engine::Management*  GetManagement() { return _Management; };
 private:
-	std::pair<uint32,uint32> ClientSize{ 1920u,1080u };
+	static inline std::pair<uint32,uint32> ClientSize{ 1920u,1080u };
 	HWND _Hwnd;
+	Engine::Management* _Management{ nullptr };
 };
 

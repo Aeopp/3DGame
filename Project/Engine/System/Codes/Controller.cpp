@@ -1,6 +1,10 @@
 #include "Controller.h"
 
 
+void Engine::Controller::Initialize()&
+{
+}
+
 void Engine::Controller::Update() & noexcept
 {
 	for (uint8 CurrentVirtualKey =0x01; CurrentVirtualKey <= 0xFE; ++CurrentVirtualKey)

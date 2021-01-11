@@ -20,6 +20,7 @@ namespace Engine
 			END,
 		};
 	public:
+		void Initialize()&;
 		void Update()&noexcept;
 	public:
 		FORCEINLINE KeyState GetState(const uint8 Key)const&;

@@ -11,6 +11,7 @@ namespace Engine
 	class DLL_DECL PrototypeManager :public SingletonInterface<PrototypeManager >
 	{
 	public:
+		void Initialize();
 		template<typename ObjectSubType,
 			typename...Params>
 			void LoadPrototype(Params&&... _Params)&;

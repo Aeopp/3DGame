@@ -13,7 +13,7 @@ namespace Engine
 		void Initialize()&;
 		virtual void Update(const float DeltaTime)& abstract;
 		virtual void LateUpdate(const float DeltaTime)&;
-	protected:
+	public:
 		virtual ~Object() noexcept = default;
 	public:
 		inline bool IsPendingKill()const& { return bPendingKill; };
