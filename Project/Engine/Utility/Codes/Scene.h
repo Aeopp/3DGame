@@ -14,6 +14,7 @@ namespace Engine
 	public:
 		explicit Scene(IDirect3DDevice9& _Device);
 		virtual ~Scene()noexcept = default;
+		Scene(Scene&&)noexcept = default;
 	public:
 		virtual void Initialize()& abstract;
 		void Update(const float DeltaTime)&;
@@ -24,7 +25,7 @@ namespace Engine
 		auto& RefLayers();
 	private:
 		// 레이어의 개수가 많아지면 자료구조를 바꾸는것도 고려하길 바람.
-		std::vector<std::shared_ptr<Layer>> _Layers;
+		std::vector<std::unique_ptr<Layer>> _Layers;
 		std::reference_wrapper<IDirect3DDevice9> _Device;
 	};
 };

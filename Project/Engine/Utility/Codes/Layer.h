@@ -13,6 +13,7 @@ namespace Engine
 	{
 	public:
 		virtual ~Layer()noexcept = default;
+		Layer(Layer&&)noexcept = default;
 	public:
 		virtual void Update(const float DeltaTime)&;
 		virtual void LateUpdate(const float DeltaTime)&;

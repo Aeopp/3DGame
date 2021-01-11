@@ -66,8 +66,4 @@ void Engine::Management::LastEvent()&
 		_CurrentScene->PendingKill();
 }
 
-std::vector<std::shared_ptr<Engine::Layer>>& Engine::Management::RefLayers()&
-{
-	return _CurrentScene->RefLayers();
-};
 

@@ -4,7 +4,7 @@
 
 namespace Engine
 {
-	class Component abstract
+	class DLL_DECL Component abstract
 	{
 	public:
 		enum Property : uint32
@@ -18,6 +18,7 @@ namespace Engine
 		};
 	public:
 		virtual ~Component()noexcept = default;
+		Component(Component&&)noexcept = default;
 	public:
 		virtual void Update(class Object* const Owner,
 			const float DeltaTime)& abstract;

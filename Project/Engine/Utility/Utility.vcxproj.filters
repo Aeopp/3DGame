@@ -54,7 +54,7 @@
     <ClInclude Include="Codes\Object.h">
       <Filter>Object</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\ExportUtility.h">
+    <ClInclude Include="Codes\ExportUtility.hpp">
       <Filter>Export</Filter>
     </ClInclude>
   </ItemGroup>
@@ -79,9 +79,6 @@
     </ClCompile>
     <ClCompile Include="Codes\Object.cpp">
       <Filter>Object</Filter>
-    </ClCompile>
-    <ClCompile Include="Codes\ExportUtility.cpp">
-      <Filter>Export</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

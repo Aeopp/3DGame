@@ -32,7 +32,7 @@ namespace Engine
 		auto& RefObjects();
 		template<typename LayerSubType>
 		auto& RefLayer()&;
-		std::vector<std::shared_ptr<Layer>>& RefLayers()&;
+		auto& RefLayers()&;
 	private:
 		std::pair<uint32, uint32> ClientSize;
 		HWND Hwnd;
@@ -44,6 +44,12 @@ namespace Engine
 		class GraphicDevice* _GraphicDevice{ nullptr };
 	};
 };
+
+inline auto& Engine::Management::RefLayers()&
+{
+	return _CurrentScene->RefLayers();
+};
+
 
 template<typename SceneType>
 inline void Engine::Management::SetScene(IDirect3DDevice9& _Device) & noexcept
