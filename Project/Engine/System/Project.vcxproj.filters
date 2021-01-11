@@ -7,6 +7,9 @@
     <Filter Include="Time">
       <UniqueIdentifier>{06b18e2c-f156-4ede-962b-11005239f9d3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Controller">
+      <UniqueIdentifier>{769fb290-689f-4111-9e0e-bb600092bda3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\GraphicDevice.h">
@@ -15,6 +18,9 @@
     <ClInclude Include="Codes\Timer.h">
       <Filter>Time</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\Controller.h">
+      <Filter>Controller</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\GraphicDevice.cpp">
@@ -22,6 +28,9 @@
     </ClCompile>
     <ClCompile Include="Codes\Timer.cpp">
       <Filter>Time</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Controller.cpp">
+      <Filter>Controller</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -4,6 +4,7 @@
 #include "Timer.h"
 #include "Management.h"
 #include <chrono>
+#include "Class.h"
 
 void App::Initialize(const HWND _Hwnd)&
 {

@@ -182,10 +182,12 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Codes\Controller.h" />
     <ClInclude Include="Codes\GraphicDevice.h" />
     <ClInclude Include="Codes\Timer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Codes\Controller.cpp" />
     <ClCompile Include="Codes\GraphicDevice.cpp" />
     <ClCompile Include="Codes\Timer.cpp" />
   </ItemGroup>
