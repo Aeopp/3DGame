@@ -1,7 +1,11 @@
 #include "GraphicDevice.h"
 
-void Engine::GraphicDevice::Initialize(HWND Hwnd, const bool bFullScreen, const std::pair<uint32_t, uint32_t> ScreenSize,
-	const _D3DMULTISAMPLE_TYPE Anti_Aliasing)&
+/// TODO:: 현재 안티엘리어싱 적용시 디바이스 생성이 되지 않는 이슈.
+void Engine::GraphicDevice::Initialize(
+	HWND Hwnd, 
+	const bool bFullScreen,
+	const std::pair<uint32, uint32> ScreenSize,
+	const D3DMULTISAMPLE_TYPE Anti_Aliasing)&
 {
 	_SDK = DX::MakeUnique(Direct3DCreate9(D3D_SDK_VERSION));
 	D3DCAPS9 DeviceCaps;
@@ -10,14 +14,14 @@ void Engine::GraphicDevice::Initialize(HWND Hwnd, const bool bFullScreen, const 
 	if (FAILED(_SDK->GetDeviceCaps(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, &DeviceCaps)))
 		throw std::exception("GetDeviceCaps");
 
-	uint32_t		Flag{ 0u };
+	uint32		Flag{ 0u };
 
 	if (DeviceCaps.DevCaps & D3DDEVCAPS_HWTRANSFORMANDLIGHT)
 		Flag |= D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED;
 	else
 		Flag |= D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED;
 
-	D3DPRESENT_PARAMETERS			PresentParameter;
+	D3DPRESENT_PARAMETERS PresentParameter;
 	ZeroMemory(&PresentParameter, sizeof(D3DPRESENT_PARAMETERS));
 
 	PresentParameter.BackBufferWidth = ScreenSize.first;
@@ -25,9 +29,7 @@ void Engine::GraphicDevice::Initialize(HWND Hwnd, const bool bFullScreen, const 
 	PresentParameter.BackBufferFormat = D3DFMT_A8R8G8B8;
 	PresentParameter.BackBufferCount = 1;
 
-	/*PresentParameter.MultiSampleType = Anti_Aliasing;
-	PresentParameter.MultiSampleQuality = DeviceCaps.MaxAnisotropy;*/
-	PresentParameter.MultiSampleType = D3DMULTISAMPLE_NONE;
+	PresentParameter.MultiSampleType = Anti_Aliasing;
 	PresentParameter.MultiSampleQuality = 0;
 	PresentParameter.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	PresentParameter.hDeviceWindow = Hwnd;

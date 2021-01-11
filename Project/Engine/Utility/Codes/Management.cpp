@@ -5,24 +5,32 @@
 
 void Engine::Management::Initialize(
 	const HWND _Hwnd,
-	const std::pair<uint32_t,uint32_t> ClientSize)&
+	const bool bFullScreen,
+	const std::pair<uint32,uint32> ClientSize,
+	const D3DMULTISAMPLE_TYPE MultiSample,
+	const uint32 LimitFrame,
+	const uint32 LimitDeltaMilliSec)&
 {
 	Hwnd = _Hwnd;
 	this->ClientSize = ClientSize;
 
-	/*Engine::GraphicDevice::Instance().Initialize(
+	Engine::GraphicDevice::Instance().Initialize(
 		_Hwnd,
-		false,
-		{ ClientSize.first,ClientSize.second },
-		D3DMULTISAMPLE_16_SAMPLES);
-
-	using namespace std::chrono_literals;
+		bFullScreen,
+		ClientSize,
+		MultiSample);
 
 	Engine::Timer::Instance().Initialize(
-		60u, 30ms,
-		[](const float DeltaTime) {Engine::Management::Instance().Update(DeltaTime); },
-		[]() {Engine::Management::Instance().PendingKill(); },
-		[]() {Engine::Management::Instance().Render(); });*/
+		LimitFrame, 
+		std::chrono::milliseconds(LimitDeltaMilliSec),
+		[this](const float DeltaTime) {Update(DeltaTime); },
+		[this]() {PendingKill(); },
+		[this]() {Render(); });
+}
+
+void Engine::Management::GameLoop()&
+{
+	Timer::Instance().Update();
 }
 
 void Engine::Management::Update(const float DeltaTime)&

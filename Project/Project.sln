@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Header", "Header", "{D585C8
 		Reference\Header\DllHelper.h = Reference\Header\DllHelper.h
 		Reference\Header\DxHelper.h = Reference\Header\DxHelper.h
 		Reference\Header\SingletonInterface.h = Reference\Header\SingletonInterface.h
+		Reference\Header\TypeAlias.h = Reference\Header\TypeAlias.h
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Engine", "Engine", "{CDDE1227-79CA-4873-A0FC-891859E40F64}"

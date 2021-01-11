@@ -4,6 +4,7 @@
 #include <functional>
 #include <chrono>
 #include <algorithm>
+#include "TypeAlias.h"
 
 namespace Engine
 {
@@ -13,7 +14,7 @@ namespace Engine
 		using NotifyEventType = std::function<bool()>;
 		// 프레임 제한 값을 입력해주세요.
 		void Initialize(
-			const uint32_t LimitFrame,
+			const uint32 LimitFrame,
 			const std::chrono::milliseconds DeltaMax,
 			std::function<void(const  float)> ApplicationUpdate,
 			std::function<void()> ApplicationLastEvent,
@@ -48,11 +49,11 @@ namespace Engine
 		std::function<void()> ApplicationLastEvent;
 	private:
 		bool bTimeInfoRender = false;
-		uint32_t _FPSCount{ 0 };
+		uint32 _FPSCount{ 0 };
 		float DeltaTime{ 0.f };
 		float _T{ 0.f };
 		float TimeScale{ 1.f };
-		uint32_t FPS{ 0 };
+		uint32 FPS{ 0 };
 		// 이벤트 시작여부 , 시작 시간 , 반복 주기 , 종료 시간 , 현재 측정 시간
 		std::list<std::tuple<bool, float, float, float, float, float, NotifyEventType>> _NotifyEvents;
 	private:

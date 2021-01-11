@@ -1,14 +1,13 @@
 #pragma once
 #include "DllHelper.h"
+#include "TypeAlias.h"
 
 namespace Engine
 {
-	using uint32_t = unsigned long;
-
 	class Component abstract
 	{
 	public:
-		enum Property : uint32_t
+		enum Property : uint32
 		{
 			// 컴포넌트 업데이트 순서에 영향을 끼침.
 			Transform = 0u,

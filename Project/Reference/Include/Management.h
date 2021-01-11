@@ -2,6 +2,7 @@
 #include "DllHelper.h"
 #include "SingletonInterface.h"
 #include "Scene.h"
+#include "TypeAlias.h"
 
 namespace Engine
 {
@@ -9,7 +10,12 @@ namespace Engine
 	{
 	public:
 		void Initialize(const HWND _Hwnd,
-			const std::pair<uint32_t, uint32_t> ClientSize)&;
+			const bool bFullScreen,
+			const std::pair<uint32, uint32> ClientSize,
+			const D3DMULTISAMPLE_TYPE MultiSample,
+			const uint32 LimitFrame,
+			const uint32 LimitDeltaMilliSec)&;
+		void GameLoop()&;
 	public:
 		template<typename SceneType>
 		void SetScene(IDirect3DDevice9& _Device) & noexcept;
@@ -24,7 +30,7 @@ namespace Engine
 		auto& RefLayer()&;
 		std::vector<std::shared_ptr<Layer>>& RefLayers()&;
 	private:
-		std::pair<uint32_t, uint32_t> ClientSize;
+		std::pair<uint32, uint32> ClientSize;
 		HWND Hwnd;
 		std::unique_ptr<Scene> _CurrentScene{ nullptr };
 	};

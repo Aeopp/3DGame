@@ -1,9 +1,14 @@
 #pragma once
 #include "DllHelper.h"
 
-class DLL_DECL Class
+namespace Engine
 {
-public:
-	void Temp();
+	class DLL_DECL Class
+	{
+	public:
+	};
+
 };
+
+
 

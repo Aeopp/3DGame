@@ -1,8 +1,10 @@
 #pragma once
+#include <Windows.h>
 #include "SingletonInterface.h"
 #include "DllHelper.h"
 #include "DxHelper.h"
 #include <d3d9.h>
+#include "TypeAlias.h"
 
 namespace Engine
 {
@@ -10,8 +12,8 @@ namespace Engine
 	{
 	public:
 		void Initialize(HWND Hwnd, const bool bFullScreen,
-			const std::pair<uint32_t, uint32_t>ScreenSize,
-			const _D3DMULTISAMPLE_TYPE Anti_Aliasing)&;
+			const std::pair<uint32,uint32>ScreenSize,
+			const D3DMULTISAMPLE_TYPE Anti_Aliasing)&;
 		void Begin() & noexcept;
 		void End() & noexcept;
 		inline IDirect3DDevice9& GetDevice()const& { return *_Device; };

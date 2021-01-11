@@ -5,7 +5,8 @@
 
 #include "Client.h"
 #include "App.h"
-#include "Timer.h"
+#include "Management.h"
+
 
 
 #define MAX_LOADSTRING 100
@@ -64,7 +65,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
         else
         {
-            App::Instance().GameLoop();
+            Engine::Management::Instance().GameLoop();
         }
     }
 
