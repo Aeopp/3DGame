@@ -18,6 +18,7 @@ namespace Engine
 			const uint32 LimitFrame,
 			const uint32 LimitDeltaMilliSec ,
 			const std::filesystem::path& SoundPath)&;
+		void Release()&;
 		void GameLoop()&;
 	public:
 		template<typename SceneType>

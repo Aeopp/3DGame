@@ -2,8 +2,11 @@
 
 #include "Management.h"
 
+inline void InitializeUtility();
 
 inline auto& GetSound() { return Engine::Management::Instance->_Sound; };
+
+
 
 
 //class Sound* _Sound{ nullptr };
@@ -11,3 +14,8 @@ inline auto& GetSound() { return Engine::Management::Instance->_Sound; };
 //class Controller* _Controller{ nullptr };
 //class GraphicDevice* _GraphicDevice{ nullptr };
 //class Renderer* _Renderer{ nullptr };
+
+
+
+inline void InitializeUtility()
+{};

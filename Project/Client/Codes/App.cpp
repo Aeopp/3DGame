@@ -9,7 +9,7 @@ void App::Initialize(const HWND _Hwnd)&
 {
 	this->_Hwnd = _Hwnd;
 
-	_Management = Engine::Management::Init(
+    Engine::Management::Init(
 		_Hwnd,
 		false,
 		ClientSize,
@@ -19,5 +19,8 @@ void App::Initialize(const HWND _Hwnd)&
 		std::filesystem::current_path() / ".." / ".." / "Resource" / "Sound");
 
 	GetSound()->Play("song", 1.f, true, true);
-	//_Management->_Sound->Play("song", 1.f, true, true);
+}
+void App::GameLoop()
+{
+	Engine::Management::Instance->GameLoop();
 };

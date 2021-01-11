@@ -15,8 +15,15 @@ public:
 	SingletonInterface& operator=(SingletonInterface&&) = delete;
 public:
 	template<typename... Params>
-	static  SubType* Init(Params&&... _Params);
+	static SubType* Init(Params&&... _Params);
+	static void Reset();
 	static inline std::unique_ptr<SubType> Instance{ nullptr };
+};
+
+template<typename SubType>
+void SingletonInterface<SubType>::Reset()
+{
+	Instance.reset();
 };
 
 template<typename SubType>

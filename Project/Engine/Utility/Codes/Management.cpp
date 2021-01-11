@@ -37,6 +37,15 @@ void Engine::Management::Initialize(
 	_Renderer = Engine::Renderer::Init(&_GraphicDevice->GetDevice());
 }
 
+void Engine::Management::Release()&
+{
+	Sound::Reset();
+	Controller::Reset();
+	Timer::Reset();
+	Renderer::Reset();
+	GraphicDevice::Reset();
+}
+
 void Engine::Management::GameLoop()&
 {
 	_Timer->Update();
