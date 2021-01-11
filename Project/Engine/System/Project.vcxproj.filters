@@ -10,6 +10,9 @@
     <Filter Include="Controller">
       <UniqueIdentifier>{769fb290-689f-4111-9e0e-bb600092bda3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Sound">
+      <UniqueIdentifier>{8052049b-d7da-4259-8a84-c9b2add540ed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\GraphicDevice.h">
@@ -21,6 +24,9 @@
     <ClInclude Include="Codes\Controller.h">
       <Filter>Controller</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\Sound.h">
+      <Filter>Sound</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\GraphicDevice.cpp">
@@ -31,6 +37,9 @@
     </ClCompile>
     <ClCompile Include="Codes\Controller.cpp">
       <Filter>Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Sound.cpp">
+      <Filter>Sound</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

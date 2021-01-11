@@ -5,7 +5,7 @@ void Engine::Controller::Update() & noexcept
 {
 	for (uint8 CurrentVirtualKey =0x01; CurrentVirtualKey <= 0xFE; ++CurrentVirtualKey)
 	{
-		auto& [CurrentKeyState] = KeyStateTable[CurrentVirtualKey];
+		auto& CurrentKeyState = KeyStateTable[CurrentVirtualKey];
 
 		bool  bCurrentTableState = (GetAsyncKeyState(CurrentVirtualKey) & 0x8000);
 

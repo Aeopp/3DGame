@@ -148,7 +148,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ShowProgress>LinkVerbose</ShowProgress>
       <AdditionalLibraryDirectories>..\\..\\Reference\\Lib\\Debug\\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3dx9d.lib;d3d9.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fmod_vc.lib;fmodL_vc.lib;d3dx9d.lib;d3d9.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>call "$(ProjectDir)Copy.bat"</Command>
@@ -175,7 +175,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ShowProgress>LinkVerbose</ShowProgress>
       <AdditionalLibraryDirectories>..\\..\\Reference\\Lib\\Release\\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3dx9.lib;d3d9.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fmod_vc.lib;fmodL_vc.lib;d3dx9.lib;d3d9.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>call "$(ProjectDir)Copy.bat"</Command>
@@ -184,11 +184,13 @@
   <ItemGroup>
     <ClInclude Include="Codes\Controller.h" />
     <ClInclude Include="Codes\GraphicDevice.h" />
+    <ClInclude Include="Codes\Sound.h" />
     <ClInclude Include="Codes\Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Controller.cpp" />
     <ClCompile Include="Codes\GraphicDevice.cpp" />
+    <ClCompile Include="Codes\Sound.cpp" />
     <ClCompile Include="Codes\Timer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

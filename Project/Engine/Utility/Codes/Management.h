@@ -3,6 +3,7 @@
 #include "SingletonInterface.h"
 #include "Scene.h"
 #include "TypeAlias.h"
+#include <filesystem>
 
 namespace Engine
 {
@@ -14,7 +15,8 @@ namespace Engine
 			const std::pair<uint32, uint32> ClientSize,
 			const D3DMULTISAMPLE_TYPE MultiSample,
 			const uint32 LimitFrame,
-			const uint32 LimitDeltaMilliSec)&;
+			const uint32 LimitDeltaMilliSec ,
+			const std::filesystem::path& SoundPath)&;
 		void GameLoop()&;
 	public:
 		template<typename SceneType>

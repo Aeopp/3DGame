@@ -29,7 +29,7 @@ namespace Engine
 		FORCEINLINE bool IsNone(const uint8 Key)const&;
 	private:
 		static constexpr uint8 KeyMappingTableSize =(std::numeric_limits<uint8>::max)();
-		std::array< KeyState, KeyMappingTableSize> KeyStateTable;
+		std::array<KeyState, KeyMappingTableSize> KeyStateTable;
 	};
 };
 

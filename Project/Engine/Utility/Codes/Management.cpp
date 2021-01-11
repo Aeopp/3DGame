@@ -5,13 +5,15 @@
 #include "Controller.h"
 
 
+
 void Engine::Management::Initialize(
 	const HWND _Hwnd,
 	const bool bFullScreen,
 	const std::pair<uint32,uint32> ClientSize,
 	const D3DMULTISAMPLE_TYPE MultiSample,
 	const uint32 LimitFrame,
-	const uint32 LimitDeltaMilliSec)&
+	const uint32 LimitDeltaMilliSec,
+	const std::filesystem::path& SoundPath)&
 {
 	Hwnd = _Hwnd;
 	this->ClientSize = ClientSize;
@@ -29,6 +31,8 @@ void Engine::Management::Initialize(
 		[this](const float DeltaTime) {Update(DeltaTime); },
 		[this]() {Render(); },
 		[this]() {LastEvent(); });
+
+	Engine::Sound::Instance().Initialize(SoundPath);
 }
 
 void Engine::Management::GameLoop()&
