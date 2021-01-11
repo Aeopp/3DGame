@@ -13,11 +13,11 @@ namespace Engine
 
 		};
 	public:
-		void Initialize()&;
+		void Initialize(IDirect3DDevice9* const Device)&;
 	public:
 					
 	private:
-
+		IDirect3DDevice9* Device{ nullptr };
 	};
 };
 

@@ -22,5 +22,5 @@ void App::Initialize(const HWND _Hwnd)&
 }
 void App::GameLoop()
 {
-	Engine::Management::Instance->GameLoop();
+	GetManager().GameLoop();
 };

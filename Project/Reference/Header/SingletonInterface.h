@@ -17,6 +17,8 @@ public:
 	template<typename... Params>
 	static SubType* Init(Params&&... _Params);
 	static void Reset();
+	// static 변수이기 때문에 DLL 프로젝트에서 사용할시 어떠한 프로세서의 메모리에
+	// Instance 가 생성 되는지 유의할 것
 	static inline std::unique_ptr<SubType> Instance{ nullptr };
 };
 

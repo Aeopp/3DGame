@@ -5,6 +5,7 @@
 #include "Controller.h"
 #include "Sound.h"
 #include "Renderer.h"
+#include "Shader.h"
 
 void Engine::Management::Initialize(
 	const HWND _Hwnd,
@@ -34,17 +35,22 @@ void Engine::Management::Initialize(
 
 	_Sound =Engine::Sound::Init(SoundPath);
 	_Controller = Engine::Controller::Init();
-	_Renderer = Engine::Renderer::Init(&_GraphicDevice->GetDevice());
+	auto*const Device = &_GraphicDevice->GetDevice(); 
+	_Renderer = Engine::Renderer::Init(Device);
+	_Shader = Engine::Shader::Init(Device);
 }
 
-void Engine::Management::Release()&
+Engine::Management::~Management() noexcept
 {
 	Sound::Reset();
 	Controller::Reset();
 	Timer::Reset();
 	Renderer::Reset();
+	Shader::Reset();
+
+
 	GraphicDevice::Reset();
-}
+};
 
 void Engine::Management::GameLoop()&
 {
