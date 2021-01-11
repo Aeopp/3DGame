@@ -4,7 +4,6 @@
 #include "stdafx.h"
 
 #include "Client.h"
-#include "GraphicDevice.h"
 #include "App.h"
 #include "Timer.h"
 
@@ -65,7 +64,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
         else
         {
-            Engine::Timer::Instance().Update();
+            App::Instance().GameLoop();
         }
     }
 

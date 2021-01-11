@@ -3,25 +3,38 @@
 #include <map>
 #include <memory>
 #include "Layer.h"
+#include "Object.h"
 #include "DllHelper.h"
 #include "Component.h"
 
 namespace Engine
 {
-	class DLL_DECL Layer 
+	class DLL_DECL Layer abstract
 	{
 	public:
 		virtual ~Layer()noexcept = default;
 	public:
-		void Update(const float DeltaTime)&;
-		void LateUpdate(const float DeltaTime)&;
+		virtual void Update(const float DeltaTime)&;
+		virtual void LateUpdate(const float DeltaTime)&;
 		void PendingKill() & noexcept;
-		std::vector<std::weak_ptr<Component>>& RefComponents(const Component::Property _Property) &;
+		template<typename ObjectSubType>
+		auto& RefObjects()&;
+		auto& RefObjects()&;
 	private:
 		std::unordered_map<std::wstring/*Class Type Info*/,
-			std::vector<std::shared_ptr<class Object>>> _ObjectMap;
-		// 컴포넌트의 소유권은 포함하는 오브젝트에게 있음.
-		std::map<Component::Property,
-			std::vector<std::weak_ptr<Component>>> _ComponentMap;
-	};
+			std::vector<std::shared_ptr<Object>>> _ObjectMap;
+	};	
 };
+
+inline auto& Engine::Layer::RefObjects()&
+{
+	return _ObjectMap;
+};
+
+template<typename ObjectSubType>
+inline auto& Engine::Layer::RefObjects()&
+{
+	static_assert(std::is_base_of_v<Object, ObjectSubType>, __FUNCTION__);
+
+	return _ObjectMap.find(typeid(ObjectSubType).name())->second;
+}

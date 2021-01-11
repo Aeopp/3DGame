@@ -5,7 +5,7 @@
 void Engine::Timer::Initialize(const uint32_t LimitFrame,
 	const std::chrono::milliseconds DeltaMax,
 	std::function<void(const  float)> ApplicationUpdate,
-	std::function<void(const  float)> ApplicationLateUpdate,
+	std::function<void()> ApplicationLastEvent,
 	std::function<void()> ApplicationRender)
 {
 	using namespace std::chrono_literals;
@@ -16,7 +16,7 @@ void Engine::Timer::Initialize(const uint32_t LimitFrame,
 	this->DeltaMax = DeltaMax;
 
 	this->ApplicationUpdate = std::move(ApplicationUpdate);
-	this->ApplicationLateUpdate = std::move(ApplicationLateUpdate);
+	this->ApplicationLastEvent = std::move(ApplicationLastEvent);
 	this->ApplicationRender = std::move(ApplicationRender);
 }
 
@@ -41,8 +41,6 @@ void Engine::Timer::Update()
 
 		if(ApplicationUpdate)
 			ApplicationUpdate(GetDelta());
-		if(ApplicationLateUpdate)
-			ApplicationLateUpdate(GetDelta());
 	}
 
 	if (SecCheck >= 1000ms)
@@ -56,12 +54,13 @@ void Engine::Timer::Update()
 
 	if(ApplicationRender)
 		ApplicationRender();
+	RenderFPS();
+	if (ApplicationLastEvent)
+		ApplicationLastEvent();
 }
 
-void Engine::Timer::Render()
-{
-	RenderFPS();
-}
+
+
 
 
 

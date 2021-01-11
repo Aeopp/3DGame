@@ -16,11 +16,9 @@ namespace Engine
 			const uint32_t LimitFrame,
 			const std::chrono::milliseconds DeltaMax,
 			std::function<void(const  float)> ApplicationUpdate,
-			std::function<void(const  float)> ApplicationLateUpdate,
+			std::function<void()> ApplicationLastEvent,
 			std::function<void()> ApplicationRender);
 		void Update();
-		void Render();
-
 		// 시작 시간 , 반복 주기 , 종료 시간 , 이벤트
 		// 반환값 true 시 종료 시간 상관 없이 이벤트 삭제
 		// false 시 계속 유지
@@ -46,8 +44,8 @@ namespace Engine
 		std::chrono::milliseconds DeltaMax = std::chrono::milliseconds(25u);
 	private:
 		std::function<void(const  float)> ApplicationUpdate;
-		std::function<void(const float)> ApplicationLateUpdate;
 		std::function<void()> ApplicationRender;
+		std::function<void()> ApplicationLastEvent;
 	private:
 		bool bTimeInfoRender = false;
 		uint32_t _FPSCount{ 0 };

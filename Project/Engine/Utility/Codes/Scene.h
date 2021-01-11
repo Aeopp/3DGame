@@ -13,13 +13,36 @@ namespace Engine
 	{
 	public:
 		explicit Scene(IDirect3DDevice9& _Device);
-		virtual ~Scene() noexcept = default;
+		virtual ~Scene()noexcept = default;
 	public:
 		virtual void Initialize()&abstract;
 		void Update(const float DeltaTime)&;
 		void PendingKill() & noexcept;
+	public:
+		template<typename LayerSubType>
+		auto& RefLayer();
+		auto& RefLayers();
 	private:
-		std::unordered_map<std::wstring,std::shared_ptr<Layer>> _LayerMap;
+		// 레이어의 개수가 많아지면 자료구조를 바꾸는것도 고려하길 바람.
+		std::vector<std::shared_ptr<Layer>> _Layers;
 		std::reference_wrapper<IDirect3DDevice9> _Device;
 	};
+};
+
+inline auto& Engine::Scene::RefLayers()
+{
+	return _Layers;
+}
+
+
+template<typename LayerSubType>
+inline auto& Engine::Scene::RefLayer()
+{
+	static_assert(std::is_base_of_v<Layer, LayerSubType>, __FUNCTION__);
+
+	return std::find_if(std::begin(_Layers), std::end(_Layers), [TargetId = typeid(LayerSubType)](auto& CurrentLayer) {
+			return typeid(std::remove_reference_t<decltype(CurrentLayer)>::element_type)
+				==
+				TargetId;
+		})->second;
 };

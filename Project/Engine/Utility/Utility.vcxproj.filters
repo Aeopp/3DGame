@@ -16,6 +16,18 @@
     <Filter Include="Object\Scene">
       <UniqueIdentifier>{ae1fa2be-e305-4917-910a-3320c6e17628}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Component\Transform">
+      <UniqueIdentifier>{b97137a7-bacc-4718-8240-09486ef7e3a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component\Render">
+      <UniqueIdentifier>{99b7f923-1d8b-4606-aa7f-b26ebd2c347d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Prototype">
+      <UniqueIdentifier>{85d18877-31c2-4945-ba32-16964399ac19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component\Collision">
+      <UniqueIdentifier>{2ca10640-a141-4800-b099-34f202002c88}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
@@ -33,6 +45,12 @@
     <ClInclude Include="Codes\Object.h">
       <Filter>Object</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\PrototypeManager.h">
+      <Filter>Prototype</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\Transform.h">
+      <Filter>Component\Transform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">
@@ -49,6 +67,12 @@
     </ClCompile>
     <ClCompile Include="Codes\Object.cpp">
       <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\PrototypeManager.cpp">
+      <Filter>Prototype</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Transform.cpp">
+      <Filter>Component\Transform</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
