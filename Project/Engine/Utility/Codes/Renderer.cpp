@@ -1,6 +1,6 @@
 #include "Renderer.h"
 
-void Engine::Renderer::Initialize(IDirect3DDevice9* const Device)&
+void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>&  Device)&
 {
 	this->Device = Device;
 };

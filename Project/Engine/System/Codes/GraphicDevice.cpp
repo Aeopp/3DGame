@@ -7,7 +7,7 @@ void Engine::GraphicDevice::Initialize(
 	const std::pair<uint32, uint32> ScreenSize,
 	const D3DMULTISAMPLE_TYPE Anti_Aliasing)&
 {
-	_SDK = DX::MakeUnique(Direct3DCreate9(D3D_SDK_VERSION));
+	_SDK = DX::MakeShared(Direct3DCreate9(D3D_SDK_VERSION));
 	ZeroMemory(&DeviceCaps, sizeof(D3DCAPS9));
 
 	if (FAILED(_SDK->GetDeviceCaps(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, &DeviceCaps)))
@@ -44,7 +44,7 @@ void Engine::GraphicDevice::Initialize(
 	if (FAILED(_SDK->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, Hwnd, Flag, &PresentParameter, &_DevicePtr)))
 		throw std::exception("CreateDevice");
 
-	_Device = DX::MakeUnique(_DevicePtr);
+	_Device = DX::MakeShared(_DevicePtr);
 }
 
 void Engine::GraphicDevice::Begin() & noexcept

@@ -35,7 +35,7 @@ void Engine::Management::Initialize(
 
 	_Sound =Engine::Sound::Init(SoundPath);
 	_Controller = Engine::Controller::Init();
-	auto*const Device = &_GraphicDevice->GetDevice(); 
+	auto Device = _GraphicDevice->GetDevice(); 
 	_Renderer = Engine::Renderer::Init(Device);
 	_Shader = Engine::Shader::Init(Device);
 }
