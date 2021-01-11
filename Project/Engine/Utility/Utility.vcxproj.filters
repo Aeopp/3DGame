@@ -40,6 +40,9 @@
     <Filter Include="Render\Renderer">
       <UniqueIdentifier>{5777ec6a-7b07-4b08-a750-98a788d5f8de}</UniqueIdentifier>
     </Filter>
+    <Filter Include="HeightMap">
+      <UniqueIdentifier>{d67c2337-9072-469f-a56b-45c8525032dd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
@@ -72,6 +75,9 @@
     <ClInclude Include="Codes\Renderer.h">
       <Filter>Render\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\HeightMap.h">
+      <Filter>HeightMap</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">
@@ -100,6 +106,9 @@
     </ClCompile>
     <ClCompile Include="Codes\Renderer.cpp">
       <Filter>Render\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\HeightMap.cpp">
+      <Filter>HeightMap</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
