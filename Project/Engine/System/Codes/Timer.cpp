@@ -4,9 +4,10 @@
 
 void Engine::Timer::Initialize(const uint32_t LimitFrame,
 	const std::chrono::milliseconds DeltaMax,
+	std::function<void()> ApplicationBeforeUpdateEvent,
 	std::function<void(const  float)> ApplicationUpdate,
-	std::function<void()> ApplicationLastEvent,
-	std::function<void()> ApplicationRender)
+	std::function<void()> ApplicationRender,
+	std::function<void()> ApplicationLastEvent)
 {
 	using namespace std::chrono_literals;
 
@@ -15,6 +16,7 @@ void Engine::Timer::Initialize(const uint32_t LimitFrame,
 	LimitDelta = 1000ms / (float)LimitFrame;
 	this->DeltaMax = DeltaMax;
 
+	this->ApplicationBeforeUpdateEvent = std::move(ApplicationBeforeUpdateEvent);
 	this->ApplicationUpdate = std::move(ApplicationUpdate);
 	this->ApplicationLastEvent = std::move(ApplicationLastEvent);
 	this->ApplicationRender = std::move(ApplicationRender);
@@ -30,6 +32,9 @@ void Engine::Timer::Update()
 	PrevTime = CurrentTime;
 	Accumulator += Delta;
 	SecCheck += Delta;
+
+	if (ApplicationBeforeUpdateEvent)
+		ApplicationBeforeUpdateEvent();
 
 	while (Accumulator >= LimitDelta)
 	{

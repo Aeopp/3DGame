@@ -2,6 +2,8 @@
 #include "Timer.h"
 #include "GraphicDevice.h"
 #include <chrono>
+#include "Controller.h"
+
 
 void Engine::Management::Initialize(
 	const HWND _Hwnd,
@@ -23,14 +25,20 @@ void Engine::Management::Initialize(
 	Engine::Timer::Instance().Initialize(
 		LimitFrame, 
 		std::chrono::milliseconds(LimitDeltaMilliSec),
+		[this]() {BeforeUpdateEvent(); },
 		[this](const float DeltaTime) {Update(DeltaTime); },
-		[this]() {PendingKill(); },
-		[this]() {Render(); });
+		[this]() {Render(); },
+		[this]() {LastEvent(); });
 }
 
 void Engine::Management::GameLoop()&
 {
 	Timer::Instance().Update();
+}
+
+void Engine::Management::BeforeUpdateEvent()&
+{
+	Controller::Instance().Update();
 }
 
 void Engine::Management::Update(const float DeltaTime)&
@@ -44,7 +52,7 @@ void Engine::Management::Render()&
 	// ·»´õ·¯ÀÇ ·»´õ¸µ ¼öÇà.
 }
 
-void Engine::Management::PendingKill()&
+void Engine::Management::LastEvent()&
 {
 	if (_CurrentScene)
 		_CurrentScene->PendingKill();

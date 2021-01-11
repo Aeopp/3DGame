@@ -19,9 +19,10 @@ namespace Engine
 	public:
 		template<typename SceneType>
 		void SetScene(IDirect3DDevice9& _Device) & noexcept;
+		void BeforeUpdateEvent()&;
 		void Update(const float DeltaTime)&;
 		void Render()&;
-		void PendingKill()&;
+		void LastEvent()&;
 		template<typename LayerSubType>
 		auto& RefObjects();
 		template<typename LayerSubType, typename ObjectSubType>

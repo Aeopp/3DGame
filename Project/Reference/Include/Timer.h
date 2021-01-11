@@ -16,9 +16,11 @@ namespace Engine
 		void Initialize(
 			const uint32 LimitFrame,
 			const std::chrono::milliseconds DeltaMax,
+			std::function<void()> ApplicationBeforeUpdateEvent, 
 			std::function<void(const  float)> ApplicationUpdate,
-			std::function<void()> ApplicationLastEvent,
-			std::function<void()> ApplicationRender);
+			std::function<void()> ApplicationRender,
+			std::function<void()> ApplicationLastEvent
+			);
 		void Update();
 		// 시작 시간 , 반복 주기 , 종료 시간 , 이벤트
 		// 반환값 true 시 종료 시간 상관 없이 이벤트 삭제
@@ -44,6 +46,7 @@ namespace Engine
 		std::chrono::steady_clock::time_point CurrentTime{ std::chrono::high_resolution_clock::now() };
 		std::chrono::milliseconds DeltaMax = std::chrono::milliseconds(25u);
 	private:
+		std::function<void()> ApplicationBeforeUpdateEvent;
 		std::function<void(const  float)> ApplicationUpdate;
 		std::function<void()> ApplicationRender;
 		std::function<void()> ApplicationLastEvent;
