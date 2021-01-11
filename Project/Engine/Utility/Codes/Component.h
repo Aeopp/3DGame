@@ -4,7 +4,7 @@
 
 namespace Engine
 {
-	class Component abstract
+	class DLL_DECL Component abstract
 	{
 	public:
 		enum Property : uint32

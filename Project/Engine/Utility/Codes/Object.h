@@ -7,7 +7,7 @@
 
 namespace Engine
 {
-	class Object abstract
+	class DLL_DECL Object abstract
 	{
 	public:
 		void Initialize()&;
