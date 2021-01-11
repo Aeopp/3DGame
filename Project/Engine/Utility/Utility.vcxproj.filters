@@ -43,6 +43,9 @@
     <Filter Include="HeightMap">
       <UniqueIdentifier>{d67c2337-9072-469f-a56b-45c8525032dd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{6f7b12ed-a094-453c-bed6-856d2f58709f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
@@ -78,6 +81,9 @@
     <ClInclude Include="Codes\HeightMap.h">
       <Filter>HeightMap</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\Shader.h">
+      <Filter>Shader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">
@@ -109,6 +115,9 @@
     </ClCompile>
     <ClCompile Include="Codes\HeightMap.cpp">
       <Filter>HeightMap</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Shader.cpp">
+      <Filter>Shader</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

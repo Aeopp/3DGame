@@ -22,12 +22,13 @@ namespace Engine
 		inline const std::wstring& GetName()const& { return Name; };
 	public:
 		template<typename ComponentSubType, typename... Params>
-		void MakeComponent(Params&&... _Params)&;
+		void AddComponent(Params&&... _Params)&;
 
 		template<typename ComponentSubType>
 		auto& GetComponent()&;
-	private:
+	protected:
 		std::wstring Name{};
+	private:
 		bool bPendingKill{ false };
 		std::map<Component::Property/*업데이트 순서 통제*/,
 			std::vector<std::unique_ptr<Component>>> _Components;
@@ -37,7 +38,7 @@ namespace Engine
 };
 
 template<typename ComponentSubType, typename... Params>
-inline void Engine::Object::MakeComponent(Params&&... _Params)&
+inline void Engine::Object::AddComponent(Params&&... _Params)&
 {
 	static_assert(std::is_base_of_v<Component, ComponentSubType>,
 		__FUNCTION__);

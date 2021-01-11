@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Header", "Header", "{D585C8
 		Reference\Header\DxHelper.h = Reference\Header\DxHelper.h
 		Reference\Header\SingletonInterface.h = Reference\Header\SingletonInterface.h
 		Reference\Header\TypeAlias.h = Reference\Header\TypeAlias.h
+		Reference\Header\Vertexs.hpp = Reference\Header\Vertexs.hpp
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Engine", "Engine", "{CDDE1227-79CA-4873-A0FC-891859E40F64}"

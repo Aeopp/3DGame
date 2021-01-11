@@ -14,7 +14,7 @@ namespace Engine
 	public:
 		virtual void Render()& abstract;
 		inline const Group GetGroup()const& { return _Group; };
-	private:
+	protected:
 		Group _Group;
 	};
 };

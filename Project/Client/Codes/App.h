@@ -7,6 +7,7 @@ class App : public SingletonInterface<App>
 {
 public:
 	void Initialize(const HWND _Hwnd)&;
+	void Release() & ;
 public:
 	static const auto& GetClientSize() { return ClientSize; };
 	const auto& GetHwnd()const& { return _Hwnd; };

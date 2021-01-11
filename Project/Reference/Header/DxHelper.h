@@ -4,6 +4,7 @@
 #include <type_traits>
 #include <d3d9.h>
 #include <type_traits>
+#include "TypeAlias.h"
 
 
 namespace DX
