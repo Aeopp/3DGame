@@ -3,6 +3,8 @@
 #include <memory>
 #include <type_traits>
 #include <d3d9.h>
+#include <type_traits>
+
 
 namespace DX
 {
@@ -48,5 +50,59 @@ namespace DX
 				{
 					Ptr->Release();
 				});
+	};
+
+	enum class CreateVertexFlag : uint8
+	{
+		WriteOnly=0u,
+		Dynamic,
+	};
+
+	template<typename VertexType>
+	void CreateVertex(
+		IDirect3DDevice9* const Device,
+		const std::vector<VertexType>& VertexArray,
+		const CreateVertexFlag _CreateVertexFlag,
+		uint32& VertexCount/*Out*/,
+		uint32& TriangleCount/*Out*/,
+		uint16& VertexByteSize/*Out*/,
+		std::shared_ptr<IDirect3DVertexBuffer9>& VertexBuffer,/*Out*/
+		std::shared_ptr<IDirect3DVertexDeclaration9>& VertexDecl/*Out*/
+	) noexcept(false)
+	{
+		VertexCount = VertexArray.size();
+		TriangleCount = VertexCount / 3u;
+		VertexByteSize = sizeof(VertexType);
+
+		IDirect3DVertexBuffer9* VertexBufferTemp{ nullptr };
+
+		int32 UsageOption;
+		D3DPOOL PoolOption;
+
+		switch (_CreateVertexFlag)
+		{
+		case CreateVertexFlag::Dynamic:
+			UsageOption = D3DUSAGE_DYNAMIC;
+			PoolOption = D3DPOOL_DEFAULT;
+			break;
+		case CreateVertexFlag::WriteOnly:
+		default:
+			UsageOption = D3DUSAGE_WRITEONLY;
+			PoolOption = D3DPOOL_MANAGED;
+			break;
+		}
+
+		if (FAILED(Device->CreateVertexBuffer(VertexByteSize * VertexCount,
+			UsageOption, NULL, PoolOption,
+			&VertexBufferTemp, 0)))
+			throw std::exception(__FUNCTION__);
+
+		VertexType* VertexPtr;
+		VertexBuffer->Lock(0, VertexByteSize * VertexCount, (void**)&VertexPtr,0);
+		memcpy(VertexPtr, VertexArray.data(), VertexByteSize * VertexCount);
+		VertexBuffer->Unlock();
+
+		VertexDecl = MakeShared(VertexType::GetVertexDecl(Device));
+		VertexBuffer = MakeShared(VertexType::GetVertexDecl(Device));
 	};
 };
