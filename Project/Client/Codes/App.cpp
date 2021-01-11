@@ -3,7 +3,6 @@
 #include "GraphicDevice.h"
 #include "Timer.h"
 #include "Management.h"
-
 #include <chrono>
 
 void App::Initialize(const HWND _Hwnd)&

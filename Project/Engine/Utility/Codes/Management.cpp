@@ -13,7 +13,8 @@ void Engine::Management::Initialize(
 
 void Engine::Management::Update(const float DeltaTime)&
 {
-	_CurrentScene->Update(DeltaTime);
+	if(_CurrentScene)
+		_CurrentScene->Update(DeltaTime);
 }
 
 void Engine::Management::Render()&
@@ -23,7 +24,8 @@ void Engine::Management::Render()&
 
 void Engine::Management::PendingKill()&
 {
-	_CurrentScene->PendingKill();
+	if (_CurrentScene)
+		_CurrentScene->PendingKill();
 }
 
 std::vector<std::shared_ptr<Engine::Layer>>& Engine::Management::RefLayers()&
