@@ -31,6 +31,15 @@
     <Filter Include="Export">
       <UniqueIdentifier>{26382073-e170-40df-a814-6fe745d811eb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Render">
+      <UniqueIdentifier>{0b2e0cb1-3508-4ed8-9be2-dc65b34cdabe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Render\RenderInterface">
+      <UniqueIdentifier>{831748f7-02a6-456c-a959-2457d603b05b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Render\Renderer">
+      <UniqueIdentifier>{5777ec6a-7b07-4b08-a750-98a788d5f8de}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
@@ -57,6 +66,12 @@
     <ClInclude Include="Codes\ExportUtility.hpp">
       <Filter>Export</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\RenderInterface.h">
+      <Filter>Render\RenderInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\Renderer.h">
+      <Filter>Render\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">
@@ -79,6 +94,12 @@
     </ClCompile>
     <ClCompile Include="Codes\Object.cpp">
       <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\RenderInterface.cpp">
+      <Filter>Render\RenderInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Renderer.cpp">
+      <Filter>Render\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

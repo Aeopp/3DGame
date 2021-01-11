@@ -30,18 +30,21 @@ namespace Engine
 		auto& RefObjects();
 		template<typename LayerSubType, typename ObjectSubType>
 		auto& RefObjects();
+		template<typename LayerSubType, typename ObjectSubType>
+		auto& FindObject(const std::wstring& TargetName)&;
 		template<typename LayerSubType>
 		auto& RefLayer()&;
 		auto& RefLayers()&;
 	private:
-		std::pair<uint32, uint32> ClientSize;
 		HWND Hwnd;
+		std::pair<uint32, uint32> ClientSize;
 		std::unique_ptr<Scene> _CurrentScene{ nullptr };
 	public:
 		class Sound* _Sound{ nullptr };
 		class Timer* _Timer{ nullptr };
 		class Controller* _Controller{ nullptr };
 		class GraphicDevice* _GraphicDevice{ nullptr };
+		class Renderer* _Renderer{ nullptr };
 	};
 };
 
@@ -71,6 +74,12 @@ template<typename LayerSubType, typename ObjectSubType>
 inline auto& Engine::Management::RefObjects()
 {
 	return _CurrentScene->RefLayer<LayerSubType>()->RefObjects<ObjectSubType>();
+};
+
+template<typename LayerSubType, typename ObjectSubType>
+inline auto& Engine::Management::FindObject(const std::wstring& TargetName)&
+{
+	return _CurrentScene->FindObject<LayerSubType,ObjectSubType>(TargetName);
 };
 
 template<typename LayerSubType>

@@ -1,0 +1,23 @@
+#pragma once
+#include "DLLHELPER.H"
+#include "TypeAlias.h"
+
+namespace Engine
+{
+	class DLL_DECL RenderInterface abstract
+	{
+	public:
+		enum class Group :uint8
+		{
+			Enviroment = 0u,
+		};
+	public:
+		virtual void Render()& abstract;
+		inline const Group GetGroup()const& { return _Group; };
+	private:
+		Group _Group;
+	};
+};
+
+
+

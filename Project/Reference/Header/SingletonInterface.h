@@ -17,7 +17,6 @@ public:
 	template<typename... Params>
 	static  SubType* Init(Params&&... _Params);
 	static inline std::unique_ptr<SubType> Instance{ nullptr };
-	//static SubType& Ref() { return *Instance; };
 };
 
 template<typename SubType>

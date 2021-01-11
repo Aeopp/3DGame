@@ -19,13 +19,15 @@ namespace Engine
 	public:
 		inline bool IsPendingKill()const& { return bPendingKill; };
 		inline void Kill()& { bPendingKill = true; };
-
+		inline const std::wstring& GetName()const& { return Name; };
+	public:
 		template<typename ComponentSubType, typename... Params>
 		void MakeComponent(Params&&... _Params)&;
 
 		template<typename ComponentSubType>
 		auto& GetComponent()&;
 	private:
+		std::wstring Name{};
 		bool bPendingKill{ false };
 		std::map<Component::Property/*업데이트 순서 통제*/,
 			std::vector<std::unique_ptr<Component>>> _Components;

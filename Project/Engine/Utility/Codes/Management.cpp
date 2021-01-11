@@ -4,8 +4,7 @@
 #include <chrono>
 #include "Controller.h"
 #include "Sound.h"
-
-
+#include "Renderer.h"
 
 void Engine::Management::Initialize(
 	const HWND _Hwnd,
@@ -35,6 +34,7 @@ void Engine::Management::Initialize(
 
 	_Sound =Engine::Sound::Init(SoundPath);
 	_Controller = Engine::Controller::Init();
+	_Renderer = Engine::Renderer::Init(&_GraphicDevice->GetDevice());
 }
 
 void Engine::Management::GameLoop()&
@@ -57,7 +57,11 @@ void Engine::Management::Update(const float DeltaTime)&
 
 void Engine::Management::Render()&
 {
-	// ·»´õ·¯ÀÇ ·»´õ¸µ ¼öÇà.
+	_GraphicDevice->Begin();
+
+	_Renderer->Render();
+
+	_GraphicDevice->End();
 }
 
 void Engine::Management::LastEvent()&

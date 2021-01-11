@@ -194,6 +194,8 @@
     <ClCompile Include="Codes\Management.cpp" />
     <ClCompile Include="Codes\Object.cpp" />
     <ClCompile Include="Codes\PrototypeManager.cpp" />
+    <ClCompile Include="Codes\Renderer.cpp" />
+    <ClCompile Include="Codes\RenderInterface.cpp" />
     <ClCompile Include="Codes\Scene.cpp" />
     <ClCompile Include="Codes\Transform.cpp" />
   </ItemGroup>
@@ -204,6 +206,8 @@
     <ClInclude Include="Codes\Management.h" />
     <ClInclude Include="Codes\Object.h" />
     <ClInclude Include="Codes\PrototypeManager.h" />
+    <ClInclude Include="Codes\Renderer.h" />
+    <ClInclude Include="Codes\RenderInterface.h" />
     <ClInclude Include="Codes\Scene.h" />
     <ClInclude Include="Codes\Transform.h" />
   </ItemGroup>

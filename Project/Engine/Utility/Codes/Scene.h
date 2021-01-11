@@ -21,8 +21,11 @@ namespace Engine
 		void PendingKill() & noexcept;
 	public:
 		template<typename LayerSubType>
-		auto& RefLayer();
-		auto& RefLayers();
+		auto& RefLayer()&;
+		auto& RefLayers()&;
+
+		template<typename LayerSubType,typename ObjectSubType>
+		auto& FindObject(const std::wstring& TargetName)&;
 	private:
 		// 레이어의 개수가 많아지면 자료구조를 바꾸는것도 고려하길 바람.
 		std::vector<std::unique_ptr<Layer>> _Layers;
@@ -30,14 +33,19 @@ namespace Engine
 	};
 };
 
-inline auto& Engine::Scene::RefLayers()
+template<typename LayerSubType, typename ObjectSubType>
+inline auto& Engine::Scene::FindObject(const std::wstring& TargetName)&
+{
+	return RefLayer<LayerSubType>()->FindObject<ObjectSubType>(TargetName);
+};
+
+inline auto& Engine::Scene::RefLayers()&
 {
 	return _Layers;
-}
-
+};
 
 template<typename LayerSubType>
-inline auto& Engine::Scene::RefLayer()
+inline auto& Engine::Scene::RefLayer()&
 {
 	static_assert(std::is_base_of_v<Layer, LayerSubType>, __FUNCTION__);
 
@@ -46,4 +54,5 @@ inline auto& Engine::Scene::RefLayer()
 			==
 			TargetId;
 	})->second;
-};
+}
+
