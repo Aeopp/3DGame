@@ -8,7 +8,6 @@ void Engine::GraphicDevice::Initialize(
 	const D3DMULTISAMPLE_TYPE Anti_Aliasing)&
 {
 	_SDK = DX::MakeUnique(Direct3DCreate9(D3D_SDK_VERSION));
-	D3DCAPS9 DeviceCaps;
 	ZeroMemory(&DeviceCaps, sizeof(D3DCAPS9));
 
 	if (FAILED(_SDK->GetDeviceCaps(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, &DeviceCaps)))

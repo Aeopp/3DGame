@@ -16,7 +16,7 @@ void App::Initialize(const HWND _Hwnd)&
 			D3DMULTISAMPLE_TYPE::D3DMULTISAMPLE_NONE,
 			60u,
 			30,
-		std::filesystem::current_path()/ ".." / ".." / "Resource" / "Sound");
+		std::filesystem::current_path()/ ".." / ".."/"Resource" / "Sound");
 
 	_Management->_Sound->Play("song", 1.f, true, true);
 };
