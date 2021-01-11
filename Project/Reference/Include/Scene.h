@@ -15,7 +15,7 @@ namespace Engine
 		explicit Scene(IDirect3DDevice9& _Device);
 		virtual ~Scene()noexcept = default;
 	public:
-		virtual void Initialize()&abstract;
+		virtual void Initialize()& abstract;
 		void Update(const float DeltaTime)&;
 		void PendingKill() & noexcept;
 	public:
@@ -41,8 +41,8 @@ inline auto& Engine::Scene::RefLayer()
 	static_assert(std::is_base_of_v<Layer, LayerSubType>, __FUNCTION__);
 
 	return std::find_if(std::begin(_Layers), std::end(_Layers), [TargetId = typeid(LayerSubType)](auto& CurrentLayer) {
-			return typeid(std::remove_reference_t<decltype(CurrentLayer)>::element_type)
-				==
-				TargetId;
-		})->second;
+		return typeid(std::remove_reference_t<decltype(CurrentLayer)>::element_type)
+			==
+			TargetId;
+	})->second;
 };

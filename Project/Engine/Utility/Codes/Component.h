@@ -5,13 +5,13 @@ namespace Engine
 {
 	using uint32_t = unsigned long;
 
-	class Component abstract 
+	class Component abstract
 	{
 	public:
 		enum Property : uint32_t
 		{
 			// 컴포넌트 업데이트 순서에 영향을 끼침.
-			Transform=0u,
+			Transform = 0u,
 			Collision,
 			Standard,
 			Render,
@@ -20,11 +20,11 @@ namespace Engine
 	public:
 		virtual ~Component()noexcept = default;
 	public:
-		virtual void Update(class Object*const Owner,
-			const float DeltaTime)&abstract;
+		virtual void Update(class Object* const Owner,
+			const float DeltaTime)& abstract;
 	public:
 		// 자식마다 정의.
-		static const inline Property TypeProperty = Property::Standard; 
+		static const inline Property TypeProperty = Property::Standard;
 	};
 };
 

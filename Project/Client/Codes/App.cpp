@@ -1,12 +1,15 @@
 #include "stdafx.h"
 #include "App.h"
-#include <chrono>
-#include "Management.h"
 #include "GraphicDevice.h"
 #include "Timer.h"
+#include "Management.h"
+
+#include <chrono>
 
 void App::Initialize(const HWND _Hwnd)&
 {
+	this->_Hwnd = _Hwnd;
+
 	Engine::Management::Instance().Initialize(_Hwnd, ClientSize);
 
 	Engine::GraphicDevice::Instance().Initialize(
@@ -22,9 +25,11 @@ void App::Initialize(const HWND _Hwnd)&
 		[](const float DeltaTime) {Engine::Management::Instance().Update(DeltaTime); },
 		[]() {Engine::Management::Instance().PendingKill(); },
 		[]() {Engine::Management::Instance().Render(); });
-}
+};
 
 void App::GameLoop()&
 {
 	Engine::Timer::Instance().Update();
-}
+};
+
+

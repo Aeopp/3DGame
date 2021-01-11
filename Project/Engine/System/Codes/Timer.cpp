@@ -39,7 +39,7 @@ void Engine::Timer::Update()
 
 		NotificationCheck();
 
-		if(ApplicationUpdate)
+		if (ApplicationUpdate)
 			ApplicationUpdate(GetDelta());
 	}
 
@@ -52,7 +52,7 @@ void Engine::Timer::Update()
 	else
 		++_FPSCount;
 
-	if(ApplicationRender)
+	if (ApplicationRender)
 		ApplicationRender();
 	RenderFPS();
 	if (ApplicationLastEvent)

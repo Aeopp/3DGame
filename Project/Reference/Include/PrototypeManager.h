@@ -12,8 +12,8 @@ namespace Engine
 	{
 	public:
 		template<typename ObjectSubType,
-		typename...Params>
-		void LoadPrototype(Params&&... _Params)&;
+			typename...Params>
+			void LoadPrototype(Params&&... _Params)&;
 		template<typename ObjectSubType>
 		auto Clone()&;
 	private:
@@ -30,7 +30,7 @@ inline auto Engine::PrototypeManager::Clone()&
 		__FUNCTION__);
 
 	return std::make_shared<ObjectSubType>(
-		_Container.find(typeid(ObjectSubType).name())->second.get()) ;
+		_Container.find(typeid(ObjectSubType).name())->second.get());
 }
 
 template<typename ObjectSubType, typename ...Params>
@@ -42,7 +42,7 @@ inline void Engine::PrototypeManager::LoadPrototype(Params && ..._Params)&
 	auto _PrototypeElement = std::make_unique<ObjectSubType>();
 	_PrototypeElement->Initialize(std::forward<Params>
 		(_Params)...);
-	
+
 	_Container.insert({ typeid(ObjectSubType).name(),
-		std::move(_PrototypeElement )});
+		std::move(_PrototypeElement) });
 }

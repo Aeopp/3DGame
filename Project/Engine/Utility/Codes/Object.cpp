@@ -11,11 +11,11 @@ void Engine::Object::LateUpdate(const float DeltaTime)&
 
 void Engine::Object::ComponentUpdate(const float DeltaTime)&
 {
-	for (auto& [PropertyKey,ComponentContainer] : _Components)
+	for (auto& [PropertyKey, ComponentContainer] : _Components)
 	{
 		for (auto& CurrentComponent : ComponentContainer)
 		{
-			CurrentComponent->Update(this,DeltaTime);
+			CurrentComponent->Update(this, DeltaTime);
 		}
 	};
 }

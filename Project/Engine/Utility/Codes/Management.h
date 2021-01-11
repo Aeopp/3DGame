@@ -18,7 +18,7 @@ namespace Engine
 		void PendingKill()&;
 		template<typename LayerSubType>
 		auto& RefObjects();
-		template<typename LayerSubType,typename ObjectSubType>
+		template<typename LayerSubType, typename ObjectSubType>
 		auto& RefObjects();
 		template<typename LayerSubType>
 		auto& RefLayer()&;
@@ -33,7 +33,7 @@ namespace Engine
 template<typename SceneType>
 inline void Engine::Management::SetScene(IDirect3DDevice9& _Device) & noexcept
 {
-	static_assert(std::is_base_of_v <Scene,SceneType>,
+	static_assert(std::is_base_of_v <Scene, SceneType>,
 		"is_base_of_v <Scene,SceneType>");
 
 	_CurrentScene = std::make_unique<SceneType>(_Device);

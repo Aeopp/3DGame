@@ -13,9 +13,6 @@
     <Filter Include="Object">
       <UniqueIdentifier>{bfa96606-52b2-46ef-b9cc-2b78f10310fd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Object\Scene">
-      <UniqueIdentifier>{ae1fa2be-e305-4917-910a-3320c6e17628}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Component\Transform">
       <UniqueIdentifier>{b97137a7-bacc-4718-8240-09486ef7e3a0}</UniqueIdentifier>
     </Filter>
@@ -28,13 +25,16 @@
     <Filter Include="Component\Collision">
       <UniqueIdentifier>{2ca10640-a141-4800-b099-34f202002c88}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scene">
+      <UniqueIdentifier>{ae1fa2be-e305-4917-910a-3320c6e17628}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
       <Filter>Management</Filter>
     </ClInclude>
     <ClInclude Include="Codes\Scene.h">
-      <Filter>Object\Scene</Filter>
+      <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="Codes\Layer.h">
       <Filter>Layer</Filter>
@@ -42,14 +42,14 @@
     <ClInclude Include="Codes\Component.h">
       <Filter>Component</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\Object.h">
-      <Filter>Object</Filter>
-    </ClInclude>
     <ClInclude Include="Codes\PrototypeManager.h">
       <Filter>Prototype</Filter>
     </ClInclude>
     <ClInclude Include="Codes\Transform.h">
       <Filter>Component\Transform</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\Object.h">
+      <Filter>Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -57,7 +57,7 @@
       <Filter>Management</Filter>
     </ClCompile>
     <ClCompile Include="Codes\Scene.cpp">
-      <Filter>Object\Scene</Filter>
+      <Filter>Scene</Filter>
     </ClCompile>
     <ClCompile Include="Codes\Layer.cpp">
       <Filter>Layer</Filter>
@@ -65,14 +65,14 @@
     <ClCompile Include="Codes\Component.cpp">
       <Filter>Component</Filter>
     </ClCompile>
-    <ClCompile Include="Codes\Object.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
     <ClCompile Include="Codes\PrototypeManager.cpp">
       <Filter>Prototype</Filter>
     </ClCompile>
     <ClCompile Include="Codes\Transform.cpp">
       <Filter>Component\Transform</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Object.cpp">
+      <Filter>Object</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,7 +1,7 @@
 #include "GraphicDevice.h"
 
 void Engine::GraphicDevice::Initialize(HWND Hwnd, const bool bFullScreen, const std::pair<uint32_t, uint32_t> ScreenSize,
-	const _D3DMULTISAMPLE_TYPE Anti_Aliasing) & 
+	const _D3DMULTISAMPLE_TYPE Anti_Aliasing)&
 {
 	_SDK = DX::MakeUnique(Direct3DCreate9(D3D_SDK_VERSION));
 	D3DCAPS9 DeviceCaps;
@@ -27,7 +27,7 @@ void Engine::GraphicDevice::Initialize(HWND Hwnd, const bool bFullScreen, const 
 
 	/*PresentParameter.MultiSampleType = Anti_Aliasing;
 	PresentParameter.MultiSampleQuality = DeviceCaps.MaxAnisotropy;*/
-	PresentParameter.MultiSampleType =D3DMULTISAMPLE_NONE;
+	PresentParameter.MultiSampleType = D3DMULTISAMPLE_NONE;
 	PresentParameter.MultiSampleQuality = 0;
 	PresentParameter.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	PresentParameter.hDeviceWindow = Hwnd;

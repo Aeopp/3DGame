@@ -1,6 +1,5 @@
 #pragma once
 #include "SingletonInterface.h"
-#include "Management.h"
 
 class App : public SingletonInterface<App>
 {
@@ -9,7 +8,9 @@ public:
 	void GameLoop()&;
 public:
 	const auto& GetClientSize()const& { return ClientSize; };
+	const auto& GetHwnd()const& { return _Hwnd; };
 private:
-	std::pair<uint32_t, uint32_t> ClientSize{1920u,1080u};
+	std::pair<uint32_t, uint32_t> ClientSize{ 1920u,1080u };
+	HWND _Hwnd;
 };
 

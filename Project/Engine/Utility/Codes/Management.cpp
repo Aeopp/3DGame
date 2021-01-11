@@ -5,7 +5,7 @@
 
 void Engine::Management::Initialize(
 	const HWND _Hwnd,
-	const std::pair<uint32_t,uint32_t> ClientSize)&
+	const std::pair<uint32_t, uint32_t> ClientSize)&
 {
 	Hwnd = _Hwnd;
 	this->ClientSize = ClientSize;

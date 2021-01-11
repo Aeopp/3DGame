@@ -11,8 +11,8 @@ public:
 	~SingletonInterface()noexcept = default;
 	SingletonInterface(const   SingletonInterface&) = delete;
 	SingletonInterface(SingletonInterface&&) = delete;
-	SingletonInterface&operator=(const  SingletonInterface&) = delete;
-	SingletonInterface&operator=(SingletonInterface&&) = delete;
+	SingletonInterface& operator=(const  SingletonInterface&) = delete;
+	SingletonInterface& operator=(SingletonInterface&&) = delete;
 public:
 	static SubType& Instance();
 };

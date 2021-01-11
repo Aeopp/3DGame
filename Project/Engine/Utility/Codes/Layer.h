@@ -23,7 +23,7 @@ namespace Engine
 	private:
 		std::unordered_map<std::wstring/*Class Type Info*/,
 			std::vector<std::shared_ptr<Object>>> _ObjectMap;
-	};	
+	};
 };
 
 inline auto& Engine::Layer::RefObjects()&

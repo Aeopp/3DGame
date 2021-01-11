@@ -6,9 +6,9 @@ namespace Engine
 	class Transform : public  Component
 	{
 	public:
-		using Super = Component; 
+		using Super = Component;
 	public:
-		virtual void Update(class Engine::Object*const Owner,const float DeltaTime)&override;
+		virtual void Update(class Engine::Object* const Owner, const float DeltaTime) & override;
 	public:
 		static const inline Property TypeProperty = Property::Transform;
 	};
