@@ -32,6 +32,8 @@ namespace Engine
 		void Render()&;
 		void LastEvent()&;
 	public:
+		template<typename LayerSubType, typename...Params>
+		auto& NewLayer(Params&&... _Params)&;
 		template<typename LayerSubType, 
 			typename ObjectSubType, typename...Params>
 		auto& NewObject(std::wstring ObjectName, Params&&... _Params)&;
@@ -74,11 +76,18 @@ inline void Engine::Management::SetScene() & noexcept
 	_CurrentScene->Initialize(_GraphicDevice->GetDevice().get());
 }
 
+
+template<typename LayerSubType, typename ...Params>
+inline auto& Engine::Management::NewLayer(Params && ..._Params)&
+{
+	return _CurrentScene->NewLayer<LayerSubType>(std::forward<Params>(_Params)...);
+}
+
 template<typename LayerSubType, typename ObjectSubType, typename ...Params>
 inline auto& Engine::Management::NewObject(std::wstring ObjectName, Params && ..._Params)&
 {
 	return _CurrentScene->NewObject<LayerSubType, ObjectSubType>(
-		std::move(ObjectName), std::forward<Params>(Params)...);
+		std::move(ObjectName), std::forward<Params>(_Params)...);
 }
 
 template<typename LayerSubType>

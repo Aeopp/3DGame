@@ -20,6 +20,8 @@ namespace Engine
 		virtual void Update(const float DeltaTime)&;
 		void PendingKill() & noexcept;
 	public:
+		template<typename LayerSubType,typename...Params>
+		auto& NewLayer(Params&&... _Params)&;
 		template<typename LayerSubType>
 		auto& RefLayer()&;
 		auto& RefLayers()&;
@@ -30,8 +32,7 @@ namespace Engine
 		template<typename LayerSubType,typename ObjectSubType, typename...Params>
 		auto& NewObject(std::wstring ObjectName, Params&&... _Params)&;
 	private:
-		// 레이어의 개수가 많아지면 자료구조를 바꾸는것도 고려하길 바람.
-		std::vector<std::unique_ptr<Layer>> _Layers;
+		std::unordered_map<std::string,std::unique_ptr<Layer>> LayerMap;
 		IDirect3DDevice9* Device{ nullptr };
 	};
 };
@@ -53,18 +54,24 @@ inline auto& Engine::Scene::NewObject(
 
 inline auto& Engine::Scene::RefLayers()&
 {
-	return _Layers;
+	return LayerMap;
 };
+
+template<typename LayerSubType, typename ...Params>
+inline auto& Engine::Scene::NewLayer(Params && ..._Params)&
+{
+	static_assert(std::is_base_of_v<Layer, LayerSubType>, __FUNCTION__);
+
+	auto InsertLayer = std::make_unique<LayerSubType>();
+	InsertLayer->Initialize(std::forward<Params>(_Params)...);
+	return LayerMap.insert({ typeid(LayerSubType).name(),std::move(InsertLayer) } ).first->second;
+}
 
 template<typename LayerSubType>
 inline auto& Engine::Scene::RefLayer()&
 {
 	static_assert(std::is_base_of_v<Layer, LayerSubType>, __FUNCTION__);
 
-	return std::find_if(std::begin(_Layers), std::end(_Layers), [TargetId = typeid(LayerSubType)](auto& CurrentLayer) {
-		return typeid(std::remove_reference_t<decltype(CurrentLayer)>::element_type)
-			==
-			TargetId;
-	})->second;
+	return LayerMap.find(typeid(LayerSubType).name())->second;
 }
 

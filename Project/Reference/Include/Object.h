@@ -14,13 +14,14 @@ namespace Engine
 		virtual void Update(const float DeltaTime)& abstract;
 		virtual void LateUpdate(const float DeltaTime)&;
 	public:
+		Object() = default;
 		Object(Object&&)noexcept = default;
 		virtual ~Object() noexcept = default;
 	public:
 		inline bool IsPendingKill()const&;
 		inline void Kill()&;
 		inline const std::wstring& GetName()const&;
-		inline void SetName(std::wstring Name);
+		inline void SetName(const std::wstring& Name);
 	public:
 		template<typename ComponentSubType, typename... Params>
 		void AddComponent(Params&&... _Params)&;
@@ -74,4 +75,4 @@ inline void Engine::Object::Kill()& { bPendingKill = true; }
 
 inline const std::wstring& Engine::Object::GetName() const& { return Name; }
 
-inline void Engine::Object::SetName(std::wstring Name) { this->Name = std::move(Name); }
+inline void Engine::Object::SetName(const std::wstring& Name) { this->Name = Name; }

@@ -4,7 +4,9 @@
 class EnemyLayer : public Engine::Layer
 {
 public:
-	
+	using Super = Engine::Layer;
+public:
+	void Initialize();
 private:
 
 };
