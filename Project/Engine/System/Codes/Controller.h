@@ -1,5 +1,5 @@
 #pragma once
-#include "DLLHELPER.H"
+#include "DllHelper.H"
 #include "SingletonInterface.h"
 #include "TypeAlias.h"
 #include <numeric>

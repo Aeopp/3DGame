@@ -49,7 +49,7 @@ namespace Engine
 		class Timer* _Timer{ nullptr };
 		class Controller* _Controller{ nullptr };
 		class Renderer* _Renderer{ nullptr };
-		class Shader* _Shader{ nullptr };
+		class ShaderManager* _ShaderManager{ nullptr };
 	};
 };
 

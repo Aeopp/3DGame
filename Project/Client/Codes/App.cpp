@@ -18,9 +18,10 @@ void App::Initialize(const HWND _Hwnd)&
 		30,
 		std::filesystem::current_path() / ".." / ".." / "Resource" / "Sound");
 
-	GetSound()->Play("song", 1.f, true, true);
+	GetSound().Play("song", 1.f, true, true);
 }
 void App::GameLoop()
 {
+
 	GetManager().GameLoop();
 };

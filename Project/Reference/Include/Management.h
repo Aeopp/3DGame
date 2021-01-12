@@ -10,6 +10,7 @@ namespace Engine
 {
 	class DLL_DECL Management : public SingletonInterface<Management>
 	{
+
 	public:
 		void Initialize(const HWND _Hwnd,
 			const bool bFullScreen,
@@ -18,7 +19,9 @@ namespace Engine
 			const uint32 LimitFrame,
 			const uint32 LimitDeltaMilliSec ,
 			const std::filesystem::path& SoundPath)&;
-		void Release()&;
+	public:
+		~Management()noexcept;
+	public:
 		void GameLoop()&;
 	public:
 		template<typename SceneType>
@@ -41,11 +44,12 @@ namespace Engine
 		std::pair<uint32, uint32> ClientSize;
 		std::unique_ptr<Scene> _CurrentScene{ nullptr };
 	public:
+		class GraphicDevice* _GraphicDevice{ nullptr };
 		class Sound* _Sound{ nullptr };
 		class Timer* _Timer{ nullptr };
 		class Controller* _Controller{ nullptr };
-		class GraphicDevice* _GraphicDevice{ nullptr };
 		class Renderer* _Renderer{ nullptr };
+		class ShaderManager* _ShaderManager{ nullptr };
 	};
 };
 

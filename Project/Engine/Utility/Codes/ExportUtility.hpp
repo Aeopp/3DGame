@@ -2,7 +2,7 @@
 
 #include "Management.h"
 
-inline auto& GetSound() { return Engine::Management::Instance->_Sound; };
+inline auto& GetSound() { return *Engine::Management::Instance->_Sound; };
 inline auto& GetManager() { return *Engine::Management::Instance; };
 
 

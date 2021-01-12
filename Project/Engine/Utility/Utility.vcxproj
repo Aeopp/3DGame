@@ -199,6 +199,7 @@
     <ClCompile Include="Codes\RenderInterface.cpp" />
     <ClCompile Include="Codes\Scene.cpp" />
     <ClCompile Include="Codes\Shader.cpp" />
+    <ClCompile Include="Codes\ShaderManager.cpp" />
     <ClCompile Include="Codes\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -213,6 +214,7 @@
     <ClInclude Include="Codes\RenderInterface.h" />
     <ClInclude Include="Codes\Scene.h" />
     <ClInclude Include="Codes\Shader.h" />
+    <ClInclude Include="Codes\ShaderManager.h" />
     <ClInclude Include="Codes\Transform.h" />
   </ItemGroup>
   <ItemGroup>

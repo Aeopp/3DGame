@@ -5,7 +5,7 @@
 #include "Controller.h"
 #include "Sound.h"
 #include "Renderer.h"
-#include "Shader.h"
+#include "ShaderManager.h"
 
 void Engine::Management::Initialize(
 	const HWND _Hwnd,
@@ -37,7 +37,7 @@ void Engine::Management::Initialize(
 	_Controller = Engine::Controller::Init();
 	auto Device = _GraphicDevice->GetDevice(); 
 	_Renderer = Engine::Renderer::Init(Device);
-	_Shader = Engine::Shader::Init(Device);
+	_ShaderManager = Engine::ShaderManager::Init(Device);
 }
 
 Engine::Management::~Management() noexcept
@@ -46,7 +46,7 @@ Engine::Management::~Management() noexcept
 	Controller::Reset();
 	Timer::Reset();
 	Renderer::Reset();
-	Shader::Reset();
+	ShaderManager::Reset();
 
 
 	GraphicDevice::Reset();

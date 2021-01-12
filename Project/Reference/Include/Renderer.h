@@ -5,12 +5,16 @@
 #include "RenderInterface.h"
 #include <map>
 #include <vector>
+#include <d3d9.h>
+#include "DxHelper.h"
+
 namespace Engine
 {
 	class DLL_DECL Renderer : public SingletonInterface<Renderer>
 	{
 	public:
-		void Initialize(IDirect3DDevice9* const Device)&;
+		void Initialize(
+			const DX::SharedPtr<IDirect3DDevice9>& Device)&;
 		void Render()&; 
 		void Regist(RenderInterface* const Target);
 	private:
@@ -18,7 +22,7 @@ namespace Engine
 	private:
 		std::map<RenderInterface::Group, std::vector<std::reference_wrapper<RenderInterface>>>
 			RenderObjects;
-		IDirect3DDevice9* Device{ nullptr };
+		DX::SharedPtr<IDirect3DDevice9> Device{ nullptr };
 	};
 };
 

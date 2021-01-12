@@ -46,6 +46,9 @@
     <Filter Include="Shader">
       <UniqueIdentifier>{6f7b12ed-a094-453c-bed6-856d2f58709f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader\Manager">
+      <UniqueIdentifier>{5a8b15ec-0d0e-4ffa-8121-cc8c6e69fa32}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
@@ -84,6 +87,9 @@
     <ClInclude Include="Codes\Shader.h">
       <Filter>Shader</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\ShaderManager.h">
+      <Filter>Shader\Manager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">
@@ -118,6 +124,9 @@
     </ClCompile>
     <ClCompile Include="Codes\Shader.cpp">
       <Filter>Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\ShaderManager.cpp">
+      <Filter>Shader\Manager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -16,12 +16,12 @@ namespace Engine
 			const D3DMULTISAMPLE_TYPE Anti_Aliasing)&;
 		void Begin() & noexcept;
 		void End() & noexcept;
-		inline IDirect3DDevice9& GetDevice()& { return *_Device; };
+		inline DX::SharedPtr<IDirect3DDevice9> GetDevice()& { return _Device; };
 		inline D3DCAPS9 GetCaps()const& { return DeviceCaps; };
 	private:
 		D3DCAPS9 DeviceCaps;
-		DX::UniquePtr<IDirect3D9> _SDK{ nullptr };
-		DX::UniquePtr<IDirect3DDevice9> _Device{ nullptr };
+		DX::SharedPtr<IDirect3D9> _SDK{ nullptr };
+		DX::SharedPtr<IDirect3DDevice9> _Device{ nullptr };
 	};
 };
 
