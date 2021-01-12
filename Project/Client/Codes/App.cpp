@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "..\\stdafx.h"
 #include "App.h"
 #include "ExportUtility.hpp"
 #include "Sound.h"
@@ -17,7 +17,7 @@ void App::Initialize(const HWND _Hwnd)&
 		D3DMULTISAMPLE_TYPE::D3DMULTISAMPLE_NONE,
 		60u,
 		30,
-		std::filesystem::current_path() / ".." / ".." / "Resource" / "Sound");
+		std::filesystem::path("") / ".." / ".." / "Resource" / "Sound");
 
 	GetSound().Play("song", 1.f, true, true);
 
@@ -25,9 +25,9 @@ void App::Initialize(const HWND _Hwnd)&
 }
 void App::GameLoop()
 {
-
 	GetManager().GameLoop();
 }
+
 void App::StartSceneLoad()&
 {
 	Engine::Management::Instance->SetScene<StartScene>();

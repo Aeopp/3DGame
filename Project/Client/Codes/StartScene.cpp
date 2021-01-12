@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "..\\stdafx.h"
 #include "StartScene.h"
 #include "Management.h"
 #include "EnemyLayer.h"
