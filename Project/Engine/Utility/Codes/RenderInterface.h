@@ -12,9 +12,13 @@ namespace Engine
 			Enviroment = 0u,
 		};
 	public:
+		//   초기화 단계에서 정보를 넘겨주세요.
+		void SetUpRenderingInformation(const Group _Group);
+		//   렌더링을 원하는 타이밍의 업데이트 루프속에서 호출해주세요.
+		void Regist();
 		virtual void Render()& abstract;
 		inline const Group GetGroup()const& { return _Group; };
-	protected:
+	private:
 		Group _Group;
 	};
 };

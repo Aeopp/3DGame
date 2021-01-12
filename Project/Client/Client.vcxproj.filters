@@ -14,6 +14,12 @@
     <Filter Include="App">
       <UniqueIdentifier>{57ec84a9-9cf7-44f6-9c82-29f3edaf17a7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scene">
+      <UniqueIdentifier>{c68d1d24-e424-42fd-a66e-5ad68b816ce2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Layer">
+      <UniqueIdentifier>{26c02ecf-0c6d-4c38-8bf5-c7749e463779}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -34,6 +40,12 @@
     <ClInclude Include="Codes\App.h">
       <Filter>App</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\StartScene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\EnemyLayer.h">
+      <Filter>Layer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -44,6 +56,12 @@
     </ClCompile>
     <ClCompile Include="Codes\App.cpp">
       <Filter>App</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\StartScene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\EnemyLayer.cpp">
+      <Filter>Layer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -40,14 +40,17 @@
     <Filter Include="Render\Renderer">
       <UniqueIdentifier>{5777ec6a-7b07-4b08-a750-98a788d5f8de}</UniqueIdentifier>
     </Filter>
-    <Filter Include="HeightMap">
-      <UniqueIdentifier>{d67c2337-9072-469f-a56b-45c8525032dd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shader">
       <UniqueIdentifier>{6f7b12ed-a094-453c-bed6-856d2f58709f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Shader\Manager">
       <UniqueIdentifier>{5a8b15ec-0d0e-4ffa-8121-cc8c6e69fa32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\RenderObject">
+      <UniqueIdentifier>{a427f9a6-d56e-4cda-9ed3-9a4a3f62340f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HeightMap">
+      <UniqueIdentifier>{ffbbe15a-7b18-4d2d-91be-a387c539ca3e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -81,14 +84,17 @@
     <ClInclude Include="Codes\Renderer.h">
       <Filter>Render\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\HeightMap.h">
-      <Filter>HeightMap</Filter>
-    </ClInclude>
     <ClInclude Include="Codes\Shader.h">
       <Filter>Shader</Filter>
     </ClInclude>
     <ClInclude Include="Codes\ShaderManager.h">
       <Filter>Shader\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\RenderObject.h">
+      <Filter>Object\RenderObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\HeightMap.h">
+      <Filter>HeightMap</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -119,14 +125,17 @@
     <ClCompile Include="Codes\Renderer.cpp">
       <Filter>Render\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Codes\HeightMap.cpp">
-      <Filter>HeightMap</Filter>
-    </ClCompile>
     <ClCompile Include="Codes\Shader.cpp">
       <Filter>Shader</Filter>
     </ClCompile>
     <ClCompile Include="Codes\ShaderManager.cpp">
       <Filter>Shader\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\RenderObject.cpp">
+      <Filter>Object\RenderObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\HeightMap.cpp">
+      <Filter>HeightMap</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

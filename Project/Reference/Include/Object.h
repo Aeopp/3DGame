@@ -17,9 +17,10 @@ namespace Engine
 		Object(Object&&)noexcept = default;
 		virtual ~Object() noexcept = default;
 	public:
-		inline bool IsPendingKill()const& { return bPendingKill; };
-		inline void Kill()& { bPendingKill = true; };
-		inline const std::wstring& GetName()const& { return Name; };
+		inline bool IsPendingKill()const&;
+		inline void Kill()&;
+		inline const std::wstring& GetName()const&;
+		inline void SetName(std::wstring Name);
 	public:
 		template<typename ComponentSubType, typename... Params>
 		void AddComponent(Params&&... _Params)&;
@@ -67,4 +68,10 @@ inline auto& Engine::Object::GetComponent()&
 }
 
 
+inline bool Engine::Object::IsPendingKill() const& { return bPendingKill; }
 
+inline void Engine::Object::Kill()& { bPendingKill = true; }
+
+inline const std::wstring& Engine::Object::GetName() const& { return Name; }
+
+inline void Engine::Object::SetName(std::wstring Name) { this->Name = std::move(Name); }

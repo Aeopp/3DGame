@@ -19,14 +19,17 @@ namespace Engine
 		virtual void Update(const float DeltaTime)&;
 		virtual void LateUpdate(const float DeltaTime)&;
 		void PendingKill() & noexcept;
+	public:
 		template<typename ObjectSubType>
 		auto& RefObjects()&;
 		auto& RefObjects()&;
-
 		template<typename ObjectSubType>
 		auto& FindObject(const std::wstring& TargetName)&;
+	public:
+		template<typename ObjectSubType,typename...Params>
+		auto& NewObject(std::wstring ObjectName,Params&&... _Params)&;
 	private:
-		std::unordered_map<std::wstring/*Class Type Info*/,
+		std::unordered_map<std::string/*Class Type Info*/,
 			std::vector<std::shared_ptr<Object>>> _ObjectMap;
 	};
 };
@@ -44,6 +47,18 @@ inline auto& Engine::Layer::FindObject(const std::wstring& TargetName)&
 		});
 
 	return iter->second;
+}
+
+template<typename ObjectSubType, typename ...Params>
+inline auto& Engine::Layer::NewObject(
+	std::wstring ObjectName, Params && ..._Params)&
+{
+	static_assert(std::is_base_of_v<Object, ObjectSubType>, __FUNCTION__);
+	auto NewObjectShared = std::make_shared<ObjectSubType>();
+	NewObjectShared->SetName(std::move(ObjectName));
+	NewObjectShared->Initialize(std::forward<Params>(_Params)...);
+	return _ObjectMap[typeid(ObjectSubType).name()].push_back
+					(std::move(NewObjectShared) );
 }
 
 inline auto& Engine::Layer::RefObjects()&

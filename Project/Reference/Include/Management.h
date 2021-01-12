@@ -4,6 +4,7 @@
 #include "Scene.h"
 #include "TypeAlias.h"
 #include <filesystem>
+#include "GraphicDevice.h"
 
 
 namespace Engine
@@ -25,11 +26,15 @@ namespace Engine
 		void GameLoop()&;
 	public:
 		template<typename SceneType>
-		void SetScene(IDirect3DDevice9& _Device) & noexcept;
+		void SetScene() & noexcept;
 		void BeforeUpdateEvent()&;
 		void Update(const float DeltaTime)&;
 		void Render()&;
 		void LastEvent()&;
+	public:
+		template<typename LayerSubType, 
+			typename ObjectSubType, typename...Params>
+		auto& NewObject(std::wstring ObjectName, Params&&... _Params)&;
 		template<typename LayerSubType>
 		auto& RefObjects();
 		template<typename LayerSubType, typename ObjectSubType>
@@ -60,13 +65,20 @@ inline auto& Engine::Management::RefLayers()&
 
 
 template<typename SceneType>
-inline void Engine::Management::SetScene(IDirect3DDevice9& _Device) & noexcept
+inline void Engine::Management::SetScene() & noexcept
 {
 	static_assert(std::is_base_of_v <Scene, SceneType>,
 		"is_base_of_v <Scene,SceneType>");
 
-	_CurrentScene = std::make_unique<SceneType>(_Device);
-	_CurrentScene->Initialize();
+	_CurrentScene = std::make_unique<SceneType>();
+	_CurrentScene->Initialize(_GraphicDevice->GetDevice().get());
+}
+
+template<typename LayerSubType, typename ObjectSubType, typename ...Params>
+inline auto& Engine::Management::NewObject(std::wstring ObjectName, Params && ..._Params)&
+{
+	return _CurrentScene->NewObject<LayerSubType, ObjectSubType>(
+		std::move(ObjectName), std::forward<Params>(Params)...);
 }
 
 template<typename LayerSubType>

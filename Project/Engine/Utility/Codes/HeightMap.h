@@ -1,18 +1,15 @@
 #pragma once
-#include "Object.h"
-#include "RenderInterface.h"
+#include "RenderObject.h"
 
 namespace Engine
 {
-	class DLL_DECL HeightMap : public Object , public RenderInterface
+	class HeightMap : public RenderObject
 	{
 	public:
-		using Super = Object; 
+		using Super = RenderObject;
 	public:
-		void Initialize()&;
-	public:
-		virtual void Update(const float DeltaTime)& abstract;
-		virtual void Render()& abstract;
+		void Initialize(const RenderInterface::Group _Group)&;
+		virtual void Update(const float DeltaTime) & override;
 	};
 };
 

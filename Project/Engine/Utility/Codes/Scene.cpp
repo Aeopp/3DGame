@@ -3,7 +3,10 @@
 #include "Component.h"
 #include <iterator>
 
-Engine::Scene::Scene(IDirect3DDevice9& _Device) :_Device{ _Device } {}
+void Engine::Scene::Initialize(IDirect3DDevice9* const Device)&
+{
+	this->Device = Device;
+}
 
 void Engine::Scene::Update(const float DeltaTime)&
 {

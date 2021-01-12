@@ -1,11 +1,11 @@
 #include "HeightMap.h"
 
-void Engine::HeightMap::Initialize()&
+void Engine::HeightMap::Initialize(const RenderInterface::Group _Group)&
 {
-	_Group = RenderInterface::Group::Enviroment;
+	Super::Initialize(_Group);
 }
 
 void Engine::HeightMap::Update(const float DeltaTime)&
 {
-	
+	Super::Update(DeltaTime);
 }
