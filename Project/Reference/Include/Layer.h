@@ -22,15 +22,15 @@ namespace Engine
 		virtual void LateUpdate(const float DeltaTime)&;
 		void PendingKill() & noexcept;
 	public:
+		auto& RefObjects()&;
 
 		template<typename ObjectSubType>
-		auto& RefObjects()&;
-		auto& RefObjects()&;
+		auto FindObjects()&;
 		template<typename ObjectSubType>
-		auto& FindObject(const std::wstring& TargetName)&;
+		auto FindObject(const std::wstring& TargetName)&;
 	public:
-		template<typename ObjectSubType,typename...Params>
-		auto& NewObject(std::wstring ObjectName,Params&&... _Params)&;
+		template<typename ObjectSubType>
+		auto NewObject(std::shared_ptr<ObjectSubType> Clone)&;
 	private:
 		std::unordered_map<std::string/*Class Type Info*/,
 			std::vector<std::shared_ptr<Object>>> _ObjectMap;
@@ -38,43 +38,39 @@ namespace Engine
 };
 
 template<typename ObjectSubType>
-inline auto& Engine::Layer::FindObject(const std::wstring& TargetName)&
+inline auto Engine::Layer::FindObject(const std::wstring& TargetName)&
 {
 	static_assert(std::is_base_of_v<Object, ObjectSubType>, __FUNCTION__);
 
-	const auto& TargetContainer = RefObjects<ObjectSubType>();
+	auto TargetContainer = FindObjects<ObjectSubType>();
 	auto iter = std::find_if(std::begin(TargetContainer), std::end(TargetContainer),
-		[TargetName](const std::shared_ptr<Object>& Target)
+		[TargetName](const std::shared_ptr<ObjectSubType>& Target)
 		{
 			return Target->GetName() == TargetName;
 		});
+	
+	return (*iter);
+};
 
-	return *iter;
-}
-
-template<typename ObjectSubType, typename ...Params>
-inline auto& Engine::Layer::NewObject(
-	std::wstring ObjectName, Params && ..._Params)&
+template<typename ObjectSubType>
+inline auto Engine::Layer::NewObject(
+	std::shared_ptr<ObjectSubType> Clone)&
 {
 	static_assert(std::is_base_of_v<Object, ObjectSubType>, __FUNCTION__);
-	auto NewObjectShared = std::make_shared<ObjectSubType>();
-	NewObjectShared->SetName(std::move(ObjectName));
-	NewObjectShared->Initialize(std::forward<Params>(_Params)...);
-	return _ObjectMap[typeid(ObjectSubType).name()].emplace_back
-					(std::move(NewObjectShared) );
-}
+
+	return std::static_pointer_cast<ObjectSubType>
+		(_ObjectMap[typeid(ObjectSubType).name()].emplace_back
+		(std::move(Clone) ) );
+};
 
 inline auto& Engine::Layer::RefObjects()&
 {
 	return _ObjectMap;
 };
 
-
-
 template<typename ObjectSubType>
-inline auto& Engine::Layer::RefObjects()&
+inline auto Engine::Layer::FindObjects()&
 {
 	static_assert(std::is_base_of_v<Object, ObjectSubType>, __FUNCTION__);
-
-	return _ObjectMap.find(typeid(ObjectSubType).name())->second;
-}
+	return reinterpret_cast<std::vector<std::shared_ptr<ObjectSubType>>&>(_ObjectMap.find(typeid(ObjectSubType).name())->second);
+};

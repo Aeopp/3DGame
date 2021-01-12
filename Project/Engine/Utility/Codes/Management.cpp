@@ -6,6 +6,8 @@
 #include "Sound.h"
 #include "Renderer.h"
 #include "ShaderManager.h"
+#include "PrototypeManager.h"
+
 
 void Engine::Management::Initialize(
 	const HWND _Hwnd,
@@ -38,6 +40,8 @@ void Engine::Management::Initialize(
 	auto Device = _GraphicDevice->GetDevice(); 
 	_Renderer = Engine::Renderer::Init(Device);
 	_ShaderManager = Engine::ShaderManager::Init(Device);
+
+	_PrototypeManager = Engine::PrototypeManager::Init();
 }
 
 Engine::Management::~Management() noexcept
@@ -45,6 +49,7 @@ Engine::Management::~Management() noexcept
 	Sound::Reset();
 	Controller::Reset();
 	Timer::Reset();
+	PrototypeManager::Reset();
 	Renderer::Reset();
 	ShaderManager::Reset();
 

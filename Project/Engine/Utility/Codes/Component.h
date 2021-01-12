@@ -19,7 +19,10 @@ namespace Engine
 	public:
 		virtual ~Component()noexcept = default;
 		Component(Component&&)noexcept = default;
+		Component(const Component&) = default;
+		Component()=default;
 	public:
+		void Initialize()&;
 		virtual void Update(class Object* const Owner,
 			const float DeltaTime)& abstract;
 	public:

@@ -11,11 +11,14 @@ namespace Engine
 	{
 	public:
 		void Initialize()&;
+		void PrototypeInitialize()&;
+		virtual void Clone()&;
 		virtual void Update(const float DeltaTime)& abstract;
 		virtual void LateUpdate(const float DeltaTime)&;
 	public:
 		Object() = default;
 		Object(Object&&)noexcept = default;
+		Object(const Object&) = default;
 		virtual ~Object() noexcept = default;
 	public:
 		inline bool IsPendingKill()const&;
@@ -24,7 +27,7 @@ namespace Engine
 		inline void SetName(const std::wstring& Name);
 	public:
 		template<typename ComponentSubType, typename... Params>
-		void AddComponent(Params&&... _Params)&;
+		auto& AddComponent(Params&&... _Params)&;
 
 		template<typename ComponentSubType>
 		auto& GetComponent()&;
@@ -33,23 +36,24 @@ namespace Engine
 	private:
 		bool bPendingKill{ false };
 		std::map<Component::Property/*업데이트 순서 통제*/,
-			std::vector<std::unique_ptr<Component>>> _Components;
+			std::unordered_map<std::wstring,		std::shared_ptr<Component>>>_Components;
 	private:
 		void ComponentUpdate(const float DeltaTime)&;
 	};
 };
 
 template<typename ComponentSubType, typename... Params>
-inline void Engine::Object::AddComponent(Params&&... _Params)&
+inline auto& Engine::Object::AddComponent(Params&&... _Params)&
 {
 	static_assert(std::is_base_of_v<Component, ComponentSubType>,
 		__FUNCTION__);
 
-	auto& _Component = _Components[ComponentSubType::TypeProperty].emplace_back(
-		std::make_unique<ComponentSubType>());
-
+	auto& _Component = std::make_shared<ComponentSubType>();
 	_Component->Initialize(std::forward<Params>(_Params)...);
-}
+
+	return _Components[ComponentSubType::TypeProperty]
+					[typeid(ComponentSubType).name()] = std::move(_Component);
+};
 
 template<typename ComponentSubType>
 inline auto& Engine::Object::GetComponent()&
@@ -57,17 +61,9 @@ inline auto& Engine::Object::GetComponent()&
 	static_assert(std::is_base_of_v<Component, ComponentSubType>,
 		__FUNCTION__);
 
-	const auto FindTypeId = typeid(ComponentSubType);
-
-	for (auto& CurrentComponent : _Components.find(
-		ComponentSubType::TypeProperty)->second)
-	{
-		if (typeid(decltype(CurrentComponent)::element_type)
-			== FindTypeId)
-			return CurrentComponent;
-	};
-}
-
+	return *(_Components.find(ComponentSubType::TypeProperty)->second
+					.find(typeid(ComponentSubType).name())->second);
+};
 
 inline bool Engine::Object::IsPendingKill() const& { return bPendingKill; }
 
