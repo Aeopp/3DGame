@@ -72,11 +72,11 @@ void Engine::Management::Update(const float DeltaTime)&
 
 void Engine::Management::Render()&
 {
-	_GraphicDevice->Begin();
+	/*_GraphicDevice->Begin();
 
 	_Renderer->Render();
 
-	_GraphicDevice->End();
+	_GraphicDevice->End();*/
 }
 
 void Engine::Management::LastEvent()&

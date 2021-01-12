@@ -4,6 +4,9 @@
 
 inline auto& GetSound() { return *Engine::Management::Instance->_Sound; };
 inline auto& GetManager() { return *Engine::Management::Instance; };
+inline auto& GetGraphic() { return *Engine::Management::Instance->_GraphicDevice; };
+inline auto& GetController() { return *Engine::Management::Instance->_Controller; };
+
 
 
 
