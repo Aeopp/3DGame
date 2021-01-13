@@ -1,57 +1,50 @@
 #pragma once
+#include "DxHelper.h"
 #include "DllHelper.H"
 #include "SingletonInterface.h"
 #include "TypeAlias.h"
 #include <numeric>
 #include <array>
 
+#define DIRECTINPUT_VERSION	0x0800
+#include <dinput.h>
+
 namespace Engine
 {
+	enum class MouseKey : uint8{ Left, Right, Mid, End};
+	enum class MouseMove :uint8{ X, Y, Z, End };
+
 	class DLL_DECL Controller : public SingletonInterface< Controller >
 	{
 	public:
-		enum class KeyState : uint8
-		{
-			Begin = 0u,
-			Up,
-			Down,
-			Pressing,
-			None,
-			END,
-		};
+		void Initialize(HINSTANCE hInst, HWND hWnd)&;
+		void Update() & noexcept;
 	public:
-		void Initialize()&;
-		void Update()&noexcept;
-	public:
-		FORCEINLINE KeyState GetState(const uint8 Key)const&;
-		FORCEINLINE bool IsDown(const uint8 Key)const&;
-		FORCEINLINE bool IsPressing(const uint8 Key)const&;
-		FORCEINLINE bool IsUp(const uint8 Key)const&;
-		FORCEINLINE bool IsNone(const uint8 Key)const&;
+		inline int8	 GetKeyState(uint8 byKeyID)const&;
+		inline int8	 GetMouseState(MouseKey _MouseKey)const&;
+		inline int32 GetMouseMove(MouseMove _MouseMove)const&;
 	private:
-		static constexpr uint8 KeyMappingTableSize =(std::numeric_limits<uint8>::max)();
-		std::array<KeyState, KeyMappingTableSize> KeyStateTable;
+		DX::UniquePtr<IDirectInput8> InputSDK{ nullptr };
+	private:
+		DX::UniquePtr<IDirectInputDevice8> Mouse {  nullptr};
+		DX::UniquePtr<IDirectInputDevice8> KeyBoard{ nullptr };
+	private:
+		std::array<int8, 256> KeyState{ 0,};
+		DIMOUSESTATE			MouseState;
 	};
 };
 
-Engine::Controller::KeyState Engine::Controller::GetState(const uint8 Key) const&
-{
-	return KeyStateTable[Key];
+inline int8 Engine::Controller::GetKeyState(uint8 byKeyID) const& 
+{ 
+	return KeyState[byKeyID]; 
 }
 
-bool Engine::Controller::IsDown(const uint8 Key) const&
+inline int8 Engine::Controller::GetMouseState(MouseKey _MouseKey) const&
 {
-	return KeyStateTable[Key] == Controller::KeyState::Down;
-};
-bool Engine::Controller::IsPressing(const uint8 Key) const&
+	return MouseState.rgbButtons[static_cast<uint8>(_MouseKey)];
+}
+
+inline int32 Engine::Controller::GetMouseMove(MouseMove _MouseMove) const&
 {
-	return KeyStateTable[Key] == Controller::KeyState::Pressing;
-};
-bool Engine::Controller::IsUp(const uint8 Key) const&
-{
-	return KeyStateTable[Key] == Controller::KeyState::Up;
-};
-bool Engine::Controller::IsNone(const uint8 Key) const&
-{
-	return KeyStateTable[Key] == Controller::KeyState::None;
-};
+	return *(((int32*)&MouseState) + static_cast<uint8>(_MouseMove));
+}

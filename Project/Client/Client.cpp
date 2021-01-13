@@ -133,7 +133,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
 
-   App::Init(hWnd);
+   App::Init(hWnd, hInst);
 
     return TRUE;
 }

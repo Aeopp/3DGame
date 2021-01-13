@@ -6,16 +6,18 @@
 class App : public SingletonInterface<App>
 {
 public:
-	void Initialize(const HWND _Hwnd)&;
+	void Initialize(const HWND _Hwnd,const HINSTANCE HInstance)&;
 public:
 	void GameLoop();
 public:
 	static const auto& GetClientSize() { return ClientSize; };
 	const auto& GetHwnd()const& { return _Hwnd; };
+	const auto& GetHInstance()const& { return HInstance; };
 private:
 	void StartSceneLoad()&;
 private:
 	static inline std::pair<uint32,uint32> ClientSize{ 1920u,1080u };
 	HWND _Hwnd;
+	HINSTANCE HInstance;
 };
 

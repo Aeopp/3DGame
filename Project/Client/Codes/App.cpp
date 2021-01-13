@@ -6,12 +6,13 @@
 #include <chrono>
 #include <filesystem>
 
-void App::Initialize(const HWND _Hwnd)&
+void App::Initialize(const HWND _Hwnd, const HINSTANCE HInstance)&
 {
 	this->_Hwnd = _Hwnd;
 
     Engine::Management::Init(
 		_Hwnd,
+		HInstance,
 		false,
 		ClientSize,
 		D3DMULTISAMPLE_TYPE::D3DMULTISAMPLE_NONE,

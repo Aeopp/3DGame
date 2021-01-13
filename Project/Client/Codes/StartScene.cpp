@@ -12,10 +12,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 {
     Super::Initialize(Device);
 
-	GetProto().LoadPrototype <Engine::HeightMap>(L"Standard");;
-	GetProto().Clear(L"Standard");
-
-	//GetManager().LoadPrototype<Engine::HeightMap>(L"Standard");
+	GetProto().LoadPrototype <Engine::HeightMap>(L"Standard");
 
 	GetManager().NewLayer<EnemyLayer>();
 
@@ -34,11 +31,6 @@ void StartScene::Update(const float DeltaTime)&
 	auto Objs = GetManager().FindObjects<EnemyLayer, Engine::HeightMap>();
 	auto Objs2 =GetManager().RefObjects<EnemyLayer>();
 
-
-	
-
-
-	int i = 0;
 }
 
 

@@ -11,6 +11,7 @@
 
 void Engine::Management::Initialize(
 	const HWND _Hwnd,
+	const HINSTANCE HInstance,
 	const bool bFullScreen,
 	const std::pair<uint32,uint32> ClientSize,
 	const D3DMULTISAMPLE_TYPE MultiSample,
@@ -36,7 +37,7 @@ void Engine::Management::Initialize(
 		[this]() {LastEvent(); });
 
 	_Sound =Engine::Sound::Init(SoundPath);
-	_Controller = Engine::Controller::Init();
+	_Controller = Engine::Controller::Init(HInstance,_Hwnd);
 	auto Device = _GraphicDevice->GetDevice(); 
 	_Renderer = Engine::Renderer::Init(Device);
 	_ShaderManager = Engine::ShaderManager::Init(Device);
