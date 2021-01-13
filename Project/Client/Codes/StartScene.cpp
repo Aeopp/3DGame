@@ -34,17 +34,14 @@ void StartScene::Update(const float DeltaTime)&
 	auto Objs2 =GetManager().RefObjects<EnemyLayer>();
 
 	if (GetControl().IsDown(DIK_LEFTCLICK))
-	{
-		//MessageBox(nullptr, L"다운", L"다운", MB_OK);
+	{	
 		std::cout << "클릭" << std::endl;
 	}
 
 	if (GetControl().IsPressing(DIK_LEFTCLICK))
-	{
-		
+	{	
 		std::cout << "프레싱" << std::endl;
 	}
-
 	if (GetControl().IsUp(DIK_LEFTCLICK))
 	{
 		//MessageBox(nullptr, L"업", L"업", MB_OK);
@@ -55,9 +52,6 @@ void StartScene::Update(const float DeltaTime)&
 	{
 		std::cout << "놉" << std::endl;
 	}
-
-
-	
 }
 
 

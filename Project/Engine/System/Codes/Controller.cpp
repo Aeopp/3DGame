@@ -80,7 +80,7 @@ void Engine::Controller::InputStateCalc()&
 				break;
 			}
 		}
-		else
+		else if(!bDown)
 		{
 			switch (CurrentKeyState)
 			{
@@ -88,6 +88,7 @@ void Engine::Controller::InputStateCalc()&
 			case Engine::InputState::Down:
 				CurrentKeyState = InputState::Up;
 				break;
+
 			case Engine::InputState::Up:
 				CurrentKeyState = InputState::None;
 				break;

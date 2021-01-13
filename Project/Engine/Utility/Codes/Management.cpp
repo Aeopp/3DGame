@@ -65,11 +65,13 @@ void Engine::Management::GameLoop()&
 
 void Engine::Management::BeforeUpdateEvent()&
 {
-	_Controller->Update();
+	
+
 }
 
 void Engine::Management::Update(const float DeltaTime)&
 {
+	_Controller->Update();
 
 	if(_CurrentScene)
 		_CurrentScene->Update(DeltaTime);

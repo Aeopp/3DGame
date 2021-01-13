@@ -19,7 +19,7 @@ namespace Engine
 			const Vector2 Position,
 			D3DXCOLOR Color)&;
 	private:
-		IDirect3DDevice9*/*소유권 없음*/ Device{ nullptr };
+		IDirect3DDevice9*   /*소유권 없음*/ Device{ nullptr };
 		DX::UniquePtr<ID3DXFont> _Font{ nullptr };
 		DX::UniquePtr<ID3DXSprite> Sprite{ nullptr };
 	};
