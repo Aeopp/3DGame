@@ -15,8 +15,7 @@ void Engine::Management::Initialize(
 	const bool bFullScreen,
 	const std::pair<uint32,uint32> ClientSize,
 	const D3DMULTISAMPLE_TYPE MultiSample,
-	const uint32 LimitFrame,
-	const uint32 LimitDeltaMilliSec,
+	const float DeltaMax,
 	const std::filesystem::path& SoundPath)&
 {
 	Hwnd = _Hwnd;
@@ -29,9 +28,7 @@ void Engine::Management::Initialize(
 		MultiSample);
 
 	_Timer = Engine::Timer::Init(
-		LimitFrame, 
-		std::chrono::milliseconds(LimitDeltaMilliSec),
-		[this]() {BeforeUpdateEvent(); },
+		DeltaMax,
 		[this](const float DeltaTime) {Update(DeltaTime); },
 		[this]() {Render(); },
 		[this]() {LastEvent(); });
@@ -61,12 +58,6 @@ Engine::Management::~Management() noexcept
 void Engine::Management::GameLoop()&
 {
 	_Timer->Update();
-}
-
-void Engine::Management::BeforeUpdateEvent()&
-{
-	
-
 }
 
 void Engine::Management::Update(const float DeltaTime)&

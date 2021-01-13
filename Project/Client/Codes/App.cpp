@@ -16,8 +16,7 @@ void App::Initialize(const HWND _Hwnd, const HINSTANCE HInstance)&
 		false,
 		ClientSize,
 		D3DMULTISAMPLE_NONE,
-		60u,
-		30,
+		1.f/20.f,
 		std::filesystem::path("") / ".." / ".." / "Resource" / "Sound");
 
 	GetSound().Play("song", 1.f, true, true);
