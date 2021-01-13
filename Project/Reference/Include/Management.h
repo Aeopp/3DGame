@@ -63,6 +63,7 @@ namespace Engine
 		class Controller* _Controller{ nullptr };
 		class Renderer* _Renderer{ nullptr };
 		class ShaderManager* _ShaderManager{ nullptr };
+		class FontManager* _FontManager{ nullptr };
 	};
 };
 

@@ -7,7 +7,7 @@
 #include "Renderer.h"
 #include "ShaderManager.h"
 #include "PrototypeManager.h"
-
+#include "FontManager.h"
 
 void Engine::Management::Initialize(
 	const HWND _Hwnd,
@@ -41,8 +41,8 @@ void Engine::Management::Initialize(
 	auto Device = _GraphicDevice->GetDevice(); 
 	_Renderer = Engine::Renderer::Init(Device);
 	_ShaderManager = Engine::ShaderManager::Init(Device);
-
 	_PrototypeManager = Engine::PrototypeManager::Init();
+	_FontManager = Engine::FontManager::Init();
 }
 
 Engine::Management::~Management() noexcept
@@ -53,7 +53,7 @@ Engine::Management::~Management() noexcept
 	PrototypeManager::Reset();
 	Renderer::Reset();
 	ShaderManager::Reset();
-
+	FontManager::Reset();
 
 	GraphicDevice::Reset();
 };

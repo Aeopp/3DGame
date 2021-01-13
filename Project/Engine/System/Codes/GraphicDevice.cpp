@@ -22,6 +22,7 @@ void Engine::GraphicDevice::Initialize(
 
 	D3DPRESENT_PARAMETERS PresentParameter;
 	ZeroMemory(&PresentParameter, sizeof(D3DPRESENT_PARAMETERS));
+	;
 
 	PresentParameter.BackBufferWidth = ScreenSize.first;
 	PresentParameter.BackBufferHeight = ScreenSize.second;
@@ -53,6 +54,14 @@ void Engine::GraphicDevice::Begin() & noexcept
 		0xff0000ff, 1.f, 0);
 
 	_Device->BeginScene();
+
+	for (uint8 i = 0; i < 8u; ++i)
+	{
+		_Device->SetSamplerState(i, D3DSAMPLERSTATETYPE::D3DSAMP_MAGFILTER, D3DTEXF_ANISOTROPIC);
+		_Device->SetSamplerState(i, D3DSAMPLERSTATETYPE::D3DSAMP_MINFILTER, D3DTEXF_ANISOTROPIC);
+		_Device->SetSamplerState(i, D3DSAMPLERSTATETYPE::D3DSAMP_MIPFILTER, D3DTEXF_ANISOTROPIC);
+		_Device->SetSamplerState(i, D3DSAMPLERSTATETYPE::D3DSAMP_MAXANISOTROPY, GetCaps().MaxAnisotropy);
+	}
 }
 
 void Engine::GraphicDevice::End() & noexcept

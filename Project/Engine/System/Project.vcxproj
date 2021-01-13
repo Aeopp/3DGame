@@ -187,12 +187,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Controller.h" />
+    <ClInclude Include="Codes\Font.h" />
+    <ClInclude Include="Codes\FontManager.h" />
     <ClInclude Include="Codes\GraphicDevice.h" />
     <ClInclude Include="Codes\Sound.h" />
     <ClInclude Include="Codes\Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Controller.cpp" />
+    <ClCompile Include="Codes\Font.cpp" />
+    <ClCompile Include="Codes\FontManager.cpp" />
     <ClCompile Include="Codes\GraphicDevice.cpp" />
     <ClCompile Include="Codes\Sound.cpp" />
     <ClCompile Include="Codes\Timer.cpp" />

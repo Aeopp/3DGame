@@ -15,7 +15,7 @@ void App::Initialize(const HWND _Hwnd, const HINSTANCE HInstance)&
 		HInstance,
 		false,
 		ClientSize,
-		D3DMULTISAMPLE_TYPE::D3DMULTISAMPLE_NONE,
+		D3DMULTISAMPLE_NONE,
 		60u,
 		30,
 		std::filesystem::path("") / ".." / ".." / "Resource" / "Sound");
