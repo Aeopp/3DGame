@@ -9,41 +9,82 @@
 #define DIRECTINPUT_VERSION	0x0800
 #include <dinput.h>
 
+#define DIK_LEFTCLICK  256u
+#define DIK_RIGHTCLICK 257u
+#define DIK_MIDCLICK   258u
+
 namespace Engine
 {
-	enum class MouseKey : uint8{ Left, Right, Mid, End};
-	enum class MouseMove :uint8{ X, Y, Z, End };
+	enum class MouseMove :  uint8{ X, Y, Z, End };
+	enum class InputState : uint8{Down,Up,Pressing,None};
 
-	class DLL_DECL Controller : public SingletonInterface< Controller >
+	class DLL_DECL Controller : public SingletonInterface<Controller>
 	{
 	public:
 		void Initialize(HINSTANCE hInst, HWND hWnd)&;
 		void Update() & noexcept;
 	public:
-		inline int8	 GetKeyState(const uint8 byKeyID)const&;
-		inline int8	 GetMouseState(const MouseKey _MouseKey)const&;
-		inline int32 GetMouseMove(const MouseMove _MouseMove)const&;
+		inline InputState	 GetKeyState(const uint16 byKeyID)const&;
+		inline float GetMouseMove(const MouseMove _MouseMove)const&;
+		inline bool IsDown(const uint16 byKeyID)const&;
+		inline bool IsPressing(const uint16 byKeyID)const&;
+		inline bool IsUp(const uint16 byKeyID)const&;
+		inline bool IsNone(const uint16 byKeyID)const&;
 	private:
-		DX::UniquePtr<IDirectInput8> InputSDK{ nullptr };
-		DX::UniquePtr<IDirectInputDevice8> Mouse {  nullptr};
+		enum class MouseKey : uint8 { Left, Right, Mid, End };
+	private:
+		inline bool InputCheckImplementation(const uint16 byKeyID,
+										   const InputState _KeyState)const&;
+		inline int8	 GetMouseState(const MouseKey _MouseKey)const&;
+	private:
+		void InputStateCalc()&;
+	private:
+		DX::UniquePtr<IDirectInput8>       InputSDK{ nullptr };
+		DX::UniquePtr<IDirectInputDevice8> Mouse   { nullptr };
 		DX::UniquePtr<IDirectInputDevice8> KeyBoard{ nullptr };
 	private:
-		std::array<uint8, 256> KeyState{ 0,};
+										/*256(키보드) +3(마우스)*/
+		static inline constexpr uint16 InputStateNum = 256u + 3u;
+		std::array<uint8, InputStateNum> CurrentFrameInput{ 0,};
+		std::array<InputState, InputStateNum> InputStates{ InputState::None, };
 		DIMOUSESTATE			MouseState;
 	};
 };
 
-inline int8 Engine::Controller::GetKeyState(const uint8 byKeyID) const&
+inline Engine::InputState Engine::Controller::GetKeyState(const uint16 byKeyID) const&
 { 
-	return KeyState[byKeyID]; 
+	return InputStates[byKeyID];
 }
 
 inline int8 Engine::Controller::GetMouseState(const MouseKey _MouseKey) const&
 {
-	return MouseState.rgbButtons[static_cast<uint8>(_MouseKey)];
+	return (MouseState.rgbButtons[static_cast<uint8>(_MouseKey)]);
 }
 
-inline int32 Engine::Controller::GetMouseMove(const MouseMove _MouseMove) const&
+inline float Engine::Controller::GetMouseMove(const MouseMove _MouseMove) const&
 {
-	return *(((int32*)&MouseState) + static_cast<uint8>(_MouseMove));
+	return  static_cast<float>(*(((int32*)&MouseState) + static_cast<uint8>			(_MouseMove)));
+}
+
+inline bool Engine::Controller::InputCheckImplementation(
+	const uint16 byKeyID, const InputState _KeyState) const&
+{
+	return InputStates[byKeyID] == _KeyState;
+};
+
+inline bool Engine::Controller::IsDown(const uint16 byKeyID)const&
+{
+	return InputCheckImplementation(byKeyID, InputState::Down);
+};
+inline bool Engine::Controller::IsPressing(const uint16 byKeyID)const&
+{
+	return InputCheckImplementation(byKeyID, InputState::Pressing);
+};
+inline bool Engine::Controller::IsUp(const uint16 byKeyID)const&
+{
+	return InputCheckImplementation(byKeyID, InputState::Up);
+};
+inline bool Engine::Controller::IsNone(const uint16 byKeyID)const&
+{
+	return InputCheckImplementation(byKeyID, InputState::None);
 }

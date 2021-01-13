@@ -10,9 +10,9 @@ public:
 public:
 	void GameLoop();
 public:
-	static const auto& GetClientSize() { return ClientSize; };
-	const auto& GetHwnd()const& { return _Hwnd; };
-	const auto& GetHInstance()const& { return HInstance; };
+	static const auto& GetClientSize()  { return ClientSize; };
+	const auto& GetHwnd()const&			{ return _Hwnd; };
+	const auto& GetHInstance()const&	{ return HInstance; };
 private:
 	void StartSceneLoad()&;
 private:

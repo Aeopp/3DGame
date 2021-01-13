@@ -70,6 +70,7 @@ void Engine::Management::BeforeUpdateEvent()&
 
 void Engine::Management::Update(const float DeltaTime)&
 {
+
 	if(_CurrentScene)
 		_CurrentScene->Update(DeltaTime);
 
