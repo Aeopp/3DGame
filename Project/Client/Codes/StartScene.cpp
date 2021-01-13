@@ -50,7 +50,7 @@ void StartScene::Update(const float DeltaTime)&
 
 	if (GetControl().IsNone(DIK_LEFTCLICK))
 	{
-		//std::cout << "³ñ" << std::endl;
+		std::cout << "³ñ" << std::endl;
 	}
 }
 

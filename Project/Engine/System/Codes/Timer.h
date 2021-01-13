@@ -15,6 +15,7 @@ namespace Engine
 		// 프레임 제한 값을 입력해주세요.
 		void Initialize(
 			const float DeltaMax,
+			std::function<void()> ApplicationEvent,
 			std::function<void(const  float)> ApplicationUpdate,
 			std::function<void()> ApplicationRender,
 			std::function<void()> ApplicationLastEvent
@@ -42,6 +43,7 @@ namespace Engine
 		std::chrono::steady_clock::time_point CurrentTime{ std::chrono::high_resolution_clock::now() };
 		float DeltaMax = 1.f/20.f;
 	private:
+		std::function<void()> ApplicationEvent;
 		std::function<void(const  float)> ApplicationUpdate;
 		std::function<void()> ApplicationRender;
 		std::function<void()> ApplicationLastEvent;

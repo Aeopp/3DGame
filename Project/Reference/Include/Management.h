@@ -19,8 +19,7 @@ namespace Engine
 			const bool bFullScreen,
 			const std::pair<uint32, uint32> ClientSize,
 			const D3DMULTISAMPLE_TYPE MultiSample,
-			const uint32 LimitFrame,
-			const uint32 LimitDeltaMilliSec ,
+			const float DeltaMax,
 			const std::filesystem::path& SoundPath)&;
 	public:
 		~Management()noexcept;
@@ -29,7 +28,7 @@ namespace Engine
 	public:
 		template<typename SceneType>
 		void SetScene() & noexcept;
-		void BeforeUpdateEvent()&;
+		void Event()&;
 		void Update(const float DeltaTime)&;
 		void Render()&;
 		void LastEvent()&;

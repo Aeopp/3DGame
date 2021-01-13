@@ -4,6 +4,7 @@
 
 void Engine::Timer::Initialize(
 	const float DeltaMax,
+	std::function<void()> ApplicationEvent,
 	std::function<void(const  float)> ApplicationUpdate,
 	std::function<void()> ApplicationRender,
 	std::function<void()> ApplicationLastEvent)
@@ -12,6 +13,7 @@ void Engine::Timer::Initialize(
 
 	StartTime=PrevTime = std::chrono::high_resolution_clock::now();
 	this->DeltaMax = DeltaMax;
+	this->ApplicationEvent = std::move(ApplicationEvent);
 	this->ApplicationUpdate = std::move(ApplicationUpdate);
 	this->ApplicationLastEvent = std::move(ApplicationLastEvent);
 	this->ApplicationRender = std::move(ApplicationRender);
@@ -32,6 +34,9 @@ void Engine::Timer::Update()
 
 	DeltaTime = (Delta.count() * 0.001f) * TimeScale;
 	float Accumulator = DeltaTime;
+
+	if (ApplicationEvent)
+		ApplicationEvent();
 
 	while (Accumulator > DeltaMax)
 	{

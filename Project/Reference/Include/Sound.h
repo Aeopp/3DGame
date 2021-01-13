@@ -30,7 +30,7 @@ namespace Engine
 			 const bool IsBgm = false)&;
 		void Stop(const std::string& SoundKey)&;
 		void Load(const std::string& FullPath, std::string Key)&;
-		void Update(const float DeltaTime)&;
+		void Update()&;
 		bool IsPlay(const std::string& SoundKey)const&;
 		void RandSoundKeyPlay(const std::string& SoundKey,
 			const std::pair<uint32, uint32> Range,

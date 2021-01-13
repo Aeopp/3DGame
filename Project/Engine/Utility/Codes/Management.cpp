@@ -29,6 +29,7 @@ void Engine::Management::Initialize(
 
 	_Timer = Engine::Timer::Init(
 		DeltaMax,
+		[this]() {Event(); },
 		[this](const float DeltaTime) {Update(DeltaTime); },
 		[this]() {Render(); },
 		[this]() {LastEvent(); });
@@ -60,14 +61,16 @@ void Engine::Management::GameLoop()&
 	_Timer->Update();
 }
 
-void Engine::Management::Update(const float DeltaTime)&
+void Engine::Management::Event()&
 {
 	_Controller->Update();
+	_Sound->Update();
+}
 
+void Engine::Management::Update(const float DeltaTime)&
+{
 	if(_CurrentScene)
 		_CurrentScene->Update(DeltaTime);
-
-	_Sound->Update(DeltaTime);
 }
 
 void Engine::Management::Render()&

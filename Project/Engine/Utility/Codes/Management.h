@@ -28,6 +28,7 @@ namespace Engine
 	public:
 		template<typename SceneType>
 		void SetScene() & noexcept;
+		void Event()&;
 		void Update(const float DeltaTime)&;
 		void Render()&;
 		void LastEvent()&;

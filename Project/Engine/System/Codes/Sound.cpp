@@ -91,7 +91,7 @@ void Engine::Sound::Load(const std::string& FullPath, std::string Key)&
 	}
 };
 
-void Engine::Sound::Update(const float DeltaTime) &{
+void Engine::Sound::Update() &{
 
 	if (FmodSystem == nullptr)
 		throw std::exception(__FUNCTION__);
