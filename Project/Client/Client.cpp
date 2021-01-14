@@ -7,6 +7,12 @@
 #include "App.h"
 #include "Management.h"
 
+#ifdef UNICODE
+#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
+#else
+#pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console")
+#endif
+
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -139,7 +145,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
 
-   App::Init(hWnd);
+   App::Init(hWnd, hInst);
 
     return TRUE;
 }

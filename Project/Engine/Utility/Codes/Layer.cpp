@@ -3,6 +3,10 @@
 #include <algorithm>
 #include <iterator>
 
+void Engine::Layer::Initialize()&
+{
+}
+
 void Engine::Layer::Update(const float DeltaTime)&
 {
 	for (auto& [Key, CurrentObjectContainer] : _ObjectMap)

@@ -9,3 +9,7 @@ void Engine::HeightMap::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
 }
+
+void Engine::HeightMap::Render()&
+{
+}

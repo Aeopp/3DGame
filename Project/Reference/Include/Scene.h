@@ -20,51 +20,59 @@ namespace Engine
 		virtual void Update(const float DeltaTime)&;
 		void PendingKill() & noexcept;
 	public:
+		template<typename LayerSubType,typename...Params>
+		auto NewLayer(Params&&... _Params)&;
 		template<typename LayerSubType>
-		auto& RefLayer()&;
+		auto FindLayer()&;
 		auto& RefLayers()&;
 
 		template<typename LayerSubType,typename ObjectSubType>
-		auto& FindObject(const std::wstring& TargetName)&;
+		auto FindObject(const std::wstring& TargetName)&;
 
-		template<typename LayerSubType,typename ObjectSubType, typename...Params>
-		auto& NewObject(std::wstring ObjectName, Params&&... _Params)&;
+		template<typename LayerSubType,typename ObjectSubType>
+		auto NewObject(std::shared_ptr<ObjectSubType> PassClone)&;
+							
 	private:
-		// 레이어의 개수가 많아지면 자료구조를 바꾸는것도 고려하길 바람.
-		std::vector<std::unique_ptr<Layer>> _Layers;
+		std::unordered_map<std::string,std::unique_ptr<Layer>> LayerMap;
 		IDirect3DDevice9* Device{ nullptr };
 	};
 };
 
 template<typename LayerSubType, typename ObjectSubType>
-inline auto& Engine::Scene::FindObject(const std::wstring& TargetName)&
+inline auto Engine::Scene::FindObject(const std::wstring& TargetName)&
 {
-	return RefLayer<LayerSubType>()->FindObject<ObjectSubType>(TargetName);
+	return FindLayer<LayerSubType>()->FindObject<ObjectSubType>(TargetName);
 }
-template<typename LayerSubType, typename ObjectSubType, typename ...Params>
-inline auto& Engine::Scene::NewObject(
-	std::wstring ObjectName, Params && ..._Params)&
+template<typename LayerSubType, typename ObjectSubType>
+inline auto Engine::Scene::NewObject(
+	std::shared_ptr<ObjectSubType> PassClone)&
 {
-	static_assert(std::is_base_of_v<Layer, LayerSubType>, __FUNCTION__);
+	static_assert(std::is_base_of_v<Layer,LayerSubType>, __FUNCTION__);
 
-	return RefLayer<LayerSubType>()->NewObject<ObjectSubType>
-		 		( std::move(ObjectName)  ,std::forward<Params>(_Params)...);
+	return FindLayer<LayerSubType>()->NewObject( std::move(PassClone));
 };
 
 inline auto& Engine::Scene::RefLayers()&
 {
-	return _Layers;
+	return LayerMap;
 };
 
-template<typename LayerSubType>
-inline auto& Engine::Scene::RefLayer()&
+template<typename LayerSubType, typename ...Params>
+inline auto Engine::Scene::NewLayer(Params && ..._Params)&
 {
 	static_assert(std::is_base_of_v<Layer, LayerSubType>, __FUNCTION__);
 
-	return std::find_if(std::begin(_Layers), std::end(_Layers), [TargetId = typeid(LayerSubType)](auto& CurrentLayer) {
-		return typeid(std::remove_reference_t<decltype(CurrentLayer)>::element_type)
-			==
-			TargetId;
-	})->second;
+	auto InsertLayer = std::make_unique<LayerSubType>();
+	InsertLayer->Initialize(std::forward<Params>(_Params)...);
+	return static_cast<LayerSubType* const>
+			(LayerMap.insert({ typeid(LayerSubType).name(),std::move(InsertLayer) }).first->second.get());
+}
+
+template<typename LayerSubType>
+inline auto Engine::Scene::FindLayer()&
+{
+	static_assert(std::is_base_of_v<Layer, LayerSubType>, __FUNCTION__);
+
+	return static_cast<LayerSubType* const>(LayerMap.find(typeid(LayerSubType).name())->second.get());
 }
 

@@ -10,19 +10,19 @@ void Engine::Scene::Initialize(IDirect3DDevice9* const Device)&
 
 void Engine::Scene::Update(const float DeltaTime)&
 {
-	for (auto& CurrentLayer : _Layers)
+	for (auto& [TypeKey,CurrentLayer]: LayerMap)
 	{
 		CurrentLayer->Update(DeltaTime);
 	}
 
-	for (auto& CurrentLayer : _Layers)
+	for (auto& [TypeKey,CurrentLayer]: LayerMap)
 	{
 		CurrentLayer->LateUpdate(DeltaTime);
 	}
 }
 void Engine::Scene::PendingKill() & noexcept
 {
-	for (auto& CurrentLayer : _Layers)
+	for (auto& [TypeKey,CurrentLayer] : LayerMap)
 	{
 		CurrentLayer->PendingKill();
 	}

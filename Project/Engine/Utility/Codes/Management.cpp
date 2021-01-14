@@ -6,14 +6,16 @@
 #include "Sound.h"
 #include "Renderer.h"
 #include "ShaderManager.h"
+#include "PrototypeManager.h"
+#include "FontManager.h"
 
 void Engine::Management::Initialize(
 	const HWND _Hwnd,
+	const HINSTANCE HInstance,
 	const bool bFullScreen,
 	const std::pair<uint32,uint32> ClientSize,
 	const D3DMULTISAMPLE_TYPE MultiSample,
-	const uint32 LimitFrame,
-	const uint32 LimitDeltaMilliSec,
+	const float DeltaMax,
 	const std::filesystem::path& SoundPath)&
 {
 	Hwnd = _Hwnd;
@@ -26,18 +28,19 @@ void Engine::Management::Initialize(
 		MultiSample);
 
 	_Timer = Engine::Timer::Init(
-		LimitFrame, 
-		std::chrono::milliseconds(LimitDeltaMilliSec),
-		[this]() {BeforeUpdateEvent(); },
+		DeltaMax,
+		[this]() {Event(); },
 		[this](const float DeltaTime) {Update(DeltaTime); },
 		[this]() {Render(); },
 		[this]() {LastEvent(); });
 
 	_Sound =Engine::Sound::Init(SoundPath);
-	_Controller = Engine::Controller::Init();
+	_Controller = Engine::Controller::Init(HInstance,_Hwnd);
 	auto Device = _GraphicDevice->GetDevice(); 
 	_Renderer = Engine::Renderer::Init(Device);
 	_ShaderManager = Engine::ShaderManager::Init(Device);
+	_PrototypeManager = Engine::PrototypeManager::Init();
+	_FontManager = Engine::FontManager::Init();
 }
 
 Engine::Management::~Management() noexcept
@@ -45,9 +48,10 @@ Engine::Management::~Management() noexcept
 	Sound::Reset();
 	Controller::Reset();
 	Timer::Reset();
+	PrototypeManager::Reset();
 	Renderer::Reset();
 	ShaderManager::Reset();
-
+	FontManager::Reset();
 
 	GraphicDevice::Reset();
 };
@@ -57,26 +61,26 @@ void Engine::Management::GameLoop()&
 	_Timer->Update();
 }
 
-void Engine::Management::BeforeUpdateEvent()&
+void Engine::Management::Event()&
 {
+	//system("cls");
 	_Controller->Update();
+	_Sound->Update();
 }
 
 void Engine::Management::Update(const float DeltaTime)&
 {
 	if(_CurrentScene)
 		_CurrentScene->Update(DeltaTime);
-
-	_Sound->Update(DeltaTime);
 }
 
 void Engine::Management::Render()&
 {
-	/*_GraphicDevice->Begin();
+	_GraphicDevice->Begin();
 
 	_Renderer->Render();
 
-	_GraphicDevice->End();*/
+	_GraphicDevice->End();
 }
 
 void Engine::Management::LastEvent()&

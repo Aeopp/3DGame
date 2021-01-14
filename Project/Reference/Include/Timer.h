@@ -14,9 +14,8 @@ namespace Engine
 		using NotifyEventType = std::function<bool()>;
 		// 프레임 제한 값을 입력해주세요.
 		void Initialize(
-			const uint32 LimitFrame,
-			const std::chrono::milliseconds DeltaMax,
-			std::function<void()> ApplicationBeforeUpdateEvent, 
+			const float DeltaMax,
+			std::function<void()> ApplicationEvent,
 			std::function<void(const  float)> ApplicationUpdate,
 			std::function<void()> ApplicationRender,
 			std::function<void()> ApplicationLastEvent
@@ -31,6 +30,7 @@ namespace Engine
 		// 등록된 콜백 함수들에게 통지하고싶은 타이밍에 호출하여주세요.
 		void NotificationCheck()&;
 	public:
+		void TimeInfoRenderToggle()&;
 		float GetDelta();
 		float GetT();
 		void SetDelta(const float DeltaTime)&;
@@ -40,13 +40,11 @@ namespace Engine
 		std::chrono::time_point<std::chrono::high_resolution_clock> PrevTime{};
 	private:
 		std::chrono::duration<float, std::ratio<1, 1000>> SecCheck{};
-		std::chrono::duration<float, std::ratio<1, 1000>> LimitDelta{};
-		std::chrono::duration<float, std::ratio<1, 1000>> CurrentDelta{};
-		std::chrono::duration<float, std::ratio<1, 1000>> Accumulator{};
+		std::chrono::time_point<std::chrono::high_resolution_clock> StartTime{};
 		std::chrono::steady_clock::time_point CurrentTime{ std::chrono::high_resolution_clock::now() };
-		std::chrono::milliseconds DeltaMax = std::chrono::milliseconds(25u);
+		float DeltaMax = 1.f/20.f;
 	private:
-		std::function<void()> ApplicationBeforeUpdateEvent;
+		std::function<void()> ApplicationEvent;
 		std::function<void(const  float)> ApplicationUpdate;
 		std::function<void()> ApplicationRender;
 		std::function<void()> ApplicationLastEvent;
@@ -62,13 +60,12 @@ namespace Engine
 	private:
 		void RenderFPS()const& noexcept;
 	};
-
 };
 
-
-
-
-
+inline void Engine::Timer::TimeInfoRenderToggle()&
+{
+	bTimeInfoRender = !bTimeInfoRender;
+}
 
 inline float Engine::Timer::GetDelta()
 {

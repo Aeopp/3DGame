@@ -2,21 +2,18 @@
 #include <sstream>
 #include <iostream>
 
-void Engine::Timer::Initialize(const uint32_t LimitFrame,
-	const std::chrono::milliseconds DeltaMax,
-	std::function<void()> ApplicationBeforeUpdateEvent,
+void Engine::Timer::Initialize(
+	const float DeltaMax,
+	std::function<void()> ApplicationEvent,
 	std::function<void(const  float)> ApplicationUpdate,
 	std::function<void()> ApplicationRender,
 	std::function<void()> ApplicationLastEvent)
 {
 	using namespace std::chrono_literals;
 
-	PrevTime = std::chrono::high_resolution_clock::now();
-	Accumulator = 0ms;
-	LimitDelta = 1000ms / (float)LimitFrame;
+	StartTime=PrevTime = std::chrono::high_resolution_clock::now();
 	this->DeltaMax = DeltaMax;
-
-	this->ApplicationBeforeUpdateEvent = std::move(ApplicationBeforeUpdateEvent);
+	this->ApplicationEvent = std::move(ApplicationEvent);
 	this->ApplicationUpdate = std::move(ApplicationUpdate);
 	this->ApplicationLastEvent = std::move(ApplicationLastEvent);
 	this->ApplicationRender = std::move(ApplicationRender);
@@ -26,21 +23,25 @@ void Engine::Timer::Update()
 {
 	using namespace std::chrono_literals;
 
-	std::chrono::time_point CurrentTime = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<float, std::ratio<1, 1000>> Delta = CurrentTime - PrevTime;
+	const std::chrono::time_point 
+		CurrentTime = std::chrono::high_resolution_clock::now();
+
+	const std::chrono::duration<float, std::ratio<1, 1000>> 
+		Delta = CurrentTime - PrevTime;
 
 	PrevTime = CurrentTime;
-	Accumulator += Delta;
 	SecCheck += Delta;
 
-	if (ApplicationBeforeUpdateEvent)
-		ApplicationBeforeUpdateEvent();
+	DeltaTime = (Delta.count() * 0.001f) * TimeScale;
+	float Accumulator = DeltaTime;
 
-	while (Accumulator >= LimitDelta)
+	if (ApplicationEvent)
+		ApplicationEvent();
+
+	while (Accumulator > DeltaMax)
 	{
-		DeltaTime = (LimitDelta.count() * 0.001f) * TimeScale;
-		_T += DeltaTime;
-		Accumulator -= LimitDelta;
+		Accumulator -= DeltaMax;
+		_T +=  DeltaTime = DeltaMax;
 
 		NotificationCheck();
 
@@ -48,11 +49,18 @@ void Engine::Timer::Update()
 			ApplicationUpdate(GetDelta());
 	}
 
+	_T += DeltaTime = Accumulator;
+
+	NotificationCheck();
+
+	if (ApplicationUpdate)
+		 ApplicationUpdate(GetDelta());
+
 	if (SecCheck >= 1000ms)
 	{
 		FPS = _FPSCount;
 		_FPSCount = 0;
-		SecCheck = 0ms;
+		SecCheck -= 1000ms;
 	}
 	else
 		++_FPSCount;
@@ -63,11 +71,6 @@ void Engine::Timer::Update()
 	if (ApplicationLastEvent)
 		ApplicationLastEvent();
 }
-
-
-
-
-
 
 void Engine::Timer::TimerRegist(float initial, float Repeat, float End,
 	NotifyEventType _NotifyEvent)
@@ -118,17 +121,23 @@ void Engine::Timer::NotificationCheck()&
 
 void Engine::Timer::RenderFPS() const& noexcept
 {
-	//if (!bTimeInfoRender)return;
+	if (!bTimeInfoRender)return;
 
+	static constexpr float _10Billion = 1'000'000'000.f;
+
+	const auto TimePassedNanoUnit =
+		std::chrono::high_resolution_clock::now() - StartTime;
+	const float PlayTime = TimePassedNanoUnit.count() /_10Billion;
 	std::wstringstream StrInfo;
-	StrInfo
-		<< L"FPS : " << FPS <<
-		L"DeltaTime : " << DeltaTime <<
-		L"TimeScale : " << TimeScale <<
-		L"PlayTime  : " << _T << std::endl;
 
-	std::wcout<< StrInfo.str()<< std::endl;
+		StrInfo           << std::endl <<
+		L" FPS : "        << FPS       << std::endl  <<
+		L" DeltaTime : "  << DeltaTime << std::endl  <<
+		L" TimeScale : "  << TimeScale << std::endl  <<
+		L" InGameTime : " << _T        << std::endl  <<
+		L" PlayTime : "   << PlayTime  << std::endl  ;
 
+		std::wcout<< StrInfo.str()<< std::endl;
 }
 
 

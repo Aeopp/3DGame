@@ -13,6 +13,12 @@
     <Filter Include="Sound">
       <UniqueIdentifier>{8052049b-d7da-4259-8a84-c9b2add540ed}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Font">
+      <UniqueIdentifier>{da8e9557-f4f1-4ff2-bec8-5c64f465765a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Font\Manager">
+      <UniqueIdentifier>{47494840-fd19-49e1-92a2-e9326d06bbdb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\GraphicDevice.h">
@@ -27,6 +33,12 @@
     <ClInclude Include="Codes\Sound.h">
       <Filter>Sound</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\Font.h">
+      <Filter>Font</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\FontManager.h">
+      <Filter>Font\Manager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\GraphicDevice.cpp">
@@ -40,6 +52,12 @@
     </ClCompile>
     <ClCompile Include="Codes\Sound.cpp">
       <Filter>Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Font.cpp">
+      <Filter>Font</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\FontManager.cpp">
+      <Filter>Font\Manager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

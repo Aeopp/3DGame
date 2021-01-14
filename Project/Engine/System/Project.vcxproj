@@ -104,7 +104,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3dx9d.lib;d3d9.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3dx9d.lib;d3d9.lib;dxguid.lib;%(AdditionalDependencies)dinput8.lib;</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>call "$(ProjectDir)Copy.bat"</Command>
@@ -120,7 +120,7 @@
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>..\\..\\Reference\\Header\\;..\\..\\Reference\\Include\\;Codes\\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -129,7 +129,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3dx9.lib;d3d9.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3dx9.lib;d3d9.lib;dxguid.lib;%(AdditionalDependencies)dinput8.lib;</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>call "$(ProjectDir)Copy.bat"</Command>
@@ -152,7 +152,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ShowProgress>LinkVerbose</ShowProgress>
       <AdditionalLibraryDirectories>..\\..\\Reference\\Lib\\Debug\\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>fmod_vc.lib;fmodL_vc.lib;d3dx9d.lib;d3d9.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dinput8.lib;fmod_vc.lib;fmodL_vc.lib;d3dx9d.lib;d3d9.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>call "$(ProjectDir)Copy.bat"</Command>
@@ -169,7 +169,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>..\\..\\Reference\\Header\\;..\\..\\Reference\\Include\\;Codes\\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
@@ -179,7 +179,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ShowProgress>LinkVerbose</ShowProgress>
       <AdditionalLibraryDirectories>..\\..\\Reference\\Lib\\Release\\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>fmod_vc.lib;fmodL_vc.lib;d3dx9.lib;d3d9.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dinput8.lib;fmod_vc.lib;fmodL_vc.lib;d3dx9.lib;d3d9.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>call "$(ProjectDir)Copy.bat"</Command>
@@ -187,12 +187,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Controller.h" />
+    <ClInclude Include="Codes\Font.h" />
+    <ClInclude Include="Codes\FontManager.h" />
     <ClInclude Include="Codes\GraphicDevice.h" />
     <ClInclude Include="Codes\Sound.h" />
     <ClInclude Include="Codes\Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Controller.cpp" />
+    <ClCompile Include="Codes\Font.cpp" />
+    <ClCompile Include="Codes\FontManager.cpp" />
     <ClCompile Include="Codes\GraphicDevice.cpp" />
     <ClCompile Include="Codes\Sound.cpp" />
     <ClCompile Include="Codes\Timer.cpp" />

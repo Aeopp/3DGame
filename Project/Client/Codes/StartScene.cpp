@@ -1,14 +1,16 @@
 #include "..\\stdafx.h"
 #include "StartScene.h"
 #include "Management.h"
-#include "EnemyLayer.h"
 #include "HeightMap.h"
+#include "EnemyLayer.h"
 #include "ExportUtility.hpp"
 #include "Controller.h"
 #include "App.h"
 #include <vector>
 #include <array>
 #include <numbers>
+#include "Layer.h"
+#include <iostream>
 
 static constexpr float pi = std::numbers::pi;
 
@@ -339,23 +341,30 @@ HRESULT InitTexture()
 }
 
 
-void StartScene::Initialize(IDirect3DDevice9* const Device)&
-{
-	Super::Initialize(Device);
-    InitTexture();
-
-	//Engine::Management::Instance->NewObject<EnemyLayer, 
-	//	Engine::HeightMap>									(L"HeightMap",Engine::RenderInterface::Group::Enviroment);
-}
-
 Vector3 CameraLocation{ 0,0,0 };
 Vector3 Forward{ 0,0,1 };
 float Speed = 5.f;
 Vector3 Up{ 0,1,0 };
 Vector3 Right{ 1,0,0 };
+
+void StartScene::Initialize(IDirect3DDevice9* const Device)&
+{
+    Super::Initialize(Device);
+
+	GetProto().LoadPrototype <Engine::HeightMap>(L"Standard");
+
+	GetManager().NewLayer<EnemyLayer>();
+
+	auto _pptr = GetManager().NewObject<EnemyLayer, Engine::HeightMap>(
+		L"Standard",L"Name", Engine::RenderInterface::Group::Enviroment);
+
+    InitTexture();
+};
+
 void StartScene::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
+
 
     Vector3 MoveForward = Forward;
     MoveForward.y = 0.0f;
@@ -531,8 +540,43 @@ void StartScene::Update(const float DeltaTime)&
     g_pd3dDevice->SetIndices(g_pIB);
     g_pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, g_cxHeight * g_czHeight, 0, (g_cxHeight - 1) * (g_czHeight - 1) * 2);
 
+	auto _Map = GetManager().FindObject<EnemyLayer, Engine::HeightMap>(L"Name");
+	auto _Layer = GetManager().FindLayer<EnemyLayer>();
+
+	auto& LeyerMap = GetManager().RefLayers();
+	auto Objs = GetManager().FindObjects<EnemyLayer, Engine::HeightMap>();
+	auto Objs2 =GetManager().RefObjects<EnemyLayer>();
+
+	if (GetControl().IsDown(DIK_LEFTCLICK))
+	{	
+		std::cout << "Å¬¸¯" << std::endl;
+	}
+
+	if (GetControl().IsPressing(DIK_LEFTCLICK))
+	{	
+		std::cout << "ÇÁ·¹½Ì" << std::endl;
+	}
+	if (GetControl().IsUp(DIK_LEFTCLICK))
+	{
+		//MessageBox(nullptr, L"¾÷", L"¾÷", MB_OK);
+		std::cout << "¾÷" << std::endl;
+	}
+
+	if (GetControl().IsNone(DIK_LEFTCLICK))
+	{
+	//	std::cout << "³ñ" << std::endl;
+	}
+
 
 
     g_pd3dDevice->EndScene();
     g_pd3dDevice->Present(nullptr, nullptr, NULL, nullptr);
+//_Device->Clear(0, nullptr, D3DCLEAR_STENCIL | D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+//	0xff0000ff, 1.f, 0);
+
 }
+
+
+
+
+
