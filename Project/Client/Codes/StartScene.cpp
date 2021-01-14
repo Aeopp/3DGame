@@ -446,8 +446,16 @@ void StartScene::Update(const float DeltaTime)&
         }
     }
 
-    D3DXVECTOR3 vEyePt = CameraLocation;
-    D3DXVECTOR3 vLookatPt = CameraLocation + Forward * 1.f;
+    Matrix PlayerWorld;
+    D3DXMatrixScaling(&PlayerWorld, 0.3f, 0.3f, 0.3f);
+    const Vector3 PlayerLocation = CameraLocation;
+
+    PlayerWorld._41 = PlayerLocation.x;
+    PlayerWorld._42 = PlayerLocation.y;
+    PlayerWorld._43 = PlayerLocation.z;
+
+    D3DXVECTOR3 vEyePt = CameraLocation + -Forward * 10.f;
+    D3DXVECTOR3 vLookatPt = PlayerLocation; 
     D3DXVECTOR3 vUpVec = Up;
     /// 월드 행렬 설정
     D3DXMATRIXA16 matWorld;
@@ -475,9 +483,9 @@ void StartScene::Update(const float DeltaTime)&
     CubeWorld._22*= 3.f;
     CubeWorld._33 *= 3.f;
 
-    CubeWorld._41 = CameraLocation.x;
-    CubeWorld._42 = CameraLocation.y;
-    CubeWorld._43 = CameraLocation.z;
+    CubeWorld._41 = vEyePt.x;
+    CubeWorld._42 = vEyePt.y;
+    CubeWorld._43 = vEyePt.z;
 
     g_pd3dDevice->SetTransform(D3DTS_WORLD, &CubeWorld);
     g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
@@ -500,13 +508,6 @@ void StartScene::Update(const float DeltaTime)&
     g_pd3dDevice->SetPixelShader(nullptr);
     g_pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
         8, 0, 12);
-
-    Matrix PlayerWorld;
-    D3DXMatrixScaling(&PlayerWorld,0.3f, 0.3f, 0.3f);
-    const Vector3 PlayerLocation = CameraLocation + Forward * 5.f;
-    PlayerWorld._41 = PlayerLocation.x;
-    PlayerWorld._42 = PlayerLocation.y;
-    PlayerWorld._43 = PlayerLocation.z;
 
     g_pd3dDevice->SetTransform(D3DTS_WORLD, &PlayerWorld);
     g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
