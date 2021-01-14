@@ -126,6 +126,9 @@ void Engine::Timer::RenderFPS() const& noexcept
 		L"DeltaTime : " << DeltaTime <<
 		L"TimeScale : " << TimeScale <<
 		L"PlayTime  : " << _T << std::endl;
+
+	std::wcout<< StrInfo.str()<< std::endl;
+
 }
 
 
