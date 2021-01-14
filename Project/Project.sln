@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Header", "Header", "{D585C8
 	ProjectSection(SolutionItems) = preProject
 		Reference\Header\DllHelper.h = Reference\Header\DllHelper.h
 		Reference\Header\DxHelper.h = Reference\Header\DxHelper.h
+		Reference\Header\FMath.hpp = Reference\Header\FMath.hpp
 		Reference\Header\SingletonInterface.h = Reference\Header\SingletonInterface.h
 		Reference\Header\TypeAlias.h = Reference\Header\TypeAlias.h
 		Reference\Header\Vertexs.hpp = Reference\Header\Vertexs.hpp

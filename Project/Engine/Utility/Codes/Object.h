@@ -13,7 +13,7 @@ namespace Engine
 		void Initialize()&;
 		void PrototypeInitialize()&;
 		virtual void Clone()&;
-		virtual void Update(const float DeltaTime)& abstract;
+		virtual void Update(const float DeltaTime)&;
 		virtual void LateUpdate(const float DeltaTime)&;
 	public:
 		Object() = default;

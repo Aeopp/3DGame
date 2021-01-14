@@ -52,6 +52,9 @@
     <Filter Include="HeightMap">
       <UniqueIdentifier>{ffbbe15a-7b18-4d2d-91be-a387c539ca3e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Object\Camera">
+      <UniqueIdentifier>{fc238c09-2db9-420f-a194-e68b5485442e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
@@ -68,9 +71,6 @@
     </ClInclude>
     <ClInclude Include="Codes\PrototypeManager.h">
       <Filter>Prototype</Filter>
-    </ClInclude>
-    <ClInclude Include="Codes\Transform.h">
-      <Filter>Component\Transform</Filter>
     </ClInclude>
     <ClInclude Include="Codes\Object.h">
       <Filter>Object</Filter>
@@ -96,6 +96,9 @@
     <ClInclude Include="Codes\HeightMap.h">
       <Filter>HeightMap</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\Camera.h">
+      <Filter>Object\Camera</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">
@@ -112,9 +115,6 @@
     </ClCompile>
     <ClCompile Include="Codes\PrototypeManager.cpp">
       <Filter>Prototype</Filter>
-    </ClCompile>
-    <ClCompile Include="Codes\Transform.cpp">
-      <Filter>Component\Transform</Filter>
     </ClCompile>
     <ClCompile Include="Codes\Object.cpp">
       <Filter>Object</Filter>
@@ -136,6 +136,9 @@
     </ClCompile>
     <ClCompile Include="Codes\HeightMap.cpp">
       <Filter>HeightMap</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Camera.cpp">
+      <Filter>Object\Camera</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

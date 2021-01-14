@@ -189,6 +189,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Codes\Camera.cpp" />
     <ClCompile Include="Codes\Component.cpp" />
     <ClCompile Include="Codes\HeightMap.cpp" />
     <ClCompile Include="Codes\RenderObject.cpp" />
@@ -201,9 +202,9 @@
     <ClCompile Include="Codes\Scene.cpp" />
     <ClCompile Include="Codes\Shader.cpp" />
     <ClCompile Include="Codes\ShaderManager.cpp" />
-    <ClCompile Include="Codes\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Codes\Camera.h" />
     <ClInclude Include="Codes\Component.h" />
     <ClInclude Include="Codes\ExportUtility.hpp" />
     <ClInclude Include="Codes\HeightMap.h" />
@@ -217,7 +218,6 @@
     <ClInclude Include="Codes\Scene.h" />
     <ClInclude Include="Codes\Shader.h" />
     <ClInclude Include="Codes\ShaderManager.h" />
-    <ClInclude Include="Codes\Transform.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\System\Project.vcxproj">

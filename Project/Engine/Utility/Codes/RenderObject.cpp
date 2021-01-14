@@ -11,5 +11,10 @@ void Engine::RenderObject::LateUpdate(const float DeltaTime)&
 {
 	Super::LateUpdate(DeltaTime);
 	RenderInterface::Regist();
-};
+}
+void Engine::RenderObject::Update(const float DeltaTime)&
+{
+	Super::Update(DeltaTime);
+}
+;
 

@@ -14,6 +14,7 @@ namespace Engine
 	public:
 		virtual void Render()& abstract;
 		virtual void LateUpdate(const float DeltaTime) & override;
+		virtual void Update(const float DeltaTime) & override;
 	};
 };
 

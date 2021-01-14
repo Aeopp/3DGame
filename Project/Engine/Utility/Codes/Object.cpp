@@ -12,13 +12,14 @@ void Engine::Object::Clone()&
 	{
 		for (auto& [Key,CurrentComp ]: _CompContainer)
 		{
-			//CurrentComp = std::make_shared<Component>(*(CurrentComp.get()));
+			CurrentComp = std::make_shared<Component>(*(CurrentComp.get()));
 		}
 	}
 };
 
 void Engine::Object::Update(const float DeltaTime)&
 {
+
 };
 
 void Engine::Object::LateUpdate(const float DeltaTime)&
