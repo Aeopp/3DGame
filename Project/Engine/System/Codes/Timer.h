@@ -51,7 +51,7 @@ namespace Engine
 		std::function<void()> ApplicationRender;
 		std::function<void()> ApplicationLastEvent;
 	private:
-		bool bTimeInfoRender = false;
+		bool bTimeInfoRender = true;
 		uint32 _FPSCount{ 0 };
 		float DeltaTime{ 0.f };
 		float _T{ 0.f };

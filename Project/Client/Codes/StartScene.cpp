@@ -347,6 +347,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	//Engine::Management::Instance->NewObject<EnemyLayer, 
 	//	Engine::HeightMap>									(L"HeightMap",Engine::RenderInterface::Group::Enviroment);
 }
+
 Vector3 CameraLocation{ 0,0,0 };
 Vector3 Forward{ 0,0,1 };
 float Speed = 5.f;

@@ -118,7 +118,7 @@ void Engine::Timer::NotificationCheck()&
 
 void Engine::Timer::RenderFPS() const& noexcept
 {
-	if (!bTimeInfoRender)return;
+	//if (!bTimeInfoRender)return;
 
 	std::wstringstream StrInfo;
 	StrInfo
