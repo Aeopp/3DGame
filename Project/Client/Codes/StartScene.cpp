@@ -14,8 +14,9 @@ static constexpr float pi = std::numbers::pi;
 
 IDirect3DVertexBuffer9* CubeMapVertexBuffer;
 IDirect3DIndexBuffer9* CubeMapIndexBuffer = nullptr;
-IDirect3DTexture9* _Texture;
-
+IDirect3DCubeTexture9* PlayerTexture;
+IDirect3DVertexBuffer9* PlayerCubeVertexBuffer;
+IDirect3DIndexBuffer9* PlayerIndexBuffer = nullptr;
 
 struct Location3DUV
 {
@@ -241,13 +242,11 @@ HRESULT InitTexture()
     // Lock() - Unlock()
     g_pIB->Unlock();
 
-    if (FAILED(D3DXCreateTextureFromFile(g_pd3dDevice, L"..\\..\\Resource\\Texture\\Kim.png",
-        &_Texture)))
+    if (FAILED(D3DXCreateCubeTextureFromFile(g_pd3dDevice,
+        L"..\\..\\Resource\\Texture\\KimCube.dds", &PlayerTexture)))
     {
         throw std::exception(__FUNCTION__);
-
     }
-
 
     if (FAILED(D3DXCreateCubeTextureFromFile(g_pd3dDevice,
         L"..\\..\\Resource\\Texture\\Red.dds", &CubeTexture)))
@@ -264,6 +263,7 @@ HRESULT InitTexture()
         throw std::exception(__FUNCTION__);
     }
 
+   
     Location3DUV* CubeMapVertexPtr = nullptr;
     CubeMapVertexBuffer->Lock(0, 0, (void**)&CubeMapVertexPtr, 0);
 
@@ -332,8 +332,6 @@ HRESULT InitTexture()
     _IndexBufPtr[11]._3 = 3;
 
     CubeMapIndexBuffer->Unlock();
-
-
 
 
 
@@ -503,15 +501,27 @@ void StartScene::Update(const float DeltaTime)&
     g_pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
         8, 0, 12);
 
+    Matrix PlayerWorld;
+    D3DXMatrixScaling(&PlayerWorld,0.3f, 0.3f, 0.3f);
+    const Vector3 PlayerLocation = CameraLocation + Forward * 5.f;
+    PlayerWorld._41 = PlayerLocation.x;
+    PlayerWorld._42 = PlayerLocation.y;
+    PlayerWorld._43 = PlayerLocation.z;
+
+    g_pd3dDevice->SetTransform(D3DTS_WORLD, &PlayerWorld);
+    g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
+    g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+    
+    g_pd3dDevice->SetTexture(0, PlayerTexture);
+    g_pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
+        8, 0, 12);
+
 
 
 
 
 
     g_pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-
-    g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
-    g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
 
     g_pd3dDevice->SetTransform(D3DTS_WORLD, &matWorld);
     g_pd3dDevice->SetStreamSource(0, g_pVB, 0, sizeof(CUSTOMVERTEX));
