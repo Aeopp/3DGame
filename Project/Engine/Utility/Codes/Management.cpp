@@ -1,6 +1,5 @@
 #include "Management.h"
 #include "Timer.h"
-#include "GraphicDevice.h"
 #include <chrono>
 #include "Controller.h"
 #include "Sound.h"
@@ -9,6 +8,8 @@
 #include "PrototypeManager.h"
 #include "FontManager.h"
 #include "FMath.hpp"
+#include "ResourceSystem.h"
+
 
 void Engine::Management::Initialize(
 	const HWND _Hwnd,
@@ -42,6 +43,7 @@ void Engine::Management::Initialize(
 	_ShaderManager = Engine::ShaderManager::Init(Device);
 	_PrototypeManager = Engine::PrototypeManager::Init();
 	_FontManager = Engine::FontManager::Init();
+	_ResourceSys = Engine::ResourceSystem::Init();
 }
 
 Engine::Management::~Management() noexcept

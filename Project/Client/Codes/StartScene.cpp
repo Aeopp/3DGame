@@ -31,57 +31,57 @@ struct _16_t
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
 {
     Super::Initialize(Device);
-
-	auto* _Control = &GetControl();
 	
-	GetProto().LoadPrototype<Engine::HeightMap>(L"Static");
-	GetProto().LoadPrototype<Engine::DynamicCamera>(L"Static", Device ,App::Hwnd);
+	auto* _Control = &RefControl();
+	
+	RefProto().LoadPrototype<Engine::HeightMap>(L"Static");
+	RefProto().LoadPrototype<Engine::DynamicCamera>(L"Static", Device ,App::Hwnd);
 
-	GetManager().NewLayer<EnemyLayer>();
-	GetManager().NewLayer<StaticLayer>();
+	RefManager().NewLayer<EnemyLayer>();
+	RefManager().NewLayer<StaticLayer>();
 
 	constexpr float Aspect = App::ClientSize<float>.first /							   App::ClientSize<float>.second;
 
-	GetManager().NewObject<StaticLayer,Engine::DynamicCamera>(
+	RefManager().NewObject<StaticLayer,Engine::DynamicCamera>(
 		L"Static", L"Camera",
 		FMath::PI/3.f,0.1f,1000.f, Aspect , 10.f, _Control );
-	GetManager().NewObject<StaticLayer, Engine::DynamicCamera>(
+	RefManager().NewObject<StaticLayer, Engine::DynamicCamera>(
 		L"Static", L"Camera2",
 		FMath::PI / 3.f, 0.1f, 1000.f, Aspect , 10.f, _Control);
-	GetManager().NewObject<StaticLayer, Engine::DynamicCamera>(
+	RefManager().NewObject<StaticLayer, Engine::DynamicCamera>(
 		L"Static", L"Camera3",
 		FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 10.f, _Control);
-	GetManager().NewObject<StaticLayer, Engine::DynamicCamera>(
+	RefManager().NewObject<StaticLayer, Engine::DynamicCamera>(
 		L"Static", L"Camera4",
 		FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 10.f, _Control);
 
-	GetManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap",Engine::RenderInterface::Group::Enviroment);
-	GetManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap2", Engine::RenderInterface::Group::Enviroment);
-	GetManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap3", Engine::RenderInterface::Group::Enviroment);
-	GetManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap4", Engine::RenderInterface::Group::Enviroment);
-	GetManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap5", Engine::RenderInterface::Group::Enviroment);
+	RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap",Engine::RenderInterface::Group::Enviroment);
+	RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap2", Engine::RenderInterface::Group::Enviroment);
+	RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap3", Engine::RenderInterface::Group::Enviroment);
+	RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap4", Engine::RenderInterface::Group::Enviroment);
+	RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap5", Engine::RenderInterface::Group::Enviroment);
 };
 
 void StartScene::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
 
-	auto _Map = GetManager().FindObject<EnemyLayer, Engine::HeightMap>(L"HeightMap2");
-	auto _Layer = GetManager().FindLayer<EnemyLayer>();
+	auto _Map = RefManager().FindObject<EnemyLayer, Engine::HeightMap>(L"HeightMap2");
+	auto _Layer = RefManager().FindLayer<EnemyLayer>();
 	std::wcout << _Map->GetName() << std::endl;
 
-	auto& LeyerMap = GetManager().RefLayers();
+	auto& LeyerMap = RefManager().RefLayers();
 	
-	for (auto& q : GetManager().FindObjects<EnemyLayer, Engine::HeightMap>())
+	for (auto& q : RefManager().FindObjects<EnemyLayer, Engine::HeightMap>())
 	{
 		std::wcout << q->GetName() << std::endl;
 	}
-	for (auto& q : GetManager().FindObjects<StaticLayer, Engine::DynamicCamera>())
+	for (auto& q : RefManager().FindObjects<StaticLayer, Engine::DynamicCamera>())
 	{
 		std::wcout << q->GetName() << std::endl;
 	}
 
-	auto Objs2 =GetManager().RefObjects<EnemyLayer>();
+	auto Objs2 = RefManager().RefObjects<EnemyLayer>();
 }
 
 

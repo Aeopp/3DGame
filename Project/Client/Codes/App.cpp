@@ -20,18 +20,18 @@ void App::Initialize(const HWND _Hwnd, const HINSTANCE HInstance)&
 		1.f/20.f,
 		std::filesystem::path("") / ".." / ".." / "Resource" / "Sound");
 
-	auto Device = GetGraphic().GetDevice();
+	auto Device = RefGraphic().GetDevice();
 
-	GetFontManager().AddFont(Device.get(), L"Font_Default", L"πŸ≈¡", 15, 20, FW_HEAVY);
-	GetFontManager().AddFont(Device.get(), L"Font_Jinji", L"±√º≠", 15, 20, FW_THIN);
+	RefFontManager().AddFont(Device.get(), L"Font_Default", L"πŸ≈¡", 15, 20, FW_HEAVY);
+	RefFontManager().AddFont(Device.get(), L"Font_Jinji", L"±√º≠", 15, 20, FW_THIN);
 	
-	GetSound().Play("song", 1.f, true, true);
+	RefSound().Play("song", 1.f, true, true);
 
 	StartSceneLoad();
 }
 void App::GameLoop()
 {
-	GetManager().GameLoop();
+	RefManager().GameLoop();
 }
 
 void App::StartSceneLoad()&

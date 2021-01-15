@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -194,6 +194,7 @@
     <ClInclude Include="Codes\Font.h" />
     <ClInclude Include="Codes\FontManager.h" />
     <ClInclude Include="Codes\GraphicDevice.h" />
+    <ClInclude Include="Codes\ResourceSystem.h" />
     <ClInclude Include="Codes\Sound.h" />
     <ClInclude Include="Codes\Timer.h" />
   </ItemGroup>
@@ -202,6 +203,7 @@
     <ClCompile Include="Codes\Font.cpp" />
     <ClCompile Include="Codes\FontManager.cpp" />
     <ClCompile Include="Codes\GraphicDevice.cpp" />
+    <ClCompile Include="Codes\ResourceSystem.cpp" />
     <ClCompile Include="Codes\Sound.cpp" />
     <ClCompile Include="Codes\Timer.cpp" />
   </ItemGroup>

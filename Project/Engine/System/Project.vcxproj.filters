@@ -19,6 +19,9 @@
     <Filter Include="Font\Manager">
       <UniqueIdentifier>{47494840-fd19-49e1-92a2-e9326d06bbdb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ResourceSystem">
+      <UniqueIdentifier>{d0cb483d-d863-4ec9-aea8-fa4b5c9f7f58}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\GraphicDevice.h">
@@ -39,6 +42,9 @@
     <ClInclude Include="Codes\FontManager.h">
       <Filter>Font\Manager</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\ResourceSystem.h">
+      <Filter>ResourceSystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\GraphicDevice.cpp">
@@ -58,6 +64,9 @@
     </ClCompile>
     <ClCompile Include="Codes\FontManager.cpp">
       <Filter>Font\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\ResourceSystem.cpp">
+      <Filter>ResourceSystem</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

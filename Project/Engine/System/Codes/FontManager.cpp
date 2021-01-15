@@ -19,7 +19,7 @@ typename Engine::Font&
 	return *_Font;
 }
 
-void Engine::FontManager::RenderFontRegist(const std::wstring& Tag, const std::wstring& String, const Vector2 Position, const D3DXCOLOR Color)&
+void Engine::FontManager::RenderFont(const std::wstring& Tag, const std::wstring& String, const Vector2 Position, const D3DXCOLOR Color)&
 {
 	RefFont(Tag)->Render(String, Position, Color);
 }
