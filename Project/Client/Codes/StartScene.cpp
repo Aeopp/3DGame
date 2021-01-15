@@ -27,7 +27,6 @@ struct _16_t
     static inline constexpr D3DFORMAT Format = D3DFMT_INDEX16;
 
 };
-IDirect3DCubeTexture9* CubeTexture{ nullptr };
 
 float Dot(const Vector3& Lhs, const Vector3& Rhs)
 {

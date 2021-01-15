@@ -8,6 +8,7 @@
 #include "ShaderManager.h"
 #include "PrototypeManager.h"
 #include "FontManager.h"
+#include "FMath.hpp"
 
 void Engine::Management::Initialize(
 	const HWND _Hwnd,

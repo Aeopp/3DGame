@@ -11,8 +11,8 @@ namespace Engine
 		{
 			// 컴포넌트 업데이트 순서에 영향을 끼침.
 			Transform = 0u,
-			Collision,
 			Standard,
+			Collision,
 			Render,
 			End,
 		};
