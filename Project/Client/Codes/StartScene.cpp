@@ -4,6 +4,7 @@
 #include "HeightMap.h"
 #include "EnemyLayer.h"
 #include "ExportUtility.hpp"
+#include "ResourceSystem.h"
 #include "FMath.hpp"
 #include "App.h"
 #include "StaticLayer.h"
@@ -13,6 +14,8 @@
 #include "Layer.h"
 #include <iostream>
 #include "DynamicCamera.h"
+#include <d3d9.h>
+#include <d3dx9.h>
 
 
 struct Location3DUV
@@ -28,12 +31,32 @@ struct _16_t
     static inline constexpr D3DFORMAT Format = D3DFMT_INDEX16;
 };
 
+void WINAPI
+D3DXCreateTextureFrom(
+	LPDIRECT3DDEVICE9         pDevice,
+	LPCWSTR                   pSrcFile,
+	LPDIRECT3DTEXTURE9* ppTexture)
+{
+	D3DXCreateTextureFromFile(pDevice, pSrcFile, ppTexture);
+}
+
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
 {
     Super::Initialize(Device);
 	
 	auto* _Control = &RefControl();
+	IDirect3DTexture9* aas{ nullptr };
+	/*Matrix w;
+	Device->SetTransform(D3DTS_WORLD, &w);*/
+	    const std::wstring ssss = L"..\\..\\Resource\\Texture\\Player0.jpg"; 
+//	D3DXCreateTextureFromFile();
+	//std::invoke(D3DXCreateTextureFrom, Device, ssss.c_str(), &aas);
+	// D3DXCreateTextureFromFile(Device, ssss.c_str(), &aas);
 	
+	RefResourceSys().Create<IDirect3DTexture9>(std::make_tuple( 
+		Device, L"..\\..\\Resource\\Texture\\Player0.jpg", &aas), D3DXCreateTextureFromFile, L"SS");
+
+
 	RefProto().LoadPrototype<Engine::HeightMap>(L"Static");
 	RefProto().LoadPrototype<Engine::DynamicCamera>(L"Static", Device ,App::Hwnd);
 
