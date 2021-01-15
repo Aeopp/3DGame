@@ -31,30 +31,18 @@ struct _16_t
     static inline constexpr D3DFORMAT Format = D3DFMT_INDEX16;
 };
 
-void WINAPI
-D3DXCreateTextureFrom(
-	LPDIRECT3DDEVICE9         pDevice,
-	LPCWSTR                   pSrcFile,
-	LPDIRECT3DTEXTURE9* ppTexture)
-{
-	D3DXCreateTextureFromFile(pDevice, pSrcFile, ppTexture);
-}
-
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
 {
     Super::Initialize(Device);
 	
 	auto* _Control = &RefControl();
-	IDirect3DTexture9* aas{ nullptr };
-	/*Matrix w;
-	Device->SetTransform(D3DTS_WORLD, &w);*/
-	   const std::wstring ssss = L"..\\..\\Resource\\Texture\\Player0.jpg"; 
-//	D3DXCreateTextureFromFile();
-	//std::invoke(D3DXCreateTextureFrom, Device, ssss.c_str(), &aas);
-	// D3DXCreateTextureFromFile(Device, ssss.c_str(), &aas);
-	
-	RefResourceSys().Create<IDirect3DTexture9>(
+
+	   D3DLOCKED_RECT LockRect; 
+	  auto Tex = RefResourceSys().Create<IDirect3DTexture9>(
 		L"SS",D3DXCreateTextureFromFile,Device,L"..\\..\\Resource\\Texture\\Player0.jpg",&aas);
+
+	Tex->LockRect(0, &LockRect, 0, D3DLOCK_DISCARD);
+	Tex->UnlockRect(0);
 
 	RefProto().LoadPrototype<Engine::HeightMap>(L"Static");
 	RefProto().LoadPrototype<Engine::DynamicCamera>(L"Static", Device ,App::Hwnd);

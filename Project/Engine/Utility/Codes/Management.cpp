@@ -55,7 +55,7 @@ Engine::Management::~Management() noexcept
 	Renderer::Reset();
 	ShaderManager::Reset();
 	FontManager::Reset();
-
+	ResourceSystem::Reset();
 	GraphicDevice::Reset();
 };
 
