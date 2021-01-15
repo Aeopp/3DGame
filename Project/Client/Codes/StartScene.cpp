@@ -1,5 +1,6 @@
 #include "..\\stdafx.h"
 #include "StartScene.h"
+#include "Vertexs.hpp"
 #include "Management.h"
 #include "HeightMap.h"
 #include "EnemyLayer.h"
@@ -16,7 +17,6 @@
 #include "DynamicCamera.h"
 #include <d3d9.h>
 #include <d3dx9.h>
-
 
 struct Location3DUV
 {
@@ -40,8 +40,35 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	   D3DLOCKED_RECT LockRect; 
 	   IDirect3DTexture9* ResourcePtr{ nullptr };
 
-	  auto Tex = RefResourceSys().Create<IDirect3DTexture9>(
-		L"SS",D3DXCreateTextureFromFile,Device,L"..\\..\\Resource\\Texture\\Player0.jpg",&ResourcePtr);
+	   //template<typename VertexType>
+	   //void CreateVertex(
+		  // IDirect3DDevice9* const Device,
+		  // const std::vector<VertexType>&VertexArray,
+		  // const CreateVertexFlag _CreateVertexFlag,
+		  // uint32 & VertexCount/*Out*/,
+		  // uint32 & TriangleCount/*Out*/,
+		  // uint16 & VertexByteSize/*Out*/,
+		  // std::shared_ptr<IDirect3DVertexBuffer9>&VertexBuffer,/*Out*/
+		  // std::shared_ptr<IDirect3DVertexDeclaration9>&VertexDecl/*Out*/
+	     
+	   RefResourceSys().Create<IDirect3DVertexDeclaration9>(
+		   L"QQ", Vertex::Texture::GetVertexDecl(Device) );
+
+	   // Vertex::Location3DUVTangent::GetVertexDecl 
+
+	   /*std::vector<Vertex::Location3DUVTangent> Locationss;
+	   uint32 c;
+	   uint32 tc;
+	   uint16 vb;
+	   std::shared_ptr<IDirect3DVertexBuffer9> buf;
+	   std::shared_ptr< IDirect3DVertexDeclaration9> decl;
+	   RefResourceSys().Create<IDirect3DVertexBuffer9>(
+		   L"QQ", DX::CreateVertex<Vertex::Location3DUVTangent>,
+		   Device, Locationss, DX::CreateVertexFlag::WriteOnly,
+		   c, tc, vb, buf, decl);*/
+
+	  auto Tex = RefResourceSys().Emplace<IDirect3DTexture9>(
+		L"Texture",D3DXCreateTextureFromFile,Device,L"..\\..\\Resource\\Texture\\Player0.jpg",&ResourcePtr);
 
 	Tex->LockRect(0, &LockRect, 0, D3DLOCK_DISCARD);
 	Tex->UnlockRect(0);
