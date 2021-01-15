@@ -48,14 +48,13 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	IDirect3DTexture9* aas{ nullptr };
 	/*Matrix w;
 	Device->SetTransform(D3DTS_WORLD, &w);*/
-	    const std::wstring ssss = L"..\\..\\Resource\\Texture\\Player0.jpg"; 
+	   const std::wstring ssss = L"..\\..\\Resource\\Texture\\Player0.jpg"; 
 //	D3DXCreateTextureFromFile();
 	//std::invoke(D3DXCreateTextureFrom, Device, ssss.c_str(), &aas);
 	// D3DXCreateTextureFromFile(Device, ssss.c_str(), &aas);
 	
-	RefResourceSys().Create<IDirect3DTexture9>(std::make_tuple( 
-		Device, L"..\\..\\Resource\\Texture\\Player0.jpg", &aas), D3DXCreateTextureFromFile, L"SS");
-
+	RefResourceSys().Create<IDirect3DTexture9>(
+		L"SS",D3DXCreateTextureFromFile,Device,L"..\\..\\Resource\\Texture\\Player0.jpg",&aas);
 
 	RefProto().LoadPrototype<Engine::HeightMap>(L"Static");
 	RefProto().LoadPrototype<Engine::DynamicCamera>(L"Static", Device ,App::Hwnd);

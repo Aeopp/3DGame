@@ -13,10 +13,10 @@ namespace Engine
 		void Initialize()&;
 		template<typename ResourceType>
 		inline auto Get(const std::wstring& Name);
-		template<typename ResourceType, typename Result, typename... Params>
+		template<typename ResourceType, typename ResourceCreateMethodType, typename... Params>
 		inline auto Create(
 			const std::wstring& ResourceName , 
-			Result(*Method)(Params...) , 
+			ResourceCreateMethodType _ResourceCreate,
 			Params&&... _Params);
 	private:
 		template<typename TupleType, typename ResourceType, int32 Idx>
@@ -33,15 +33,15 @@ inline auto Engine::ResourceSystem::Get(const std::wstring& Name)
 	return static_cast<ResourceType* const>(Container[typeid(ResourceType).hash_code()][Name].get());
 }
 
-template<typename ResourceType, typename Result, typename ...Params>
+template<typename ResourceType, typename ResourceCreateMethodType, typename ...Params>
 inline auto Engine::ResourceSystem::Create(
 	const std::wstring& ResourceName,
-	Result(*Method)(Params...),
+	ResourceCreateMethodType _ResourceCreate,
 	Params&&... _Params)
 {
 	using TupleType = std::tuple<Params...>;
 	auto Tuple = std::make_tuple(std::forward<Params>(_Params)...);
-	std::apply(Method, Tuple);
+	std::apply(_ResourceCreate, Tuple);
 	return CreateImplementation<TupleType, ResourceType,			std::tuple_size_v<TupleType>-1>(Tuple, ResourceName);
 }
 
