@@ -8,13 +8,13 @@ void Engine::Object::PrototypeInitialize()&
 void Engine::Object::Clone()&
 {
 	// 컴파일러 디폴트 복사생성자 호출 이후에 깊은복사를 수행해야하는 경우
-	for (auto& [Key, _CompContainer] : _Components)
+	/*for (auto& [Key, _CompContainer] : _Components)
 	{
 		for (auto& [Key,CurrentComp ]: _CompContainer)
 		{
 			CurrentComp = std::make_shared<Component>(*(CurrentComp.get()));
 		}
-	}
+	}*/
 };
 
 void Engine::Object::Update(const float DeltaTime)&

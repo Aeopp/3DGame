@@ -44,6 +44,6 @@ void Engine::Font::Render(
 	RECT	Rect{ int32(Position.x), int32(Position.y) };
 	Sprite->Begin(D3DXSPRITE_ALPHABLEND);
 	_Font->DrawTextW(Sprite.get(),String.c_str(), 
-		String.size(), &Rect, DT_NOCLIP, Color);
+		  static_cast<int32>(String.size()), &Rect, DT_NOCLIP, Color);
 	Sprite->End();
 }

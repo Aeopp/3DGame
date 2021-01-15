@@ -55,10 +55,25 @@ void Engine::Transform::Rotate(Vector3 Axis, const float Radian)&
 }
 void Engine::Transform::Move
 	(Vector3 Direction, 
-	const float DeltaTime, 
+	const float DeltaTime,
 	const float Speed)
 {
 	Direction = FMath::Normalize(Direction);
 	Location += Direction * DeltaTime * Speed;
+}
+
+void Engine::Transform::MoveForward(const float DeltaTime, const float Speed)
+{
+	Move(Forward, DeltaTime, Speed);
+}
+
+void Engine::Transform::MoveRight(const float DeltaTime, const float Speed)
+{
+	Move(Right, DeltaTime, Speed);
+}
+
+void Engine::Transform::MoveUp(const float DeltaTime, const float Speed)
+{
+	Move(Up, DeltaTime, Speed);
 }
 

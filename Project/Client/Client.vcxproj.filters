@@ -20,6 +20,12 @@
     <Filter Include="Layer">
       <UniqueIdentifier>{26c02ecf-0c6d-4c38-8bf5-c7749e463779}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Layer\Enemy">
+      <UniqueIdentifier>{c2abae9f-23c1-451c-98b4-1e61ffffc1a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Layer\Static">
+      <UniqueIdentifier>{21b35400-d589-4ef2-8469-36b4c2584c67}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -44,7 +50,10 @@
       <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="Codes\EnemyLayer.h">
-      <Filter>Layer</Filter>
+      <Filter>Layer\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\StaticLayer.h">
+      <Filter>Layer\Static</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -61,7 +70,10 @@
       <Filter>Scene</Filter>
     </ClCompile>
     <ClCompile Include="Codes\EnemyLayer.cpp">
-      <Filter>Layer</Filter>
+      <Filter>Layer\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\StaticLayer.cpp">
+      <Filter>Layer\Static</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

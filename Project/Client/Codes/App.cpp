@@ -2,23 +2,29 @@
 #include "App.h"
 #include "ExportUtility.hpp"
 #include "Sound.h"
+#include "FontManager.h"
 #include "StartScene.h"
 #include <chrono>
 #include <filesystem>
 
 void App::Initialize(const HWND _Hwnd, const HINSTANCE HInstance)&
 {
-	this->_Hwnd = _Hwnd;
+	this->Hwnd = _Hwnd;
 
     Engine::Management::Init(
 		_Hwnd,
 		HInstance,
 		false,
-		ClientSize,
+		ClientSize<uint32>,
 		D3DMULTISAMPLE_NONE,
 		1.f/20.f,
 		std::filesystem::path("") / ".." / ".." / "Resource" / "Sound");
 
+	auto Device = GetGraphic().GetDevice();
+
+	GetFontManager().AddFont(Device.get(), L"Font_Default", L"πŸ≈¡", 15, 20, FW_HEAVY);
+	GetFontManager().AddFont(Device.get(), L"Font_Jinji", L"±√º≠", 15, 20, FW_THIN);
+	
 	GetSound().Play("song", 1.f, true, true);
 
 	StartSceneLoad();

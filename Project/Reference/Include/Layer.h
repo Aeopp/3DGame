@@ -72,5 +72,5 @@ template<typename ObjectSubType>
 inline auto Engine::Layer::FindObjects()&
 {
 	static_assert(std::is_base_of_v<Object, ObjectSubType>, __FUNCTION__);
-	return reinterpret_cast<std::vector<std::shared_ptr<ObjectSubType>>&>(_ObjectMap.find(typeid(ObjectSubType).name())->second);
+	return reinterpret_cast<std::vector<std::shared_ptr<ObjectSubType>>&>					(_ObjectMap.find(typeid(ObjectSubType).name())->second);
 };

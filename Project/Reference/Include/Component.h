@@ -4,27 +4,25 @@
 
 namespace Engine
 {
-	class DLL_DECL Component abstract
+	class DLL_DECL Component  
 	{
 	public:
 		enum Property : uint32
 		{
 			// 컴포넌트 업데이트 순서에 영향을 끼침.
 			Transform = 0u,
-			Collision,
 			Standard,
+			Collision,
 			Render,
 			End,
 		};
 	public:
 		virtual ~Component()noexcept = default;
-		Component(Component&&)noexcept = default;
-		Component(const Component&) = default;
 		Component()=default;
 	public:
 		void Initialize()&;
 		virtual void Update(class Object* const Owner,
-			const float DeltaTime)& abstract;
+			const float DeltaTime)& ;
 	public:
 		// 자식마다 정의.
 		static const inline Property TypeProperty = Property::Standard;

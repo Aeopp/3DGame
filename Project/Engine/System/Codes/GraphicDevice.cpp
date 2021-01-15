@@ -22,7 +22,7 @@ void Engine::GraphicDevice::Initialize(
 
 	D3DPRESENT_PARAMETERS PresentParameter;
 	ZeroMemory(&PresentParameter, sizeof(D3DPRESENT_PARAMETERS));
-	;
+	
 
 	PresentParameter.BackBufferWidth = ScreenSize.first;
 	PresentParameter.BackBufferHeight = ScreenSize.second;
@@ -50,9 +50,10 @@ void Engine::GraphicDevice::Initialize(
 
 void Engine::GraphicDevice::Begin() & noexcept
 {
-	
+	_Device->BeginScene();
 
-	//_Device->BeginScene();
+	_Device->Clear(0, nullptr, D3DCLEAR_STENCIL | D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+		0xff0000ff, 1.f, 0);
 
 	for (uint8 i = 0; i < 8u; ++i)
 	{
@@ -65,8 +66,6 @@ void Engine::GraphicDevice::Begin() & noexcept
 
 void Engine::GraphicDevice::End() & noexcept
 {
-	//_Device->EndScene();
-	//_Device->Present(nullptr, nullptr, NULL, nullptr);
-	//_Device->Clear(0, nullptr, D3DCLEAR_STENCIL | D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-	//	0xff0000ff, 1.f, 0);
+	_Device->EndScene();
+	_Device->Present(nullptr, nullptr, NULL, nullptr);
 }

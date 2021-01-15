@@ -101,6 +101,7 @@
       <AdditionalIncludeDirectories>..\\..\\Reference\\Header\\;..\\..\\Reference\\Include\\;Codes\\;</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -125,6 +126,7 @@
       <AdditionalIncludeDirectories>..\\..\\Reference\\Header\\;..\\..\\Reference\\Include\\;Codes\\;</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -150,6 +152,7 @@
       <AdditionalIncludeDirectories>..\\..\\Reference\\Header\\;..\\..\\Reference\\Include\\;Codes\\;</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -174,6 +177,7 @@
       <AdditionalIncludeDirectories>..\\..\\Reference\\Header\\;..\\..\\Reference\\Include\\;Codes\\;</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -191,6 +195,7 @@
   <ItemGroup>
     <ClCompile Include="Codes\Camera.cpp" />
     <ClCompile Include="Codes\Component.cpp" />
+    <ClCompile Include="Codes\DynamicCamera.cpp" />
     <ClCompile Include="Codes\HeightMap.cpp" />
     <ClCompile Include="Codes\RenderObject.cpp" />
     <ClCompile Include="Codes\Layer.cpp" />
@@ -202,10 +207,12 @@
     <ClCompile Include="Codes\Scene.cpp" />
     <ClCompile Include="Codes\Shader.cpp" />
     <ClCompile Include="Codes\ShaderManager.cpp" />
+    <ClCompile Include="Codes\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Camera.h" />
     <ClInclude Include="Codes\Component.h" />
+    <ClInclude Include="Codes\DynamicCamera.h" />
     <ClInclude Include="Codes\ExportUtility.hpp" />
     <ClInclude Include="Codes\HeightMap.h" />
     <ClInclude Include="Codes\RenderObject.h" />
@@ -218,6 +225,7 @@
     <ClInclude Include="Codes\Scene.h" />
     <ClInclude Include="Codes\Shader.h" />
     <ClInclude Include="Codes\ShaderManager.h" />
+    <ClInclude Include="Codes\Transform.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\System\Project.vcxproj">

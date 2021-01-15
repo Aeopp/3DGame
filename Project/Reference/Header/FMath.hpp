@@ -13,11 +13,11 @@
 class FMath
 {
 public:
-	static constexpr float PI = std::numbers::pi;
+	static constexpr double PI = std::numbers::pi;
 
 	template<class T>
 	typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
-	static	AlmostEqual(T x, T y);
+	static	inline AlmostEqual(T x, T y);
    
 	static inline float Dot(const Vector3& Lhs, const Vector3& Rhs);
 	static inline Vector3 Cross(const Vector3& Lhs, const Vector3& Rhs);
@@ -26,26 +26,26 @@ public:
 		const Vector3& p1, const Vector3& p2);
 
 	static inline Vector4 ConvertVector4(const Vector3& Lhs, const float w);;
-	static Vector3 Mul(const Vector3& Lhs, const Matrix& Rhs);
-	static Vector3 MulNormal(const Vector3& Lhs, const Matrix& Rhs);
+	static inline Vector3 Mul(const Vector3& Lhs, const Matrix& Rhs);
+	static inline Vector3 MulNormal(const Vector3& Lhs, const Matrix& Rhs);
 
-	static Ray GetRayScreenProjection(const Vector3& ScreenPos,
+	static inline Ray GetRayScreenProjection(const Vector3& ScreenPos,
 		IDirect3DDevice9* const _Device, const float Width, const float Height);
-	static bool InnerPointFromFace(const Vector3& Point, const std::array<Vector3, 3ul>& Face);
+	static inline bool InnerPointFromFace(const Vector3& Point, const std::array<Vector3, 3ul>& Face);
 
 	// 임의의 위치 벡터를 평면에 투영시킨 위치 벡터를 반환.
-	static Vector3 ProjectionPointFromFace(const D3DXPLANE _Plane, const Vector3& Point);
+	static inline Vector3 ProjectionPointFromFace(const D3DXPLANE _Plane, const Vector3& Point);
 
 	// 삼각형을 둘러치는 선분 3개.
-	static std::array<Segment, 3ul> 
+	static inline std::array<Segment, 3ul>
 			MakeSegmentFromFace(const std::array<Vector3, 3ul>& Face);
 	
 	static inline float ToRadian(const float Degree);
 	static inline float ToDegree(const float Radian);
 	
-	static Vector3 RotationVecCoord(const Vector3& Lhs,
+	static inline Vector3 RotationVecCoord(const Vector3& Lhs,
 					const Vector3& Axis, const float Radian);
-	static Vector3 RotationVecNormal(const Vector3& Lhs,
+	static inline Vector3 RotationVecNormal(const Vector3& Lhs,
 		const Vector3& Axis, const float Radian);
 	template<typename _Ty>
 	static inline _Ty Lerp(const _Ty& Lhs, const _Ty& Rhs, const float t);
@@ -78,31 +78,34 @@ public:
 	static inline Matrix Translation(const Vector3& Location);
 
 
-	static bool IsSphereToSphere(const Sphere& Lhs, const Sphere& Rhs,
+	static inline bool IsSphereToSphere(const Sphere& Lhs, const Sphere& Rhs,
 		float& CrossingArea,
 		Vector3& IntersectPointLhs,
 		Vector3& IntersectPointRhs);
 
-	static bool IsRayToSphere(
+	static inline bool IsRayToSphere(
 		const Ray& Lhs, const Sphere& Rhs,
 		float& t0, float& t1, Vector3& OutIntersectPoint);
 
-	static bool
+	static inline bool
 		IsSegmentToSphere(
 			const Segment& Lhs, const Sphere& Rhs,
 			float& t0, float& t1, Vector3& IntersectPoint);
 
-	static bool  IsPlaneToSphere(const PlaneInfo& Lhs,
+	static inline bool  IsPlaneToSphere(const PlaneInfo& Lhs,
 								const Sphere& Rhs, float& CrossingArea);
+
+
+	static inline bool IsTriangleToRay(
+		const PlaneInfo& Lhs,
+		const Ray& Rhs,
+		float& t, Vector3& IntersectPoint);
 
 #pragma region RANDOM
 	template<typename Type>
-	static Type Random(const Type& Begin, const Type& End);
+	static inline Type Random(const Type& Begin, const Type& End);
 private:
-	static int32_t RandInt(const int32_t&, const int32_t& Range);
-	static float RandReal(const std::pair<float, float>& Range);
-	static Vector3 RandVec();
-	static auto& GetGenerator();
+	static inline auto& GetGenerator();
 #pragma endregion RANDOM
 };
 
@@ -112,10 +115,10 @@ FMath::AlmostEqual(T x, T y)
 {
 	return std::fabs(x - y) <= std::numeric_limits<T>::epsilon() * std::fabs(x + y)
 		|| std::fabs(x - y) < (std::numeric_limits<T>::min)();
-}
+};
 
 template<typename Type>
-static Type Random(const Type& Begin, const Type& End)
+ Type FMath::Random(const Type& Begin, const Type& End)
 {
 	if constexpr (std::is_floating_point_v<Type>)
 	{
@@ -125,29 +128,32 @@ static Type Random(const Type& Begin, const Type& End)
 	else if constexpr (std::is_same_v<Type, Vector3>)
 	{
 		return Vector3{
-		Random({ Begin.x,End.x }),
-		Random({ Begin.y,End.y }),
-		Random({ Begin.z,End.z })    });
+		Random(Begin.x,End.x),
+		Random(Begin.y,End.y),
+		Random(Begin.z,End.z) };
 	}
-
-	std::uniform_int_distribution<Type> Dis(Begin, End);
-	return Dis(GetGenerator());
+	else
+	{
+		std::uniform_int_distribution<Type> Dis(Begin, End);
+		return Dis(GetGenerator());
+	}
 };
 
 auto& FMath::GetGenerator()
 {
+	static bool bInit = false;
 	static std::random_device Rd{};
-	static std::mt19937 gen{ Rd };
+	static std::mt19937 gen{};
+
+	if (!bInit)
+	{
+		bInit = true;
+		gen.seed(Rd());
+	}
+
 	return gen;
 };
 
-Vector3 FMath::GetNormalFromFace
-		(const Vector3& p0, const Vector3& p1, const Vector3& p2)
-{
-	const Vector3 u = p1 - p0;
-	const Vector3 v = p2 - p0;
-	return Normalize(Cross(u, v));
-}
 
 inline Vector4 FMath::ConvertVector4(const Vector3& Lhs, const float w)
 {
@@ -199,19 +205,22 @@ Ray FMath::GetRayScreenProjection(
 }
 
 
-inline inline float FMath::Dot(const Vector3& Lhs, const Vector3& Rhs)
+inline  float FMath::Dot(const Vector3& Lhs, const Vector3& Rhs)
 {
 	return D3DXVec3Dot(&Lhs, &Rhs);
 }
 
 inline Vector3 FMath::Cross(const Vector3& Lhs, const Vector3& Rhs)
 {
-	return *D3DXVec3Cross(nullptr, &Lhs, &Rhs);;
+	Vector3 Target;
+	return *D3DXVec3Cross(&Target, &Lhs, &Rhs);;
 }
 
 inline Vector3 FMath::Normalize(const Vector3& Lhs)
 {
-	return *D3DXVec3Normalize(nullptr, &Lhs);
+	Vector3 Target;
+	 D3DXVec3Normalize(&Target, &Lhs);
+	 return Target;
 }
 
 Vector3 FMath::ProjectionPointFromFace(const D3DXPLANE _Plane, const Vector3& Point)
@@ -283,36 +292,43 @@ inline Matrix FMath::Transpose(const Matrix& _Matrix)
 Vector3 FMath::RotationVecCoord(const Vector3& Lhs, const Vector3& Axis,
 	const float Radian)
 {
+	Vector3 Target{};
+	Matrix TargetMatrix{};
 	return *D3DXVec3TransformCoord(
-			nullptr, &Lhs, D3DXMatrixRotationAxis(nullptr, &Axis, Radian));;
+		&Target, &Lhs, D3DXMatrixRotationAxis(&TargetMatrix, &Axis, Radian));;
 }
 
 Vector3 FMath::RotationVecNormal(const Vector3& Lhs, const Vector3& Axis,
 	const float Radian)
 {
-	return *D3DXVec3TransformNormal(nullptr, &Lhs, 
-				D3DXMatrixRotationAxis(nullptr, &Axis, Radian));;
+	Vector3 Target{};
+	Matrix TargetMatrix{};
+	return *D3DXVec3TransformNormal(&Target, &Lhs,
+		D3DXMatrixRotationAxis(&TargetMatrix, &Axis, Radian));;
 };
 
-inline Matrix Scale(const Vector3& Scale)
+inline Matrix FMath::Scale(const Vector3& Scale)
 {
-	return *D3DXMatrixScaling(nullptr, Scale.x, Scale.y, Scale.z);
+	Matrix Target;
+	return *D3DXMatrixScaling(&Target, Scale.x, Scale.y, Scale.z);
 }
-inline Matrix Rotation(const Vector3& Rotation)
+inline Matrix FMath::Rotation(const Vector3& Rotation)
 {
-	return *D3DXMatrixRotationYawPitchRoll(nullptr, Rotation.y, Rotation.x, Rotation.z);
+	Matrix Target;
+	return *D3DXMatrixRotationYawPitchRoll(&Target, Rotation.y, Rotation.x, Rotation.z);
 }
-inline Matrix Translation(const Vector3& Location)
+inline Matrix FMath::Translation(const Vector3& Location)
 {
-	return *D3DXMatrixTranslation(nullptr, Location.x, Location.y, Location.z);
+	Matrix Target;
+	return *D3DXMatrixTranslation(&Target, Location.x, Location.y, Location.z);
 }
 
-inline void Identity(Matrix& _Matrix)
+inline void FMath::Identity(Matrix& _Matrix)
 {
 	D3DXMatrixIdentity(&_Matrix);
 };
 
-static inline Matrix WorldMatrix(
+ inline Matrix FMath::WorldMatrix(
 	const Vector3& Scale,
 	const Vector3& Forward,
 	const Vector3& Right,
@@ -331,7 +347,7 @@ static inline Matrix WorldMatrix(
 Matrix FMath::WorldMatrix(
 	const Vector3& Scale, const Vector3& Rotation, const Vector3& Location)
 {
-	return FMath::Scale(Scale) * FMath::Rotation(Rotation) * FMath::Translation																	(Location);
+	return FMath::Scale(Scale) * FMath::Rotation(Rotation) * FMath::Translation(Location);
 }
 
 template<typename _Ty>
@@ -359,10 +375,11 @@ inline T FMath::Clamp(const T& Target, const T& Min, const T& Max)
 
 inline Matrix FMath::RotationAxisMatrix(const Vector3 Axis, const float Radian)
 {
-	return *D3DXMatrixRotationAxis(nullptr, &Axis, Radian);;
+	Matrix RotationMatrix;
+	return *D3DXMatrixRotationAxis(&RotationMatrix, &Axis, Radian);;
 }
 
-bool IsTriangleToRay(
+inline bool FMath::IsTriangleToRay(
 	const PlaneInfo& Lhs,
 	const Ray& Rhs,
 	float& t, Vector3& IntersectPoint)
@@ -466,4 +483,22 @@ bool FMath::IsPlaneToSphere(
 	 }
 
 	 return false;
+ }
+
+ inline bool FMath::InnerPointFromFace(const Vector3& Point, const std::array<Vector3, 3ul>& Face)
+ {
+	 std::array <Vector3, 3u> ToVertexs;
+
+	 for (size_t i = 0; i < ToVertexs.size(); ++i)
+	 {
+		 ToVertexs[i] = FMath::Normalize(Face[i] - Point);
+	 }
+
+	 float Radian = 0;
+	 Radian += std::acosf(Dot(ToVertexs[0], ToVertexs[1]));
+	 Radian += std::acosf(Dot(ToVertexs[1], ToVertexs[2]));
+	 Radian += std::acosf(Dot(ToVertexs[2], ToVertexs[0]));
+
+	 return AlmostEqual<float>(Radian, PI * 2.f);
+
  }

@@ -11,9 +11,6 @@ namespace Engine
 		void Initialize(const RenderInterface::Group _Group)&;
 		virtual void Update(const float DeltaTime) & override;
 		virtual void Render() & override;
-
-		int Test = 99;
-
 	};
 };
 

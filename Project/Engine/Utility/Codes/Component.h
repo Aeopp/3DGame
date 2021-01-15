@@ -4,7 +4,7 @@
 
 namespace Engine
 {
-	class DLL_DECL Component abstract
+	class DLL_DECL Component  
 	{
 	public:
 		enum Property : uint32
@@ -18,13 +18,11 @@ namespace Engine
 		};
 	public:
 		virtual ~Component()noexcept = default;
-		Component(Component&&)noexcept = default;
-		Component(const Component&) = default;
 		Component()=default;
 	public:
 		void Initialize()&;
 		virtual void Update(class Object* const Owner,
-			const float DeltaTime)& abstract;
+			const float DeltaTime)& ;
 	public:
 		// 자식마다 정의.
 		static const inline Property TypeProperty = Property::Standard;

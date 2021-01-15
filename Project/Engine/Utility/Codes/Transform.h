@@ -17,7 +17,10 @@ namespace Engine
 		static const inline Property TypeProperty = Property::Transform;
 	public :
 		void Rotate(Vector3 Axis, const float Radian)&;
-		void Move(Vector3 Direction,const float DeltaTime,const float Speed); 
+		void Move(Vector3 Direction, const float DeltaTime,const float Speed);
+		void MoveForward(const float DeltaTime ,const float Speed);
+		void MoveRight(const float DeltaTime, const float Speed);
+		void MoveUp(const float DeltaTime, const float Speed);
 		inline void SetScale(const Vector3& Scale)&;
 	public:
 		const Matrix& UpdateWorld()&;

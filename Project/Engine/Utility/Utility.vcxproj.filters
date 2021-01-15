@@ -55,6 +55,9 @@
     <Filter Include="Object\Camera">
       <UniqueIdentifier>{fc238c09-2db9-420f-a194-e68b5485442e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Object\Camera\Dynamic">
+      <UniqueIdentifier>{c6324e2e-0c3f-477a-b7b8-efa9127a9ab2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
@@ -99,6 +102,12 @@
     <ClInclude Include="Codes\Camera.h">
       <Filter>Object\Camera</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\Transform.h">
+      <Filter>Component\Transform</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\DynamicCamera.h">
+      <Filter>Object\Camera\Dynamic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">
@@ -139,6 +148,12 @@
     </ClCompile>
     <ClCompile Include="Codes\Camera.cpp">
       <Filter>Object\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Transform.cpp">
+      <Filter>Component\Transform</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\DynamicCamera.cpp">
+      <Filter>Object\Camera\Dynamic</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
