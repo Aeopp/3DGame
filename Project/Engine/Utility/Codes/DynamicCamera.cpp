@@ -23,6 +23,7 @@ void Engine::DynamicCamera::Update(const float DeltaTime)&
 		static_cast <float> (_Control->GetMouseMove(MouseMove::X))* DeltaTime;
 	const float Pitch = 
 		static_cast <float> (_Control->GetMouseMove(MouseMove::Y))  *DeltaTime;
+	MouseFix();
 
 	auto _Transform = GetComponent<Transform>(); 
 	_Transform->Rotate({ 0,1,0 }, Yaw);

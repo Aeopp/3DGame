@@ -15,7 +15,7 @@ namespace Engine
 		inline auto Get(const std::wstring& Name);
 		template<typename ResourceType, typename ResourceCreateMethodType, typename... Params>
 		inline auto Create(
-			const std::wstring& ResourceName , 
+			const std::wstring& ResourceName,
 			ResourceCreateMethodType _ResourceCreate,
 			Params&&... _Params);
 	private:
@@ -23,7 +23,7 @@ namespace Engine
 		inline auto CreateImplementation(TupleType& Tuple, const std::wstring& ResourceName);;
 	private:
 		std::unordered_map<size_t,
-			std::unordered_map<std::wstring, DX::UniquePtr<IUnknown>>> Container;
+			std::unordered_map<std::wstring, DX::SharedPtr<IUnknown>>> Container;
 	};
 };
 
@@ -39,10 +39,10 @@ inline auto Engine::ResourceSystem::Create(
 	ResourceCreateMethodType _ResourceCreate,
 	Params&&... _Params)
 {
-	using TupleType = std::tuple<Params...>;
 	auto Tuple = std::make_tuple(std::forward<Params>(_Params)...);
+	using TupleType = decltype(Tuple);
 	std::apply(_ResourceCreate, Tuple);
-	return CreateImplementation<TupleType, ResourceType,			std::tuple_size_v<TupleType>-1>(Tuple, ResourceName);
+	return CreateImplementation<TupleType, ResourceType, std::tuple_size_v<TupleType>-1>(Tuple, ResourceName);
 }
 
 template<typename TupleType, typename ResourceType, int32 Idx>
@@ -54,12 +54,10 @@ inline auto Engine::ResourceSystem::CreateImplementation(
 	if constexpr (std::is_same_v<TargetType, ResourceType>
 		|| Idx < 0)
 	{
-		/*return   Container[typeid(TargetType).hash_code()].insert({ ResourceName  ,  DX::MakeUnique(*std::get<Idx>(Tuple)) });*/
-		return 1;
+		return static_cast<ResourceType* const> (Container[typeid(TargetType).hash_code()].emplace(ResourceName, DX::MakeShared(*std::get<Idx>(Tuple))).first->second.get());
 	}
 	else
 	{
-		return 2;
-		/*return CreateImplementation<TupleType, ResourceType, Idx - 1>(Tuple, ResourceName);*/
+		return CreateImplementation<TupleType, ResourceType, Idx - 1>(Tuple, ResourceName);
 	}
 }

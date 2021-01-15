@@ -38,8 +38,10 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	auto* _Control = &RefControl();
 
 	   D3DLOCKED_RECT LockRect; 
+	   IDirect3DTexture9* ResourcePtr{ nullptr };
+
 	  auto Tex = RefResourceSys().Create<IDirect3DTexture9>(
-		L"SS",D3DXCreateTextureFromFile,Device,L"..\\..\\Resource\\Texture\\Player0.jpg",&aas);
+		L"SS",D3DXCreateTextureFromFile,Device,L"..\\..\\Resource\\Texture\\Player0.jpg",&ResourcePtr);
 
 	Tex->LockRect(0, &LockRect, 0, D3DLOCK_DISCARD);
 	Tex->UnlockRect(0);
