@@ -11,30 +11,39 @@ namespace Engine
 		using Super = Component;
 		void Initialize()&;
 		virtual void Update(class Object* const Owner,
-			const float DeltaTime)& abstract;
+							const float DeltaTime)& override;
 	public:
 		// 자식마다 정의.
 		static const inline Property TypeProperty = Property::Transform;
+	public :
+		void Rotate(Vector3 Axis, const float Radian)&;
+		void Move(Vector3 Direction,const float DeltaTime,const float Speed); 
+		inline void SetScale(const Vector3& Scale)&;
 	public:
-		inline const auto& GetWorld()const&;
+		const Matrix& UpdateWorld()&;
 		inline const auto& GetLocation()const&;
 		inline const auto& GetRotation() const&;
 		inline const auto& GetScale() const&;
-		inline auto GetForward() const&;
-		inline auto GetRight() const&;
-		inline auto GetUp()const&;
+		inline const auto& GetForward() const&;
+		inline const auto& GetRight() const&;
+		inline const auto& GetUp()const&;
+	private:
+		void UpdateBasis(const Matrix& From)&;
 	private:
 		Matrix World;
-		Vector3 Scale;
-		Vector3 Rotation;
-		Vector3 Location;
+		Vector3 Scale{ 1,1,1 };
+		Vector3 Forward{ 0,0,1 };
+		Vector3 Right{ 1,0,0 };
+		Vector3 Up{ 0,1,0 };
+		Vector3 Rotation{ 0,0,0 };
+		Vector3 Location{ 0,0,0 };
 	};
 };
 
-inline const auto& Engine::Transform::GetWorld() const&
+inline void Engine::Transform::SetScale(const Vector3& Scale)&
 {
-	return World;
-}
+	this->Scale = Scale;
+};
 
 inline const auto& Engine::Transform::GetLocation() const&
 {
@@ -51,19 +60,19 @@ inline const auto& Engine::Transform::GetScale() const&
 	return Scale; 
 }
 
-inline auto Engine::Transform::GetForward() const&
+inline const auto& Engine::Transform::GetForward() const&
 {
-	return Vector3{ World._31, World._32,World._33 };
+	return Forward;
 }
 
-inline auto Engine::Transform::GetRight() const&
+inline const auto& Engine::Transform::GetRight() const&
 {
-	return Vector3{World._11 , World._12,World._13  };
+	return Right;
 }
 
-inline auto Engine::Transform::GetUp() const&
+inline const auto& Engine::Transform::GetUp() const&
 {
-	return Vector3{ World._21 , World._22,World._23 };
+	return Up;
 }
 
 

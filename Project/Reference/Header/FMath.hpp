@@ -60,10 +60,20 @@ public:
 	static inline Matrix RotationAxisMatrix(
 		const Vector3 Axis, const float Radian);;
 
+	static inline void Identity(Matrix& _Matrix);
+
+	static inline Matrix WorldMatrix(
+									const Vector3& Scale, 
+									const Vector3& Forward,
+									const Vector3& Right,
+									const Vector3& Up,
+									const Vector3& Location);
+
 	static inline Matrix WorldMatrix(const Vector3& Scale, const Vector3& Rotation,
 								const Vector3& Location);
 
 	static inline Matrix Scale(const Vector3& Scale);
+						// Yaw Pitch Roll
 	static inline Matrix Rotation(const Vector3& Rotation);
 	static inline Matrix Translation(const Vector3& Location);
 
@@ -296,6 +306,27 @@ inline Matrix Translation(const Vector3& Location)
 {
 	return *D3DXMatrixTranslation(nullptr, Location.x, Location.y, Location.z);
 }
+
+inline void Identity(Matrix& _Matrix)
+{
+	D3DXMatrixIdentity(&_Matrix);
+};
+
+static inline Matrix WorldMatrix(
+	const Vector3& Scale,
+	const Vector3& Forward,
+	const Vector3& Right,
+	const Vector3& Up,
+	const Vector3& Location)
+{
+	static constexpr size_t Vec3Size = sizeof(Vector3); 
+	Matrix BasisMatrix;
+	memcpy(&BasisMatrix._11, &Right, Vec3Size);
+	memcpy(&BasisMatrix._21, &Up, Vec3Size);
+	memcpy(&BasisMatrix._31, &Forward, Vec3Size);
+
+	return 	FMath::Scale(Scale)* BasisMatrix* FMath::Translation(Location);
+};
 
 Matrix FMath::WorldMatrix(
 	const Vector3& Scale, const Vector3& Rotation, const Vector3& Location)
