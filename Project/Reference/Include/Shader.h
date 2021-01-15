@@ -12,7 +12,8 @@ namespace Engine
 	private:
 		Shader() = default;
 	public:
-		static Shader Create(const std::wstring& ShaderFileName,
+		static Shader Create(
+			const std::wstring& ShaderFileName,
 			IDirect3DDevice9* const Device,
 			const std::vector<std::string>& VsConstantVariableNames,
 			const std::vector<std::string>& PsConstantVariableNames,

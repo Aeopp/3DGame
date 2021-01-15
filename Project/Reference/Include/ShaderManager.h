@@ -12,6 +12,12 @@ namespace Engine
 	public:
 		void Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)&;
 		void Update(const Vector4& CameraLocation, const Vector4& LightLocation);
+		Engine::Shader& EmplaceShader(
+			const std::wstring& ShaderName,
+			const std::wstring& ShaderFileName,
+			const std::vector<std::string>& VsConstantVariableNames,
+			const std::vector<std::string>& PsConstantVariableNames,
+			const std::vector<std::string>& SamplerNames)&;
 		Shader& RefShader(const std::wstring& ShaderName);
 	private:
 		DX::SharedPtr<IDirect3DDevice9> Device{ nullptr };

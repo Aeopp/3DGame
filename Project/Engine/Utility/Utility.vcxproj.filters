@@ -58,6 +58,9 @@
     <Filter Include="Object\Camera\Dynamic">
       <UniqueIdentifier>{c6324e2e-0c3f-477a-b7b8-efa9127a9ab2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader\HLSL">
+      <UniqueIdentifier>{aab2ebb1-071f-484a-b387-5ce6ae2c8530}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">

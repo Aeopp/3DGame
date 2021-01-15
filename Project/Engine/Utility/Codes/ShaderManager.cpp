@@ -19,10 +19,10 @@ Engine::Shader& Engine::ShaderManager::EmplaceShader(
 	const std::vector<std::string>& PsConstantVariableNames, 
 	const std::vector<std::string>& SamplerNames)&
 {
-	return ShaderMap[ShaderName] = 
-			  Shader::Create(ShaderFileName, 
-			  Device.get(), VsConstantVariableNames,
-			  PsConstantVariableNames, SamplerNames);
+	return ShaderMap.insert({ ShaderName ,
+		Shader::Create(ShaderFileName,
+			Device.get(), VsConstantVariableNames,
+			PsConstantVariableNames, SamplerNames) }).first->second;
 }
 
 typename Engine::Shader& 

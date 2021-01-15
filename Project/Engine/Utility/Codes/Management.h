@@ -20,7 +20,7 @@ namespace Engine
 			const std::pair<uint32, uint32> ClientSize,
 			const D3DMULTISAMPLE_TYPE MultiSample,
 			const float DeltaMax,
-			const std::filesystem::path& SoundPath)&;
+			const std::filesystem::path& ResourcePath)&;
 	public:
 		~Management()noexcept;
 	public:
@@ -55,6 +55,7 @@ namespace Engine
 		std::pair<uint32, uint32> ClientSize;
 		std::unique_ptr<Scene> _CurrentScene{ nullptr };
 	public:
+		std::filesystem::path ResourcePath{};
 		class PrototypeManager* _PrototypeManager{ nullptr };
 		class GraphicDevice* _GraphicDevice{ nullptr };
 		class Sound* _Sound{ nullptr };

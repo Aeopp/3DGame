@@ -18,10 +18,11 @@ void Engine::Management::Initialize(
 	const std::pair<uint32,uint32> ClientSize,
 	const D3DMULTISAMPLE_TYPE MultiSample,
 	const float DeltaMax,
-	const std::filesystem::path& SoundPath)&
+	const std::filesystem::path& ResourcePath)&
 {
 	Hwnd = _Hwnd;
 	this->ClientSize = ClientSize;
+	this->ResourcePath = ResourcePath;
 
 	_GraphicDevice = Engine::GraphicDevice::Init(
 		_Hwnd,
@@ -36,7 +37,7 @@ void Engine::Management::Initialize(
 		[this]() {Render(); },
 		[this]() {LastEvent(); });
 
-	_Sound =Engine::Sound::Init(SoundPath);
+	_Sound =Engine::Sound::Init(ResourcePath/L"Sound");
 	_Controller = Engine::Controller::Init(HInstance,_Hwnd);
 	auto Device = _GraphicDevice->GetDevice(); 
 	_Renderer = Engine::Renderer::Init(Device);

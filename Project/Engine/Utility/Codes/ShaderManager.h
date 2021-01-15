@@ -12,7 +12,7 @@ namespace Engine
 	public:
 		void Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)&;
 		void Update(const Vector4& CameraLocation, const Vector4& LightLocation);
-		Engine::Shader& AddShader(
+		Engine::Shader& EmplaceShader(
 			const std::wstring& ShaderName,
 			const std::wstring& ShaderFileName,
 			const std::vector<std::string>& VsConstantVariableNames,

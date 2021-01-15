@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Client">
+      <UniqueIdentifier>{2d23a731-ab05-4bbb-9bea-1fe614ffb961}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Default">
+      <UniqueIdentifier>{eb662d23-6f5c-4027-8ba3-33e1b41e32e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Default\리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="App">
+      <UniqueIdentifier>{57ec84a9-9cf7-44f6-9c82-29f3edaf17a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene">
+      <UniqueIdentifier>{c68d1d24-e424-42fd-a66e-5ad68b816ce2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Layer">
+      <UniqueIdentifier>{26c02ecf-0c6d-4c38-8bf5-c7749e463779}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Layer\Enemy">
+      <UniqueIdentifier>{c2abae9f-23c1-451c-98b4-1e61ffffc1a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Layer\Static">
+      <UniqueIdentifier>{21b35400-d589-4ef2-8469-36b4c2584c67}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="targetver.h">
+      <Filter>Default</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>Default</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Default</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Default</Filter>
+    </ClInclude>
+    <ClInclude Include="Client.h">
+      <Filter>Client</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\App.h">
+      <Filter>App</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\StartScene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\EnemyLayer.h">
+      <Filter>Layer\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\StaticLayer.h">
+      <Filter>Layer\Static</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Default</Filter>
+    </ClCompile>
+    <ClCompile Include="Client.cpp">
+      <Filter>Client</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\App.cpp">
+      <Filter>App</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\StartScene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\EnemyLayer.cpp">
+      <Filter>Layer\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\StaticLayer.cpp">
+      <Filter>Layer\Static</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Client.rc">
+      <Filter>Default\리소스 파일</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="small.ico">
+      <Filter>Default\리소스 파일</Filter>
+    </Image>
+    <Image Include="Client.ico">
+      <Filter>Default\리소스 파일</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
