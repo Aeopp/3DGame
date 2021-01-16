@@ -4318,7 +4318,11 @@ extern "C" {
  * and should be reloaded from the registery.
  * dwFlags is reserved and should be set to zero
  */
+#ifdef _MSC_VER
+#pragma warning(disable:28251)
 WINMMAPI MMRESULT WINAPI joyConfigChanged( DWORD dwFlags );
+#pragma warning(default:28251)
+#endif
 
 #ifndef DIJ_RINGZERO
 /*

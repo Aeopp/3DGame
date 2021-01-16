@@ -6,6 +6,10 @@
 #include "Client.h"
 #include "App.h"
 #include "Management.h"
+#include "imgui.h"
+#include "imgui_impl_dx9.h"
+#include "imgui_impl_win32.h"
+
 
 #ifdef UNICODE
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
@@ -142,7 +146,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
         return FALSE;
     }
 
-    ShowWindow(hWnd, nCmdShow);
+    ShowWindow(hWnd, SW_SHOWDEFAULT);
     UpdateWindow(hWnd);
 
    App::Init(hWnd, hInst);
@@ -160,8 +164,14 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - 종료 메시지를 게시하고 반환합니다.
 //
 //
+ 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+    {
+        return true; 
+    }
+
     switch (message)
     {
     case WM_COMMAND:

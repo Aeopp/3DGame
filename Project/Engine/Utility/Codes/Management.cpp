@@ -9,7 +9,12 @@
 #include "FontManager.h"
 #include "FMath.hpp"
 #include "ResourceSystem.h"
+#include "imgui_impl_dx9.h"
+#include "imgui_impl_win32.h"
+#include "imgui.h"
 
+void ImGuiInitialize(const HWND Hwnd, IDirect3DDevice9* const Device);
+void ImGuiFrameStart();
 
 void Engine::Management::Initialize(
 	const HWND _Hwnd,
@@ -45,10 +50,16 @@ void Engine::Management::Initialize(
 	_PrototypeManager = Engine::PrototypeManager::Init();
 	_FontManager = Engine::FontManager::Init();
 	_ResourceSys = Engine::ResourceSystem::Init();
+
+	ImGuiInitialize(Hwnd, Device.get());
 }
 
 Engine::Management::~Management() noexcept
 {
+	ImGui_ImplDX9_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+
 	Sound::Reset();
 	Controller::Reset();
 	Timer::Reset();
@@ -67,7 +78,8 @@ void Engine::Management::GameLoop()&
 
 void Engine::Management::Event()&
 {
-	//system("cls");
+	ImGuiFrameStart();
+
 	_Controller->Update();
 	_Sound->Update();
 }
@@ -76,12 +88,15 @@ void Engine::Management::Update(const float DeltaTime)&
 {
 	if(_CurrentScene)
 		_CurrentScene->Update(DeltaTime);
+
+	ImGui::EndFrame();
 }
 
 void Engine::Management::Render()&
 {
 	_GraphicDevice->Begin();
-
+	ImGui::Render();
+	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 	_Renderer->Render();
 
 	_FontManager->RenderFont(L"Font_Jinji", L"ÁøÁöÇÔ", { 400,300 }, D3DXCOLOR{0.5f,1.f,0.5f,0.1f});
@@ -96,4 +111,25 @@ void Engine::Management::LastEvent()&
 		_CurrentScene->PendingKill();
 }
 
+
+
+
+void ImGuiInitialize(const HWND Hwnd, IDirect3DDevice9* const Device)
+{
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& ImGuiIoRef = ImGui::GetIO();
+	ImGuiIoRef.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	ImGui::StyleColorsDark();
+	ImGui_ImplWin32_Init(Hwnd);
+	ImGui_ImplDX9_Init(Device);
+}
+
+void ImGuiFrameStart()
+{
+	ImGui_ImplDX9_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+	ImGui::ShowDemoWindow();
+}
 

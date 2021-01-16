@@ -83,6 +83,12 @@ Index of this file:
 #error Use IMGUI_DISABLE_DEFAULT_MATH_FUNCTIONS
 #endif
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:26812)
+#pragma warning(disable:26495)
+#endif
+
 //-----------------------------------------------------------------------------
 // [SECTION] Forward declarations
 //-----------------------------------------------------------------------------

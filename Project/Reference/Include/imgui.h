@@ -44,6 +44,13 @@ Index of this file:
 #include "imconfig.h"
 #endif
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:26495)
+#endif
+
+
+
 #ifndef IMGUI_DISABLE
 
 //-----------------------------------------------------------------------------
@@ -2701,6 +2708,10 @@ struct ImFont
 #pragma clang diagnostic pop
 #elif defined(__GNUC__)
 #pragma GCC diagnostic pop
+#endif
+
+#ifdef _MSC_VER
+#pragma warning(pop)
 #endif
 
 // Include imgui_user.h at the end of imgui.h (convenient for user to only explicitly include vanilla imgui.h)

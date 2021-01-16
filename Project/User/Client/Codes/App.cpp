@@ -4,6 +4,9 @@
 #include "Sound.h"
 #include "FontManager.h"
 #include "StartScene.h"
+#include "imgui.h"
+#include "imgui_impl_dx9.h"
+#include "imgui_impl_win32.h"
 #include <chrono>
 #include <filesystem>
 

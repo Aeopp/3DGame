@@ -98,7 +98,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>..\\..\\Reference\\Header\\;..\\..\\Reference\\Include\\;Codes\\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\\..\\Reference\\Header\\;..\\..\\Reference\\Include\\;Codes\\;Codes\\ImGui\\;</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
@@ -123,7 +123,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>..\\..\\Reference\\Header\\;..\\..\\Reference\\Include\\;Codes\\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\\..\\Reference\\Header\\;..\\..\\Reference\\Include\\;Codes\\;Codes\\ImGui\\;</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
@@ -149,7 +149,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>..\\..\\Reference\\Header\\;..\\..\\Reference\\Include\\;Codes\\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\\..\\Reference\\Header\\;..\\..\\Reference\\Include\\;Codes\\;Codes\\ImGui\\;</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
@@ -174,7 +174,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>..\\..\\Reference\\Header\\;..\\..\\Reference\\Include\\;Codes\\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\\..\\Reference\\Header\\;..\\..\\Reference\\Include\\;Codes\\;Codes\\ImGui\\;</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
@@ -197,6 +197,13 @@
     <ClCompile Include="Codes\Component.cpp" />
     <ClCompile Include="Codes\DynamicCamera.cpp" />
     <ClCompile Include="Codes\HeightMap.cpp" />
+    <ClCompile Include="Codes\ImGui\imgui.cpp" />
+    <ClCompile Include="Codes\ImGui\imgui_demo.cpp" />
+    <ClCompile Include="Codes\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="Codes\ImGui\imgui_impl_dx9.cpp" />
+    <ClCompile Include="Codes\ImGui\imgui_impl_win32.cpp" />
+    <ClCompile Include="Codes\ImGui\imgui_tables.cpp" />
+    <ClCompile Include="Codes\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Codes\RenderObject.cpp" />
     <ClCompile Include="Codes\Layer.cpp" />
     <ClCompile Include="Codes\Management.cpp" />
@@ -215,6 +222,14 @@
     <ClInclude Include="Codes\DynamicCamera.h" />
     <ClInclude Include="Codes\ExportUtility.hpp" />
     <ClInclude Include="Codes\HeightMap.h" />
+    <ClInclude Include="Codes\ImGui\imconfig.h" />
+    <ClInclude Include="Codes\ImGui\imgui.h" />
+    <ClInclude Include="Codes\ImGui\imgui_impl_dx9.h" />
+    <ClInclude Include="Codes\ImGui\imgui_impl_win32.h" />
+    <ClInclude Include="Codes\ImGui\imgui_internal.h" />
+    <ClInclude Include="Codes\ImGui\imstb_rectpack.h" />
+    <ClInclude Include="Codes\ImGui\imstb_textedit.h" />
+    <ClInclude Include="Codes\ImGui\imstb_truetype.h" />
     <ClInclude Include="Codes\RenderObject.h" />
     <ClInclude Include="Codes\Layer.h" />
     <ClInclude Include="Codes\Management.h" />
