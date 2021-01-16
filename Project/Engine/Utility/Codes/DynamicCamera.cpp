@@ -1,6 +1,7 @@
 #include "DynamicCamera.h"
 #include "Transform.h"
 #include "Controller.h"
+#include "imgui.h"
 
 void Engine::DynamicCamera::Initialize(
 	const float FovY,
@@ -19,15 +20,19 @@ void Engine::DynamicCamera::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
 
-	const float Yaw = 
-		static_cast <float> (_Control->GetMouseMove(MouseMove::X))* DeltaTime;
-	const float Pitch = 
-		static_cast <float> (_Control->GetMouseMove(MouseMove::Y))  *DeltaTime ;
-	MouseFix();
+	auto _Transform = GetComponent<Transform>();
 
-	auto _Transform = GetComponent<Transform>(); 
-	_Transform->Rotate({ 0,1,0 }, Yaw);
-	_Transform->Rotate(_Transform->GetRight(), Pitch);
+	if (bMouseFix)
+	{
+		const float Yaw =
+			static_cast <float> (_Control->GetMouseMove(MouseMove::X)) * DeltaTime;
+		const float Pitch =
+			static_cast <float> (_Control->GetMouseMove(MouseMove::Y)) * DeltaTime;
+		MouseFix();
+
+		_Transform->Rotate({ 0,1,0 }, Yaw);
+		_Transform->Rotate(_Transform->GetRight(), Pitch);
+	}
 
 	if (_Control->IsPressing(DIK_W))
 	{
@@ -36,12 +41,10 @@ void Engine::DynamicCamera::Update(const float DeltaTime)&
 	if (_Control->IsPressing(DIK_S))
 	{
 		_Transform->MoveForward(DeltaTime, -Speed);
-
 	}
 	if (_Control->IsPressing(DIK_D))
 	{
 		_Transform->MoveRight(DeltaTime, Speed);
-
 	}
 	if (_Control->IsPressing(DIK_A))
 	{
@@ -53,7 +56,15 @@ void Engine::DynamicCamera::Update(const float DeltaTime)&
 void Engine::DynamicCamera::LateUpdate(const float DeltaTime)&
 {
 	Super::LateUpdate(DeltaTime);
-};
+}
+void Engine::DynamicCamera::Event()&
+{
+	if (_Control->IsDown(DIK_P))
+	{
+		MouseFixToggle();
+	}
+}
+;
 
 void Engine::DynamicCamera::PrototypeInitialize(
 							IDirect3DDevice9* const Device ,
@@ -71,5 +82,10 @@ void Engine::DynamicCamera::MouseFix()&
 						static_cast<int32>(ViewPort.Height / 2u) };
 	ClientToScreen(Hwnd, &FixPosition);
 	SetCursorPos(FixPosition.x, FixPosition.y);
-};
+}
+void Engine::DynamicCamera::MouseFixToggle()&
+{
+	bMouseFix = !bMouseFix;
+}
+;
 

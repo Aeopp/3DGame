@@ -26,6 +26,9 @@
     <Filter Include="Layer\Static">
       <UniqueIdentifier>{21b35400-d589-4ef2-8469-36b4c2584c67}</UniqueIdentifier>
     </Filter>
+    <Filter Include="HLSL">
+      <UniqueIdentifier>{9c8eda08-8ccb-41a5-a4e5-1e5afa0d65a9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">

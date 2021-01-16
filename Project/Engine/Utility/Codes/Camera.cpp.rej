@@ -1,0 +1,9 @@
+diff a/Project/Engine/Utility/Codes/Camera.cpp b/Project/Engine/Utility/Codes/Camera.cpp	(rejected hunks)
+@@ -23,6 +23,7 @@
+ 	auto From = _Transform->UpdateWorld();
+ 
+ 	gForward = Vector3({ From._31,From._32,From._33 });;
++	gRight = Vector3({ From._11,From._12,From._13 });;
+ 	gUp = Vector3({ From._21,From._22,From._23 });;
+ 
+ 	ImGui::Begin("TestTransform");

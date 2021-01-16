@@ -60,6 +60,9 @@ Engine::Management::~Management() noexcept
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 
+	if (_CurrentScene)
+		_CurrentScene.reset();
+
 	Sound::Reset();
 	Controller::Reset();
 	Timer::Reset();
@@ -96,13 +99,13 @@ void Engine::Management::Update(const float DeltaTime)&
 void Engine::Management::Render()&
 {
 	_GraphicDevice->Begin();
-	ImGui::Render();
-	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+	
 	_Renderer->Render();
 
 	_FontManager->RenderFont(L"Font_Jinji", L"진지함", { 400,300 }, D3DXCOLOR{0.5f,1.f,0.5f,0.1f});
 	_FontManager->RenderFont(L"Font_Default", L"기본", { 600,200}, D3DXCOLOR{ 0.5f,0.f,0.5f,1.f });
-
+	ImGui::Render();
+	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 	_GraphicDevice->End();
 }
 

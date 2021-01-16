@@ -18,6 +18,8 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 #include "imgui.h"
+#include "FontManager.h"
+
 
 
 
@@ -37,7 +39,10 @@ struct _16_t
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
 {
     Super::Initialize(Device);
-	
+
+	RefFontManager().AddFont(Device, L"Font_Default", L"πŸ≈¡", 15, 20, FW_HEAVY);
+	RefFontManager().AddFont(Device, L"Font_Jinji", L"±√º≠", 15, 20, FW_THIN);
+
 	auto* _Control = &RefControl();
 
 	   D3DLOCKED_RECT LockRect; 

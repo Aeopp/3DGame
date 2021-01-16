@@ -13,30 +13,18 @@ void Engine::Transform::Update(Object* const Owner, const float DeltaTime)&
 {
 
 };
-
-void Engine::Transform::UpdateBasis(const Matrix& From)&
-{
-	Forward = FMath::Normalize({ From._31,From._32,From._33 });
-	Right = FMath::Normalize({ From._11,From._12,From._13 });
-	Up = FMath::Normalize({ From._21,From._22,From._23 });
-};
-
 const Matrix& Engine::Transform::UpdateWorld()&
 {
 	World = FMath::WorldMatrix(Scale, Rotation, Location);
-	UpdateBasis(World);
 	return World;
 };
 
 void Engine::Transform::Rotate(Vector3 Axis, const float Radian)&
 {
 	Axis = FMath::Normalize(Axis);
-
-	//FMath::RotationVecNormal(Forward, Axis, Radian);
-	Matrix RotationMatrix = FMath::Rotation(Rotation)
-		* FMath::RotationAxisMatrix(Axis, Radian);
-
-	UpdateBasis(RotationMatrix);
+	Forward = FMath::Normalize(FMath::RotationVecNormal(Forward, Axis, Radian));
+	Right= FMath::Normalize(FMath::RotationVecNormal(Right, Axis, Radian));
+	Up = FMath::Normalize(FMath::RotationVecNormal(Up , Axis, Radian));
 
 	Vector3 _Unit = Forward;
 	_Unit.x = 0.f;

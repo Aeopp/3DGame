@@ -12,6 +12,7 @@ namespace Engine
 		using Super = Camera;
 		virtual void Update(const float DeltaTime)& override;
 		virtual void LateUpdate(const float DeltaTime) & override;
+		virtual void Event()& override;
 		void Initialize(const float FovY,
 						const float Near,
 						const float Far,
@@ -22,7 +23,9 @@ namespace Engine
 								  const HWND Hwnd)&;
 	private:
 		void MouseFix()&;
+		void MouseFixToggle()&;
 	private:
+		bool bMouseFix{ false };
 		float Speed = 1.f;
 		HWND Hwnd{ NULL };
 		Controller* _Control{ nullptr };

@@ -31,8 +31,6 @@ namespace Engine
 		inline const auto& GetRight() const&;
 		inline const auto& GetUp()const&;
 	private:
-		void UpdateBasis(const Matrix& From)&;
-	private:
 		Matrix World;
 		Vector3 Scale{ 1,1,1 };
 		Vector3 Forward{ 0,0,1 };

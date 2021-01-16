@@ -25,10 +25,8 @@ void App::Initialize(const HWND _Hwnd, const HINSTANCE HInstance)&
 
 	auto Device = RefGraphic().GetDevice();
 
-	RefFontManager().AddFont(Device.get(), L"Font_Default", L"πŸ≈¡", 15, 20, FW_HEAVY);
-	RefFontManager().AddFont(Device.get(), L"Font_Jinji", L"±√º≠", 15, 20, FW_THIN);
 	
-	RefSound().Play("song", 1.f, true, true);
+	//RefSound().Play("song", 1.f, true, true);
 
 	StartSceneLoad();
 }
