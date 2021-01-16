@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include <future>
 
 void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>&  Device)&
 {
@@ -19,12 +20,32 @@ void Engine::Renderer::Regist(RenderInterface* const Target)
 
 void Engine::Renderer::RenderEnviroment()&
 {
-	auto iter = RenderObjects.find(RenderInterface::Group::Enviroment);
-	if (iter != std::end(RenderObjects))
+#ifdef PARALLEL
+	if (auto iter = RenderObjects.find(RenderInterface::Group::Enviroment);
+		iter != std::end(RenderObjects))
+	{
+		std::vector<std::future<void>> Futures;
+		for (auto& Enviroment : iter->second)
+		{
+			Futures.push_back(std::async(std::launch::async,
+				[Enviroment]() {
+					Enviroment.get().Render();
+				}));
+		}
+		for (auto& Future : Futures)
+		{
+			Future.get();
+		}
+		Futures.clear();
+	}
+#else
+	if (auto iter = RenderObjects.find(RenderInterface::Group::Enviroment);
+		iter != std::end(RenderObjects))
 	{
 		for (auto& Enviroment : iter->second)
 		{
 			Enviroment.get().Render();
 		}
 	}
+#endif
 }

@@ -145,10 +145,6 @@ void Temp()
     g_pVB->Unlock();
     // Lock() - Unlock()
     g_pIB->Unlock();
-
-
-
-
 }
 
 
@@ -204,8 +200,18 @@ void Engine::HeightMap::Update(const float DeltaTime)&
 
 void Engine::HeightMap::Render()&
 {
-    Device->SetFVF(Vertex::Texture::FVF);
     auto _Transform = GetComponent < Transform>();
+
+    for (size_t i = 0; i < 10000; ++i)
+    {
+        Vector3 RandVector = FMath::Normalize(FMath::Random(Vector3{ -1,-1,-1, }, Vector3{ 1,1,1 }));
+
+        _Transform->Rotate(RandVector ,     
+        FMath::Random(-FMath::PI, FMath::PI));
+    }
+
+    Device->SetFVF(Vertex::Texture::FVF);
+    
     Device->SetTransform(D3DTS_WORLD, &_Transform->UpdateWorld());
     Device->SetStreamSource(0, VertexBuffer, 0, sizeof(Vertex::Texture));
     //Device->SetTexture(0, Texture);
@@ -222,7 +228,7 @@ void Engine::HeightMap::Render()&
     D3DXMatrixLookAtLH(&View, &BB, &AA,
         &CC);
     Matrix World;
-    World = FMath::WorldMatrix({ 1,1,1 }, { 0,0,0 }, { 0,0,0 });
+    World = _Transform->UpdateWorld();
 
     /*Device->SetTransform(D3DTS_VIEW, &View);
     Device->SetTransform(D3DTS_PROJECTION, &Proj);*/
@@ -236,7 +242,7 @@ void Engine::HeightMap::Render()&
     Device->SetFVF(CUSTOMVERTEX::FVF);
     Device->SetIndices(g_pIB);
     Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, g_cxHeight * g_czHeight, 0, (g_cxHeight - 1) * (g_czHeight - 1) * 2);
-    Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
-    Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+    //Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+    //Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 
 }

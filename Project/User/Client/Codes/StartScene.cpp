@@ -94,11 +94,10 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 			Device, Engine::RenderInterface::Group::Enviroment);
 		RefProto().LoadPrototype<Engine::DynamicCamera>(L"Static", Device, App::Hwnd);
 
-		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap");
-		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap2");
-		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap3");
-		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap4");
-		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap5");
+		for (size_t i = 0; i < 16; ++i)
+		{
+			RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap" + std::to_wstring(i));
+		}
 		bInit = true;
 	}
 	else
@@ -153,11 +152,11 @@ void StartScene::Update(const float DeltaTime)&
 	
 	for (auto& q : RefManager().FindObjects<EnemyLayer, Engine::HeightMap>())
 	{
-		std::wcout << q->GetName() << std::endl;
+		//std::wcout << q->GetName() << std::endl;
 	}
 	for (auto& q : RefManager().FindObjects<StaticLayer, Engine::DynamicCamera>())
 	{
-		std::wcout << q->GetName() << std::endl;
+		//std::wcout << q->GetName() << std::endl;
 	}
 
 	auto Objs2 = RefManager().RefObjects<EnemyLayer>();

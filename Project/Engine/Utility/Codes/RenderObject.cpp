@@ -15,12 +15,13 @@ void Engine::RenderObject::PrototypeInitialize(
 void Engine::RenderObject::Event()&
 {
 	Super::Event();
+	RenderInterface::Regist();
 };
 
 void Engine::RenderObject::LateUpdate(const float DeltaTime)&
 {
 	Super::LateUpdate(DeltaTime);
-	RenderInterface::Regist();
+
 }
 void Engine::RenderObject::Update(const float DeltaTime)&
 {
