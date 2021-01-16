@@ -26,8 +26,8 @@ struct Segment
 		return _Segment;
 	};
 
-	Ray _Ray;
-	float t;
+	Ray _Ray{};
+	float t{0.f};
 };
 
 struct PlaneInfo

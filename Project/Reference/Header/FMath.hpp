@@ -13,7 +13,7 @@
 class FMath
 {
 public:
-	static constexpr double PI = std::numbers::pi;
+	static constexpr auto PI = std::numbers::pi_v<float>;
 
 	template<class T>
 	typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type

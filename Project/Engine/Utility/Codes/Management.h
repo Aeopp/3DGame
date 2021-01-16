@@ -7,12 +7,10 @@
 #include "GraphicDevice.h"
 #include "PrototypeManager.h"
 
-
 namespace Engine
 {
 	class DLL_DECL Management : public SingletonInterface<Management>
 	{
-
 	public:
 		void Initialize(const HWND _Hwnd,
 			const HINSTANCE HInstance,
@@ -51,8 +49,8 @@ namespace Engine
 		template<typename LayerSubType, typename ObjectSubType>
 		auto FindObject(const std::wstring& TargetName)&;
 	private:
-		HWND Hwnd;
-		std::pair<uint32, uint32> ClientSize;
+		HWND Hwnd{ NULL };
+		std::pair<uint32, uint32> ClientSize{};
 		std::unique_ptr<Scene> _CurrentScene{ nullptr };
 	public:
 		std::filesystem::path ResourcePath{};
