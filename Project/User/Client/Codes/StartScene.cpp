@@ -123,6 +123,21 @@ void StartScene::Event() &
 	{
 		RefManager().ChangeScene<StartScene>();
 	}
+	if (ImGui::Button("KILL"))
+	{
+		for (auto& [Type,Objects]: RefManager().FindLayer<EnemyLayer>()->RefObjects								())
+		{
+			for (auto& Obj : Objects)
+			{
+				auto Name = Obj->GetName(); 
+
+				if (Name.find(L"HeightMap", 0u) != std::wstring::npos)
+				{
+					Obj->Kill();
+				}
+			}
+		}
+	}
 	ImGui::End();
 }
 void StartScene::Update(const float DeltaTime)&
@@ -131,7 +146,9 @@ void StartScene::Update(const float DeltaTime)&
 
 	auto _Map = RefManager().FindObject<EnemyLayer, Engine::HeightMap>(L"HeightMap2");
 	auto _Layer = RefManager().FindLayer<EnemyLayer>();
-	std::wcout << _Map->GetName() << std::endl;
+
+	if (_Map)
+		_Map->GetName();
 
 	auto& LeyerMap = RefManager().RefLayers();
 	

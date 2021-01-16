@@ -8,6 +8,8 @@
 #include "DllHelper.h"
 #include "Component.h"
 
+
+
 namespace Engine
 {
 	class DLL_DECL Layer abstract
@@ -49,8 +51,13 @@ inline auto Engine::Layer::FindObject(const std::wstring& TargetName)&
 		{
 			return Target->GetName() == TargetName;
 		});
-	
-	return (*iter);
+
+	ObjectSubType* Target{ nullptr };
+
+	if (std::end(TargetContainer) != iter)
+		Target = static_cast<ObjectSubType*>((*iter).get());
+
+	return Target;
 };
 
 template<typename ObjectSubType>
