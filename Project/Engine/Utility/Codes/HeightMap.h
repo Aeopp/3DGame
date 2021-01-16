@@ -9,6 +9,7 @@ namespace Engine
 		using Super = RenderObject;
 	public:
 		void Initialize(const RenderInterface::Group _Group)&;
+		virtual void Event() & override;
 		virtual void Update(const float DeltaTime) & override;
 		virtual void Render() & override;
 	};

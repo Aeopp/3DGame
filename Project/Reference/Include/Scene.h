@@ -17,6 +17,7 @@ namespace Engine
 		virtual ~Scene()noexcept = default;
 	public:
 		virtual void Initialize(IDirect3DDevice9* const Device)& abstract;
+		virtual void Event()&;
 		virtual void Update(const float DeltaTime)&;
 		void PendingKill() & noexcept;
 	public:

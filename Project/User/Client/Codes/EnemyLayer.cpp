@@ -5,3 +5,8 @@ void EnemyLayer::Initialize()
 {
 	Super::Initialize();
 }
+
+void EnemyLayer::Event()&
+{
+	Super::Event();
+}

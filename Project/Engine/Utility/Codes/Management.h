@@ -25,7 +25,9 @@ namespace Engine
 		void GameLoop()&;
 	public:
 		template<typename SceneType>
-		void SetScene() & noexcept;
+		void ChangeScene() & noexcept;
+		// 프레임당 반드시 1번만 호출되는 이벤트
+		// 수학,물리적인 계산이 아니라면 이벤트에서 로직을 구성하는게 좋습니다.
 		void Event()&;
 		void Update(const float DeltaTime)&;
 		void Render()&;
@@ -52,6 +54,7 @@ namespace Engine
 		HWND Hwnd{ NULL };
 		std::pair<uint32, uint32> ClientSize{};
 		std::unique_ptr<Scene> _CurrentScene{ nullptr };
+		std::function<void()> SceneChangeEvent{};
 	public:
 		std::filesystem::path ResourcePath{};
 		class PrototypeManager* _PrototypeManager{ nullptr };
@@ -73,13 +76,24 @@ inline auto& Engine::Management::RefLayers()&
 
 
 template<typename SceneType>
-inline void Engine::Management::SetScene() & noexcept
+inline void Engine::Management::ChangeScene() & noexcept
 {
 	static_assert(std::is_base_of_v <Scene, SceneType>,
 		"is_base_of_v <Scene,SceneType>");
 
-	_CurrentScene = std::make_unique<SceneType>();
-	_CurrentScene->Initialize(_GraphicDevice->GetDevice().get());
+	if (!_CurrentScene)
+	{
+		_CurrentScene = std::make_unique<SceneType>();
+		_CurrentScene->Initialize(_GraphicDevice->GetDevice().get());
+	}
+	else
+	{
+		SceneChangeEvent = [this]()
+		{
+			_CurrentScene = std::make_unique<SceneType>();
+			_CurrentScene->Initialize(_GraphicDevice->GetDevice().get());
+		};
+	}
 }
 
 

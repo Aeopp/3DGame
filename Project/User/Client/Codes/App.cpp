@@ -39,5 +39,5 @@ void App::GameLoop()
 
 void App::StartSceneLoad()&
 {
-	Engine::Management::Instance->SetScene<StartScene>();
+	Engine::Management::Instance->ChangeScene<StartScene>();
 };

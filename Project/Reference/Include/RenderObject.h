@@ -12,6 +12,7 @@ namespace Engine
 	public:
 		void Initialize(const RenderInterface::Group _Group)&;
 	public:
+		virtual void Event()&;
 		virtual void Render()& abstract;
 		virtual void LateUpdate(const float DeltaTime) & override;
 		virtual void Update(const float DeltaTime) & override;

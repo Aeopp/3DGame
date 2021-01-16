@@ -82,14 +82,15 @@ void Engine::Management::Event()&
 
 	_Controller->Update();
 	_Sound->Update();
+
+	_CurrentScene->Event();
+	
+	ImGui::EndFrame();
 }
 
 void Engine::Management::Update(const float DeltaTime)&
 {
-	if(_CurrentScene)
-		_CurrentScene->Update(DeltaTime);
-
-	ImGui::EndFrame();
+	_CurrentScene->Update(DeltaTime);
 }
 
 void Engine::Management::Render()&
@@ -107,12 +108,14 @@ void Engine::Management::Render()&
 
 void Engine::Management::LastEvent()&
 {
-	if (_CurrentScene)
-		_CurrentScene->PendingKill();
+	_CurrentScene->PendingKill();
+
+	if(SceneChangeEvent)
+	{
+		SceneChangeEvent();
+		SceneChangeEvent = nullptr;
+	}
 }
-
-
-
 
 void ImGuiInitialize(const HWND Hwnd, IDirect3DDevice9* const Device)
 {

@@ -14,6 +14,7 @@ namespace Engine
 		//   프로토타입 초기화 단계에서 컴포넌트를 생성하지 마세요.
 		void PrototypeInitialize()&;
 		virtual void Clone()&;
+		virtual void Event()&;
 		virtual void Update(const float DeltaTime)&;
 		virtual void LateUpdate(const float DeltaTime)&;
 	public:

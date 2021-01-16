@@ -9,6 +9,7 @@ public:
 	using Super = Engine::Scene;
 public:
 	virtual void Initialize(IDirect3DDevice9* const Device)&;
+	virtual void Event()& override;
 	virtual void Update(const float DeltaTime) & override;
 private:
 	

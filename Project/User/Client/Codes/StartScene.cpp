@@ -17,6 +17,9 @@
 #include "DynamicCamera.h"
 #include <d3d9.h>
 #include <d3dx9.h>
+#include "imgui.h"
+
+
 
 struct Location3DUV
 {
@@ -94,14 +97,34 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	RefManager().NewObject<StaticLayer, Engine::DynamicCamera>(
 		L"Static", L"Camera4",
 		FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 10.f, _Control);
-
-	RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap",Engine::RenderInterface::Group::Enviroment);
-	RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap2", Engine::RenderInterface::Group::Enviroment);
-	RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap3", Engine::RenderInterface::Group::Enviroment);
-	RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap4", Engine::RenderInterface::Group::Enviroment);
-	RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap5", Engine::RenderInterface::Group::Enviroment);
+	static bool bInit = false;
+	if (bInit == false)
+	{
+		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap", Engine::RenderInterface::Group::Enviroment);
+		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap2", Engine::RenderInterface::Group::Enviroment);
+		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap3", Engine::RenderInterface::Group::Enviroment);
+		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap4", Engine::RenderInterface::Group::Enviroment);
+		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap5", Engine::RenderInterface::Group::Enviroment);
+		bInit = true;
+	}
+	else
+	{
+		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap", Engine::RenderInterface::Group::Enviroment);
+		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap2", Engine::RenderInterface::Group::Enviroment);
+	}
 };
 
+void StartScene::Event() & 
+{
+	Super::Event();
+
+	ImGui::Begin("TTEST");
+	if (ImGui::Button("ChangeScene"))
+	{
+		RefManager().ChangeScene<StartScene>();
+	}
+	ImGui::End();
+}
 void StartScene::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);

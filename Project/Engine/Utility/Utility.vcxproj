@@ -222,14 +222,6 @@
     <ClInclude Include="Codes\DynamicCamera.h" />
     <ClInclude Include="Codes\ExportUtility.hpp" />
     <ClInclude Include="Codes\HeightMap.h" />
-    <ClInclude Include="Codes\ImGui\imconfig.h" />
-    <ClInclude Include="Codes\ImGui\imgui.h" />
-    <ClInclude Include="Codes\ImGui\imgui_impl_dx9.h" />
-    <ClInclude Include="Codes\ImGui\imgui_impl_win32.h" />
-    <ClInclude Include="Codes\ImGui\imgui_internal.h" />
-    <ClInclude Include="Codes\ImGui\imstb_rectpack.h" />
-    <ClInclude Include="Codes\ImGui\imstb_textedit.h" />
-    <ClInclude Include="Codes\ImGui\imstb_truetype.h" />
     <ClInclude Include="Codes\RenderObject.h" />
     <ClInclude Include="Codes\Layer.h" />
     <ClInclude Include="Codes\Management.h" />

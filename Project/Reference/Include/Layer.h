@@ -18,6 +18,7 @@ namespace Engine
 		Layer(Layer&&)noexcept = default;
 	public:
 		void Initialize()&;
+		virtual void Event()&;
 		virtual void Update(const float DeltaTime)&;
 		virtual void LateUpdate(const float DeltaTime)&;
 		void PendingKill() & noexcept;

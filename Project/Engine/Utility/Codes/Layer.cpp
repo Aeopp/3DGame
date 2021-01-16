@@ -7,6 +7,17 @@ void Engine::Layer::Initialize()&
 {
 }
 
+void Engine::Layer::Event()&
+{
+	for (auto& [Key, CurrentObjectContainer] : _ObjectMap)
+	{
+		for (auto& CurrentObject : CurrentObjectContainer)
+		{
+			CurrentObject->Event();
+		};
+	};
+}
+
 void Engine::Layer::Update(const float DeltaTime)&
 {
 	for (auto& [Key, CurrentObjectContainer] : _ObjectMap)

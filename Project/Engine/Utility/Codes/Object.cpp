@@ -15,6 +15,10 @@ void Engine::Object::Clone()&
 			CurrentComp = std::make_shared<Component>(*(CurrentComp.get()));
 		}
 	}*/
+}
+void Engine::Object::Event()&
+{
+
 };
 
 void Engine::Object::Update(const float DeltaTime)&
