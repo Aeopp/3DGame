@@ -10,6 +10,7 @@ namespace Engine
 	{
 	public :
 		using Super = Object;
+		virtual void Event() & override;
 		virtual void Update(const float DeltaTime)& override;
 		virtual void LateUpdate(const float DeltaTime) & override;
 		void Initialize(const float FovY,

@@ -74,7 +74,6 @@ inline auto Engine::Scene::FindLayer()&
 {
 	static_assert(std::is_base_of_v<Layer, LayerSubType>, __FUNCTION__);
 
-	return static_cast<LayerSubType* const>
-			(LayerMap.find(typeid(LayerSubType).name())->second.get());
+	return static_cast<LayerSubType* const>(LayerMap.find(typeid(LayerSubType).name())->second.get());
 }
 

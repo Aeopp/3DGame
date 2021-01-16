@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include "Transform.h"
+#include "imgui.h"
 
 void Engine::Camera::Initialize(
 	const float FovY,
@@ -13,7 +14,20 @@ void Engine::Camera::Initialize(
 	this->FovY = FovY;
 	this->Near = Near;
 	this->Far = Far;
-	this->Aspect;
+	this->Aspect = Aspect;
+}
+
+void Engine::Camera::Event()&
+{
+	ImGui::Begin("CameraInfo");
+	auto _Transform = GetComponent<Transform>();
+	const Vector3& Location =_Transform->GetLocation();
+	const Vector3& Rotation =_Transform->GetRotation();
+	ImGui::Text(
+		"Location\n X : %f \n Y : %f \n Z : %f",Location.x,Location.y,Location.z);
+	ImGui::Text("Rotation\n X : %f \n Y : %f \n Z : %f", 
+		Rotation.x, Rotation.y, Rotation.z);
+	ImGui::End();
 }
 
 void Engine::Camera::Update(const float DeltaTime)&

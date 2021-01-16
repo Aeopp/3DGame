@@ -77,41 +77,35 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	Tex->LockRect(0, &LockRect, 0, D3DLOCK_DISCARD);
 	Tex->UnlockRect(0);
 
-	RefProto().LoadPrototype<Engine::HeightMap>(L"Static");
-	RefProto().LoadPrototype<Engine::DynamicCamera>(L"Static", Device ,App::Hwnd);
-
 	RefManager().NewLayer<EnemyLayer>();
 	RefManager().NewLayer<StaticLayer>();
 
 	constexpr float Aspect = App::ClientSize<float>.first /							   App::ClientSize<float>.second;
 
-	RefManager().NewObject<StaticLayer,Engine::DynamicCamera>(
-		L"Static", L"Camera",
-		FMath::PI/3.f,0.1f,1000.f, Aspect , 10.f, _Control );
-	RefManager().NewObject<StaticLayer, Engine::DynamicCamera>(
-		L"Static", L"Camera2",
-		FMath::PI / 3.f, 0.1f, 1000.f, Aspect , 10.f, _Control);
-	RefManager().NewObject<StaticLayer, Engine::DynamicCamera>(
-		L"Static", L"Camera3",
-		FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 10.f, _Control);
-	RefManager().NewObject<StaticLayer, Engine::DynamicCamera>(
-		L"Static", L"Camera4",
-		FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 10.f, _Control);
 	static bool bInit = false;
 	if (bInit == false)
 	{
-		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap", Engine::RenderInterface::Group::Enviroment);
-		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap2", Engine::RenderInterface::Group::Enviroment);
-		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap3", Engine::RenderInterface::Group::Enviroment);
-		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap4", Engine::RenderInterface::Group::Enviroment);
-		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap5", Engine::RenderInterface::Group::Enviroment);
+		RefProto().LoadPrototype<Engine::HeightMap>(L"Static",
+			Device, Engine::RenderInterface::Group::Enviroment);
+		RefProto().LoadPrototype<Engine::DynamicCamera>(L"Static", Device, App::Hwnd);
+
+		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap");
+		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap2");
+		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap3");
+		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap4");
+		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap5");
 		bInit = true;
 	}
 	else
 	{
-		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap", Engine::RenderInterface::Group::Enviroment);
-		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap2", Engine::RenderInterface::Group::Enviroment);
+		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap");
+		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap2");
 	}
+
+
+	RefManager().NewObject<StaticLayer, Engine::DynamicCamera>(
+		L"Static", L"Camera",
+		FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 10.f, _Control);
 };
 
 void StartScene::Event() & 

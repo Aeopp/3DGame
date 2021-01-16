@@ -14,7 +14,6 @@ void Engine::Transform::Update(Object* const Owner, const float DeltaTime)&
 
 };
 
-
 void Engine::Transform::UpdateBasis(const Matrix& From)&
 {
 	Forward = FMath::Normalize({ From._31,From._32,From._33 });
@@ -33,15 +32,16 @@ void Engine::Transform::Rotate(Vector3 Axis, const float Radian)&
 {
 	Axis = FMath::Normalize(Axis);
 
+	//FMath::RotationVecNormal(Forward, Axis, Radian);
 	Matrix RotationMatrix = FMath::Rotation(Rotation)
-							* FMath::RotationAxisMatrix(Axis, Radian);
+		* FMath::RotationAxisMatrix(Axis, Radian);
 
 	UpdateBasis(RotationMatrix);
 
 	Vector3 _Unit = Forward;
 	_Unit.x = 0.f;
 	_Unit = FMath::Normalize(_Unit);
-	Rotation.x  = std::acosf(FMath::Dot(_Unit, { 0,0,1 }));
+	Rotation.x = std::acosf(FMath::Dot(_Unit, { 0,0,1 }));
 
 	_Unit = Forward;
 	_Unit.y = 0.f;
@@ -52,7 +52,8 @@ void Engine::Transform::Rotate(Vector3 Axis, const float Radian)&
 	_Unit.z = 0.f;
 	_Unit = FMath::Normalize(_Unit);
 	Rotation.z = std::acosf(FMath::Dot(_Unit, { 0,1,0 }));
-}
+};
+
 void Engine::Transform::Move
 	(Vector3 Direction, 
 	const float DeltaTime,

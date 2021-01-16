@@ -1,10 +1,16 @@
 #include "RenderObject.h"
 
-void Engine::RenderObject::Initialize(const RenderInterface::Group _Group)&
+void Engine::RenderObject::Initialize()&
 {
 	Super::Initialize();
+}
 
+void Engine::RenderObject::PrototypeInitialize(
+	IDirect3DDevice9* const Device,
+	const RenderInterface::Group _Group)&
+{
 	RenderInterface::SetUpRenderingInformation(_Group);
+	this->Device = Device;  
 }
 void Engine::RenderObject::Event()&
 {

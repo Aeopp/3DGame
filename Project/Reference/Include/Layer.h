@@ -68,7 +68,7 @@ inline auto Engine::Layer::NewObject(
 
 	return std::static_pointer_cast<ObjectSubType>
 		(_ObjectMap[typeid(ObjectSubType).name()].emplace_back
-		(std::move(Clone) ) );
+		(std::move(Clone)));
 };
 
 inline auto& Engine::Layer::RefObjects()&

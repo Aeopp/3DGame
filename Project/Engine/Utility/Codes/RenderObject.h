@@ -10,12 +10,16 @@ namespace Engine
 	public:
 		using Super = Object; 
 	public:
-		void Initialize(const RenderInterface::Group _Group)&;
+		void Initialize()&;
+		void PrototypeInitialize(IDirect3DDevice9* const Device ,
+							const RenderInterface::Group _Group)&;
 	public:
 		virtual void Event()&;
 		virtual void Render()& abstract;
 		virtual void LateUpdate(const float DeltaTime) & override;
 		virtual void Update(const float DeltaTime) & override;
+	protected:
+		IDirect3DDevice9* Device{ nullptr };
 	};
 };
 
