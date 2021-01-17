@@ -42,7 +42,6 @@ void Engine::Frustum::Initialize()&
 		D3DPOOL_MANAGED,
 		&IB,
 		0);
-
 	//
 	// Fill the buffers with the cube data.
 	//
@@ -93,6 +92,12 @@ void Engine::Frustum::Initialize()&
 
 	IB->Unlock();
 
+}
+
+Engine::Frustum::~Frustum() noexcept
+{
+	IB->Release();
+	VB->Release();
 }
 
 void Engine::Frustum::Make(const Matrix& CameraWorld, const Matrix& Projection)&

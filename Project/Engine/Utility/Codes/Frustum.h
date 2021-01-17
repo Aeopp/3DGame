@@ -10,6 +10,7 @@ namespace Engine
 	{
 	public:
 		void Initialize()&;
+		~Frustum()noexcept;
 	public:
 		void Make(const Matrix& CameraWorld, const Matrix& Projection)&;
 		bool IsIn(const Vector3& Point)&;
