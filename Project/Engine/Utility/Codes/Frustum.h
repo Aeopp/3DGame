@@ -16,6 +16,9 @@ namespace Engine
 		bool IsIn(const Sphere& _Sphere)&;
 		void Render(IDirect3DDevice9* const Device)&;
 	private:
+		Matrix World{};
+		IDirect3DVertexBuffer9 *CubeVtxBuf{ nullptr };
+		IDirect3DIndexBuffer9* CubeIdxBuf{ nullptr };
 		std::array<D3DXPLANE, 6u> Planes;
 		std::array<Vector3, 8u> Points;
 		Vector3 CameraLocation;

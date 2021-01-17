@@ -3,11 +3,13 @@
 #include "FMath.hpp"
 #include <execution>
 #include "ResourceSystem.h"
+#include "Vertexs.hpp"
 
 void Engine::Frustum::Initialize()&
 {
 	auto& ResourceSys = ResourceSystem::Instance;
-	//ResourceSys->Emplace(L"")
+	CubeVtxBuf = ResourceSys->Get<IDirect3DVertexBuffer9>(L"Vertex_Cube");
+	CubeIdxBuf= ResourceSys->Get<IDirect3DIndexBuffer9>(L"Index_Cube");
 }
 
 void Engine::Frustum::Make(const Matrix& CameraWorld, const Matrix& Projection)&
@@ -37,13 +39,13 @@ void Engine::Frustum::Make(const Matrix& CameraWorld, const Matrix& Projection)&
 	// 여기서 얻은 f는 f의 로컬좌표상이므로 카메라의 월드행렬을 곱해서
 	// f를 카메라 위치로 이동시켜서 월드좌표에서의 f로 만든다.
 	const Matrix InvProjection = FMath::Inverse(Projection);
-	const Matrix ToWorld = InvProjection * CameraWorld;
-
+	World = InvProjection * CameraWorld;
+	 
 	std::transform(std::execution::par,
 		std::begin(Points), std::end(Points), std::begin(Points),
-		[ToWorld](const Vector3& Point)
+		[_World=World](const Vector3& Point)
 		{
-			return FMath::Mul(Point, ToWorld);
+			return FMath::Mul(Point, _World);
 		});
 	CameraLocation = { CameraWorld._41,CameraWorld._42,CameraWorld._43 };
 
@@ -62,7 +64,7 @@ void Engine::Frustum::Make(const Matrix& CameraWorld, const Matrix& Projection)&
 
 	std::for_each(std::execution::par_unseq,
 		std::begin(Planes), std::end(Planes),
-		[ToWorld](D3DXPLANE& Plane)
+		[](D3DXPLANE& Plane)
 		{
 			Plane.d *= -1.f;
 		});
@@ -89,7 +91,20 @@ bool Engine::Frustum::IsIn(const Sphere& _Sphere)&
 
 void Engine::Frustum::Render(IDirect3DDevice9* const Device)&
 {
-	
+	D3DVERTEXBUFFER_DESC VtxDesc;
+	CubeVtxBuf->GetDesc(&VtxDesc);
+	Device->SetRenderState(D3DRS_LIGHTING, FALSE);
+	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+	Matrix ww;
+	ww =FMath::Identity(ww);
+	Device->SetTransform(D3DTS_WORLD, &ww);
+	Device->SetStreamSource(0, CubeVtxBuf, 0,VtxDesc.Size);
+	Device->SetFVF(VtxDesc.FVF);
+	Device->SetIndices(CubeIdxBuf);
+	Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 8, 0, 12);
+	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 	//WORD		index[] = { 0, 5, 1,
 	//						0, 4, 5,
 	//						3, 4, 0,

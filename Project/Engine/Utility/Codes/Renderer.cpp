@@ -6,6 +6,7 @@
 void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>&  Device)&
 {
 	this->Device = Device;
+	_Frustum.Initialize();
 };
 
 void Engine::Renderer::Render()&

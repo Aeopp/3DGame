@@ -13,6 +13,12 @@ namespace Vertex
 			GetVertexDecl(IDirect3DDevice9* const Device);
 	};
 
+	struct Default
+	{
+		Vector3 Location;
+		static const DWORD FVF = D3DFVF_XYZ | D3DFVF_NORMAL;
+	};
+
 	struct TextureTangent
 	{
 		Vector3 Location;
@@ -70,7 +76,7 @@ namespace Index
 
 // Implementation
 
-IDirect3DVertexDeclaration9* const Vertex::Texture::GetVertexDecl(IDirect3DDevice9* const Device)
+inline IDirect3DVertexDeclaration9* const Vertex::Texture::GetVertexDecl(IDirect3DDevice9* const Device)
 {
 	D3DVERTEXELEMENT9 Decl[] =
 	{
@@ -84,22 +90,22 @@ IDirect3DVertexDeclaration9* const Vertex::Texture::GetVertexDecl(IDirect3DDevic
 	return VertexDeclaration;
 }
 
-IDirect3DVertexDeclaration9* const Vertex::TextureTangent::GetVertexDecl(IDirect3DDevice9* const Device)
+inline IDirect3DVertexDeclaration9* const Vertex::TextureTangent::GetVertexDecl(IDirect3DDevice9* const Device)
 {
 	return nullptr;
 }
 
-IDirect3DVertexDeclaration9* const Vertex::OnlyLocationTangent::GetVertexDecl(IDirect3DDevice9* const Device)
+inline IDirect3DVertexDeclaration9* const Vertex::OnlyLocationTangent::GetVertexDecl(IDirect3DDevice9* const Device)
 {
 	return nullptr;
 }
 
-IDirect3DVertexDeclaration9* const Vertex::Location3DUVTangent::GetVertexDecl(IDirect3DDevice9* const Device)
+inline IDirect3DVertexDeclaration9* const Vertex::Location3DUVTangent::GetVertexDecl(IDirect3DDevice9* const Device)
 {
 	return nullptr;
 }
 
-IDirect3DVertexDeclaration9* const Vertex::Location2DUVTangent::GetVertexDecl(IDirect3DDevice9* const Device)
+inline IDirect3DVertexDeclaration9* const Vertex::Location2DUVTangent::GetVertexDecl(IDirect3DDevice9* const Device)
 {
 	return nullptr;
 }
