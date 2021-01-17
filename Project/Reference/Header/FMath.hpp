@@ -60,7 +60,7 @@ public:
 	static inline Matrix RotationAxisMatrix(
 		const Vector3 Axis, const float Radian);;
 
-	static inline void Identity(Matrix& _Matrix);
+	static inline Matrix Identity(Matrix& _Matrix);
 
 	static inline Matrix WorldMatrix(
 									const Vector3& Scale, 
@@ -162,7 +162,8 @@ inline Vector4 FMath::ConvertVector4(const Vector3& Lhs, const float w)
 
 Vector3 FMath::Mul(const Vector3& Lhs, const Matrix& Rhs)
 {
-	return *D3DXVec3TransformCoord(nullptr, &Lhs, &Rhs);;
+	Vector3 TransformVec;
+	return *D3DXVec3TransformCoord(&TransformVec, &Lhs, &Rhs);;
 }
 
 Vector3 FMath::MulNormal(const Vector3& Lhs, const Matrix& Rhs)
@@ -281,12 +282,14 @@ inline float FMath::LengthSq(const Vector4& Lhs)
 
 inline Matrix FMath::Inverse(const Matrix& _Matrix)
 {
-	return *D3DXMatrixInverse(nullptr, nullptr, &_Matrix);;
+	Matrix InverseMatrix;
+	return *D3DXMatrixInverse(&InverseMatrix, nullptr, &_Matrix);;
 }
 
 inline Matrix FMath::Transpose(const Matrix& _Matrix)
 {
-	return *D3DXMatrixTranspose(nullptr, &_Matrix);;
+	Matrix TransposeMatrix;
+	return *D3DXMatrixTranspose(&TransposeMatrix, &_Matrix);;
 }
 
 Vector3 FMath::RotationVecCoord(const Vector3& Lhs, const Vector3& Axis,
@@ -323,9 +326,9 @@ inline Matrix FMath::Translation(const Vector3& Location)
 	return *D3DXMatrixTranslation(&Target, Location.x, Location.y, Location.z);
 }
 
-inline void FMath::Identity(Matrix& _Matrix)
+inline Matrix FMath::Identity(Matrix& _Matrix)
 {
-	D3DXMatrixIdentity(&_Matrix);
+	return *D3DXMatrixIdentity(&_Matrix);
 };
 
  inline Matrix FMath::WorldMatrix(

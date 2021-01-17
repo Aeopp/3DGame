@@ -1,5 +1,7 @@
 #include "Renderer.h"
 #include <future>
+#include "FMath.hpp"
+#include "imgui.h"
 
 void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>&  Device)&
 {
@@ -8,8 +10,22 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>&  Device
 
 void Engine::Renderer::Render()&
 {
-	RenderEnviroment();
-
+	Matrix View, Projection;
+	Device->GetTransform(D3DTS_VIEW, &View);
+	Device->GetTransform(D3DTS_PROJECTION, &Projection);
+	if (ImGui::Button("Make Frustum"))
+	{
+		_Frustum.Make(FMath::Inverse(View), Projection);
+	}
+	Sphere _Sphere;
+	_Sphere.Center = { -View._41,-View._42,-View._43 };
+	_Sphere.Radius = 10.f;
+	ImGui::Begin("Culling");
+	if (_Frustum.IsIn(_Sphere)) { ImGui::Text("In"); }
+	else ImGui::Text("In");
+	ImGui::End();
+	//RenderEnviroment( );
+	_Frustum.Render(Device.get());
 	RenderObjects.clear();
 };
 

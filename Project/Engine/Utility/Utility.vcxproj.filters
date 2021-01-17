@@ -64,6 +64,9 @@
     <Filter Include="ImGui">
       <UniqueIdentifier>{47cb02d9-ff51-488b-9c64-080050d480aa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Render\Renderer\Frustum">
+      <UniqueIdentifier>{fec167db-db2d-4643-bf92-5f6e217d4352}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
@@ -113,6 +116,9 @@
     </ClInclude>
     <ClInclude Include="Codes\DynamicCamera.h">
       <Filter>Object\Camera\Dynamic</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\Frustum.h">
+      <Filter>Render\Renderer\Frustum</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -181,6 +187,9 @@
     </ClCompile>
     <ClCompile Include="Codes\ImGui\imgui_tables.cpp">
       <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Frustum.cpp">
+      <Filter>Render\Renderer\Frustum</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

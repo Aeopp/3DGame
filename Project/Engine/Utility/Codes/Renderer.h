@@ -7,6 +7,8 @@
 #include <vector>
 #include <d3d9.h>
 #include "DxHelper.h"
+#include "Frustum.h"
+
 
 namespace Engine
 {
@@ -22,6 +24,7 @@ namespace Engine
 	private:
 		std::map<RenderInterface::Group, std::vector<std::reference_wrapper<RenderInterface>>>RenderObjects;
 		DX::SharedPtr<IDirect3DDevice9> Device{ nullptr };
+		Frustum _Frustum;
 	};
 };
 

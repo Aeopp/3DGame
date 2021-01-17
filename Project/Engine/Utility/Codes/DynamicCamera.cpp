@@ -63,8 +63,7 @@ void Engine::DynamicCamera::Event()&
 	{
 		MouseFixToggle();
 	}
-}
-;
+};
 
 void Engine::DynamicCamera::PrototypeInitialize(
 							IDirect3DDevice9* const Device ,
