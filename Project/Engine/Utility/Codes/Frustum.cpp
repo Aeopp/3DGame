@@ -1,15 +1,98 @@
 #include "Frustum.h"
+#include "imgui.h"
 #include <algorithm>
 #include "FMath.hpp"
 #include <execution>
 #include "ResourceSystem.h"
 #include "Vertexs.hpp"
+#include "GraphicDevice.h"
+
+
+IDirect3DVertexBuffer9* VB = 0;
+IDirect3DIndexBuffer9* IB = 0;
+
+struct VRETEX
+{
+	VRETEX() {}
+	VRETEX(float x, float y, float z)
+	{
+		_x = x;  _y = y;  _z = z;
+	}
+	float _x, _y, _z;
+	static const DWORD FVF;
+};
+const DWORD VRETEX::FVF = D3DFVF_XYZ;
 
 void Engine::Frustum::Initialize()&
 {
-	auto& ResourceSys = ResourceSystem::Instance;
-	CubeVtxBuf = ResourceSys->Get<IDirect3DVertexBuffer9>(L"Vertex_Cube");
-	CubeIdxBuf= ResourceSys->Get<IDirect3DIndexBuffer9>(L"Index_Cube");
+	auto Device = GraphicDevice::Instance->GetDevice();
+
+	Device->CreateVertexBuffer(
+		8 * sizeof(VRETEX),
+		D3DUSAGE_WRITEONLY,
+		VRETEX::FVF,
+		D3DPOOL_MANAGED,
+		&VB,
+		0);
+
+	Device->CreateIndexBuffer(
+		36 * sizeof(WORD),
+		D3DUSAGE_WRITEONLY,
+		D3DFMT_INDEX16,
+		D3DPOOL_MANAGED,
+		&IB,
+		0);
+
+	//
+	// Fill the buffers with the cube data.
+	//
+
+	// define unique vertices:
+	VRETEX* vertices;
+	VB->Lock(0, 0, (void**)&vertices, 0);
+
+	// vertices of a unit cube
+	vertices[0] = VRETEX(-1.0f, -1.0f, 0.f);
+	vertices[1] = VRETEX(-1.0f, 1.0f, 0.f);
+	vertices[2] = VRETEX(1.0f, 1.0f, 0.f);
+	vertices[3] = VRETEX(1.0f, -1.0f, 0.f);
+	vertices[4] = VRETEX(-1.0f, -1.0f, 1.0f);
+	vertices[5] = VRETEX(-1.0f, 1.0f, 1.0f);
+	vertices[6] = VRETEX(1.0f, 1.0f, 1.0f);
+	vertices[7] = VRETEX(1.0f, -1.0f, 1.0f);
+
+	VB->Unlock();
+
+	// define the triangles of the cube:
+	WORD* indices = 0;
+	IB->Lock(0, 0, (void**)&indices, 0);
+
+	// front side
+	indices[0] = 0; indices[1] = 1; indices[2] = 2;
+	indices[3] = 0; indices[4] = 2; indices[5] = 3;
+
+	// back side
+	indices[6] = 4; indices[7] = 6; indices[8] = 5;
+	indices[9] = 4; indices[10] = 7; indices[11] = 6;
+
+	// left side
+	indices[12] = 4; indices[13] = 5; indices[14] = 1;
+	indices[15] = 4; indices[16] = 1; indices[17] = 0;
+
+	// right side
+	indices[18] = 3; indices[19] = 2; indices[20] = 6;
+	indices[21] = 3; indices[22] = 6; indices[23] = 7;
+
+	// top
+	indices[24] = 1; indices[25] = 5; indices[26] = 6;
+	indices[27] = 1; indices[28] = 6; indices[29] = 2;
+
+	// bottom
+	indices[30] = 4; indices[31] = 0; indices[32] = 3;
+	indices[33] = 4; indices[34] = 3; indices[35] = 7;
+
+	IB->Unlock();
+
 }
 
 void Engine::Frustum::Make(const Matrix& CameraWorld, const Matrix& Projection)&
@@ -47,10 +130,9 @@ void Engine::Frustum::Make(const Matrix& CameraWorld, const Matrix& Projection)&
 		{
 			return FMath::Mul(Point, _World);
 		});
-	CameraLocation = { CameraWorld._41,CameraWorld._42,CameraWorld._43 };
 
 	// Near
-	D3DXPlaneFromPoints(&Planes[0], &Points[1], &Points[4], &Points[5]);
+	D3DXPlaneFromPoints(&Planes[0], &Points[1], &Points[4], &Points[0]);
 	// Far
 	D3DXPlaneFromPoints(&Planes[1], &Points[3], &Points[6], &Points[2]);
 	// Left
@@ -60,18 +142,43 @@ void Engine::Frustum::Make(const Matrix& CameraWorld, const Matrix& Projection)&
 	// Top
 	D3DXPlaneFromPoints(&Planes[4], &Points[5], &Points[7], &Points[4]);
 	// Botton
-	D3DXPlaneFromPoints(&Planes[5], &Points[2], &Points[0], &Points[3]);
-
-	std::for_each(std::execution::par_unseq,
-		std::begin(Planes), std::end(Planes),
-		[](D3DXPLANE& Plane)
-		{
-			Plane.d *= -1.f;
-		});
+	D3DXPlaneFromPoints(&Planes[5], &Points[2], &Points[1], &Points[3]);
 }
 
 bool Engine::Frustum::IsIn(const Vector3& Point)&
 {
+	ImGui::Begin("Frustum");
+	for (size_t i = 0u; i < Planes.size(); ++i)
+	{
+		const auto& Plane = Planes[i];
+		std::wstring Name;
+		switch (i)
+		{
+		case 0:
+			Name = L"Near";
+			break;
+		case 1:
+			Name = L"Far";
+			break;
+		case 2:
+			Name = L"Left";
+			break;
+		case 3:
+			Name = L"Right";
+			break;
+		case 4:
+			Name = L"Top";
+			break;
+		case 5:
+			Name = L"Bottom";
+			break;
+		default:
+			break;
+		}
+		ImGui::Text("Distance From %s : %f\n", Name.c_str(),D3DXPlaneDotCoord(&Plane, &Point));
+	}
+	ImGui::End();
+
 	return std::all_of(std::execution::seq, std::begin(Planes), std::end(Planes),
 		[Point](const D3DXPLANE& Plane)
 		{
@@ -81,6 +188,38 @@ bool Engine::Frustum::IsIn(const Vector3& Point)&
 
 bool Engine::Frustum::IsIn(const Sphere& _Sphere)&
 {
+	ImGui::Begin("Frustum");
+	for (size_t i = 0u; i < Planes.size(); ++i)
+	{
+		const auto& Plane = Planes[i];
+		std::wstring Name;
+		switch (i)
+		{
+		case 0:
+			Name = L"Near";
+			break;
+		case 1:
+			Name = L"Far";
+			break;
+		case 2:
+			Name = L"Left";
+			break;
+		case 3:
+			Name = L"Right";
+			break;
+		case 4:
+			Name = L"Top";
+			break;
+		case 5:
+			Name = L"Bottom";
+			break;
+		default:
+			break;
+		}
+		ImGui::Text("Distance From %s : %f\n", Name.c_str(), D3DXPlaneDotCoord(&Plane, &_Sphere.Center));
+	}
+	ImGui::End();
+
 	return std::all_of(std::execution::seq, std::begin(Planes), std::end(Planes),
 		[_Sphere](const D3DXPLANE& Plane)
 		{
@@ -91,80 +230,15 @@ bool Engine::Frustum::IsIn(const Sphere& _Sphere)&
 
 void Engine::Frustum::Render(IDirect3DDevice9* const Device)&
 {
-	D3DVERTEXBUFFER_DESC VtxDesc;
-	CubeVtxBuf->GetDesc(&VtxDesc);
-	Device->SetRenderState(D3DRS_LIGHTING, FALSE);
-	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-	Matrix ww;
-	ww =FMath::Identity(ww);
-	Device->SetTransform(D3DTS_WORLD, &ww);
-	Device->SetStreamSource(0, CubeVtxBuf, 0,VtxDesc.Size);
-	Device->SetFVF(VtxDesc.FVF);
-	Device->SetIndices(CubeIdxBuf);
+	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	Device->SetRenderState(D3DRS_ZENABLE, FALSE);
+	Device->SetTransform(D3DTS_WORLD, &World);
+	Device->SetStreamSource(0, VB, 0, sizeof(VRETEX));
+	Device->SetIndices(IB);
+	Device->SetFVF(VRETEX::FVF);
 	Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 8, 0, 12);
-	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
-	//WORD		index[] = { 0, 5, 1,
-	//						0, 4, 5,
-	//						3, 4, 0,
-	//						0, 7, 4,
-	//						1, 6, 2,
-	//						1, 5, 6,
-	//						4, 6, 5,
-	//						4, 7, 6,
-	//						0, 1, 2,
-	//						0, 3, 2,
-	//						6, 7, 3,
-	//						6, 3, 2 };
-
-	//D3DMATERIAL9 mtrl;
-	//ZeroMemory(&mtrl, sizeof(D3DMATERIAL9));
-
-	//typedef struct tagVTX
-	//{
-	//	D3DXVECTOR3	p;
-	//} VTX;
-
-	//VTX		vtx[8];
-
-	//for (int i = 0; i < 8; i++)
-	//	vtx[i].p = Points[i];
-
-	//Matrix world;
-	//world = FMath::Identity(world); 
-	//Device->SetTransform(D3DTS_WORLD, & world );  
-	//Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-	//Device->SetFVF(D3DFVF_XYZ);
-	//Device->SetStreamSource(0, NULL, 0, sizeof(VTX));
-	//Device->SetTexture(0, NULL);
-	//Device->SetIndices(0);
-	//Device->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_DISABLE);
-	//Device->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE);
-	//Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	//Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
-	//Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-
-	//// 파란색으로 상,하 평면을 그린다.
-
-	//Device->SetRenderState(D3DRS_LIGHTING, FALSE);
-	//ZeroMemory(&mtrl, sizeof(D3DMATERIAL9));
-	//mtrl.Diffuse.b = mtrl.Ambient.b = 1.0f;
-	//Device->SetMaterial(&mtrl);
-	//Device->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, 8, 12, index, D3DFMT_INDEX16, vtx, sizeof(vtx[0]));
-
-	//// 녹색으로 좌,우 평면을 그린다.
-	//ZeroMemory(&mtrl, sizeof(D3DMATERIAL9));
-	//mtrl.Diffuse.g = mtrl.Ambient.g = 1.0f;
-	//Device->SetMaterial(&mtrl);
-	//Device->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, 8, 4, index + 4 * 3, D3DFMT_INDEX16, vtx, sizeof(vtx[0]));
-
-	//// 붉은색으로 원,근 평면을 그린다.
-	//ZeroMemory(&mtrl, sizeof(D3DMATERIAL9));
-	//mtrl.Diffuse.r = mtrl.Ambient.r = 1.0f;
-	//Device->SetMaterial(&mtrl);
-	//Device->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, 8, 4, index + 8 * 3, D3DFMT_INDEX16, vtx, sizeof(vtx[0]));
-
-	//Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	//Device->SetRenderState(D3DRS_LIGHTING, FALSE);
+	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	Device->SetRenderState(D3DRS_ZENABLE, TRUE);
 }

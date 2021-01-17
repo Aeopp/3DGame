@@ -11,20 +11,36 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>&  Device
 
 void Engine::Renderer::Render()&
 {
-	Matrix View, Projection;
+	Matrix View, Projection,CameraWorld ;
 	Device->GetTransform(D3DTS_VIEW, &View);
 	Device->GetTransform(D3DTS_PROJECTION, &Projection);
+	CameraWorld  = FMath::Inverse(View);
+	const Vector3 CameraLocation = { CameraWorld._41,CameraWorld._42,CameraWorld._43 };
+
 	if (ImGui::Button("Make Frustum"))
 	{
-		_Frustum.Make(FMath::Inverse(View), Projection);
+		_Frustum.Make(CameraWorld, Projection);
 	}
+
 	Sphere _Sphere;
-	_Sphere.Center = { -View._41,-View._42,-View._43 };
-	_Sphere.Radius = 10.f;
+	_Sphere.Center = CameraLocation;
+	_Sphere.Radius = 2.f;
 	ImGui::Begin("Culling");
-	if (_Frustum.IsIn(_Sphere)) { ImGui::Text("In"); }
-	else ImGui::Text("In");
+	ImGui::Text("CameraLocation: %f %f %f", _Sphere.Center.x, _Sphere.Center.y, _Sphere.Center.z);
 	ImGui::End();
+
+	if (_Frustum.IsIn(_Sphere)) 
+	{
+		ImGui::Begin("Culling");
+		ImGui::Text("In"); 
+		ImGui::End();
+	}
+	else
+	{
+		ImGui::Begin("Culling");
+		ImGui::Text("Out");
+		ImGui::End();
+	}
 	//RenderEnviroment( );
 	_Frustum.Render(Device.get());
 	RenderObjects.clear();

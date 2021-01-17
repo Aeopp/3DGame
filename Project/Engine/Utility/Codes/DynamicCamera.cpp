@@ -50,6 +50,14 @@ void Engine::DynamicCamera::Update(const float DeltaTime)&
 	{
 		_Transform->MoveRight(DeltaTime, -Speed);
 	}
+	if (_Control->IsPressing(DIK_Z))
+	{
+		_Transform->MoveUp(DeltaTime, +Speed);
+	}
+	if (_Control->IsPressing(DIK_X))
+	{
+		_Transform->MoveUp(DeltaTime, -Speed);
+	}
 };
 
 

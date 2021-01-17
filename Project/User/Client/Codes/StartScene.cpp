@@ -109,7 +109,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 
 	RefManager().NewObject<StaticLayer, Engine::DynamicCamera>(
 		L"Static", L"Camera",
-		FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 10.f, _Control);
+		FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 200.f, _Control);
 };
 
 void StartScene::Event() & 

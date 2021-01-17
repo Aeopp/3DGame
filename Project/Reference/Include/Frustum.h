@@ -21,7 +21,6 @@ namespace Engine
 		IDirect3DIndexBuffer9* CubeIdxBuf{ nullptr };
 		std::array<D3DXPLANE, 6u> Planes;
 		std::array<Vector3, 8u> Points;
-		Vector3 CameraLocation;
 	};
 }
 
