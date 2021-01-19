@@ -14,7 +14,7 @@ namespace Engine
 						const RenderInterface::Group _Group)&;
 		virtual void Event(class Object* Owner) & override;
 	public:
-		static const inline Property TypeProperty = Property::Standard;
+		static const inline Property TypeProperty = Property::Render;
 	protected:
 		IDirect3DDevice9* Device{ nullptr };
 	};

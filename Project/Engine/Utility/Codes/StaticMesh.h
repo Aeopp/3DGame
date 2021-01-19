@@ -1,5 +1,6 @@
 #pragma once
 #include "Mesh.h"
+#include <string>
 
 namespace Engine
 {
@@ -8,12 +9,19 @@ namespace Engine
 	public:
 		using Super = Mesh;
 	public:
-		void Initialize(IDirect3DDevice9* const Device,
-			const RenderInterface::Group _Group)&;
-		virtual void Event(class Object* Owner) & override;
+		static const inline Property TypeProperty = Property::Render;
 	public:
-		static const inline Property TypeProperty = Property::Standard;
-	protected:
-		IDirect3DDevice9* Device{ nullptr };
+		void Initialize(IDirect3DDevice9* const Device,
+			const RenderInterface::Group _Group ,
+			const std::wstring& FilePath,
+			const std::wstring& FileName)&;
+		virtual void Event(class Object* Owner) & override;
+	private:
+		ID3DXMesh* _Mesh{ nullptr };
+		ID3DXBuffer* Adjacency{ nullptr };
+		ID3DXBuffer* SubSet{ nullptr };
+		D3DXMATERIAL* _Mtrl{ nullptr };
+		uint32 SubSetCount{ 0u };
+		IDirect3DTexture9** Textures;
 	};
 }
