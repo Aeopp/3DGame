@@ -112,8 +112,9 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 		RefResourceSys().InsertAny(L"StaticMesh_SubSetCount_TombStone", SubSetCount);
 
 		Materials = static_cast<D3DXMATERIAL*>(SubSet->GetBufferPointer());
-		std::vector<IDirect3DTexture9*> Textures;
+		std::vector<IDirect3DTexture9*>Textures;
 		Textures.resize(SubSetCount);
+
 		for (uint32 Idx = 0u; Idx < SubSetCount; ++Idx)
 		{
 			const std::string TextureFileName = Materials[Idx].pTextureFilename; 
@@ -122,10 +123,12 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 
 			IDirect3DTexture9* _TexturePtr{ nullptr }; 
 
+			Textures[Idx] = 
 			RefResourceSys().Emplace<IDirect3DTexture9>
 				(L"StaticMesh_Textures_TombStone_"+TextureFileNameW, D3DXCreateTextureFromFile,
 				Device, (Path / TextureFileNameW).c_str(), &_TexturePtr);
 		}
+
 		RefResourceSys().InsertAny(L"StaticMesh_Textures_TombStone", Textures);
 	}
 	
