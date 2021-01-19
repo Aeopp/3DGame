@@ -88,24 +88,46 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 		L"Static", L"Camera",
 		FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 200.f, _Control);
 
-	ID3DXBuffer* Adjacency{ nullptr };
-	ID3DXBuffer* SubSet{ nullptr };
-	DWORD SubSetCount{ 0u };
-	ID3DXMesh* _Mesh{ nullptr };
+	{
+		ID3DXBuffer* Adjacency{ nullptr };
+		ID3DXBuffer* SubSet{ nullptr };
+		DWORD SubSetCount{ 0u };
+		ID3DXMesh* _Mesh{ nullptr };
+		D3DXMATERIAL* Materials;
+		std::filesystem::path Path = App::ResourcePath / L"Mesh" / L"StaticMesh" / L"TombStone";
+		std::filesystem::path Name = L"TombStone.x";
+
+		RefResourceSys().Emplace<ID3DXMesh>(L"StaticMesh_Mesh_TombStone"
+			, D3DXLoadMeshFromX, (Path / Name).c_str(),
+			D3DXMESH_MANAGED,
+			Device, &Adjacency, &SubSet, nullptr,
+			&SubSetCount, &_Mesh);
+
+		RefResourceSys().Insert(L"StaticMesh_Adjacency_TombStone",
+			Adjacency);
+
+		RefResourceSys().Insert(L"StaticMesh_SubSet_TombStone",
+			SubSet);
+
+		RefResourceSys().Insert(L"StaticMesh_SubSetCount_TombStone", SubSetCount);
+
+		Materials = static_cast<D3DXMATERIAL*>(SubSet->GetBufferPointer());
+		std::vector<IDirect3DTexture9*> Textures;
+		for (uint32 Idx = 0u; Idx < SubSetCount; ++Idx)
+		{
+			const std::string TextureFileName = Materials[Idx].pTextureFilename; 
+			std::wstring TextureFileNameW;
+			TextureFileNameW.assign(std::begin(TextureFileName), std::end(TextureFileName));
+
+			IDirect3DTexture9* _TexturePtr{ nullptr }; 
+
+			RefResourceSys().Emplace<IDirect3DTexture9>
+				(TextureFileNameW, D3DXCreateTextureFromFile,
+				Device, (Path / TextureFileNameW).c_str(), &_TexturePtr);
+		}
+	}
 	
-	RefResourceSys().Emplace<ID3DXMesh>(L"StaticMesh_Mesh_TombStone"
-		, D3DXLoadMeshFromX, (App::ResourcePath /  L"Mesh" / L"StaticMesh"/L"TombStone" / L"TombStone.x").c_str(), 
-		D3DXMESH_MANAGED, 
-		Device, &Adjacency, &SubSet, nullptr,
-		&SubSetCount, &_Mesh);
 
-	RefResourceSys().Insert(L"StaticMesh_Adjacency_TombStone",
-		Adjacency);
-
-	RefResourceSys().Insert(L"StaticMesh_SubSet_TombStone",
-		SubSet);
-
-	RefResourceSys().Insert(L"StaticMesh_SubSetCount_TombStone", SubSetCount);
 };
 
 void StartScene::Event() & 
