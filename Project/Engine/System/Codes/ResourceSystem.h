@@ -21,7 +21,8 @@ namespace Engine
 			Params&&... _Params);
 
 		template<typename ResourceType>
-		inline auto Create(const std::wstring& ResourceName,
+		inline auto Create(
+			const std::wstring& ResourceName,
 			IUnknown* const ResourcePtr);
 	private:
 		template<typename TupleType, typename ResourceType, int32 Idx>
