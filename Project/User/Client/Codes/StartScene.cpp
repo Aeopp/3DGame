@@ -48,32 +48,8 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	   D3DLOCKED_RECT LockRect; 
 	   IDirect3DTexture9* ResourcePtr{ nullptr };
 
-	   //template<typename VertexType>
-	   //void CreateVertex(
-		  // IDirect3DDevice9* const Device,
-		  // const std::vector<VertexType>&VertexArray,
-		  // const CreateVertexFlag _CreateVertexFlag,
-		  // uint32 & VertexCount/*Out*/,
-		  // uint32 & TriangleCount/*Out*/,
-		  // uint16 & VertexByteSize/*Out*/,
-		  // std::shared_ptr<IDirect3DVertexBuffer9>&VertexBuffer,/*Out*/
-		  // std::shared_ptr<IDirect3DVertexDeclaration9>&VertexDecl/*Out*/
-	     
-	   RefResourceSys().Create<IDirect3DVertexDeclaration9>(
+	   RefResourceSys().Insert<IDirect3DVertexDeclaration9>(
 		   L"QQ", Vertex::Texture::GetVertexDecl(Device) );
-
-	   // Vertex::Location3DUVTangent::GetVertexDecl 
-
-	   /*std::vector<Vertex::Location3DUVTangent> Locationss;
-	   uint32 c;
-	   uint32 tc;
-	   uint16 vb;
-	   std::shared_ptr<IDirect3DVertexBuffer9> buf;
-	   std::shared_ptr< IDirect3DVertexDeclaration9> decl;
-	   RefResourceSys().Create<IDirect3DVertexBuffer9>(
-		   L"QQ", DX::CreateVertex<Vertex::Location3DUVTangent>,
-		   Device, Locationss, DX::CreateVertexFlag::WriteOnly,
-		   c, tc, vb, buf, decl);*/
 
 	  auto Tex = RefResourceSys().Emplace<IDirect3DTexture9>(
 		L"Texture",D3DXCreateTextureFromFile,Device,
@@ -88,6 +64,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	constexpr float Aspect = App::ClientSize<float>.first /							   App::ClientSize<float>.second;
 
 	static bool bInit = false;
+
 	if (bInit == false)
 	{
 		RefProto().LoadPrototype<Engine::HeightMap>(L"Static",
@@ -110,6 +87,23 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	RefManager().NewObject<StaticLayer, Engine::DynamicCamera>(
 		L"Static", L"Camera",
 		FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 200.f, _Control);
+
+	ID3DXBuffer* Adjacency{ nullptr };
+	ID3DXBuffer* SubSet{ nullptr };
+	DWORD SubSetCount{ 0u };
+	ID3DXMesh* _Mesh{ nullptr };
+
+	RefResourceSys().Emplace<ID3DXMesh>(L"StaticMesh_Mesh_TombStone"
+		, D3DXLoadMeshFromX, (App::ResourcePath /  L"Mesh" / L"StaticMesh"/L"TombStone" / L"TombStone.x").c_str(), 
+		D3DXMESH_MANAGED, 
+		Device, &Adjacency, &SubSet, nullptr,
+		&SubSetCount, &_Mesh);
+
+	RefResourceSys().Insert<ID3DXBuffer>(L"StaticMesh_Adjacency_TombStone",
+		Adjacency);
+
+	RefResourceSys().Insert<ID3DXBuffer>(L"StaticMesh_SubSet_TombStone",
+		SubSet);
 };
 
 void StartScene::Event() & 

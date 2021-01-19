@@ -21,7 +21,8 @@ namespace Engine
 			Params&&... _Params);
 
 		template<typename ResourceType>
-		inline auto Create(const std::wstring& ResourceName,
+		inline auto Insert(
+			const std::wstring& ResourceName,
 			IUnknown* const ResourcePtr);
 	private:
 		template<typename TupleType, typename ResourceType, int32 Idx>
@@ -35,7 +36,8 @@ namespace Engine
 template<typename ResourceType>
 inline auto Engine::ResourceSystem::Get(const std::wstring& Name)
 {
-	return static_cast<ResourceType* const>(Container[typeid(ResourceType).hash_code()][Name].get());
+	return static_cast<ResourceType* const>(
+		Container[typeid(ResourceType).hash_code()][Name].get());
 }
 
 template<typename ResourceType, typename ResourceCreateMethodType, typename ...Params>
@@ -51,11 +53,12 @@ inline auto Engine::ResourceSystem::Emplace(
 }
 
 template<typename ResourceType>
-inline auto Engine::ResourceSystem::Create(
+inline auto Engine::ResourceSystem::Insert(
 	const std::wstring& ResourceName,
 	IUnknown* const ResourcePtr)
 {
-	return static_cast<ResourceType* const> (Container[typeid(ResourceType).hash_code()].emplace
+	return static_cast<ResourceType* const> (
+		Container[typeid(ResourceType).hash_code()].emplace
 	(ResourceName, DX::MakeShared(ResourcePtr)).first->second.get());
 };
 

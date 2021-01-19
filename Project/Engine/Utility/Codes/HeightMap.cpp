@@ -168,7 +168,7 @@ void Engine::HeightMap::PrototypeInitialize(
 
     Device->CreateVertexBuffer(sizeof(Vertex::Texture) * 3u, D3DUSAGE_DYNAMIC,
         Vertex::Texture::FVF, D3DPOOL_DEFAULT, &VertexBuffer, nullptr);
-    ResourceSys->Create<IDirect3DVertexBuffer9>(L"VertexBuffer", VertexBuffer);
+    ResourceSys->Insert<IDirect3DVertexBuffer9>(L"VertexBuffer", VertexBuffer);
 
     Vertex::Texture* ptr;
     VertexBuffer->Lock(0, sizeof(Vertex::Texture) * 3u, (void**)&ptr, 0);

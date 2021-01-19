@@ -49,9 +49,6 @@
     <Filter Include="Object\RenderObject">
       <UniqueIdentifier>{a427f9a6-d56e-4cda-9ed3-9a4a3f62340f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="HeightMap">
-      <UniqueIdentifier>{ffbbe15a-7b18-4d2d-91be-a387c539ca3e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Object\Camera">
       <UniqueIdentifier>{fc238c09-2db9-420f-a194-e68b5485442e}</UniqueIdentifier>
     </Filter>
@@ -66,6 +63,15 @@
     </Filter>
     <Filter Include="Render\Renderer\Frustum">
       <UniqueIdentifier>{fec167db-db2d-4643-bf92-5f6e217d4352}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component\Render\Mesh">
+      <UniqueIdentifier>{49b0196d-e0ec-4f98-ab72-6420b33df49d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component\Render\Mesh\Static">
+      <UniqueIdentifier>{f01e9271-0b48-4b0a-86f1-f2215bcfe90d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\HeightMap">
+      <UniqueIdentifier>{ffbbe15a-7b18-4d2d-91be-a387c539ca3e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -106,7 +112,7 @@
       <Filter>Object\RenderObject</Filter>
     </ClInclude>
     <ClInclude Include="Codes\HeightMap.h">
-      <Filter>HeightMap</Filter>
+      <Filter>Object\HeightMap</Filter>
     </ClInclude>
     <ClInclude Include="Codes\Camera.h">
       <Filter>Object\Camera</Filter>
@@ -119,6 +125,12 @@
     </ClInclude>
     <ClInclude Include="Codes\Frustum.h">
       <Filter>Render\Renderer\Frustum</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\Mesh.h">
+      <Filter>Component\Render\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\StaticMesh.h">
+      <Filter>Component\Render\Mesh\Static</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -156,7 +168,7 @@
       <Filter>Object\RenderObject</Filter>
     </ClCompile>
     <ClCompile Include="Codes\HeightMap.cpp">
-      <Filter>HeightMap</Filter>
+      <Filter>Object\HeightMap</Filter>
     </ClCompile>
     <ClCompile Include="Codes\Camera.cpp">
       <Filter>Object\Camera</Filter>
@@ -190,6 +202,12 @@
     </ClCompile>
     <ClCompile Include="Codes\Frustum.cpp">
       <Filter>Render\Renderer\Frustum</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Mesh.cpp">
+      <Filter>Component\Render\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\StaticMesh.cpp">
+      <Filter>Component\Render\Mesh\Static</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

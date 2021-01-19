@@ -204,6 +204,7 @@
     <ClCompile Include="Codes\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="Codes\ImGui\imgui_tables.cpp" />
     <ClCompile Include="Codes\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="Codes\Mesh.cpp" />
     <ClCompile Include="Codes\RenderObject.cpp" />
     <ClCompile Include="Codes\Layer.cpp" />
     <ClCompile Include="Codes\Management.cpp" />
@@ -214,6 +215,7 @@
     <ClCompile Include="Codes\Scene.cpp" />
     <ClCompile Include="Codes\Shader.cpp" />
     <ClCompile Include="Codes\ShaderManager.cpp" />
+    <ClCompile Include="Codes\StaticMesh.cpp" />
     <ClCompile Include="Codes\Transform.cpp" />
     <ClCompile Include="Codes\Frustum.cpp" />
   </ItemGroup>
@@ -223,6 +225,7 @@
     <ClInclude Include="Codes\DynamicCamera.h" />
     <ClInclude Include="Codes\ExportUtility.hpp" />
     <ClInclude Include="Codes\HeightMap.h" />
+    <ClInclude Include="Codes\Mesh.h" />
     <ClInclude Include="Codes\RenderObject.h" />
     <ClInclude Include="Codes\Layer.h" />
     <ClInclude Include="Codes\Management.h" />
@@ -233,6 +236,7 @@
     <ClInclude Include="Codes\Scene.h" />
     <ClInclude Include="Codes\Shader.h" />
     <ClInclude Include="Codes\ShaderManager.h" />
+    <ClInclude Include="Codes\StaticMesh.h" />
     <ClInclude Include="Codes\Transform.h" />
     <ClInclude Include="Codes\Frustum.h" />
   </ItemGroup>

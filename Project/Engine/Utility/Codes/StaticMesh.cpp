@@ -10,6 +10,7 @@ void Engine::StaticMesh::Initialize(
 	Super::Initialize(Device, _Group);
 
 	auto& ResourceSys = ResourceSystem::Instance;
+
 }
 
 void Engine::StaticMesh::Event(Object* Owner)&
