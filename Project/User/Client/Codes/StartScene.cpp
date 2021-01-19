@@ -48,7 +48,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	   D3DLOCKED_RECT LockRect; 
 	   IDirect3DTexture9* ResourcePtr{ nullptr };
 
-	   RefResourceSys().Insert<IDirect3DVertexDeclaration9>(
+	   RefResourceSys().Insert(
 		   L"QQ", Vertex::Texture::GetVertexDecl(Device) );
 
 	  auto Tex = RefResourceSys().Emplace<IDirect3DTexture9>(
@@ -92,18 +92,20 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	ID3DXBuffer* SubSet{ nullptr };
 	DWORD SubSetCount{ 0u };
 	ID3DXMesh* _Mesh{ nullptr };
-
+	
 	RefResourceSys().Emplace<ID3DXMesh>(L"StaticMesh_Mesh_TombStone"
 		, D3DXLoadMeshFromX, (App::ResourcePath /  L"Mesh" / L"StaticMesh"/L"TombStone" / L"TombStone.x").c_str(), 
 		D3DXMESH_MANAGED, 
 		Device, &Adjacency, &SubSet, nullptr,
 		&SubSetCount, &_Mesh);
 
-	RefResourceSys().Insert<ID3DXBuffer>(L"StaticMesh_Adjacency_TombStone",
+	RefResourceSys().Insert(L"StaticMesh_Adjacency_TombStone",
 		Adjacency);
 
-	RefResourceSys().Insert<ID3DXBuffer>(L"StaticMesh_SubSet_TombStone",
+	RefResourceSys().Insert(L"StaticMesh_SubSet_TombStone",
 		SubSet);
+
+	RefResourceSys().Insert(L"StaticMesh_SubSetCount_TombStone", SubSetCount);
 };
 
 void StartScene::Event() & 
