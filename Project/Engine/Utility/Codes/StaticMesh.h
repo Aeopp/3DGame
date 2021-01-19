@@ -15,11 +15,13 @@ namespace Engine
 			const RenderInterface::Group _Group ,
 			const std::wstring& MeshResourceName)&;
 		virtual void Event(class Object* Owner) & override;
+		virtual void Render() & override;
 	private:
 		ID3DXMesh* _Mesh{ nullptr };
 		ID3DXBuffer* Adjacency{ nullptr };
 		ID3DXBuffer* SubSet{ nullptr };
 		D3DXMATERIAL* Materials{ nullptr };
 		uint32 SubSetCount{ 0u };
+		std::vector<IDirect3DTexture9*> Textures{};
 	};
 }
