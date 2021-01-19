@@ -30,7 +30,7 @@ namespace Engine
 			IUnknown* const ResourcePtr);
 
 		template<typename AnyType>
-		inline auto Insert(
+		inline auto InsertAny(
 			const std::wstring ResourceName,
 			const AnyType& _Any);
 	private:
@@ -79,7 +79,7 @@ inline auto Engine::ResourceSystem::Insert(
 	(ResourceName, DX::MakeShared(ResourcePtr)).first->second.get());
 }
 template<typename AnyType>
-inline auto Engine::ResourceSystem::Insert(const std::wstring ResourceName,
+inline auto Engine::ResourceSystem::InsertAny(const std::wstring ResourceName,
 											const AnyType& _Any)
 {
 	return AnyContainer[typeid(AnyType).hash_code()][ResourceName] = std::move(std::any{ _Any });

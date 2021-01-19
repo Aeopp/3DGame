@@ -48,7 +48,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	   D3DLOCKED_RECT LockRect; 
 	   IDirect3DTexture9* ResourcePtr{ nullptr };
 
-	   RefResourceSys().Insert(
+	   RefResourceSys().Insert<IDirect3DVertexDeclaration9>(
 		   L"QQ", Vertex::Texture::GetVertexDecl(Device) );
 
 	  auto Tex = RefResourceSys().Emplace<IDirect3DTexture9>(
@@ -103,13 +103,13 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 			Device, &Adjacency, &SubSet, nullptr,
 			&SubSetCount, &_Mesh);
 
-		RefResourceSys().Insert(L"StaticMesh_Adjacency_TombStone",
+		RefResourceSys().Insert<ID3DXBuffer>(L"StaticMesh_Adjacency_TombStone",
 			Adjacency);
 
-		RefResourceSys().Insert(L"StaticMesh_SubSet_TombStone",
+		RefResourceSys().Insert< ID3DXBuffer>(L"StaticMesh_SubSet_TombStone",
 			SubSet);
 
-		RefResourceSys().Insert(L"StaticMesh_SubSetCount_TombStone", SubSetCount);
+		RefResourceSys().InsertAny(L"StaticMesh_SubSetCount_TombStone", SubSetCount);
 
 		Materials = static_cast<D3DXMATERIAL*>(SubSet->GetBufferPointer());
 		std::vector<IDirect3DTexture9*> Textures;
