@@ -1,14 +1,12 @@
 #pragma once
-
-#include "Component.h"
-#include "RenderInterface.h"
+#include "Mesh.h"
 
 namespace Engine
 {
-	class DLL_DECL Mesh : public Component, public RenderInterface
+	class DLL_DECL StaticMesh  : public Mesh
 	{
 	public:
-		using Super = Component;
+		using Super = Mesh;
 	public:
 		void Initialize(IDirect3DDevice9* const Device,
 			const RenderInterface::Group _Group)&;
