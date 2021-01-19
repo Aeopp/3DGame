@@ -13,15 +13,15 @@ namespace Engine
 	public:
 		void Initialize(IDirect3DDevice9* const Device,
 			const RenderInterface::Group _Group ,
-			const std::wstring& FilePath,
-			const std::wstring& FileName)&;
+			const std::wstring& MeshResourceName)&;
 		virtual void Event(class Object* Owner) & override;
+		virtual void Render() & override;
 	private:
 		ID3DXMesh* _Mesh{ nullptr };
 		ID3DXBuffer* Adjacency{ nullptr };
 		ID3DXBuffer* SubSet{ nullptr };
-		D3DXMATERIAL* _Mtrl{ nullptr };
+		D3DXMATERIAL* Materials{ nullptr };
 		uint32 SubSetCount{ 0u };
-		IDirect3DTexture9** Textures;
+		std::vector<IDirect3DTexture9*> Textures{};
 	};
 }

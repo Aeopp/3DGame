@@ -200,6 +200,7 @@
     <ClInclude Include="Codes\EnemyLayer.h" />
     <ClInclude Include="Codes\StartScene.h" />
     <ClInclude Include="Codes\StaticLayer.h" />
+    <ClInclude Include="Codes\TombStone.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -211,6 +212,7 @@
     <ClCompile Include="Codes\EnemyLayer.cpp" />
     <ClCompile Include="Codes\StartScene.cpp" />
     <ClCompile Include="Codes\StaticLayer.cpp" />
+    <ClCompile Include="Codes\TombStone.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

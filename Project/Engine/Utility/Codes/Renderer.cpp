@@ -41,7 +41,7 @@ void Engine::Renderer::Render()&
 		ImGui::Text("Out");
 		ImGui::End();
 	}
-	//RenderEnviroment( );
+	RenderEnviroment( );
 	_Frustum.Render(Device.get());
 	RenderObjects.clear();
 };

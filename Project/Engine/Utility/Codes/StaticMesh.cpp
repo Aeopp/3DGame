@@ -27,6 +27,9 @@ void Engine::StaticMesh::Event(Object* Owner)&
 
 void Engine::StaticMesh::Render()&
 {
+	Device->SetRenderState(D3DRS_LIGHTING, FALSE);
+	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+
 	for (uint32 Idx = 0u; Idx < SubSetCount; ++Idx)
 	{
 		Device->SetTexture(0, Textures[Idx]);

@@ -58,6 +58,7 @@
     <ClInclude Include="Codes\StaticLayer.h">
       <Filter>Layer\Static</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\TombStone.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -78,6 +79,7 @@
     <ClCompile Include="Codes\StaticLayer.cpp">
       <Filter>Layer\Static</Filter>
     </ClCompile>
+    <ClCompile Include="Codes\TombStone.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Client.rc">

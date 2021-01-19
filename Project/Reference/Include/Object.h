@@ -55,7 +55,7 @@ inline auto Engine::Object::AddComponent(Params&&... _Params)&
 	_Component->Initialize(std::forward<Params>(_Params)...);
 	
 	_Components[ComponentSubType::TypeProperty]
-			[typeid(ComponentSubType).name()] = std::move(_Component);
+			[typeid(ComponentSubType).name()] = (_Component);
 
 	return _Component.get();
 };

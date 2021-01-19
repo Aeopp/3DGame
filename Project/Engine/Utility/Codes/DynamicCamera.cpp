@@ -89,10 +89,10 @@ void Engine::DynamicCamera::MouseFix()&
 						static_cast<int32>(ViewPort.Height / 2u) };
 	ClientToScreen(Hwnd, &FixPosition);
 	SetCursorPos(FixPosition.x, FixPosition.y);
-}
+};
+
 void Engine::DynamicCamera::MouseFixToggle()&
 {
 	bMouseFix = !bMouseFix;
-}
-;
+};
 

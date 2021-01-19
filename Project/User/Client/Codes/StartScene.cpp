@@ -1,5 +1,6 @@
 #include "..\\stdafx.h"
 #include "StartScene.h"
+#include "TombStone.h"
 #include "Vertexs.hpp"
 #include "Management.h"
 #include "HeightMap.h"
@@ -70,6 +71,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 		RefProto().LoadPrototype<Engine::HeightMap>(L"Static",
 			Device, Engine::RenderInterface::Group::Enviroment);
 		RefProto().LoadPrototype<Engine::DynamicCamera>(L"Static", Device, App::Hwnd);
+		RefProto().LoadPrototype<TombStone>(L"Static", Device);
 
 		for (size_t i = 0; i < 16; ++i)
 		{
@@ -86,7 +88,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 
 	RefManager().NewObject<StaticLayer, Engine::DynamicCamera>(
 		L"Static", L"Camera",
-		FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 200.f, _Control);
+		FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 1.f, _Control);
 
 	{
 		ID3DXBuffer* Adjacency{ nullptr };
@@ -128,11 +130,10 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 				(L"StaticMesh_Textures_TombStone_"+TextureFileNameW, D3DXCreateTextureFromFile,
 				Device, (Path / TextureFileNameW).c_str(), &_TexturePtr);
 		}
-
 		RefResourceSys().InsertAny(L"StaticMesh_Textures_TombStone", Textures);
 	}
-	
 
+	RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_1");
 };
 
 void StartScene::Event() & 
@@ -146,7 +147,7 @@ void StartScene::Event() &
 	}
 	if (ImGui::Button("KILL"))
 	{
-		for (auto& [Type,Objects]: RefManager().FindLayer<EnemyLayer>()->RefObjects								())
+		for (auto& [Type,Objects]: RefManager().FindLayer<EnemyLayer>()->RefObjects())
 		{
 			for (auto& Obj : Objects)
 			{
