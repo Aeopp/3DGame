@@ -18,7 +18,13 @@ void Engine::Object::Clone()&
 }
 void Engine::Object::Event()&
 {
-
+	for (auto& [PropertyKey, ComponentContainer] : _Components)
+	{
+		for (auto& [Key, CurrentComponent] : ComponentContainer)
+		{
+			CurrentComponent->Event(this);
+		}
+	};
 };
 
 void Engine::Object::Update(const float DeltaTime)&

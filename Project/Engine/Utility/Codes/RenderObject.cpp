@@ -10,8 +10,9 @@ void Engine::RenderObject::PrototypeInitialize(
 	const RenderInterface::Group _Group)&
 {
 	RenderInterface::SetUpRenderingInformation(_Group);
-	this->Device = Device;  
-}
+	this->Device = Device;
+};
+
 void Engine::RenderObject::Event()&
 {
 	Super::Event();
@@ -22,10 +23,10 @@ void Engine::RenderObject::LateUpdate(const float DeltaTime)&
 {
 	Super::LateUpdate(DeltaTime);
 
-}
+};
+
 void Engine::RenderObject::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
-}
-;
+};
 

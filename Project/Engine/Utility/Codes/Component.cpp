@@ -10,3 +10,8 @@ void Engine::Component::Update(class Object* const Owner,
 {
 
 }
+
+void Engine::Component::Event(Object* const Owner)&
+{
+
+}
