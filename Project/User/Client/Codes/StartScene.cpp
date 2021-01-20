@@ -141,10 +141,14 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	}
 
 	{
-		// 오브젝트 추가.
-		RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_1");
+		for (size_t i = 0; i < 100; ++i)
+		{
+			RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_"
+				+std::to_wstring(i),
+				Vector3{ (float)i,0,0 });
+		}
+		
 	}
-	
 };
 
 void StartScene::Event() & 

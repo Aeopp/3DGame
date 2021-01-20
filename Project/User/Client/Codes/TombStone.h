@@ -6,7 +6,7 @@ class TombStone final: public Engine::RenderObject
 public:
 	using Super = Engine::RenderObject;
 public:
-	void Initialize()&;
+	void Initialize(const Vector3& SpawnLocation)&;
 	void PrototypeInitialize(IDirect3DDevice9*const Device ,
 							const Engine::RenderInterface::Group _Group)&;
 	virtual void Render() & override;

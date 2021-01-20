@@ -5,13 +5,14 @@
 #include "Collision.h"
 #include "CollisionSystem.h"
 
-
-void TombStone::Initialize()&
+void TombStone::Initialize(const Vector3& SpawnLocation)&
 {
 	Super::Initialize();
 
 	auto _Transform =AddComponent<Engine::Transform>();
+
 	AddComponent<Engine::StaticMesh>(Device,L"TombStone");
+	_Transform->SetLocation(SpawnLocation);
 
 	auto _Collision =AddComponent<Engine::Collision>
 		(Engine::CollisionTag::Decorator,_Transform);
@@ -40,8 +41,8 @@ void TombStone::PrototypeInitialize(IDirect3DDevice9* const Device,
 void TombStone::Render()&
 {
 	Super::Render();
-	auto _StaticMesh = GetComponent<Engine::StaticMesh>();
-	_StaticMesh->Render();
+	Device->SetTransform(D3DTS_WORLD, &GetComponent<Engine::Transform>()->UpdateWorld());
+	GetComponent<Engine::StaticMesh>()->Render();
 }
 
 void TombStone::Update(const float DeltaTime)&
