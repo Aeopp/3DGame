@@ -36,6 +36,7 @@ void Engine::Layer::LateUpdate(const float DeltaTime)&
 		for (auto& CurrentObject : CurrentObjectContainer)
 		{
 			CurrentObject->LateUpdate(DeltaTime);
+			CurrentObject->ComponentUpdate(DeltaTime);
 		};
 	};
 }

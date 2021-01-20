@@ -10,16 +10,21 @@ void TombStone::Initialize()&
 {
 	Super::Initialize();
 
-	AddComponent<Engine::Transform>();
+	auto _Transform =AddComponent<Engine::Transform>();
 	AddComponent<Engine::StaticMesh>(Device,L"TombStone");
 
 	auto _Collision =AddComponent<Engine::Collision>
-		(Engine::CollisionTag::Decorator);
+		(Engine::CollisionTag::Decorator,_Transform);
 
 	_Collision->_Geometric = std::make_unique<Engine::AABB>
 		(Vector3{-1,-1,-1},Vector3{1,1,1});
 
 	_Collision->RefCollisionables().insert(
+		{
+			Engine::CollisionTag::Decorator
+		});
+
+	_Collision->RefPushCollisionables().insert(
 		{
 			Engine::CollisionTag::Decorator
 		});

@@ -13,6 +13,7 @@ void Engine::Transform::Update(Object* const Owner, const float DeltaTime)&
 {
 
 };
+
 const Matrix& Engine::Transform::UpdateWorld()&
 {
 	World = FMath::WorldMatrix(Scale, Rotation, Location);
@@ -64,5 +65,6 @@ void Engine::Transform::MoveRight(const float DeltaTime, const float Speed)
 void Engine::Transform::MoveUp(const float DeltaTime, const float Speed)
 {
 	Move(Up, DeltaTime, Speed);
-}
+};
+
 

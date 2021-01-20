@@ -30,7 +30,7 @@ namespace Engine
 	public:
 		template<typename ComponentSubType, typename... Params>
 		auto AddComponent(Params&&... _Params)&;
-
+		void ComponentUpdate(const float DeltaTime)&;
 		template<typename ComponentSubType>
 		auto GetComponent()&;
 	protected:
@@ -40,8 +40,6 @@ namespace Engine
 		std::map<Component::Property/*업데이트 순서 통제*/,
 			std::unordered_map<std::string,
 			    std::shared_ptr<Component>>>_Components;
-	private:
-		void ComponentUpdate(const float DeltaTime)&;
 	};
 };
 

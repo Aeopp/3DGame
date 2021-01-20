@@ -21,9 +21,13 @@ namespace Engine
 		void MoveForward(const float DeltaTime ,const float Speed);
 		void MoveRight(const float DeltaTime, const float Speed);
 		void MoveUp(const float DeltaTime, const float Speed);
+		inline void SetLocation(const Vector3& Location)&;
 		inline void SetScale(const Vector3& Scale)&;
 	public:
 		const Matrix& UpdateWorld()&;
+		inline auto& RefLocation()&;
+		inline auto& RefRotation()&;
+		inline auto& RefScale()&;
 		inline const auto& GetLocation()const&;
 		inline const auto& GetRotation() const&;
 		inline const auto& GetScale() const&;
@@ -45,6 +49,11 @@ inline void Engine::Transform::SetScale(const Vector3& Scale)&
 {
 	this->Scale = Scale;
 };
+
+inline void Engine::Transform::SetLocation(const Vector3& Location)&
+{
+	this->Location = Location;
+}
 
 inline const auto& Engine::Transform::GetLocation() const&
 {
@@ -75,6 +84,17 @@ inline const auto& Engine::Transform::GetUp() const&
 {
 	return Up;
 }
-
+inline auto& Engine::Transform::RefLocation()&
+{
+	return Location;
+}
+inline auto& Engine::Transform::RefRotation()&
+{
+	return Rotation;
+}
+inline auto& Engine::Transform::RefScale()&
+{
+	return Scale; 
+};
 
 

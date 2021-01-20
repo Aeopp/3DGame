@@ -34,7 +34,7 @@ void Engine::Object::Update(const float DeltaTime)&
 
 void Engine::Object::LateUpdate(const float DeltaTime)&
 {
-	ComponentUpdate(DeltaTime);
+	
 }
 
 
