@@ -73,6 +73,9 @@
     <Filter Include="Object\HeightMap">
       <UniqueIdentifier>{ffbbe15a-7b18-4d2d-91be-a387c539ca3e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Collision">
+      <UniqueIdentifier>{d651ec5a-a14a-4e47-a965-5fb95cff8935}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
@@ -131,6 +134,15 @@
     </ClInclude>
     <ClInclude Include="Codes\StaticMesh.h">
       <Filter>Component\Render\Mesh\Static</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\CollisionSystem.h">
+      <Filter>Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\Geometric.h">
+      <Filter>Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\Collision.h">
+      <Filter>Component\Collision</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -208,6 +220,15 @@
     </ClCompile>
     <ClCompile Include="Codes\StaticMesh.cpp">
       <Filter>Component\Render\Mesh\Static</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\CollisionSystem.cpp">
+      <Filter>Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Geometric.cpp">
+      <Filter>Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Collision.cpp">
+      <Filter>Component\Collision</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

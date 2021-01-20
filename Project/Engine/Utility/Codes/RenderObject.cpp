@@ -30,3 +30,9 @@ void Engine::RenderObject::Update(const float DeltaTime)&
 	Super::Update(DeltaTime);
 };
 
+void Engine::RenderObject::Render()&
+{
+	
+};
+
+

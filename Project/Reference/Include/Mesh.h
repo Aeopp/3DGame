@@ -5,14 +5,14 @@
 
 namespace Engine
 {
-	class DLL_DECL Mesh : public Component , public RenderInterface
+	class DLL_DECL Mesh : public Component 
 	{
 	public:
 		using Super = Component;
 	public:
-		void Initialize(IDirect3DDevice9* const Device,
-						const RenderInterface::Group _Group)&;
+		void Initialize(IDirect3DDevice9* const Device)&;
 		virtual void Event(class Object* Owner) & override;
+		virtual void Render()& abstract;
 	public:
 		static const inline Property TypeProperty = Property::Render;
 	protected:

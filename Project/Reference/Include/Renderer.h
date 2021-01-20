@@ -20,6 +20,7 @@ namespace Engine
 		void Render()&; 
 		void Regist(RenderInterface* const Target);
 	private:
+		void RenderNoAlpha()&;
 		void RenderEnviroment()&;
 	private:
 		std::map<RenderInterface::Group, std::vector<std::reference_wrapper<RenderInterface>>>RenderObjects;

@@ -194,6 +194,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Camera.cpp" />
+    <ClCompile Include="Codes\Geometric.cpp" />
+    <ClCompile Include="Codes\Collision.cpp" />
+    <ClCompile Include="Codes\CollisionSystem.cpp" />
     <ClCompile Include="Codes\Component.cpp" />
     <ClCompile Include="Codes\DynamicCamera.cpp" />
     <ClCompile Include="Codes\HeightMap.cpp" />
@@ -221,6 +224,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Camera.h" />
+    <ClInclude Include="Codes\Geometric.h" />
+    <ClInclude Include="Codes\Collision.h" />
+    <ClInclude Include="Codes\CollisionSystem.h" />
     <ClInclude Include="Codes\Component.h" />
     <ClInclude Include="Codes\DynamicCamera.h" />
     <ClInclude Include="Codes\ExportUtility.hpp" />

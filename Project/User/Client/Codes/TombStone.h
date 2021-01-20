@@ -1,14 +1,15 @@
 #pragma once
-#include "Object.h"
+#include "RenderObject.h"
 
-class TombStone final: public Engine::Object
+class TombStone final: public Engine::RenderObject
 {
 public:
-	using Super = Engine::Object;
+	using Super = Engine::RenderObject;
 public:
 	void Initialize()&;
-	void PrototypeInitialize(IDirect3DDevice9*const Device)&;
-public:
+	void PrototypeInitialize(IDirect3DDevice9*const Device ,
+							const Engine::RenderInterface::Group _Group)&;
+	virtual void Render() & override;
 	virtual void Update(const float DeltaTime)&;
 private:
 	IDirect3DDevice9* Device{ nullptr };

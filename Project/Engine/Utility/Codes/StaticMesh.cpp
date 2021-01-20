@@ -3,11 +3,10 @@
 #include "ResourceSystem.h"
 
 void Engine::StaticMesh::Initialize(
-	IDirect3DDevice9* const Device, 
-	const RenderInterface::Group _Group,
+	IDirect3DDevice9* const Device ,
 	const std::wstring& MeshResourceName)&
 {
-	Super::Initialize(Device, _Group);
+	Super::Initialize(Device);
 
 	auto& ResourceSys = ResourceSystem::Instance;
 	static const std::wstring StaticMeshNaming = L"StaticMesh_";
@@ -27,9 +26,6 @@ void Engine::StaticMesh::Event(Object* Owner)&
 
 void Engine::StaticMesh::Render()&
 {
-	Device->SetRenderState(D3DRS_LIGHTING, FALSE);
-	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
-
 	for (uint32 Idx = 0u; Idx < SubSetCount; ++Idx)
 	{
 		Device->SetTexture(0, Textures[Idx]);

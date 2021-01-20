@@ -13,6 +13,7 @@
 #include "imgui_impl_win32.h"
 #include "imgui.h"
 #include "Vertexs.hpp"
+#include "CollisionSystem.h"
 
 void ImGuiInitialize(const HWND Hwnd, IDirect3DDevice9* const Device);
 void ImGuiFrameStart();
@@ -45,6 +46,7 @@ void Engine::Management::Initialize(
 
 	_Sound =Engine::Sound::Init(ResourcePath/L"Sound");
 	_Controller = Engine::Controller::Init(HInstance,_Hwnd);
+	_CollisionSys = Engine::CollisionSystem::Init();
 	auto Device = _GraphicDevice->GetDevice(); 
 	_ShaderManager = Engine::ShaderManager::Init(Device);
 	_PrototypeManager = Engine::PrototypeManager::Init();
@@ -66,6 +68,7 @@ Engine::Management::~Management() noexcept
 	Sound::Reset();
 	Controller::Reset();
 	Timer::Reset();
+	CollisionSystem::Reset();
 	PrototypeManager::Reset();
 	Renderer::Reset();
 	ShaderManager::Reset();
@@ -85,15 +88,13 @@ void Engine::Management::Event()&
 
 	_Controller->Update();
 	_Sound->Update();
-
 	_CurrentScene->Event();
-	
-
 }
 
 void Engine::Management::Update(const float DeltaTime)&
 {
 	_CurrentScene->Update(DeltaTime);
+	_CollisionSys->Update(DeltaTime;
 }
 
 void Engine::Management::Render()&

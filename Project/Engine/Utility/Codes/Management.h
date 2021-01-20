@@ -66,6 +66,7 @@ namespace Engine
 		class ShaderManager* _ShaderManager{ nullptr };
 		class FontManager* _FontManager{ nullptr };
 		class ResourceSystem* _ResourceSys{ nullptr };
+		class CollisionSystem* _CollisionSys{ nullptr };
 	};
 };
 

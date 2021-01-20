@@ -27,6 +27,7 @@ void Engine::Scene::Update(const float DeltaTime)&
 	{
 		CurrentLayer->LateUpdate(DeltaTime);
 	}
+
 };
 
 void Engine::Scene::PendingKill() & noexcept

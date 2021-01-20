@@ -10,6 +10,11 @@ namespace Engine
 		enum class Group :uint8
 		{
 			Enviroment = 0u,
+			NoAlpha,
+			AlphaTest,
+			AlphaBlend,
+			Particle,
+			UI,
 		};
 	public:
 		//   초기화 단계에서 정보를 넘겨주세요.

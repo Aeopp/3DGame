@@ -21,76 +21,83 @@
 #include "imgui.h"
 #include "FontManager.h"
 
-
-
-
-struct Location3DUV
-{
-    Vector3 Location;
-    Vector3 UV;
-    static inline constexpr uint32_t FVF = D3DFVF_XYZ | D3DFVF_TEX1 | D3DFVF_TEXCOORDSIZE3(0);
-};
-
-struct _16_t
-{
-    WORD _1, _2, _3;
-    static inline constexpr D3DFORMAT Format = D3DFMT_INDEX16;
-};
-
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
 {
     Super::Initialize(Device);
-
-	RefFontManager().AddFont(Device, L"Font_Default", L"바탕", 15, 20, FW_HEAVY);
-	RefFontManager().AddFont(Device, L"Font_Jinji", L"궁서", 15, 20, FW_THIN);
+	
+	{
+		// 폰트 로딩
+		RefFontManager().AddFont(Device, L"Font_Default", L"바탕", 15, 20, FW_HEAVY);
+		RefFontManager().AddFont(Device, L"Font_Jinji", L"궁서", 15, 20, FW_THIN);
+	}
+	
 
 	auto* _Control = &RefControl();
 
-	   D3DLOCKED_RECT LockRect; 
-	   IDirect3DTexture9* ResourcePtr{ nullptr };
-
-	   RefResourceSys().Insert<IDirect3DVertexDeclaration9>(
-		   L"QQ", Vertex::Texture::GetVertexDecl(Device) );
-
-	  auto Tex = RefResourceSys().Emplace<IDirect3DTexture9>(
-		L"Texture",D3DXCreateTextureFromFile,Device,
-		  (App::ResourcePath/ L"Texture" / L"Player0.jpg").c_str(),&ResourcePtr);
-
-	Tex->LockRect(0, &LockRect, 0, D3DLOCK_DISCARD);
-	Tex->UnlockRect(0);
-
-	RefManager().NewLayer<EnemyLayer>();
-	RefManager().NewLayer<StaticLayer>();
-
-	constexpr float Aspect = App::ClientSize<float>.first /							   App::ClientSize<float>.second;
-
-	static bool bInit = false;
-
-	if (bInit == false)
 	{
-		RefProto().LoadPrototype<Engine::HeightMap>(L"Static",
-			Device, Engine::RenderInterface::Group::Enviroment);
-		RefProto().LoadPrototype<Engine::DynamicCamera>(L"Static", Device, App::Hwnd);
-		RefProto().LoadPrototype<TombStone>(L"Static", Device);
+		// 텍스쳐 리소스 추가. 
+		D3DLOCKED_RECT LockRect;
+		IDirect3DTexture9* ResourcePtr{ nullptr };
 
-		for (size_t i = 0; i < 16; ++i)
+		RefResourceSys().Insert<IDirect3DVertexDeclaration9>(
+			L"QQ", Vertex::Texture::GetVertexDecl(Device));
+
+		auto Tex = RefResourceSys().Emplace<IDirect3DTexture9>(
+			L"Texture", D3DXCreateTextureFromFile, Device,
+			(App::ResourcePath / L"Texture" / L"Player0.jpg").c_str(), &ResourcePtr);
+	}
+
+	{
+		// 현재 씬 레이어 추가.
+		RefManager().NewLayer<EnemyLayer>();
+		RefManager().NewLayer<StaticLayer>();
+	}
+
+	{
+		// 오브젝트 추가.
+		static bool bInit = false;
+
+		if (bInit == false)
 		{
-			RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap" + std::to_wstring(i));
+			{
+				// 프로토타입 로딩.
+				RefProto().LoadPrototype<Engine::HeightMap>(L"Static",
+					Device, Engine::RenderInterface::Group::Enviroment);
+				RefProto().LoadPrototype<Engine::DynamicCamera>(L"Static", Device, App::Hwnd);
+				RefProto().LoadPrototype<TombStone>(L"Static", Device ,
+					Engine::RenderInterface::Group::NoAlpha);
+			}
+			
+
+			for (size_t i = 0; i < 16; ++i)
+			{
+				RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap" + std::to_wstring(i));
+			}
+			bInit = true;
 		}
-		bInit = true;
+		else
+		{
+			RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap");
+			RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap2");
+		}
 	}
-	else
-	{
-		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap");
-		RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap2");
-	}
-
-
-	RefManager().NewObject<StaticLayer, Engine::DynamicCamera>(
-		L"Static", L"Camera",
-		FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 1.f, _Control);
+	
 
 	{
+		// 카메라 오브젝트 추가.
+		constexpr float Aspect = App::ClientSize<float>.first / App::ClientSize<float>.second;
+
+		RefManager().NewObject<StaticLayer, Engine::DynamicCamera>(
+			L"Static", L"Camera",
+			FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 1.f, _Control);
+	}
+
+
+
+	
+
+	{
+		// 메쉬 리소스 로딩.
 		ID3DXBuffer* Adjacency{ nullptr };
 		ID3DXBuffer* SubSet{ nullptr };
 		DWORD SubSetCount{ 0u };
@@ -108,7 +115,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 		RefResourceSys().Insert<ID3DXBuffer>(L"StaticMesh_Adjacency_TombStone",
 			Adjacency);
 
-		RefResourceSys().Insert< ID3DXBuffer>(L"StaticMesh_SubSet_TombStone",
+		RefResourceSys().Insert<ID3DXBuffer>(L"StaticMesh_SubSet_TombStone",
 			SubSet);
 
 		RefResourceSys().InsertAny(L"StaticMesh_SubSetCount_TombStone", SubSetCount);
@@ -133,7 +140,11 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 		RefResourceSys().InsertAny(L"StaticMesh_Textures_TombStone", Textures);
 	}
 
-	RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_1");
+	{
+		// 오브젝트 추가.
+		RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_1");
+	}
+	
 };
 
 void StartScene::Event() & 
@@ -141,21 +152,27 @@ void StartScene::Event() &
 	Super::Event();
 
 	ImGui::Begin("TTEST");
-	if (ImGui::Button("ChangeScene"))
 	{
-		RefManager().ChangeScene<StartScene>();
-	}
-	if (ImGui::Button("KILL"))
-	{
-		for (auto& [Type,Objects]: RefManager().FindLayer<EnemyLayer>()->RefObjects())
+		if (ImGui::Button("ChangeScene"))
 		{
-			for (auto& Obj : Objects)
-			{
-				auto Name = Obj->GetName(); 
+			// 씬전환 테스트.
+			RefManager().ChangeScene<StartScene>();
+		}
 
-				if (Name.find(L"HeightMap", 0u) != std::wstring::npos)
+		if (ImGui::Button("KILL"))
+		{
+			// 오브젝트 삭제 테스트.
+			for (auto& [Type, Objects] : 
+				RefManager().FindLayer<EnemyLayer>()->RefObjects())
+			{
+				for (auto& Obj : Objects)
 				{
-					Obj->Kill();
+					auto Name = Obj->GetName();
+
+					if (Name.find(L"HeightMap", 0u) != std::wstring::npos)
+					{
+						Obj->Kill();
+					}
 				}
 			}
 		}
@@ -166,24 +183,27 @@ void StartScene::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
 
-	auto _Map = RefManager().FindObject<EnemyLayer, Engine::HeightMap>(L"HeightMap2");
-	auto _Layer = RefManager().FindLayer<EnemyLayer>();
-
-	if (_Map)
-		_Map->GetName();
-
-	auto& LeyerMap = RefManager().RefLayers();
-	
-	for (auto& q : RefManager().FindObjects<EnemyLayer, Engine::HeightMap>())
 	{
-		//std::wcout << q->GetName() << std::endl;
-	}
-	for (auto& q : RefManager().FindObjects<StaticLayer, Engine::DynamicCamera>())
-	{
-		//std::wcout << q->GetName() << std::endl;
-	}
+		// 오브젝트,레이어 검색 테스트.
+		auto _Map = RefManager().FindObject<EnemyLayer, Engine::HeightMap>(L"HeightMap2");
+		auto _Layer = RefManager().FindLayer<EnemyLayer>();
 
-	auto Objs2 = RefManager().RefObjects<EnemyLayer>();
+		if (_Map)
+			_Map->GetName();
+
+		auto& LeyerMap = RefManager().RefLayers();
+
+		for (auto& q : RefManager().FindObjects<EnemyLayer, Engine::HeightMap>())
+		{
+			//std::wcout << q->GetName() << std::endl;
+		}
+		for (auto& q : RefManager().FindObjects<StaticLayer, Engine::DynamicCamera>())
+		{
+			//std::wcout << q->GetName() << std::endl;
+		}
+
+		auto Objs2 = RefManager().RefObjects<EnemyLayer>();
+	}
 }
 
 

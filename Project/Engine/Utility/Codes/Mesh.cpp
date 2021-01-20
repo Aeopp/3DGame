@@ -1,18 +1,13 @@
 #include "Mesh.h"
 #include "Renderer.h"
 
-
-
-void Engine::Mesh::Initialize(IDirect3DDevice9* const Device, 
-	const RenderInterface::Group _Group)&
+void Engine::Mesh::Initialize(IDirect3DDevice9* const Device)&
 {
 	Super::Initialize();
 	this->Device = Device;
-	SetUpRenderingInformation(_Group);
 }
 
 void Engine::Mesh::Event(Object* Owner)&
 {
 	Super::Event(Owner);
-	Renderer::Instance->Regist(this);
 }

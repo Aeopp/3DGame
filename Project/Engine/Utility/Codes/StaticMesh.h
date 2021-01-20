@@ -12,7 +12,6 @@ namespace Engine
 		static const inline Property TypeProperty = Property::Render;
 	public:
 		void Initialize(IDirect3DDevice9* const Device,
-			const RenderInterface::Group _Group ,
 			const std::wstring& MeshResourceName)&;
 		virtual void Event(class Object* Owner) & override;
 		virtual void Render() & override;
