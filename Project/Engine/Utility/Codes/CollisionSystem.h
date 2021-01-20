@@ -1,4 +1,5 @@
 #pragma once
+#include "TypeAlias.h"
 #include "SingletonInterface.h"
 #include "DllHelper.H"
 #include <vector>

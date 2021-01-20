@@ -2,6 +2,7 @@
 #include "Object.h"
 #include <algorithm>
 #include <iterator>
+#include "imgui.h"
 
 void Engine::Layer::Initialize()&
 {
@@ -9,13 +10,17 @@ void Engine::Layer::Initialize()&
 
 void Engine::Layer::Event()&
 {
-	for (auto& [Key, CurrentObjectContainer] : _ObjectMap)
+	ImGui::Begin("Object Information");
 	{
-		for (auto& CurrentObject : CurrentObjectContainer)
+		for (auto& [Key, CurrentObjectContainer] : _ObjectMap)
 		{
-			CurrentObject->Event();
+			for (auto& CurrentObject : CurrentObjectContainer)
+			{
+				CurrentObject->Event();
+			};
 		};
-	};
+	}
+	ImGui::End();
 }
 
 void Engine::Layer::Update(const float DeltaTime)&

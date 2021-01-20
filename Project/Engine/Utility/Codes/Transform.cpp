@@ -1,6 +1,7 @@
 #include "Camera.h"
 #include "Transform.h"
 #include "FMath.hpp"
+#include "imgui.h"
 
 void Engine::Transform::Initialize()&
 {
@@ -14,9 +15,25 @@ void Engine::Transform::Update(Object* const Owner, const float DeltaTime)&
 
 };
 
+void Engine::Transform::Event(Object* const Owner)&
+{
+	Super::Event(Owner);
+
+	const Vector3& Scale = GetScale();
+	const Vector3& Location = GetLocation();
+	const Vector3& Rotation = GetRotation();
+
+	ImGui::Text(
+		"Scale\n X : %f \n Y : %f \n Z : %f", Scale.x, Scale.y, Scale.z);
+	ImGui::Text(
+		"Location\n X : %f \n Y : %f \n Z : %f", Location.x, Location.y, Location.z);
+	ImGui::Text(
+		"Rotation\n X : %f \n Y : %f \n Z : %f",Rotation.x, Rotation.y, Rotation.z);
+};
+
 const Matrix& Engine::Transform::UpdateWorld()&
 {
-	World = FMath::WorldMatrix(Scale, Rotation, Location);
+	World = FMath::WorldMatrix(Scale, Forward, Right, Up, Location);
 	return World;
 };
 

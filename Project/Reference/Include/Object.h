@@ -33,16 +33,18 @@ namespace Engine
 		void ComponentUpdate(const float DeltaTime)&;
 		template<typename ComponentSubType>
 		auto GetComponent()&;
+		template<typename ComponentSubType>
+		bool IsContain()&;
 	public:
 		virtual void HitNotify(Object* const Target, const Vector3 PushDir,
-								const float CrossAreaScale)&;
+			const float CrossAreaScale)&;
 	protected:
 		std::wstring Name{};
 	private:
 		bool bPendingKill{ false };
 		std::map<Component::Property/*업데이트 순서 통제*/,
 			std::unordered_map<std::string,
-			    std::shared_ptr<Component>>>_Components;
+			std::shared_ptr<Component>>>_Components;
 	};
 };
 
@@ -54,10 +56,16 @@ inline auto Engine::Object::AddComponent(Params&&... _Params)&
 
 	auto _Component = std::make_shared<ComponentSubType>();
 	_Component->Initialize(std::forward<Params>(_Params)...);
-	
-	return static_cast<ComponentSubType*const >((_Components[ComponentSubType::TypeProperty]
+
+	return static_cast<ComponentSubType* const>((_Components[ComponentSubType::TypeProperty]
 		[typeid(ComponentSubType).name()] = (_Component)).get());
 };
+
+template<typename ComponentSubType>
+inline bool Engine::Object::IsContain()&
+{
+	return _Components[ComponentSubType::TypeProperty].contains(typeid(ComponentSubType).name());
+}
 
 template<typename ComponentSubType>
 inline auto Engine::Object::GetComponent()&
@@ -65,8 +73,8 @@ inline auto Engine::Object::GetComponent()&
 	static_assert(std::is_base_of_v<Component, ComponentSubType>,
 		__FUNCTION__);
 
-	return static_cast<ComponentSubType*const> (_Components.find(ComponentSubType::TypeProperty)->second
-					.find(typeid(ComponentSubType).name())->second.get());
+	return static_cast<ComponentSubType* const> (_Components.find(ComponentSubType::TypeProperty)->second
+		.find(typeid(ComponentSubType).name())->second.get());
 };
 
 inline bool Engine::Object::IsPendingKill() const& { return bPendingKill; }

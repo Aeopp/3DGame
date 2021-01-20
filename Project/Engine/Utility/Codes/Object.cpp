@@ -1,4 +1,6 @@
 #include "Object.h"
+#include "imgui.h"
+#include <string>
 
 void Engine::Object::Initialize()&
 {}
@@ -18,6 +20,11 @@ void Engine::Object::Clone()&
 }
 void Engine::Object::Event()&
 {
+	 std::string _Name;
+	 _Name.assign(std::begin(Name), std::end(Name));
+	 _Name += "Information";
+	ImGui::Text(_Name.c_str());
+
 	for (auto& [PropertyKey, ComponentContainer] : _Components)
 	{
 		for (auto& [Key, CurrentComponent] : ComponentContainer)

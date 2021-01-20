@@ -82,6 +82,10 @@ void TombStone::Update(const float DeltaTime)&
 		auto& Control = RefControl();
 		auto _Transform = GetComponent<Engine::Transform>();
 		static constexpr float Speed = 10.f;
+	/*	_Transform->Rotate({ 0,1,0 }, 3.14f * 1 * DeltaTime);
+		_Transform->Rotate({ 1,0,0 }, 3.14f * 1 * DeltaTime);
+		_Transform->Rotate({ 0,0,1 }, 3.14f * 1 * DeltaTime);*/
+
 		if (Control.IsPressing(DIK_UP))
 		{
 			_Transform->MoveForward(DeltaTime, Speed);
@@ -89,27 +93,22 @@ void TombStone::Update(const float DeltaTime)&
 		if (Control.IsPressing(DIK_DOWN))
 		{
 			_Transform->MoveForward(DeltaTime, -Speed);
-
 		}
 		if (Control.IsPressing(DIK_LEFT))
 		{
 			_Transform->MoveRight(DeltaTime, -Speed);
-
 		}
 		if (Control.IsPressing(DIK_RIGHT))
 		{
 			_Transform->MoveRight(DeltaTime, Speed);
-
 		}
 		if (Control.IsPressing(DIK_PGUP))
 		{
 			_Transform->MoveUp(DeltaTime, Speed);
-
 		}
 		if (Control.IsPressing(DIK_PGDN))
 		{
 			_Transform->MoveUp(DeltaTime, -Speed);
-
 		}
 	}
 }

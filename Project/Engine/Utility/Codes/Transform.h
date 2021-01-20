@@ -12,6 +12,7 @@ namespace Engine
 		void Initialize()&;
 		virtual void Update(class Object* const Owner,
 							const float DeltaTime)& override;
+		virtual void Event(class Object* const Owner)& override;
 	public:
 		// 자식마다 정의.
 		static const inline Property TypeProperty = Property::Transform;

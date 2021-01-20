@@ -67,6 +67,8 @@ void Engine::DynamicCamera::LateUpdate(const float DeltaTime)&
 }
 void Engine::DynamicCamera::Event()&
 {
+	Super::Event();
+
 	if (_Control->IsDown(DIK_P))
 	{
 		MouseFixToggle();

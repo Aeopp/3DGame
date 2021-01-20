@@ -340,10 +340,10 @@ inline Matrix FMath::Identity(Matrix& _Matrix)
 {
 	static constexpr size_t Vec3Size = sizeof(Vector3); 
 	Matrix BasisMatrix;
+	BasisMatrix=FMath::Identity(BasisMatrix);
 	memcpy(&BasisMatrix._11, &Right, Vec3Size);
 	memcpy(&BasisMatrix._21, &Up, Vec3Size);
 	memcpy(&BasisMatrix._31, &Forward, Vec3Size);
-
 	return 	FMath::Scale(Scale)* BasisMatrix* FMath::Translation(Location);
 };
 

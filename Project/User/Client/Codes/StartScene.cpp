@@ -142,10 +142,10 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 
 	{
 		RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_1",
-			 Vector3{0,0,0}  );
+			 Vector3{0,0,10}  );
 
 		RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_2",
-				Vector3{ 5,0,0 } );
+				Vector3{ 5,0,10 } );
 
 		/*for (size_t i = 0; i < 100; ++i)
 		{
