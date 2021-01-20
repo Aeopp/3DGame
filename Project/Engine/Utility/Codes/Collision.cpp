@@ -13,8 +13,8 @@ void Engine::Collision::Initialize(const CollisionTag _Tag,
 void Engine::Collision::Update(Object* const Owner, const float DeltaTime)&
 {
 	Super::Update(Owner, DeltaTime);
+	this->Owner = Owner;
 	CollisionSystem::Instance->Regist(_Tag, this);
-
 	_Geometric->Update( OwnerTransform->GetScale(),
 						OwnerTransform->GetRotation(),
 						OwnerTransform->GetLocation());
@@ -43,6 +43,9 @@ bool Engine::Collision::IsCollision(Collision* const Rhs)&
 								OwnerTransform->GetRotation(),
 								OwnerTransform->GetLocation());
 		}
+
+		Owner->HitNotify(Rhs->Owner, PushDir, CrossAreaScale);
+		Rhs->Owner->HitNotify(Owner, -PushDir, CrossAreaScale);
 	}
 
 	return bCollision;

@@ -49,3 +49,9 @@ void Engine::Object::ComponentUpdate(const float DeltaTime)&
 		}
 	};
 }
+
+void Engine::Object::HitNotify( Object* const Target, 
+								const Vector3 PushDir, const float CrossAreaScale)&
+{
+
+}

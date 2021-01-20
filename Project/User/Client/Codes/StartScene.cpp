@@ -89,7 +89,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 
 		RefManager().NewObject<StaticLayer, Engine::DynamicCamera>(
 			L"Static", L"Camera",
-			FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 1.f, _Control);
+			FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 10.f, _Control);
 	}
 
 
@@ -141,12 +141,18 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	}
 
 	{
-		for (size_t i = 0; i < 100; ++i)
+		RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_1",
+			 Vector3{0,0,0}  );
+
+		RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_2",
+				Vector3{ 5,0,0 } );
+
+		/*for (size_t i = 0; i < 100; ++i)
 		{
 			RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_"
 				+std::to_wstring(i),
 				FMath::Random(Vector3{ -5,-5,-5 }, Vector3{ 5,5,5 }));
-		}
+		}*/
 	}
 };
 

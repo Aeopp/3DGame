@@ -25,6 +25,7 @@ namespace Engine
 		CollisionTag _Tag{ CollisionTag::None };
 		std::unique_ptr<Geometric> _Geometric;
 	private:
+		class Object* Owner{ nullptr };
 		class Transform* OwnerTransform{ nullptr };
 		std::set<CollisionTag> PushCollisionables;
 		std::set<CollisionTag> Collisionables;

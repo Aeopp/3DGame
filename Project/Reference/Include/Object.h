@@ -33,6 +33,9 @@ namespace Engine
 		void ComponentUpdate(const float DeltaTime)&;
 		template<typename ComponentSubType>
 		auto GetComponent()&;
+	public:
+		virtual void HitNotify(Object* const Target, const Vector3 PushDir,
+								const float CrossAreaScale)&;
 	protected:
 		std::wstring Name{};
 	private:

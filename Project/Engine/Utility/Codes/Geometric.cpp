@@ -1,5 +1,7 @@
 #include "Geometric.h"
 #include "FMath.hpp"
+#include "imgui.h"
+#include <iostream>
 
 Engine::AABB::AABB(const Vector3 LocalMin, const Vector3 LocalMax)
 					: LocalMin{ LocalMin }, LocalMax{ LocalMax }
@@ -49,7 +51,6 @@ bool Engine::AABB::IsCollisionAABB(
 		return false;
 	if (RhsAABB->Min.z > Max.z || RhsAABB->Max.z < Min.z)
 		return false;
-
 	//const std::array<const float, 3u> CrossAxis
 	//{
 	//	std::fabsf(Max.x - RhsAABB->Min.x),

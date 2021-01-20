@@ -26,7 +26,7 @@ namespace Engine
 		void MouseFixToggle()&;
 	private:
 		bool bMouseFix{ false };
-		float Speed = 10.f;
+		float Speed = 100.f;
 		HWND Hwnd{ NULL };
 		Controller* _Control{ nullptr };
 	};
