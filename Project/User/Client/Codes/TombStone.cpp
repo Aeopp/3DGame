@@ -2,6 +2,9 @@
 #include "TombStone.h"
 #include "Transform.h"
 #include "StaticMesh.h"
+#include "Collision.h"
+#include "CollisionSystem.h"
+
 
 void TombStone::Initialize()&
 {
@@ -9,6 +12,17 @@ void TombStone::Initialize()&
 
 	AddComponent<Engine::Transform>();
 	AddComponent<Engine::StaticMesh>(Device,L"TombStone");
+
+	auto _Collision =AddComponent<Engine::Collision>
+		(Engine::CollisionTag::Decorator);
+
+	_Collision->_Geometric = std::make_unique<Engine::AABB>
+		(Vector3{-1,-1,-1},Vector3{1,1,1});
+
+	_Collision->RefCollisionables().insert(
+		{
+			Engine::CollisionTag::Decorator
+		});
 }
 
 void TombStone::PrototypeInitialize(IDirect3DDevice9* const Device,

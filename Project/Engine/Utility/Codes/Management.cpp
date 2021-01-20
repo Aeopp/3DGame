@@ -94,7 +94,7 @@ void Engine::Management::Event()&
 void Engine::Management::Update(const float DeltaTime)&
 {
 	_CurrentScene->Update(DeltaTime);
-	_CollisionSys->Update(DeltaTime;
+	_CollisionSys->Update(DeltaTime);
 }
 
 void Engine::Management::Render()&

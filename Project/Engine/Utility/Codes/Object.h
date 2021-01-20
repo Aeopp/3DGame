@@ -54,10 +54,8 @@ inline auto Engine::Object::AddComponent(Params&&... _Params)&
 	auto _Component = std::make_shared<ComponentSubType>();
 	_Component->Initialize(std::forward<Params>(_Params)...);
 	
-	_Components[ComponentSubType::TypeProperty]
-			[typeid(ComponentSubType).name()] = (_Component);
-
-	return _Component.get();
+	return static_cast<ComponentSubType*const >((_Components[ComponentSubType::TypeProperty]
+		[typeid(ComponentSubType).name()] = (_Component)).get());
 };
 
 template<typename ComponentSubType>

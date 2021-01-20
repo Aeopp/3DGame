@@ -1,5 +1,10 @@
 #include "Geometric.h"
 
+Engine::AABB::AABB(const Vector3 Min, const Vector3 Max)
+	: Min{ Min }, Max{ Max }
+{
+}
+
 Engine::Geometric::Type Engine::AABB::GetType() const&
 {
     return Engine::Geometric::Type::AABB;
@@ -15,6 +20,8 @@ bool Engine::AABB::IsCollision(Geometric* const Rhs)&
 		default:
 			break;
 		}
+
+		return false;
 }
 
 bool Engine::AABB::IsCollisionAABB(
