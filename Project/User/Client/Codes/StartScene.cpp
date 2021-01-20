@@ -145,9 +145,8 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 		{
 			RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_"
 				+std::to_wstring(i),
-				Vector3{ (float)i,0,0 });
+				FMath::Random(Vector3{ -5,-5,-5 }, Vector3{ 5,5,5 }));
 		}
-		
 	}
 };
 

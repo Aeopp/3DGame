@@ -4,7 +4,7 @@
 
 namespace Engine
 {
-	class DLL_DECL StaticMesh  : public Mesh
+	class DLL_DECL StaticMesh : public Mesh
 	{
 	public:
 		using Super = Mesh;
@@ -15,6 +15,7 @@ namespace Engine
 			const std::wstring& MeshResourceName)&;
 		virtual void Event(class Object* Owner) & override;
 		virtual void Render() & override;
+		inline ID3DXMesh* const GetMesh()const&;
 	private:
 		ID3DXMesh* _Mesh{ nullptr };
 		ID3DXBuffer* Adjacency{ nullptr };
@@ -23,4 +24,8 @@ namespace Engine
 		uint32 SubSetCount{ 0u };
 		std::vector<IDirect3DTexture9*> Textures{};
 	};
+}
+inline ID3DXMesh* const Engine::StaticMesh::GetMesh()const&
+{
+	return _Mesh;
 }

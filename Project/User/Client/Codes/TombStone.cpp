@@ -11,14 +11,23 @@ void TombStone::Initialize(const Vector3& SpawnLocation)&
 
 	auto _Transform =AddComponent<Engine::Transform>();
 
-	AddComponent<Engine::StaticMesh>(Device,L"TombStone");
+	auto _StaticMesh =AddComponent<Engine::StaticMesh>(Device,L"TombStone");
+
+	ID3DXMesh* Mesh = _StaticMesh->GetMesh();
+	uint8* VertexBufferPtr{ nullptr };
+	Vector3  BoundingBoxMin{}, BoundingBoxMax{};
+	Mesh->LockVertexBuffer(0, (void**)&VertexBufferPtr);
+
+	D3DXComputeBoundingBox((Vector3*)(VertexBufferPtr), Mesh->GetNumVertices(),
+		Mesh->GetNumBytesPerVertex(), &BoundingBoxMin, &BoundingBoxMax);
+
 	_Transform->SetLocation(SpawnLocation);
 
 	auto _Collision =AddComponent<Engine::Collision>
 		(Engine::CollisionTag::Decorator,_Transform);
 
 	_Collision->_Geometric = std::make_unique<Engine::AABB>
-		(Vector3{-1,-1,-1},Vector3{1,1,1});
+						(BoundingBoxMin, BoundingBoxMax);
 
 	_Collision->RefCollisionables().insert(
 		{
@@ -27,7 +36,7 @@ void TombStone::Initialize(const Vector3& SpawnLocation)&
 
 	_Collision->RefPushCollisionables().insert(
 		{
-			Engine::CollisionTag::Decorator
+		//	Engine::CollisionTag::Decorator
 		});
 }
 
@@ -41,7 +50,8 @@ void TombStone::PrototypeInitialize(IDirect3DDevice9* const Device,
 void TombStone::Render()&
 {
 	Super::Render();
-	Device->SetTransform(D3DTS_WORLD, &GetComponent<Engine::Transform>()->UpdateWorld());
+	const Matrix& World = GetComponent<Engine::Transform>()->UpdateWorld();
+	Device->SetTransform(D3DTS_WORLD, &World);
 	GetComponent<Engine::StaticMesh>()->Render();
 }
 
