@@ -11,7 +11,9 @@ namespace Engine
 	{
 	public:
 		using Super = Component;
-		void Initialize(const CollisionTag _Tag,
+		void Initialize(
+			IDirect3DDevice9* const Device,
+			const CollisionTag _Tag,
 			class Transform* const OwnerTransform)&;
 		virtual void Update(class Object* const Owner,
 			const float DeltaTime) & override;
@@ -22,11 +24,12 @@ namespace Engine
 		bool IsCollisionable(const CollisionTag _Tag)const&;
 		bool IsCollision(Collision* const Rhs)&;
 	public:
-		// �ڽĸ��� ����.
+		bool bCurrentFrameCollision = false;
 		static const inline Property TypeProperty = Property::Collision;
 		CollisionTag _Tag{ CollisionTag::None };
 		std::unique_ptr<Geometric> _Geometric;
 	private:
+		IDirect3DDevice9* Device{ nullptr };  
 		class Object* Owner{ nullptr };
 		class Transform* OwnerTransform{ nullptr };
 		std::set<CollisionTag> PushCollisionables;

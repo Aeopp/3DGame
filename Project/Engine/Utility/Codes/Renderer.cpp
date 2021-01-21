@@ -2,7 +2,6 @@
 #include <future>
 #include "FMath.hpp"
 #include "imgui.h"
-#include "Global.h"
 
 void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)&
 {
@@ -12,7 +11,7 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 
 void Engine::Renderer::Render()&
 {
-	if (Global::bDebugMode)
+	//if (Global::bDebugMode)
 	{
 		// �ø� �׽�Ʈ �ڵ�...
 		Matrix View, Projection, CameraWorld;
@@ -61,7 +60,7 @@ void Engine::Renderer::Regist(RenderInterface* const Target)
 
 void Engine::Renderer::RenderDebugCollision()&
 {
-	if (Global::bDebugMode)
+	//if (Global::bDebugMode)
 	{
 		Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 		Device->SetRenderState(D3DRS_LIGHTING, FALSE);

@@ -1,10 +1,16 @@
 #include "Collision.h"
 #include "Object.h"
 #include "Transform.h"
+#include "Vertexs.hpp"
+#include "ResourceSystem.h"
 
-void Engine::Collision::Initialize(const CollisionTag _Tag,
+
+void Engine::Collision::Initialize(
+	IDirect3DDevice9* const Device,
+	const CollisionTag _Tag,
 	class Transform* const OwnerTransform)&
 {
+	this->Device = Device;
 	Super::Initialize();
 	this->_Tag = _Tag;
 	this->OwnerTransform = OwnerTransform;
@@ -14,6 +20,7 @@ void Engine::Collision::Initialize(const CollisionTag _Tag,
 void Engine::Collision::Update(Object* const Owner, const float DeltaTime)&
 {
 	Super::Update(Owner, DeltaTime);
+	bCurrentFrameCollision = false;
 	this->Owner = Owner;
 	CollisionSystem::Instance->Regist(_Tag, this);
 	_Geometric->Update(OwnerTransform->GetScale(),
@@ -28,7 +35,8 @@ void Engine::Collision::Event(Object* Owner)&
 
 void Engine::Collision::Render()&
 {
-
+	Device->SetTransform(D3DTS_WORLD, &OwnerTransform->UpdateWorld());
+	_Geometric->Render(Device, bCurrentFrameCollision);
 };
 
 bool Engine::Collision::IsCollision(Collision* const Rhs)&
@@ -37,8 +45,10 @@ bool Engine::Collision::IsCollision(Collision* const Rhs)&
 	float CrossAreaScale;
 	const bool bCollision = _Geometric->IsCollision(Rhs->_Geometric.get(),
 		PushDir, CrossAreaScale);
+
 	if (bCollision)
 	{
+		bCurrentFrameCollision = true;
 		if (PushCollisionables.contains(Rhs->_Tag))
 		{
 			OwnerTransform->SetLocation(

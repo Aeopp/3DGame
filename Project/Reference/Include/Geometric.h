@@ -20,9 +20,15 @@ namespace Engine
 			Vector3& PushDir,
 			float& CrossAreaScale)& abstract;
 		virtual void Update(const Vector3 Scale,
-			const Vector3 Rotation,
-			const Vector3 Location)& abstract;
+							const Vector3 Rotation,
+							const Vector3 Location)& abstract;
 		virtual Type GetType() const& abstract;
+		virtual void Render(IDirect3DDevice9* const Device, const bool bCurrentUpdateCollision)& abstract;
+		Vector3 TestCurrentRotation;
+		IDirect3DVertexBuffer9* VertexBuffer{ nullptr };
+		IDirect3DIndexBuffer9* IndexBuffer{ nullptr };
+		IDirect3DTexture9* CollisionTexture{ nullptr };
+		IDirect3DTexture9* NoCollisionTexture{ nullptr };
 	};
 
 	class DLL_DECL AABB : public Geometric
@@ -30,9 +36,11 @@ namespace Engine
 	public:
 		AABB(const Vector3 LocalMin, const Vector3 LocalMax);
 		virtual Type GetType() const& override;
+		void MakeDebugCollisionBox(IDirect3DDevice9* const Device)&;
 		virtual void Update(const Vector3 Scale,
 			const Vector3 Rotation,
 			const Vector3 Location) & override;
+		virtual void Render(IDirect3DDevice9* const Device , const bool bCurrentUpdateCollision) & override;
 		virtual bool IsCollision(Geometric* const Rhs,
 			Vector3& PushDir,
 			float& CrossAreaScale) & override;
@@ -51,10 +59,12 @@ namespace Engine
 	{
 	public:
 		OBB(const Vector3 LocalMin, const Vector3 LocalMax);
+		void MakeDebugCollisionBox(IDirect3DDevice9* const Device);
 		virtual Type GetType() const& override;
 		virtual void Update(const Vector3 Scale,
 			const Vector3 Rotation,
 			const Vector3 Location) & override;
+		virtual void Render(IDirect3DDevice9* const Device , const bool bCurrentUpdateCollision) & override;
 		virtual bool IsCollision(Geometric* const Rhs,
 			Vector3& PushDir,
 			float& CrossAreaScale) & override;

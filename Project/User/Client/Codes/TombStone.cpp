@@ -8,6 +8,8 @@
 #include "ExportUtility.hpp"
 #include "dinput.h"
 #include "imgui.h"
+#include "Vertexs.hpp"
+#include "ResourceSystem.h"
 
 static uint32 TestID = 0u;
 static bool bTestCollision = false;
@@ -30,10 +32,12 @@ void TombStone::Initialize(const Vector3& SpawnLocation)&
 	_Transform->SetLocation(SpawnLocation);
 
 	auto _Collision =AddComponent<Engine::Collision>
-		(Engine::CollisionTag::Decorator,_Transform);
+		(Device, Engine::CollisionTag::Decorator,_Transform);
 
 	_Collision->_Geometric = std::make_unique<Engine::AABB>
-						(BoundingBoxMin, BoundingBoxMax);
+						        (BoundingBoxMin, BoundingBoxMax);
+	
+	static_cast<Engine::AABB* const> (_Collision->_Geometric.get())->MakeDebugCollisionBox(Device);
 
 	_Collision->RefCollisionables().insert(
 		{
@@ -42,7 +46,7 @@ void TombStone::Initialize(const Vector3& SpawnLocation)&
 
 	_Collision->RefPushCollisionables().insert(
 		{
-		//	Engine::CollisionTag::Decorator
+			//	Engine::CollisionTag::Decorator
 		});
 }
 
