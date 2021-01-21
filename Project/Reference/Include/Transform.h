@@ -17,7 +17,7 @@ namespace Engine
 		// 자식마다 정의.
 		static const inline Property TypeProperty = Property::Transform;
 	public :
-		void Rotate(Vector3 Axis, const float Radian)&;
+		void Rotate(Vector3 Axis, const float Radian,const float DeltaTime)&;
 		void Move(Vector3 Direction, const float DeltaTime,const float Speed);
 		void MoveForward(const float DeltaTime ,const float Speed);
 		void MoveRight(const float DeltaTime, const float Speed);

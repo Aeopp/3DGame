@@ -19,19 +19,19 @@ void Engine::DynamicCamera::Initialize(
 void Engine::DynamicCamera::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
-
+	
 	auto _Transform = GetComponent<Transform>();
 
 	if (bMouseFix)
 	{
 		const float Yaw =
-			static_cast <float> (_Control->GetMouseMove(MouseMove::X)) * DeltaTime;
+			static_cast <float> (_Control->GetMouseMove(MouseMove::X)) ;
 		const float Pitch =
-			static_cast <float> (_Control->GetMouseMove(MouseMove::Y)) * DeltaTime;
+			static_cast <float> (_Control->GetMouseMove(MouseMove::Y)) ;
 		MouseFix();
 
-		_Transform->Rotate({ 0,1,0 }, Yaw);
-		_Transform->Rotate(_Transform->GetRight(), Pitch);
+		_Transform->Rotate({ 0,1,0 }, Yaw , DeltaTime );
+		_Transform->Rotate(_Transform->GetRight(), Pitch, DeltaTime);
 	}
 
 	if (_Control->IsPressing(DIK_W))
