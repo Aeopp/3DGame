@@ -3,6 +3,12 @@
 
 namespace Vertex
 {
+	struct Location3DUV
+	{
+		Vector3 Location;
+		Vector3 UV;
+		static const uint32 FVF = D3DFVF_XYZ | D3DFVF_TEX1 | D3DFVF_TEXCOORDSIZE1(0);
+	};
 	struct Texture
 	{
 		Vector3 Location;

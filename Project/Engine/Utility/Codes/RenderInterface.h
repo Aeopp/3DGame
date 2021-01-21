@@ -14,6 +14,7 @@ namespace Engine
 			AlphaTest,
 			AlphaBlend,
 			Particle,
+			DebugCollision,
 			UI,
 		};
 	public:

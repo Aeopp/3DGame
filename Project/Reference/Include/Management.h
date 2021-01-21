@@ -23,7 +23,6 @@ namespace Engine
 		~Management()noexcept;
 	public:
 		void GameLoop()&;
-		void DebugToggle()&;
 	public:
 		template<typename SceneType>
 		void ChangeScene() & noexcept;
@@ -52,7 +51,6 @@ namespace Engine
 		template<typename LayerSubType, typename ObjectSubType>
 		auto FindObject(const std::wstring& TargetName)&;
 	private:
-		bool bDebugMode{ true };
 		HWND Hwnd{ NULL };
 		std::pair<uint32, uint32> ClientSize{};
 		std::unique_ptr<Scene> _CurrentScene{ nullptr };

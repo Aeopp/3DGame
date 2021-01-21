@@ -16,6 +16,7 @@ namespace Engine
 		virtual void Event(class Object* Owner) & override;
 		virtual void Render() & override;
 		inline ID3DXMesh* const GetMesh()const&;
+		inline const auto& GetVertexLocations() const&; 
 	private:
 		ID3DXMesh* _Mesh{ nullptr };
 		ID3DXBuffer* Adjacency{ nullptr };
@@ -31,4 +32,9 @@ namespace Engine
 inline ID3DXMesh* const Engine::StaticMesh::GetMesh()const&
 {
 	return _Mesh;
+}
+
+inline const auto& Engine::StaticMesh::GetVertexLocations() const&
+{
+	return *VertexLocations;
 }

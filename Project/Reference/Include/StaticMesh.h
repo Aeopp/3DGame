@@ -16,7 +16,7 @@ namespace Engine
 		virtual void Event(class Object* Owner) & override;
 		virtual void Render() & override;
 		inline ID3DXMesh* const GetMesh()const&;
-		inline const std::vector<Vector3>& GetVertexLocations()const&;
+		inline const auto& GetVertexLocations() const&; 
 	private:
 		ID3DXMesh* _Mesh{ nullptr };
 		ID3DXBuffer* Adjacency{ nullptr };
@@ -28,15 +28,13 @@ namespace Engine
 		std::shared_ptr<std::vector<Vector3>> VertexLocations{};
 		std::vector<IDirect3DTexture9*> Textures{};
 	};
-};
-
-inline const std::vector<Vector3>&
-	Engine::StaticMesh::GetVertexLocations()const&
-{
-	return *VertexLocations;
-};
-
+}
 inline ID3DXMesh* const Engine::StaticMesh::GetMesh()const&
 {
 	return _Mesh;
-};
+}
+
+inline const auto& Engine::StaticMesh::GetVertexLocations() const&
+{
+	return *VertexLocations;
+}

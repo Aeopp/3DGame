@@ -1,9 +1,10 @@
-#include "Renderer.h"
+ï»¿#include "Renderer.h"
 #include <future>
 #include "FMath.hpp"
 #include "imgui.h"
+#include "Global.h"
 
-void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>&  Device)&
+void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)&
 {
 	this->Device = Device;
 	_Frustum.Initialize();
@@ -11,8 +12,9 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>&  Device
 
 void Engine::Renderer::Render()&
 {
+	if (Global::bDebugMode)
 	{
-		// ÄÃ¸µ Å×½ºÆ® ÄÚµå...
+		// ï¿½Ã¸ï¿½ ï¿½×½ï¿½Æ® ï¿½Úµï¿½...
 		Matrix View, Projection, CameraWorld;
 		Device->GetTransform(D3DTS_VIEW, &View);
 		Device->GetTransform(D3DTS_PROJECTION, &Projection);
@@ -44,9 +46,10 @@ void Engine::Renderer::Render()&
 			ImGui::End();
 		}
 	};
-	
+
 	RenderEnviroment();
 	RenderNoAlpha();
+	RenderDebugCollision();
 	_Frustum.Render(Device.get());
 	RenderObjects.clear();
 };
@@ -55,6 +58,45 @@ void Engine::Renderer::Regist(RenderInterface* const Target)
 {
 	RenderObjects[Target->GetGroup()].push_back(*Target);
 };
+
+void Engine::Renderer::RenderDebugCollision()&
+{
+	if (Global::bDebugMode)
+	{
+		Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+		Device->SetRenderState(D3DRS_LIGHTING, FALSE);
+		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+		Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+#ifdef PARALLEL
+		if (auto iter = RenderObjects.find(RenderInterface::Group::DebugCollision);
+			iter != std::end(RenderObjects))
+		{
+			std::vector<std::future<void>> Futures;
+			for (auto& _RenderEntity : iter->second)
+			{
+				Futures.push_back(std::async(std::launch::async,
+					[_RenderEntity]() {
+						_RenderEntity.get().Render();
+					}));
+			}
+			for (auto& Future : Futures)
+			{
+				Future.get();
+			}
+			Futures.clear();
+		}
+#else
+		if (auto iter = RenderObjects.find(RenderInterface::Group::DebugCollision);
+			iter != std::end(RenderObjects))
+		{
+			for (auto& _RenderEntity : iter->second)
+			{
+				_RenderEntity.get().Render();
+			}
+		}
+#endif
+	}
+}
 
 void Engine::Renderer::RenderNoAlpha()&
 {

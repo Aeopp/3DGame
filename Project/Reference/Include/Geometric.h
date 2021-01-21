@@ -13,14 +13,15 @@ namespace Engine
 		{
 			None,
 			AABB,
+			OBB,
 		};
 	public:
-		virtual bool IsCollision(Geometric* const Rhs ,
-								Vector3& PushDir,
-								float& CrossAreaScale)&abstract;
-		virtual void Update(const Vector3 Scale,  
-							const Vector3 Rotation , 
-							const Vector3 Location)& abstract;
+		virtual bool IsCollision(Geometric* const Rhs,
+			Vector3& PushDir,
+			float& CrossAreaScale)& abstract;
+		virtual void Update(const Vector3 Scale,
+			const Vector3 Rotation,
+			const Vector3 Location)& abstract;
 		virtual Type GetType() const& abstract;
 	};
 
@@ -30,17 +31,43 @@ namespace Engine
 		AABB(const Vector3 LocalMin, const Vector3 LocalMax);
 		virtual Type GetType() const& override;
 		virtual void Update(const Vector3 Scale,
-							const Vector3 Rotation,
-							const Vector3 Location)&override;
+			const Vector3 Rotation,
+			const Vector3 Location) & override;
 		virtual bool IsCollision(Geometric* const Rhs,
-								Vector3& PushDir,
-								float& CrossAreaScale) & override;
-		bool IsCollisionAABB(Geometric* const Rhs ,
-							Vector3& PushDir, 
-							float& CrossAreaScale)const&;
+			Vector3& PushDir,
+			float& CrossAreaScale) & override;
+		bool IsCollisionAABB(Geometric* const Rhs,
+			Vector3& PushDir,
+			float& CrossAreaScale)const&;
+		bool IsCollisionOBB(Geometric* const Rhs,
+			Vector3& PushDir,
+			float& CrossAreaScale)const&;
 		Vector3 Min;
 		Vector3 Max;
 		const Vector3 LocalMax;
 		const Vector3 LocalMin;
 	};
+	class DLL_DECL OBB : public Geometric
+	{
+	public:
+		OBB(const Vector3 LocalMin, const Vector3 LocalMax);
+		virtual Type GetType() const& override;
+		virtual void Update(const Vector3 Scale,
+			const Vector3 Rotation,
+			const Vector3 Location) & override;
+		virtual bool IsCollision(Geometric* const Rhs,
+			Vector3& PushDir,
+			float& CrossAreaScale) & override;
+		bool IsCollisionOBB(Geometric* const Rhs,
+			Vector3& PushDir,
+			float& CrossAreaScale)const&;
+		bool IsCollisionAABB(Geometric* const Rhs,
+			Vector3& PushDir,
+			float& CrossAreaScale)const&;
+		Vector3 Min;
+		Vector3 Max;
+		const Vector3 LocalMax;
+		const Vector3 LocalMin;
+	};
+
 }

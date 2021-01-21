@@ -1,26 +1,28 @@
-#pragma once
+ï»¿#pragma once
 #include "Component.h"
 #include "Geometric.h"
 #include <set>
 #include "CollisionSystem.h"
+#include "RenderInterface.h"
 
 namespace Engine
 {
-	class DLL_DECL Collision : public Component
+	class DLL_DECL Collision : public Component, public RenderInterface
 	{
 	public:
 		using Super = Component;
-		void Initialize(const CollisionTag _Tag ,
-						class Transform*const OwnerTransform)&;
+		void Initialize(const CollisionTag _Tag,
+			class Transform* const OwnerTransform)&;
 		virtual void Update(class Object* const Owner,
 			const float DeltaTime) & override;
 		virtual void Event(class Object* Owner) & override;
+		virtual void Render() & override;
 		auto& RefCollisionables()&;
 		auto& RefPushCollisionables()&;
 		bool IsCollisionable(const CollisionTag _Tag)const&;
 		bool IsCollision(Collision* const Rhs)&;
 	public:
-		// ÀÚ½Ä¸¶´Ù Á¤ÀÇ.
+		// ï¿½Ú½Ä¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 		static const inline Property TypeProperty = Property::Collision;
 		CollisionTag _Tag{ CollisionTag::None };
 		std::unique_ptr<Geometric> _Geometric;
