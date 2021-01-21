@@ -17,6 +17,10 @@ void Engine::StaticMesh::Initialize(
 	SubSetCount=ResourceSys->GetAny<DWORD>(StaticMeshNaming + L"SubSetCount_" + MeshResourceName);
 	Textures=ResourceSys->GetAny<std::vector<IDirect3DTexture9*>>(StaticMeshNaming + L"Textures_" + MeshResourceName);
 	Materials = static_cast<D3DXMATERIAL*>(SubSet->GetBufferPointer());
+	Stride = ResourceSys->GetAny<uint32>(StaticMeshNaming + L"Stride_" + MeshResourceName);
+	VertexCount = ResourceSys->GetAny<uint32>(StaticMeshNaming + L"VertexCount_" + MeshResourceName);
+	VertexLocations = ResourceSys->GetAny<decltype(VertexLocations)>
+		(StaticMeshNaming + L"VertexLocations_" + MeshResourceName);
 }
 
 void Engine::StaticMesh::Event(Object* Owner)&

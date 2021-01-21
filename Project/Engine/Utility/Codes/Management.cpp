@@ -77,6 +77,11 @@ Engine::Management::~Management() noexcept
 	GraphicDevice::Reset();
 };
 
+void Engine::Management::DebugToggle()&
+{
+	bDebugMode = !bDebugMode;
+}
+
 void Engine::Management::GameLoop()&
 {
 	_Timer->Update();

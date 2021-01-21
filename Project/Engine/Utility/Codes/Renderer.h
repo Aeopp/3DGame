@@ -20,6 +20,7 @@ namespace Engine
 		void Render()&; 
 		void Regist(RenderInterface* const Target);
 	private:
+		void RenderDebugCollision()&;
 		void RenderNoAlpha()&;
 		void RenderEnviroment()&;
 	private:

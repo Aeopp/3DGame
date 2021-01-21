@@ -22,6 +22,9 @@ namespace Engine
 		ID3DXBuffer* SubSet{ nullptr };
 		D3DXMATERIAL* Materials{ nullptr };
 		uint32 SubSetCount{ 0u };
+		uint32 Stride{ 0u };
+		uint32 VertexCount{ 0u };
+		std::shared_ptr<std::vector<Vector3>> VertexLocations{};
 		std::vector<IDirect3DTexture9*> Textures{};
 	};
 }

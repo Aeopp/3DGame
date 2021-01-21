@@ -19,6 +19,7 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 #include "imgui.h"
+#include <array>
 #include "FontManager.h"
 
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
@@ -92,33 +93,81 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 			FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 10.f, _Control);
 	}
 
-
-
-	
-
 	{
 		// 메쉬 리소스 로딩.
 		ID3DXBuffer* Adjacency{ nullptr };
 		ID3DXBuffer* SubSet{ nullptr };
 		DWORD SubSetCount{ 0u };
+		uint32 Stride{ 0u };
+		uint32 VertexCount{ 0u };
+		ID3DXMesh* OriginMesh{ nullptr };
 		ID3DXMesh* _Mesh{ nullptr };
+		auto VertexLocations =std::make_shared<std::vector<Vector3>>();
 		D3DXMATERIAL* Materials;
+		std::wstring ResourceName = L"TombStone";
 		std::filesystem::path Path = App::ResourcePath / L"Mesh" / L"StaticMesh" / L"TombStone";
 		std::filesystem::path Name = L"TombStone.x";
 
-		RefResourceSys().Emplace<ID3DXMesh>(L"StaticMesh_Mesh_TombStone"
+
+		RefResourceSys().Emplace<ID3DXMesh>(
+			L"StaticMesh_OriginMesh_" + ResourceName
 			, D3DXLoadMeshFromX, (Path / Name).c_str(),
 			D3DXMESH_MANAGED,
 			Device, &Adjacency, &SubSet, nullptr,
-			&SubSetCount, &_Mesh);
+			&SubSetCount, &OriginMesh);
 
-		RefResourceSys().Insert<ID3DXBuffer>(L"StaticMesh_Adjacency_TombStone",
-			Adjacency);
+		uint32 FVF = OriginMesh->GetFVF();
+		if (!(FVF & D3DFVF_NORMAL))
+		{
+			OriginMesh->CloneMeshFVF(OriginMesh->GetOptions(),
+				FVF | D3DFVF_NORMAL, Device, &_Mesh);
+			D3DXComputeNormals(_Mesh, reinterpret_cast<DWORD*>(Adjacency->GetBufferPointer()));
+		}
+		else
+		{
+			OriginMesh->CloneMeshFVF(OriginMesh->GetOptions(),
+				FVF, Device, &_Mesh);
+		}
 
-		RefResourceSys().Insert<ID3DXBuffer>(L"StaticMesh_SubSet_TombStone",
-			SubSet);
+		VertexCount = _Mesh->GetNumVertices();
+		Stride = D3DXGetFVFVertexSize(FVF);
 
-		RefResourceSys().InsertAny(L"StaticMesh_SubSetCount_TombStone", SubSetCount);
+		std::array<D3DVERTEXELEMENT9, MAX_FVF_DECL_SIZE> VertexDecls;
+		VertexDecls.fill(D3DVERTEXELEMENT9{});
+		_Mesh->GetDeclaration(VertexDecls.data());
+
+		uint8 _OffSet = 0u;
+		std::find_if(std::begin(VertexDecls), std::end(VertexDecls),
+			[&_OffSet](const D3DVERTEXELEMENT9& VertexDecl)
+			{
+				if (VertexDecl.Usage == D3DDECLUSAGE_POSITION)
+				{
+					_OffSet = VertexDecl.Offset;
+					return true;
+				}
+				else
+					return false;
+			});
+
+		 void* VertexBufferPtr{ nullptr };
+		VertexLocations->resize(_Mesh->GetNumVertices());
+		_Mesh->LockVertexBuffer(0, reinterpret_cast<void**>(&VertexBufferPtr));
+
+		for (uint32 Idx = 0u; Idx < VertexCount; ++Idx)
+		{
+			const uint32 PtrByteJumpStride = Idx * Stride + _OffSet;
+
+			const uint8* VertexPtrRead_1_Byte =
+				reinterpret_cast<const uint8*>(VertexBufferPtr);
+
+			VertexPtrRead_1_Byte += PtrByteJumpStride;
+
+			Vector3 CurrentVertexLocation = 
+				*reinterpret_cast<const Vector3*const>(VertexPtrRead_1_Byte);
+
+			(*VertexLocations)[Idx] = std::move(CurrentVertexLocation);
+		}
+		_Mesh->UnlockVertexBuffer();
 
 		Materials = static_cast<D3DXMATERIAL*>(SubSet->GetBufferPointer());
 		std::vector<IDirect3DTexture9*>Textures;
@@ -137,7 +186,23 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 				(L"StaticMesh_Textures_TombStone_"+TextureFileNameW, D3DXCreateTextureFromFile,
 				Device, (Path / TextureFileNameW).c_str(), &_TexturePtr);
 		}
-		RefResourceSys().InsertAny(L"StaticMesh_Textures_TombStone", Textures);
+
+		RefResourceSys().InsertAny<uint32>(
+			L"StaticMesh_Stride_"+ResourceName,Stride);
+		RefResourceSys().InsertAny<uint32>(
+			L"StaticMesh_VertexCount_"+ResourceName,VertexCount);
+		RefResourceSys().InsertAny<decltype(VertexLocations)>
+			(L"StaticMesh_VertexLocations_"+ ResourceName, VertexLocations);
+		RefResourceSys().Insert<ID3DXMesh>(
+			L"StaticMesh_Mesh_"+ ResourceName,	_Mesh);
+		RefResourceSys().Insert<ID3DXBuffer>(
+			L"StaticMesh_Adjacency_"+ResourceName,	Adjacency);
+		RefResourceSys().Insert<ID3DXBuffer>(
+			L"StaticMesh_SubSet_"+ResourceName,SubSet);
+		RefResourceSys().InsertAny(
+			L"StaticMesh_SubSetCount_"+ResourceName, SubSetCount);
+		RefResourceSys().InsertAny(
+			L"StaticMesh_Textures_"+ResourceName, Textures);
 	}
 
 	{

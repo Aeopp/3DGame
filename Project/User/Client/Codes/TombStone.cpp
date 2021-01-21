@@ -22,12 +22,10 @@ void TombStone::Initialize(const Vector3& SpawnLocation)&
 	auto _StaticMesh =AddComponent<Engine::StaticMesh>(Device,L"TombStone");
 
 	ID3DXMesh* Mesh = _StaticMesh->GetMesh();
-	uint8* VertexBufferPtr{ nullptr };
 	Vector3  BoundingBoxMin{}, BoundingBoxMax{};
-	Mesh->LockVertexBuffer(0, (void**)&VertexBufferPtr);
-
-	D3DXComputeBoundingBox((Vector3*)(VertexBufferPtr), Mesh->GetNumVertices(),
-		Mesh->GetNumBytesPerVertex(), &BoundingBoxMin, &BoundingBoxMax);
+	D3DXComputeBoundingBox(_StaticMesh->GetVertexLocations().data(),
+		_StaticMesh->GetVertexLocations().size(),
+		sizeof(Vector3), &BoundingBoxMin, &BoundingBoxMax);
 
 	_Transform->SetLocation(SpawnLocation);
 
