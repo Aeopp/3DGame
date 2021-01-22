@@ -12,8 +12,11 @@
 static uint32 DebugVertexBufferID = 0u;
 
 Engine::AABB::AABB(const Vector3 LocalMin, const Vector3 LocalMax)
-	: LocalMin{ LocalMin }, LocalMax{ LocalMax }
-{}
+	:  
+	Geometric{ FMath::Length((LocalMax - LocalMax)) , (LocalMin + LocalMax) / 2.f } ,
+	LocalMin{ LocalMin }, LocalMax{ LocalMax }   
+{
+}
 
 Engine::Geometric::Type Engine::AABB::GetType() const&
 {
@@ -78,6 +81,8 @@ void Engine::AABB::Update(const Vector3 Scale,
 	const Matrix ToWorld = FMath::WorldMatrix(Scale, { 0,0,0 }, Location);
 	Min = FMath::Mul(LocalMin, ToWorld);
 	Max = FMath::Mul(LocalMax, ToWorld);
+	WorldSphere.Center = FMath::Mul(LocalSphere.Center, ToWorld);
+	WorldSphere.Radius = LocalSphere.Radius *   ((Scale.x + Scale.y + Scale.z) /3.f);   
 };
 
 void Engine::AABB::Render(IDirect3DDevice9* const Device , const bool bCurrentUpdateCollision)&
@@ -133,7 +138,7 @@ bool Engine::AABB::IsCollisionOBB(Geometric* const Rhs, Vector3& PushDir, float&
 }
 
 Engine::OBB::OBB(const Vector3 LocalMin, const Vector3 LocalMax)
-	:
+	: Geometric{  FMath::Length((LocalMax - LocalMax)) , (LocalMin + LocalMax) / 2.f  } ,
 	LocalCenter{ (LocalMin + LocalMax) / 2.f } ,
 	LocalPoints
    {
@@ -154,18 +159,8 @@ Engine::OBB::OBB(const Vector3 LocalMin, const Vector3 LocalMax)
 		FMath::GetNormalFromFace(LocalPoints[4],LocalPoints[5],LocalPoints[1]),
 		// +Z
 		FMath::GetNormalFromFace(LocalPoints[7],LocalPoints[6],LocalPoints[5])
-	}
-{
-
-
-
-	int i = 0;
-
-	/*const Vector3 Diagonal = LocalMax - LocalMin;
-	DistanceAxisX = FMath::Dot(LocalFaceNormals[0], Diagonal);
-	DistanceAxisY = FMath::Dot(LocalFaceNormals[1], Diagonal);
-	DistanceAxisZ = FMath::Dot(LocalFaceNormals[2], Diagonal);*/
-};
+	} 
+	{};
 
 void Engine::OBB::MakeDebugCollisionBox(IDirect3DDevice9* const Device)
 {
@@ -214,6 +209,8 @@ void Engine::OBB::Update(const Vector3 Scale, const Vector3 Rotation, const Vect
 		[ToWorld](const Vector3& LocalPoint) {
 			return FMath::Mul(LocalPoint, ToWorld);
 		});
+	WorldSphere.Center = FMath::Mul(LocalSphere.Center, ToWorld);
+	WorldSphere.Radius = LocalSphere.Radius * ((Scale.x + Scale.y + Scale.z) / 3.f);
 }
 
 void Engine::OBB::Render(IDirect3DDevice9* const Device , const bool bCurrentUpdateCollision)&
@@ -228,6 +225,9 @@ void Engine::OBB::Render(IDirect3DDevice9* const Device , const bool bCurrentUpd
 
 bool Engine::OBB::IsCollision(Geometric* const Rhs, Vector3& PushDir, float& CrossAreaScale)&
 {
+	if (FMath::Length(WorldSphere.Center - Rhs->WorldSphere.Center) > (WorldSphere.Radius + Rhs->WorldSphere.Radius))
+		return false;
+
 	switch (Rhs->GetType())
 	{
 	case Type::AABB:
@@ -247,17 +247,6 @@ bool Engine::OBB::IsCollisionOBB(Geometric* const Rhs, Vector3& PushDir, float& 
 {
 	auto RhsOBB = static_cast<OBB*const>(Rhs);
 
-	// 충돌 검사하려는 다면체를 A , B라 한다.
-	// 다면체가 충돌하지 않는다면 반드시 분리축이 하나 이상 존재한다.
-	// 분리축은 아래 세가지 조건중 하나에 반드시 수직이다.
-	// 1. A를 구성하는 면들중 하나 이상의 노말벡터, 2. B를 구성하는 면들중 하나 이상의 노말벡터, 
-	// 3. A의 선분들중 하나 이상과 B의 선분들중 하나 이상이 존재하는 평면의 수직인 노말벡터
-	// 다면체가 박스일 경우 면의 노말 6개들중 2쌍씩 서로 같은 축을 공유하므로 검사하려는 노말을 3개로 최적화 할 수 있다.
-	// 다면체가 박스일 경우 4개의 선분들이 모두 평행하므로 (같은 방향,축이므로) 12/4 = 3 검사해야하는 축을 3개로 최적화 할 수 있다.
-	// 두 다면체가 모두 박스 일 경우 검사해야하는 A의 면은 3 B의 면은 3 선분도 3 개씩 3 + 3  + (3*3) 15개의 축에 대해서 투영해서 검사한다.
-
-	ImGui::Begin("DEBUG");
-
 	std::vector<Vector3> CheckNormals;
 	CheckNormals.reserve(15u);
 	CheckNormals.insert(std::end(CheckNormals), std::begin(RhsOBB->WorldFaceNormals), std::end(RhsOBB->WorldFaceNormals));
@@ -271,21 +260,11 @@ bool Engine::OBB::IsCollisionOBB(Geometric* const Rhs, Vector3& PushDir, float& 
 		}
 	}
 
-	ImGui::End();
-
 	for (auto& CheckNormal : CheckNormals)
 	{
 		if (false == FMath::IsProjectionIntersectAreaAABB(CheckNormal, WorldCenter, WorldPoints, RhsOBB->WorldCenter, RhsOBB->WorldPoints))
 			return false;
 	}
-
-	/*for (auto& CheckNormal : CheckNormals)
-	{
-		if (false == FMath::IsProjectionIntersectAreaAABB(CheckNormal, WorldCenter, WorldFaceNormals, RhsOBB->WorldCenter, RhsOBB->WorldFaceNormals))
-			return false;
-	}*/
-
-	
 
 	return true;
 }

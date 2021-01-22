@@ -44,8 +44,6 @@ void Engine::Object::LateUpdate(const float DeltaTime)&
 	
 }
 
-
-
 void Engine::Object::ComponentUpdate(const float DeltaTime)&
 {
 	for (auto& [PropertyKey, ComponentContainer] : _Components)

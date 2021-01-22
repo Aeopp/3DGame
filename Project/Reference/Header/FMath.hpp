@@ -535,34 +535,6 @@ bool FMath::IsPlaneToSphere(
 	 std::vector<float> LhsDots;
 	 std::vector<float> RhsDots;
 
-	/* float LhsMin, LhsMax, RhsMin, RhsMax;
-
-	 {
-		 LhsMin = LhsMax = FMath::Dot(LhsCenter, ProjectionAxis);
-
-		 std::for_each(std::begin(LhsHalfDistanceVecs), std::end(LhsHalfDistanceVecs),
-			 [&LhsMin, &LhsMax, ProjectionAxis](const Vector3 HalfDistanceVec)
-			 {
-				 const float DotProductABS = std::fabsf(FMath::Dot(ProjectionAxis, HalfDistanceVec));
-				 LhsMin -= DotProductABS;
-				 LhsMax += DotProductABS;
-			 });
-	 }
-
-	 {
-		 RhsMin = RhsMax = FMath::Dot(RhsCenter, ProjectionAxis);
-
-		 std::for_each(std::begin(RhsHalfDistanceVecs), std::end(RhsHalfDistanceVecs),
-			 [&RhsMin, &RhsMax, ProjectionAxis](const Vector3 HalfDistanceVec)
-			 {
-				 const float DotProductABS = std::fabsf(FMath::Dot(ProjectionAxis, HalfDistanceVec));
-				 RhsMin -= DotProductABS;
-				 RhsMax += DotProductABS;
-			 });
-	 }
-
-	 return Intersect_1D_Line(LhsMin, LhsMax, RhsMin, RhsMax);*/
-
 	 for (auto& Point : LhsHalfDistanceVecs)
 	 {
 		 LhsDots.push_back(FMath::Dot(Point, ProjectionAxis));
@@ -572,7 +544,7 @@ bool FMath::IsPlaneToSphere(
 		 RhsDots.push_back(FMath::Dot(Point, ProjectionAxis));
 	 }
 
-	 const auto  [LhsMin,LhsMax]=std::minmax_element(std::begin(LhsDots), std::end(LhsDots));
+	 const auto [LhsMin,LhsMax]=std::minmax_element(std::begin(LhsDots), std::end(LhsDots));
 	 const auto [RhsMin,RhsMax]=std::minmax_element(std::begin(RhsDots), std::end(RhsDots));
 	 
 	 return Intersect_1D_Line(*LhsMin, *LhsMax, *RhsMin, *RhsMax);

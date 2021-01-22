@@ -4,6 +4,7 @@
 #include "TypeAlias.h"
 #include <typeinfo>
 #include <array>
+#include "MathStruct.h"
 
 namespace Engine
 {
@@ -16,6 +17,8 @@ namespace Engine
 			AABB,
 			OBB,
 		};
+	protected:
+		Geometric(const float Radius, const Vector3 Center) : LocalSphere{Radius,Center}  {};
 	public:
 		virtual bool IsCollision(Geometric* const Rhs,
 			Vector3& PushDir,
@@ -29,6 +32,8 @@ namespace Engine
 		IDirect3DIndexBuffer9* IndexBuffer{ nullptr };
 		IDirect3DTexture9* CollisionTexture{ nullptr };
 		IDirect3DTexture9* NoCollisionTexture{ nullptr };
+		const Sphere LocalSphere;
+		Sphere WorldSphere;
 	};
 
 	class DLL_DECL AABB : public Geometric
@@ -50,6 +55,7 @@ namespace Engine
 		bool IsCollisionOBB(Geometric* const Rhs,
 			Vector3& PushDir,
 			float& CrossAreaScale)const&;
+
 		Vector3 Min;
 		Vector3 Max;
 		const Vector3 LocalMax;
@@ -77,9 +83,6 @@ namespace Engine
 		std::array<Vector3, 8u> WorldPoints;
 		Vector3 WorldCenter; 
 		std::array<Vector3, 3u> WorldFaceNormals;
-		/*float DistanceAxisX;
-		float DistanceAxisY;
-		float DistanceAxisZ;*/
 		const std::array<Vector3, 8u> LocalPoints;
 		const std::array<Vector3, 3u > LocalFaceNormals;
 		const Vector3 LocalCenter;
