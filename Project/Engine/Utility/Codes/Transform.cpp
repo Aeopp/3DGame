@@ -37,7 +37,22 @@ const Matrix& Engine::Transform::UpdateWorld()&
 	return World;
 };
 
-void Engine::Transform::Rotate(Vector3 Axis, const float Radian,
+void Engine::Transform::RotateYaw(const float Radian, const float DeltaTime)&
+{
+	RotateAxis(GetUp(), Radian, DeltaTime);
+}
+
+void Engine::Transform::RotateRoll(const float Radian, const float DeltaTime)&
+{
+	RotateAxis(GetForward(), Radian, DeltaTime);
+}
+
+void Engine::Transform::RotatePitch(const float Radian, const float DeltaTime)&
+{
+	RotateAxis( GetRight(), Radian, DeltaTime);
+}
+
+void Engine::Transform::RotateAxis(Vector3 Axis, const float Radian,
 	const float DeltaTime)&
 {
 	Axis = FMath::Normalize(Axis);

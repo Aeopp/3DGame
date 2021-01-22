@@ -19,6 +19,8 @@ namespace Engine
 						const float Aspect)&;
 		void PrototypeInitialize(IDirect3DDevice9* const Device)&;
 	protected:
+		Vector3 Up{0,1,0};
+		Vector3 Look{ 0,0,1 };
 		IDirect3DDevice9* Device{ nullptr };
 		float FovY{ 0.0f };
 		float Near{ 0.1f };

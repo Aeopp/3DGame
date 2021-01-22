@@ -123,29 +123,29 @@ void TombStone::Update(const float DeltaTime)&
 			_Transform->Rotate({ 1,0,0 }, 3.14f * 1 * DeltaTime);
 			_Transform->Rotate({ 0,0,1 }, 3.14f * 1 * DeltaTime);*/
 
-		if (Control.IsPressing(DIK_Q))
+		if (Control.IsPressing(DIK_R))
 		{
-			_Transform->Rotate({ 0,1,0 }, Speed, DeltaTime);
+			_Transform->RotateAxis({ 0,1,0 }, Speed, DeltaTime);
 		}
-		if (Control.IsPressing(DIK_W))
+		if (Control.IsPressing(DIK_T))
 		{
-			_Transform->Rotate({ 0,1,0 }, -Speed, DeltaTime);
+			_Transform->RotateAxis({ 0,1,0 }, -Speed, DeltaTime);
 		}
-		if (Control.IsPressing(DIK_A))
+		if (Control.IsPressing(DIK_F))
 		{
-			_Transform->Rotate({ 1,0,0 }, Speed, DeltaTime);
+			_Transform->RotateAxis({ 1,0,0 }, Speed, DeltaTime);
 		}
-		if (Control.IsPressing(DIK_S))
+		if (Control.IsPressing(DIK_G))
 		{
-			_Transform->Rotate({ 1,0,0 }, -Speed, DeltaTime);
+			_Transform->RotateAxis({ 1,0,0 }, -Speed, DeltaTime);
 		}
-		if (Control.IsPressing(DIK_Z))
+		if (Control.IsPressing(DIK_V))
 		{
-			_Transform->Rotate({ 0,0,1 }, Speed, DeltaTime);
+			_Transform->RotateAxis({ 0,0,1 }, Speed, DeltaTime);
 		}
-		if (Control.IsPressing(DIK_X))
+		if (Control.IsPressing(DIK_B))
 		{
-			_Transform->Rotate({ 0,0,1 }, -Speed, DeltaTime);
+			_Transform->RotateAxis({ 0,0,1 }, -Speed, DeltaTime);
 		}
 	}
 
@@ -159,29 +159,29 @@ void TombStone::Update(const float DeltaTime)&
 			_Transform->Rotate({ 1,0,0 }, 3.14f * 1 * DeltaTime);
 			_Transform->Rotate({ 0,0,1 }, 3.14f * 1 * DeltaTime);*/
 
-		if (Control.IsPressing(DIK_E))
+		if (Control.IsPressing(DIK_Y))
 		{
-			_Transform->Rotate({ 0,1,0 }, Speed, DeltaTime);
+			_Transform->RotateAxis({ 0,1,0 }, Speed, DeltaTime);
 		}
-		if (Control.IsPressing(DIK_R))
+		if (Control.IsPressing(DIK_U))
 		{
-			_Transform->Rotate({ 0,1,0 }, -Speed, DeltaTime);
+			_Transform->RotateAxis({ 0,1,0 }, -Speed, DeltaTime);
 		}
-		if (Control.IsPressing(DIK_D))
+		if (Control.IsPressing(DIK_H))
 		{
-			_Transform->Rotate({ 1,0,0 }, Speed, DeltaTime);
+			_Transform->RotateAxis({ 1,0,0 }, Speed, DeltaTime);
 		}
-		if (Control.IsPressing(DIK_F))
+		if (Control.IsPressing(DIK_J))
 		{
-			_Transform->Rotate({ 1,0,0 }, -Speed, DeltaTime);
+			_Transform->RotateAxis({ 1,0,0 }, -Speed, DeltaTime);
 		}
-		if (Control.IsPressing(DIK_C))
+		if (Control.IsPressing(DIK_N))
 		{
-			_Transform->Rotate({ 0,0,1 }, Speed, DeltaTime);
+			_Transform->RotateAxis({ 0,0,1 }, Speed, DeltaTime);
 		}
-		if (Control.IsPressing(DIK_V))
+		if (Control.IsPressing(DIK_M))
 		{
-			_Transform->Rotate({ 0,0,1 }, -Speed, DeltaTime);
+			_Transform->RotateAxis({ 0,0,1 }, -Speed, DeltaTime);
 		}
 	}
 
