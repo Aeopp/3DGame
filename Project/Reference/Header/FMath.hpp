@@ -107,9 +107,9 @@ public:
 		Vector3 ProjectionAxis,
 		const Vector3 LhsCenter,
 		// 면6개(최적화3개)의 노말벡터와 중심점으로부터 면까지의 길이를 곱한 3 벡터
-		const std::array<Vector3, 3u> LhsHalfDistanceVecs,
+		const std::array<Vector3, 8u> LhsHalfDistanceVecs,
 		const Vector3 RhsCenter,
-		const std::array<Vector3, 3u>  RhsHalfDistanceVecs);
+		const std::array<Vector3, 8u>  RhsHalfDistanceVecs);
 #pragma region RANDOM
 	template<typename Type>
 	static inline Type Random(const Type& Begin, const Type& End);
@@ -528,11 +528,14 @@ bool FMath::IsPlaneToSphere(
 	const  Vector3 ProjectionAxis,
 	 const Vector3 LhsCenter,
 	 // 면6개(최적화3개)의 노말벡터와 중심점으로부터 면까지의 길이를 곱한 3 벡터
-	 const std::array<Vector3, 3u> LhsHalfDistanceVecs,
+	 const std::array<Vector3, 8u> LhsHalfDistanceVecs,
 	 const Vector3 RhsCenter,
-	 const std::array<Vector3, 3u>  RhsHalfDistanceVecs)
+	 const std::array<Vector3, 8u>  RhsHalfDistanceVecs)
  {
-	 float LhsMin, LhsMax, RhsMin, RhsMax;
+	 std::vector<float> LhsDots;
+	 std::vector<float> RhsDots;
+
+	/* float LhsMin, LhsMax, RhsMin, RhsMax;
 
 	 {
 		 LhsMin = LhsMax = FMath::Dot(LhsCenter, ProjectionAxis);
@@ -558,5 +561,19 @@ bool FMath::IsPlaneToSphere(
 			 });
 	 }
 
-	 return Intersect_1D_Line(LhsMin, LhsMax, RhsMin, RhsMax);
+	 return Intersect_1D_Line(LhsMin, LhsMax, RhsMin, RhsMax);*/
+
+	 for (auto& Point : LhsHalfDistanceVecs)
+	 {
+		 LhsDots.push_back(FMath::Dot(Point, ProjectionAxis));
+	 }
+	 for (auto& Point : RhsHalfDistanceVecs)
+	 {
+		 RhsDots.push_back(FMath::Dot(Point, ProjectionAxis));
+	 }
+
+	 const auto  [LhsMin,LhsMax]=std::minmax_element(std::begin(LhsDots), std::end(LhsDots));
+	 const auto [RhsMin,RhsMax]=std::minmax_element(std::begin(RhsDots), std::end(RhsDots));
+	 
+	 return Intersect_1D_Line(*LhsMin, *LhsMax, *RhsMin, *RhsMax);
  }

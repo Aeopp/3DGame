@@ -30,8 +30,11 @@ void Engine::DynamicCamera::Update(const float DeltaTime)&
 			static_cast <float> (_Control->GetMouseMove(MouseMove::Y)) ;
 		MouseFix();
 
-		_Transform->RotateAxis({ 0,1,0 }, Yaw , DeltaTime );
-		_Transform->RotateAxis(_Transform->GetRight(), Pitch, DeltaTime);
+		_Transform->RotateYaw(Yaw, DeltaTime);
+		_Transform->RotatePitch(Pitch, DeltaTime);
+
+		/*_Transform->RotateAxis({ 0,1,0 }, Yaw , DeltaTime );
+		_Transform->RotateAxis(_Transform->GetRight(), Pitch, DeltaTime);*/
 	}
 
 	if (_Control->IsPressing(DIK_W))

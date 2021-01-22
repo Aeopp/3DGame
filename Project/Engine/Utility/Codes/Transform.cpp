@@ -29,27 +29,41 @@ void Engine::Transform::Event(Object* const Owner)&
 		"Location\n X : %f \n Y : %f \n Z : %f", Location.x, Location.y, Location.z);
 	ImGui::Text(
 		"Rotation\n X : %f \n Y : %f \n Z : %f",Rotation.x, Rotation.y, Rotation.z);
+	ImGui::Text(
+		"Forward\n X : %f \n Y : %f \n Z : %f", Forward.x, Forward.y, Forward.z);
 };
 
 const Matrix& Engine::Transform::UpdateWorld()&
 {
-	World = FMath::WorldMatrix(Scale, Forward, Right, Up, Location);
+	World = FMath::WorldMatrix(Scale,Rotation,Location);
 	return World;
 };
 
 void Engine::Transform::RotateYaw(const float Radian, const float DeltaTime)&
 {
-	RotateAxis(GetUp(), Radian, DeltaTime);
+	Rotation.y += Radian * DeltaTime;
+	Matrix RotationMatrix = FMath::Rotation(Rotation);
+	Up = FMath::MulNormal(Vector3{ 0,1,0 }, RotationMatrix);
+	Forward = FMath::MulNormal(Vector3{ 0,0,1 }, RotationMatrix);
+	Right = FMath::MulNormal(Vector3{ 1,0,0 }, RotationMatrix);
 }
 
 void Engine::Transform::RotateRoll(const float Radian, const float DeltaTime)&
 {
-	RotateAxis(GetForward(), Radian, DeltaTime);
+	Rotation.z += Radian * DeltaTime;
+	Matrix RotationMatrix = FMath::Rotation(Rotation);
+	Up = FMath::MulNormal(Vector3{ 0,1,0 }, RotationMatrix);
+	Forward = FMath::MulNormal(Vector3{ 0,0,1 }, RotationMatrix);
+	Right = FMath::MulNormal(Vector3{ 1,0,0 }, RotationMatrix);
 }
 
 void Engine::Transform::RotatePitch(const float Radian, const float DeltaTime)&
 {
-	RotateAxis( GetRight(), Radian, DeltaTime);
+	Rotation.x += Radian * DeltaTime;
+	Matrix RotationMatrix = FMath::Rotation(Rotation);
+	Up = FMath::MulNormal(Vector3{ 0,1,0 }, RotationMatrix);
+	Forward = FMath::MulNormal(Vector3{ 0,0,1 }, RotationMatrix);
+	Right = FMath::MulNormal(Vector3{ 1,0,0 }, RotationMatrix);
 }
 
 void Engine::Transform::RotateAxis(Vector3 Axis, const float Radian,

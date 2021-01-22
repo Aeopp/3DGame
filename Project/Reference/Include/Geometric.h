@@ -77,8 +77,11 @@ namespace Engine
 		std::array<Vector3, 8u> WorldPoints;
 		Vector3 WorldCenter; 
 		std::array<Vector3, 3u> WorldFaceNormals;
-		const std::array<Vector3, 3u > LocalFaceNormals;
+		/*float DistanceAxisX;
+		float DistanceAxisY;
+		float DistanceAxisZ;*/
 		const std::array<Vector3, 8u> LocalPoints;
+		const std::array<Vector3, 3u > LocalFaceNormals;
 		const Vector3 LocalCenter;
 	};
 

@@ -20,6 +20,7 @@ void TombStone::Initialize(const Vector3& SpawnLocation)&
 	_TestID = TestID++;
 
 	auto _Transform =AddComponent<Engine::Transform>();
+	_Transform->SetScale({ 2,3,4 });
 
 	auto _StaticMesh =AddComponent<Engine::StaticMesh>(Device,L"TombStone");
 
@@ -79,7 +80,7 @@ void TombStone::Update(const float DeltaTime)&
 	Super::Update(DeltaTime);
 	bTestCollision = false;
 
-	if (_TestID == 0u || _TestID == 1u)
+	if (_TestID == 0u )
 	{
 		auto& Control = RefControl();
 		auto _Transform = GetComponent<Engine::Transform>();
@@ -90,27 +91,27 @@ void TombStone::Update(const float DeltaTime)&
 
 		if (Control.IsPressing(DIK_UP))
 		{
-			_Transform->MoveForward(DeltaTime, Speed);
+			_Transform->Move({ 0,0,1 }, DeltaTime, Speed);
 		}
 		if (Control.IsPressing(DIK_DOWN))
 		{
-			_Transform->MoveForward(DeltaTime, -Speed);
+			_Transform->Move({ 0,0,1 },DeltaTime, -Speed);
 		}
 		if (Control.IsPressing(DIK_LEFT))
 		{
-			_Transform->MoveRight(DeltaTime, -Speed);
+			_Transform->Move({1,0,0} , DeltaTime, -Speed);
 		}
 		if (Control.IsPressing(DIK_RIGHT))
 		{
-			_Transform->MoveRight(DeltaTime, Speed);
+			_Transform->Move({1,0,0},DeltaTime, Speed);
 		}
 		if (Control.IsPressing(DIK_PGUP))
 		{
-			_Transform->MoveUp(DeltaTime, Speed);
+			_Transform->Move({ 0,1,0 },DeltaTime, Speed);
 		}
 		if (Control.IsPressing(DIK_PGDN))
 		{
-			_Transform->MoveUp(DeltaTime, -Speed);
+			_Transform->Move({ 0,1,0 },  DeltaTime, -Speed);
 		}
 	}
 
@@ -125,27 +126,27 @@ void TombStone::Update(const float DeltaTime)&
 
 		if (Control.IsPressing(DIK_R))
 		{
-			_Transform->RotateAxis({ 0,1,0 }, Speed, DeltaTime);
+			_Transform->RotateYaw(Speed, DeltaTime);
 		}
 		if (Control.IsPressing(DIK_T))
 		{
-			_Transform->RotateAxis({ 0,1,0 }, -Speed, DeltaTime);
+			_Transform->RotateYaw(-Speed, DeltaTime);
 		}
 		if (Control.IsPressing(DIK_F))
 		{
-			_Transform->RotateAxis({ 1,0,0 }, Speed, DeltaTime);
+			_Transform->RotatePitch(Speed, DeltaTime); 
 		}
 		if (Control.IsPressing(DIK_G))
 		{
-			_Transform->RotateAxis({ 1,0,0 }, -Speed, DeltaTime);
+			_Transform->RotatePitch(-Speed, DeltaTime);
 		}
 		if (Control.IsPressing(DIK_V))
 		{
-			_Transform->RotateAxis({ 0,0,1 }, Speed, DeltaTime);
+			_Transform->RotateRoll(Speed, DeltaTime);
 		}
 		if (Control.IsPressing(DIK_B))
 		{
-			_Transform->RotateAxis({ 0,0,1 }, -Speed, DeltaTime);
+			_Transform->RotateRoll(-Speed, DeltaTime);
 		}
 	}
 
@@ -161,27 +162,27 @@ void TombStone::Update(const float DeltaTime)&
 
 		if (Control.IsPressing(DIK_Y))
 		{
-			_Transform->RotateAxis({ 0,1,0 }, Speed, DeltaTime);
+			_Transform->RotateYaw(Speed, DeltaTime);
 		}
 		if (Control.IsPressing(DIK_U))
 		{
-			_Transform->RotateAxis({ 0,1,0 }, -Speed, DeltaTime);
+			_Transform->RotateYaw(-Speed, DeltaTime);
 		}
 		if (Control.IsPressing(DIK_H))
 		{
-			_Transform->RotateAxis({ 1,0,0 }, Speed, DeltaTime);
+			_Transform->RotatePitch(Speed, DeltaTime);
 		}
 		if (Control.IsPressing(DIK_J))
 		{
-			_Transform->RotateAxis({ 1,0,0 }, -Speed, DeltaTime);
+			_Transform->RotatePitch(-Speed, DeltaTime);
 		}
 		if (Control.IsPressing(DIK_N))
 		{
-			_Transform->RotateAxis({ 0,0,1 }, Speed, DeltaTime);
+			_Transform->RotateRoll(Speed, DeltaTime);
 		}
-		if (Control.IsPressing(DIK_M))
+		if (Control.IsPressing(DIK_N))
 		{
-			_Transform->RotateAxis({ 0,0,1 }, -Speed, DeltaTime);
+			_Transform->RotateRoll(-Speed, DeltaTime);
 		}
 	}
 
