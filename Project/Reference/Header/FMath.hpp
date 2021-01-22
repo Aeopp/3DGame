@@ -96,11 +96,20 @@ public:
 								const Sphere& Rhs, float& CrossingArea);
 
 
+	static inline bool Intersect_1D_Line(const float LhsMin, const float LhsMax, const float RhsMin, const float RhsMax);
+
 	static inline bool IsTriangleToRay(
 		const PlaneInfo& Lhs,
 		const Ray& Rhs,
 		float& t, Vector3& IntersectPoint);
 
+	static inline bool IsProjectionIntersectAreaAABB(
+		Vector3 ProjectionAxis,
+		const Vector3 LhsCenter,
+		// 면6개(최적화3개)의 노말벡터와 중심점으로부터 면까지의 길이를 곱한 3 벡터
+		const std::array<Vector3, 3u> LhsHalfDistanceVecs,
+		const Vector3 RhsCenter,
+		const std::array<Vector3, 3u>  RhsHalfDistanceVecs);
 #pragma region RANDOM
 	template<typename Type>
 	static inline Type Random(const Type& Begin, const Type& End);
@@ -168,7 +177,8 @@ Vector3 FMath::Mul(const Vector3& Lhs, const Matrix& Rhs)
 
 Vector3 FMath::MulNormal(const Vector3& Lhs, const Matrix& Rhs)
 {
-	return *D3DXVec3TransformNormal(nullptr, &Lhs, &Rhs);;
+	Vector3 NormalVectorOutput;
+	return *D3DXVec3TransformNormal(&NormalVectorOutput, &Lhs, &Rhs);;
 }
 
 inline  Vector3 FMath::GetNormalFromFace(const Vector3& p0,
@@ -504,4 +514,49 @@ bool FMath::IsPlaneToSphere(
 
 	 return AlmostEqual<float>(Radian, PI * 2.f);
 
+ }
+
+
+ inline bool FMath::Intersect_1D_Line(const float LhsMin, const float LhsMax, const float RhsMin, const float RhsMax)
+ {
+	 if (RhsMin > LhsMax || RhsMax < LhsMin)
+		 return false;
+
+	 return true;
+ }
+ inline bool FMath::IsProjectionIntersectAreaAABB(
+	const  Vector3 ProjectionAxis,
+	 const Vector3 LhsCenter,
+	 // 면6개(최적화3개)의 노말벡터와 중심점으로부터 면까지의 길이를 곱한 3 벡터
+	 const std::array<Vector3, 3u> LhsHalfDistanceVecs,
+	 const Vector3 RhsCenter,
+	 const std::array<Vector3, 3u>  RhsHalfDistanceVecs)
+ {
+	 float LhsMin, LhsMax, RhsMin, RhsMax;
+
+	 {
+		 LhsMin = LhsMax = FMath::Dot(LhsCenter, ProjectionAxis);
+
+		 std::for_each(std::begin(LhsHalfDistanceVecs), std::end(LhsHalfDistanceVecs),
+			 [&LhsMin, &LhsMax, ProjectionAxis](const Vector3 HalfDistanceVec)
+			 {
+				 const float DotProductABS = std::fabsf(FMath::Dot(ProjectionAxis, HalfDistanceVec));
+				 LhsMin -= DotProductABS;
+				 LhsMax += DotProductABS;
+			 });
+	 }
+
+	 {
+		 RhsMin = RhsMax = FMath::Dot(RhsCenter, ProjectionAxis);
+
+		 std::for_each(std::begin(RhsHalfDistanceVecs), std::end(RhsHalfDistanceVecs),
+			 [&RhsMin, &RhsMax, ProjectionAxis](const Vector3 HalfDistanceVec)
+			 {
+				 const float DotProductABS = std::fabsf(FMath::Dot(ProjectionAxis, HalfDistanceVec));
+				 RhsMin -= DotProductABS;
+				 RhsMax += DotProductABS;
+			 });
+	 }
+
+	 return Intersect_1D_Line(LhsMin, LhsMax, RhsMin, RhsMax);
  }

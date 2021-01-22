@@ -34,10 +34,10 @@ void TombStone::Initialize(const Vector3& SpawnLocation)&
 	auto _Collision =AddComponent<Engine::Collision>
 		(Device, Engine::CollisionTag::Decorator,_Transform);
 
-	_Collision->_Geometric = std::make_unique<Engine::AABB>
+	_Collision->_Geometric = std::make_unique<Engine::OBB>
 						        (BoundingBoxMin, BoundingBoxMax);
 	
-	static_cast<Engine::AABB* const> (_Collision->_Geometric.get())->MakeDebugCollisionBox(Device);
+	static_cast<Engine::OBB* const> (_Collision->_Geometric.get())->MakeDebugCollisionBox(Device);
 
 	_Collision->RefCollisionables().insert(
 		{
@@ -79,7 +79,7 @@ void TombStone::Update(const float DeltaTime)&
 	Super::Update(DeltaTime);
 	bTestCollision = false;
 
-	if (_TestID == 0u)
+	if (_TestID == 0u || _TestID == 1u)
 	{
 		auto& Control = RefControl();
 		auto _Transform = GetComponent<Engine::Transform>();
@@ -113,6 +113,79 @@ void TombStone::Update(const float DeltaTime)&
 			_Transform->MoveUp(DeltaTime, -Speed);
 		}
 	}
+
+	if (_TestID == 0u)
+	{
+		auto& Control = RefControl();
+		auto _Transform = GetComponent<Engine::Transform>();
+		static constexpr float Speed = 10.f;
+		/*	_Transform->Rotate({ 0,1,0 }, 3.14f * 1 * DeltaTime);
+			_Transform->Rotate({ 1,0,0 }, 3.14f * 1 * DeltaTime);
+			_Transform->Rotate({ 0,0,1 }, 3.14f * 1 * DeltaTime);*/
+
+		if (Control.IsPressing(DIK_Q))
+		{
+			_Transform->Rotate({ 0,1,0 }, Speed, DeltaTime);
+		}
+		if (Control.IsPressing(DIK_W))
+		{
+			_Transform->Rotate({ 0,1,0 }, -Speed, DeltaTime);
+		}
+		if (Control.IsPressing(DIK_A))
+		{
+			_Transform->Rotate({ 1,0,0 }, Speed, DeltaTime);
+		}
+		if (Control.IsPressing(DIK_S))
+		{
+			_Transform->Rotate({ 1,0,0 }, -Speed, DeltaTime);
+		}
+		if (Control.IsPressing(DIK_Z))
+		{
+			_Transform->Rotate({ 0,0,1 }, Speed, DeltaTime);
+		}
+		if (Control.IsPressing(DIK_X))
+		{
+			_Transform->Rotate({ 0,0,1 }, -Speed, DeltaTime);
+		}
+	}
+
+
+	if (_TestID == 1u)
+	{
+		auto& Control = RefControl();
+		auto _Transform = GetComponent<Engine::Transform>();
+		static constexpr float Speed = 10.f;
+		/*	_Transform->Rotate({ 0,1,0 }, 3.14f * 1 * DeltaTime);
+			_Transform->Rotate({ 1,0,0 }, 3.14f * 1 * DeltaTime);
+			_Transform->Rotate({ 0,0,1 }, 3.14f * 1 * DeltaTime);*/
+
+		if (Control.IsPressing(DIK_E))
+		{
+			_Transform->Rotate({ 0,1,0 }, Speed, DeltaTime);
+		}
+		if (Control.IsPressing(DIK_R))
+		{
+			_Transform->Rotate({ 0,1,0 }, -Speed, DeltaTime);
+		}
+		if (Control.IsPressing(DIK_D))
+		{
+			_Transform->Rotate({ 1,0,0 }, Speed, DeltaTime);
+		}
+		if (Control.IsPressing(DIK_F))
+		{
+			_Transform->Rotate({ 1,0,0 }, -Speed, DeltaTime);
+		}
+		if (Control.IsPressing(DIK_C))
+		{
+			_Transform->Rotate({ 0,0,1 }, Speed, DeltaTime);
+		}
+		if (Control.IsPressing(DIK_V))
+		{
+			_Transform->Rotate({ 0,0,1 }, -Speed, DeltaTime);
+		}
+	}
+
+
 }
 
 void TombStone::HitNotify(Object* const Target, const Vector3 PushDir,

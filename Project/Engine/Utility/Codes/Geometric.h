@@ -3,6 +3,7 @@
 #include <type_traits>
 #include "TypeAlias.h"
 #include <typeinfo>
+#include <array>
 
 namespace Engine
 {
@@ -24,7 +25,6 @@ namespace Engine
 							const Vector3 Location)& abstract;
 		virtual Type GetType() const& abstract;
 		virtual void Render(IDirect3DDevice9* const Device, const bool bCurrentUpdateCollision)& abstract;
-		Vector3 TestCurrentRotation;
 		IDirect3DVertexBuffer9* VertexBuffer{ nullptr };
 		IDirect3DIndexBuffer9* IndexBuffer{ nullptr };
 		IDirect3DTexture9* CollisionTexture{ nullptr };
@@ -74,10 +74,12 @@ namespace Engine
 		bool IsCollisionAABB(Geometric* const Rhs,
 			Vector3& PushDir,
 			float& CrossAreaScale)const&;
-		Vector3 Min;
-		Vector3 Max;
-		const Vector3 LocalMax;
-		const Vector3 LocalMin;
+		std::array<Vector3, 8u> WorldPoints;
+		Vector3 WorldCenter; 
+		std::array<Vector3, 3u> WorldFaceNormals;
+		const std::array<Vector3, 3u > LocalFaceNormals;
+		const std::array<Vector3, 8u> LocalPoints;
+		const Vector3 LocalCenter;
 	};
 
 }

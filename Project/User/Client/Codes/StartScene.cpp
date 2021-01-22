@@ -134,6 +134,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 		Index::_16* IndexBufferPtr{ nullptr };
 		IdxBuffer->Lock(0, 0, (void**)&IndexBufferPtr, 0);
 
+		// x+
 		IndexBufferPtr[0]._1 = 1;
 		IndexBufferPtr[0]._2 = 5;
 		IndexBufferPtr[0]._3 = 6;
@@ -307,12 +308,14 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	}
 
 	{
-	for (size_t i = 0; i < 1000; ++i)
+	
+
 	{
-		RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_1" + std::to_wstring(i),
+			// 오브젝트 스폰
+		RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_1" ,
 			Vector3{ 0,0,10 });
 
-		RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_2" + std::to_wstring(i),
+		RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_2",
 			Vector3{ 5,0,10 });
 	}
 	
