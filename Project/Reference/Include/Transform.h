@@ -17,6 +17,7 @@ namespace Engine
 		// 자식마다 정의.
 		static const inline Property TypeProperty = Property::Transform;
 	public :
+		void Rotate(const Vector3& Rotation, const float DeltaTime)&;
 		void RotateYaw(const float Radian, const float DeltaTime)&;
 		void RotateRoll(const float Radian, const float DeltaTime)&;
 		void RotatePitch(const float Radian, const float DeltaTime)&;
@@ -25,13 +26,14 @@ namespace Engine
 		void MoveForward(const float DeltaTime ,const float Speed);
 		void MoveRight(const float DeltaTime, const float Speed);
 		void MoveUp(const float DeltaTime, const float Speed);
+		void SetRotation(const Vector3& Rotation)&;
 		inline void SetLocation(const Vector3& Location)&;
 		inline void SetScale(const Vector3& Scale)&;
 	public:
 		const Matrix& UpdateWorld()&;
-		inline auto& RefLocation()&;
+		/*inline auto& RefLocation()&;
 		inline auto& RefRotation()&;
-		inline auto& RefScale()&;
+		inline auto& RefScale()&;*/
 		inline const auto& GetLocation()const&;
 		inline const auto& GetRotation() const&;
 		inline const auto& GetScale() const&;
@@ -88,17 +90,18 @@ inline const auto& Engine::Transform::GetUp() const&
 {
 	return Up;
 }
-inline auto& Engine::Transform::RefLocation()&
-{
-	return Location;
-}
-inline auto& Engine::Transform::RefRotation()&
-{
-	return Rotation;
-}
-inline auto& Engine::Transform::RefScale()&
-{
-	return Scale; 
-};
+
+//inline auto& Engine::Transform::RefLocation()&
+//{
+//	return Location;
+//}
+//inline auto& Engine::Transform::RefRotation()&
+//{
+//	return Rotation;
+//}
+//inline auto& Engine::Transform::RefScale()&
+//{
+//	return Scale; 
+//};
 
 

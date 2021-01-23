@@ -39,6 +39,17 @@ const Matrix& Engine::Transform::UpdateWorld()&
 	return World;
 };
 
+void Engine::Transform::Rotate(const Vector3& Rotation, const float DeltaTime)&
+{
+	this->Rotation.y += Rotation.y * DeltaTime;
+	this->Rotation.x += Rotation.x * DeltaTime;
+	this->Rotation.z += Rotation.z * DeltaTime;
+	Matrix RotationMatrix = FMath::Rotation(Rotation);
+	Up = FMath::MulNormal(Vector3{ 0,1,0 }, RotationMatrix);
+	Forward = FMath::MulNormal(Vector3{ 0,0,1 }, RotationMatrix);
+	Right = FMath::MulNormal(Vector3{ 1,0,0 }, RotationMatrix);
+}
+
 void Engine::Transform::RotateYaw(const float Radian, const float DeltaTime)&
 {
 	Rotation.y += Radian * DeltaTime;
@@ -113,6 +124,15 @@ void Engine::Transform::MoveRight(const float DeltaTime, const float Speed)
 void Engine::Transform::MoveUp(const float DeltaTime, const float Speed)
 {
 	Move(Up, DeltaTime, Speed);
+};
+
+ void Engine::Transform::SetRotation(const Vector3& Rotation)&
+{
+     this->Rotation = Rotation;
+	 Matrix RotationMatrix = FMath::Rotation(Rotation);
+	 Up = FMath::MulNormal(Vector3{ 0,1,0 }, RotationMatrix);
+	 Forward = FMath::MulNormal(Vector3{ 0,0,1 }, RotationMatrix);
+	 Right = FMath::MulNormal(Vector3{ 1,0,0 }, RotationMatrix);
 };
 
 

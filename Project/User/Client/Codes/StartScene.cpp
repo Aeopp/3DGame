@@ -313,10 +313,10 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	{
 			// 오브젝트 스폰
 		RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_1" ,
-			Vector3{ 0,0,10 });
+			Vector3{ 0,0,10 }, Vector3{0,0,0});
 
 		RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_2",
-			Vector3{ 5,0,10 });
+			Vector3{ 5,0,10 }, Vector3{0,0,0});
 	}
 	
 

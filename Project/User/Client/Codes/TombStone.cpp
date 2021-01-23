@@ -14,7 +14,7 @@
 static uint32 TestID = 0u;
 static bool bTestCollision = false;
 
-void TombStone::Initialize(const Vector3& SpawnLocation)&
+void TombStone::Initialize(const Vector3& SpawnLocation , const Vector3& Rotation)&
 {
 	Super::Initialize();
 	_TestID = TestID++;
@@ -31,7 +31,7 @@ void TombStone::Initialize(const Vector3& SpawnLocation)&
 		sizeof(Vector3), &BoundingBoxMin, &BoundingBoxMax);
 
 	_Transform->SetLocation(SpawnLocation);
-
+	_Transform->SetRotation(Rotation);
 	auto _Collision =AddComponent<Engine::Collision>
 		(Device, Engine::CollisionTag::Decorator,_Transform);
 

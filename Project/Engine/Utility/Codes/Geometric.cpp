@@ -260,15 +260,25 @@ std::optional<std::pair<float,Vector3>> Engine::OBB::IsCollisionOBB(Geometric* c
 
 	std::vector<Vector3> CheckNormals;
 	CheckNormals.reserve(15u);
-	CheckNormals.insert(std::end(CheckNormals), std::begin(RhsOBB->WorldFaceNormals), std::end(RhsOBB->WorldFaceNormals));
 	CheckNormals.insert(std::end(CheckNormals), std::begin(WorldFaceNormals), std::end(WorldFaceNormals));
+	std::copy_if(std::begin(RhsOBB->WorldFaceNormals), std::end(RhsOBB->WorldFaceNormals), std::back_inserter(CheckNormals),
+		[&LhsWorldFaceNormals = WorldFaceNormals](const Vector3& Target)
+	{
+		for (auto& RhsNormal : LhsWorldFaceNormals)
+		{
+			if (FMath::Equal(RhsNormal, Target))return false;
+		}
+		return true;
+	});
 
 	for (auto& LhsNormal : WorldFaceNormals)
 	{
 		for (auto& RhsNormal : RhsOBB->WorldFaceNormals)
 		{
-			const Vector3 CrossVec = (FMath::Cross(LhsNormal, RhsNormal));
-			if(FMath::IsValid(CrossVec))
+			// 외적해서 새로운 SA후보를 선정할때 두 벡터가 같을경우 외적은 성립하지 않으므로 제외한다.
+			if (FMath::Equal(LhsNormal, RhsNormal))continue;
+
+				const Vector3 CrossVec = (FMath::Cross(LhsNormal, RhsNormal));
 				CheckNormals.push_back((FMath::Normalize ( CrossVec) ));
 		}
 	}
@@ -283,10 +293,9 @@ std::optional<std::pair<float,Vector3>> Engine::OBB::IsCollisionOBB(Geometric* c
 			return {};
 
 		const auto [LhsMin, LhsMax, RhsMin, RhsMax] = *ProjectionArea;
-		//if ( false == FMath::AlmostEqual(0.0f, LhsMax - RhsMin  ) )
-					ProjectionAreaMap[ std::fabsf(LhsMax-RhsMin)] = CheckNormal;
-		//if ( false == FMath::AlmostEqual(0.0f,RhsMax - LhsMin  ))
-			       ProjectionAreaMap[std::fabsf(RhsMax-LhsMin)] = -CheckNormal;
+
+		ProjectionAreaMap[ std::fabsf(LhsMax-RhsMin)] = CheckNormal;
+        ProjectionAreaMap[std::fabsf(RhsMax-LhsMin)] = -CheckNormal;
 	}
 
 	return { *ProjectionAreaMap.begin()};

@@ -17,6 +17,7 @@ class FMath
 public:
 	static constexpr auto PI = std::numbers::pi_v<float>;
 
+	inline static bool Equal(const Vector3& Lhs, const Vector3& Rhs);
 	inline static bool IsValid(const Vector3& Target);
 	template<class T>
 	typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
@@ -121,6 +122,12 @@ private:
 #pragma endregion RANDOM
 };
 
+inline bool FMath::Equal(const Vector3& Lhs, const Vector3& Rhs)
+{
+	return  (FMath::AlmostEqual(Lhs.x, Rhs.x) &&
+			FMath::AlmostEqual(Lhs.y, Rhs.y) &&
+			FMath::AlmostEqual(Lhs.z, Rhs.z));
+}
 inline bool FMath::IsValid(const Vector3& Target)
 {
 	return  ( (!FMath::AlmostEqual(Target.x, 0.0f)) &&
