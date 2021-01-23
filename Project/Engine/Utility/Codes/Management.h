@@ -51,6 +51,9 @@ namespace Engine
 		template<typename LayerSubType, typename ObjectSubType>
 		auto FindObject(const std::wstring& TargetName)&;
 	private:
+		void CreateStaticResource()&;
+		void CreateCollisionDebugResource()&;
+	private:
 		HWND Hwnd{ NULL };
 		std::pair<uint32, uint32> ClientSize{};
 		std::unique_ptr<Scene> _CurrentScene{ nullptr };
@@ -73,7 +76,8 @@ namespace Engine
 inline auto& Engine::Management::RefLayers()&
 {
 	return _CurrentScene->RefLayers();
-};
+}
+
 
 
 template<typename SceneType>

@@ -12,8 +12,12 @@ public:
 	virtual void Event()&override;
 	virtual void Render() & override;
 	virtual void Update(const float DeltaTime)&;
+
 	virtual void HitNotify(Object* const Target, const Vector3 PushDir,
 		const float CrossAreaScale)&override;
+	virtual void HitBegin(Object* const Target, const Vector3 PushDir,
+		const float CrossAreaScale) & override;
+	virtual void HitEnd(Object* const Target) & override;
 private:
 	uint32 _TestID = 0u;
 	IDirect3DDevice9* Device{ nullptr };

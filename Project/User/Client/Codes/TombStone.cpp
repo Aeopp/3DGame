@@ -1,6 +1,8 @@
 #include "..\\stdafx.h"
 #include "TombStone.h"
 #include "Transform.h"
+#include <iostream>
+
 #include "StaticMesh.h"
 #include "Collision.h"
 #include "CollisionSystem.h"
@@ -13,32 +15,45 @@
 
 static uint32 TestID = 0u;
 static bool bTestCollision = false;
-
 void TombStone::Initialize(const Vector3& SpawnLocation , const Vector3& Rotation)&
 {
 	Super::Initialize();
 	_TestID = TestID++;
 
 	auto _Transform =AddComponent<Engine::Transform>();
-	_Transform->SetScale({ 2,3,4 });
+	_Transform->SetScale({ 1,1,1 });
+	_Transform->SetRotation(Rotation);
+	_Transform->SetLocation(SpawnLocation);
 
 	auto _StaticMesh =AddComponent<Engine::StaticMesh>(Device,L"TombStone");
 
-	ID3DXMesh* Mesh = _StaticMesh->GetMesh();
-	Vector3  BoundingBoxMin{}, BoundingBoxMax{};
-	D3DXComputeBoundingBox(_StaticMesh->GetVertexLocations().data(),
-		_StaticMesh->GetVertexLocations().size(),
-		sizeof(Vector3), &BoundingBoxMin, &BoundingBoxMax);
+	auto _Collision = AddComponent<Engine::Collision>
+		(Device, Engine::CollisionTag::Decorator, _Transform);
 
-	_Transform->SetLocation(SpawnLocation);
-	_Transform->SetRotation(Rotation);
-	auto _Collision =AddComponent<Engine::Collision>
-		(Device, Engine::CollisionTag::Decorator,_Transform);
+	if(TestID%2)
+	{
+		Vector3  BoundingBoxMin{}, BoundingBoxMax{};
+		D3DXComputeBoundingBox(_StaticMesh->GetVertexLocations().data(),
+			_StaticMesh->GetVertexLocations().size(),
+			sizeof(Vector3), &BoundingBoxMin, &BoundingBoxMax);
 
-	_Collision->_Geometric = std::make_unique<Engine::OBB>
-						        (BoundingBoxMin, BoundingBoxMax);
+		_Collision->_Geometric = std::make_unique<Engine::OBB>
+										(BoundingBoxMin, BoundingBoxMax);
+
+		static_cast<Engine::OBB* const> (_Collision->_Geometric.get())->MakeDebugCollisionBox(Device);
+	}
+
+	if( !( TestID%2))
+	{
+		Vector3 BoundingSphereCenter;
+		float BoundingSphereRadius; 
+		D3DXComputeBoundingSphere(_StaticMesh->GetVertexLocations().data(), _StaticMesh->GetVertexLocations().size(),
+			sizeof(Vector3), &BoundingSphereCenter, &BoundingSphereRadius);
+		
+		_Collision->_Geometric = std::make_unique<Engine::GSphere>(BoundingSphereRadius, BoundingSphereCenter);
+		static_cast<Engine::GSphere* const>(_Collision->_Geometric.get())->MakeDebugCollisionSphere(Device);
+	}
 	
-	static_cast<Engine::OBB* const> (_Collision->_Geometric.get())->MakeDebugCollisionBox(Device);
 
 	_Collision->RefCollisionables().insert(
 		{
@@ -194,6 +209,18 @@ void TombStone::HitNotify(Object* const Target, const Vector3 PushDir,
 {
 	Super::HitNotify(Target, PushDir, CrossAreaScale);
 	bTestCollision = true;
+	std::cout << "面倒吝" << std::endl;
+};
 
-	//MessageBox(NULL, L"面倒", L"Msg", MB_OK);
-}
+void TombStone::HitBegin(Object* const Target, const Vector3 PushDir, const float CrossAreaScale)&
+{
+	Super::HitBegin(Target, PushDir, CrossAreaScale);
+	std::cout << "面倒Start" << std::endl;
+};
+
+void TombStone::HitEnd(Object* const Target)&
+{
+	Super::HitEnd(Target);
+	std::cout << "面倒场!" << std::endl;
+
+};

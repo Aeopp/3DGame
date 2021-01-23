@@ -28,9 +28,13 @@ namespace Engine
 		static const inline Property TypeProperty = Property::Collision;
 		CollisionTag _Tag{ CollisionTag::None };
 		std::unique_ptr<Geometric> _Geometric;
+		bool bImmobility = false;
+		std::set<uint32> CurrentCheckedCollisionIDs{};
+		std::set<uint32> HitCollisionIDs{};
+		bool bCollision = true;
+		class Object* Owner{ nullptr };
 	private:
 		IDirect3DDevice9* Device{ nullptr };  
-		class Object* Owner{ nullptr };
 		class Transform* OwnerTransform{ nullptr };
 		std::set<CollisionTag> PushCollisionables;
 		std::set<CollisionTag> Collisionables;

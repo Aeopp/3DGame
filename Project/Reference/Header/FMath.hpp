@@ -114,6 +114,13 @@ public:
 		const std::array<Vector3, 8u> LhsHalfDistanceVecs,
 		const Vector3 RhsCenter,
 		const std::array<Vector3, 8u>  RhsHalfDistanceVecs );
+
+	static inline std::optional<std::pair<float, Vector3>> IsSphereToOBB
+	(   const Vector3 SphereCeneter,
+		const float SphereRadius,
+		const Vector3 OBBCenter,
+		const std::array<Vector3, 3u/*xyz*/>& OBBBasis,
+		const Vector3/*xyz*/OBBHalfDistances);
 #pragma region RANDOM
 	template<typename Type>
 	static inline Type Random(const Type& Begin, const Type& End);
@@ -574,3 +581,44 @@ bool FMath::IsPlaneToSphere(
 		 return {};
 	 }
  };
+
+ inline std::optional<std::pair<float,Vector3>> FMath::IsSphereToOBB(const Vector3 SphereCeneter,
+	  const float SphereRadius,
+	   const Vector3 OBBCenter,
+		const std::array<Vector3,3u/*xyz*/>& OBBBasis ,
+		const Vector3/*xyz*/OBBHalfDistances)
+ {
+	 const Vector3 ToSphere = SphereCeneter -OBBCenter;
+	 //구의 중심에서 박스의 중심을 향하는 벡터 D를  박스의 각 축에 투영한다
+	 //투영된 길이를 박스의 각 축의 절반 길이 만큼 제한한다. 
+	 //(박스의 테두리를 넘지않도록) (a,b,c) 
+	 const Vector3 AxisDots
+	 {
+		 std::clamp(FMath::Dot(OBBBasis[0],ToSphere),
+							-OBBHalfDistances.x,
+							 OBBHalfDistances.x),
+		 std::clamp(FMath::Dot(OBBBasis[1],ToSphere),
+							-OBBHalfDistances.y,
+							 OBBHalfDistances.y),
+		 std::clamp(FMath::Dot(OBBBasis[2],ToSphere),
+							-OBBHalfDistances.z,
+							 OBBHalfDistances.z),
+	 };
+
+	 // 박스의 각 기저 3개의 축과 각 축의 투영된 길이를 전부 곱한 벡터의 합이
+	 // 박스와 구의 가장 가까운 점이다.
+	 const Vector3 NearestPoint =
+		 OBBBasis[0] * AxisDots.x
+		 + OBBBasis[1] * AxisDots.y
+		 + OBBBasis[2] * AxisDots.z
+		 + OBBCenter;
+
+	 const Vector3 ToNearestPoint = NearestPoint - SphereCeneter;
+	 const float ToNearestPointDistance = FMath::Length(ToNearestPoint);
+	 if (ToNearestPointDistance > SphereRadius)
+		 return {};
+
+	 return   { { SphereRadius - ToNearestPointDistance ,
+				  -FMath::Normalize(ToNearestPoint)} };
+
+ }

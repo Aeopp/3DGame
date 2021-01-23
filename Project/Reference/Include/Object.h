@@ -36,6 +36,9 @@ namespace Engine
 		template<typename ComponentSubType>
 		bool IsContain()&;
 	public:
+		virtual void HitBegin(Object* const Target, const Vector3 PushDir,
+			const float CrossAreaScale)&;
+		virtual void HitEnd(Object* const Target)&;
 		virtual void HitNotify(Object* const Target, const Vector3 PushDir,
 			const float CrossAreaScale)&;
 	protected:

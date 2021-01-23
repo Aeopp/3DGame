@@ -1,6 +1,4 @@
 #include "Geometric.h"
-
-
 #include "FMath.hpp"
 #include "imgui.h"
 #include <iostream>
@@ -10,143 +8,7 @@
 #include "imgui.h"
 #include <map>
 
-
-
-
-static uint32 DebugVertexBufferID = 0u;
-
-Engine::AABB::AABB(const Vector3 LocalMin, const Vector3 LocalMax)
-	:  
-	Geometric{ FMath::Length((LocalMax - LocalMin)) /2.f, (LocalMin + LocalMax) / 2.f } ,
-	LocalMin{ LocalMin }, LocalMax{ LocalMax }   
-{
-}
-
-Engine::Geometric::Type Engine::AABB::GetType() const&
-{
-	return Engine::Geometric::Type::AABB;
-}
-
-void Engine::AABB::MakeDebugCollisionBox(IDirect3DDevice9* const Device)&
-{
-	Device->CreateVertexBuffer(
-		sizeof(Vertex::Location3DUV) * 8u,
-		D3DUSAGE_WRITEONLY,
-		Vertex::Location3DUV::FVF,
-		D3DPOOL_MANAGED,
-		&VertexBuffer, nullptr);
-
-	auto& ResourceSys = ResourceSystem::Instance;
-
-	Vertex::Location3DUV* VertexBufferPtr{ nullptr };
-	VertexBuffer->Lock(0, 0, (void**)&VertexBufferPtr, NULL);
-
-	// 전면
-	VertexBufferPtr[0].Location = Vector3(LocalMin.x, LocalMax.y, LocalMin.z);
-	VertexBufferPtr[0].UV = VertexBufferPtr[0].Location;
-
-	VertexBufferPtr[1].Location = Vector3(LocalMax.x, LocalMax.y, LocalMin.z);
-	VertexBufferPtr[1].UV = VertexBufferPtr[1].Location;
-
-	VertexBufferPtr[2].Location = Vector3(LocalMax.x, LocalMin.y, LocalMin.z);
-	VertexBufferPtr[2].UV = VertexBufferPtr[2].Location;
-
-	VertexBufferPtr[3].Location = Vector3(LocalMin.x, LocalMin.y, LocalMin.z);
-	VertexBufferPtr[3].UV = VertexBufferPtr[3].Location;
-
-	// 후면
-	VertexBufferPtr[4].Location = Vector3(LocalMin.x, LocalMax.y, LocalMax.z);
-	VertexBufferPtr[4].UV = VertexBufferPtr[4].Location;
-
-	VertexBufferPtr[5].Location = Vector3(LocalMax.x, LocalMax.y, LocalMax.z);
-	VertexBufferPtr[5].UV = VertexBufferPtr[5].Location;
-
-	VertexBufferPtr[6].Location = Vector3(LocalMax.x, LocalMin.y, LocalMax.z);
-	VertexBufferPtr[6].UV = VertexBufferPtr[6].Location;
-
-	VertexBufferPtr[7].Location = Vector3(LocalMin.x, LocalMin.y, LocalMax.z);
-	VertexBufferPtr[7].UV = VertexBufferPtr[7].Location;
-
-	VertexBuffer->Unlock();
-
-
-	ResourceSys->Insert<IDirect3DVertexBuffer9>
-		(L"VertexBuffer_Location3DUV_Cube_Collision_" + std::to_wstring(++DebugVertexBufferID), VertexBuffer);
-
-	IndexBuffer = ResourceSys->Get<IDirect3DIndexBuffer9>(L"IndexBuffer_Cube");
-	CollisionTexture = ResourceSys->Get<IDirect3DTexture9>(L"Texture_Collision");
-	NoCollisionTexture = ResourceSys->Get<IDirect3DTexture9>(L"Texture_NoCollision");
-}
-
-void Engine::AABB::Update(const Vector3 Scale,
-	const Vector3 Rotation,
-	const Vector3 Location)&
-{
-	const Matrix ToWorld = FMath::WorldMatrix(Scale, { 0,0,0 }, Location);
-	Min = FMath::Mul(LocalMin, ToWorld);
-	Max = FMath::Mul(LocalMax, ToWorld);
-	WorldSphere.Center = FMath::Mul(LocalSphere.Center, ToWorld);
-	WorldSphere.Radius = LocalSphere.Radius *   ((Scale.x + Scale.y + Scale.z) /3.f);   
-};
-
-void Engine::AABB::Render(IDirect3DDevice9* const Device , const bool bCurrentUpdateCollision)&
-{
-	IDirect3DTexture9* DebugTexture = bCurrentUpdateCollision ? CollisionTexture  : NoCollisionTexture;
-
-	Device->SetTexture(0,DebugTexture);
-	Device->SetStreamSource(0, VertexBuffer, 0, sizeof(Vertex::Location3DUV));
-	Device->SetFVF(Vertex::Location3DUV::FVF);
-	Device->SetIndices(IndexBuffer);
-	Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 8, 0, 12);
-}
-
-std::optional<std::pair<float, Vector3>> Engine::AABB::IsCollision
-(Geometric* const Rhs)&
-{
-	if (FMath::Length(WorldSphere.Center - Rhs->WorldSphere.Center) > (WorldSphere.Radius + Rhs->WorldSphere.Radius))
-		return  {};
-
-	switch (Rhs->GetType())
-	{
-	case Type::AABB:
-		return IsCollisionAABB(Rhs);
-		break;
-	case Type::OBB:
-		return IsCollisionOBB(Rhs);
-		break;
-	default:
-		break;
-	}
-
-	return {};
-}
-
-std::optional<std::pair<float, Vector3>> Engine::AABB::IsCollisionAABB(
-	Geometric* const Rhs
-	) const&
-{
-	auto RhsAABB = static_cast<AABB* const>(Rhs);
-
-	if (RhsAABB->Min.x > Max.x || RhsAABB->Max.x < Min.x)
-		return {};
-	if (RhsAABB->Min.y > Max.y || RhsAABB->Max.y < Min.y)
-		return {};
-	if (RhsAABB->Min.z > Max.z || RhsAABB->Max.z < Min.z)
-		return {};
-
-	std::map<float, Vector3> CrossAreaMap;
-
-	CrossAreaMap[Max.x - RhsAABB->Min.x] = RhsAABB->Max.x - Min.x > 0.f ? Vector3{1,0,0} : Vector3{-1,0,0};
-	CrossAreaMap[Max.y - RhsAABB->Min.y] = RhsAABB->Max.y - Min.y > 0.f ? Vector3{0,1,0} : Vector3{0,-1,0};
-	CrossAreaMap[Max.z - RhsAABB->Min.z] = RhsAABB->Max.z - Min.z > 0.f ? Vector3{0,0,1} : Vector3{0,0,-1};
-
-	return {*std::begin(CrossAreaMap)};
-}
-
-std::optional<std::pair<float, Vector3>> Engine::AABB::IsCollisionOBB(Geometric* const Rhs) const&
-{
-	return {};
-}
+static uint32 CollisionResourceID = 0u;
 
 Engine::OBB::OBB(const Vector3 LocalMin, const Vector3 LocalMax)
 	: Geometric{  FMath::Length((LocalMax - LocalMin)) /2.f, (LocalMin + LocalMax) / 2.f  } ,
@@ -161,7 +23,7 @@ Engine::OBB::OBB(const Vector3 LocalMin, const Vector3 LocalMax)
        Vector3(LocalMax.x, LocalMax.y, LocalMax.z),
        Vector3(LocalMax.x, LocalMin.y, LocalMax.z),
        Vector3(LocalMin.x, LocalMin.y, LocalMax.z)
-    } , 
+    }, 
 	LocalFaceNormals 
 	{
 	    // +X
@@ -170,7 +32,13 @@ Engine::OBB::OBB(const Vector3 LocalMin, const Vector3 LocalMax)
 		FMath::GetNormalFromFace(LocalPoints[4],LocalPoints[5],LocalPoints[1]),
 		// +Z
 		FMath::GetNormalFromFace(LocalPoints[7],LocalPoints[6],LocalPoints[5])
-	} 
+	} ,
+	LocalHalfDistances
+	{
+		(LocalMax.x -LocalMin.x)/2.f ,
+		(LocalMax.y -LocalMin.y)/2.f ,
+		(LocalMax.z -LocalMin.z)/2.f ,
+	}
 	{};
 
 void Engine::OBB::MakeDebugCollisionBox(IDirect3DDevice9* const Device)
@@ -195,7 +63,7 @@ void Engine::OBB::MakeDebugCollisionBox(IDirect3DDevice9* const Device)
 	VertexBuffer->Unlock();
 
 	ResourceSys->Insert<IDirect3DVertexBuffer9>
-		(L"VertexBuffer_Location3DUV_Cube_Collision_" + std::to_wstring(++DebugVertexBufferID), VertexBuffer);
+		(L"VertexBuffer_Location3DUV_Cube_Collision_" + std::to_wstring(++CollisionResourceID), VertexBuffer);
 
 	IndexBuffer = ResourceSys->Get<IDirect3DIndexBuffer9>(L"IndexBuffer_Cube");
 	CollisionTexture = ResourceSys->Get<IDirect3DTexture9>(L"Texture_Collision");
@@ -222,6 +90,9 @@ void Engine::OBB::Update(const Vector3 Scale, const Vector3 Rotation, const Vect
 		});
 	WorldSphere.Center = FMath::Mul(LocalSphere.Center, ToWorld);
 	WorldSphere.Radius = LocalSphere.Radius * ((Scale.x + Scale.y + Scale.z) / 3.f);
+	WorldHalfDistances = { LocalHalfDistances.x * Scale.x  ,
+						   LocalHalfDistances.y * Scale.y  ,
+						   LocalHalfDistances.z * Scale.z };
 }
 
 void Engine::OBB::Render(IDirect3DDevice9* const Device , const bool bCurrentUpdateCollision)&
@@ -241,11 +112,11 @@ std::optional<std::pair<float, Vector3>> Engine::OBB::IsCollision(Geometric* con
 
 	switch (Rhs->GetType())
 	{
-	case Type::AABB:
-		return IsCollisionAABB(Rhs);
-		break;
 	case Type::OBB:
-		return IsCollisionOBB(Rhs);
+		return IsCollisionOBB(static_cast<Engine::OBB*const>(Rhs));
+		break;
+	case Type::Sphere:
+		return IsCollisionSphere(static_cast<Engine::GSphere* const>(Rhs));
 		break;
 	default:
 		break;
@@ -254,14 +125,21 @@ std::optional<std::pair<float, Vector3>> Engine::OBB::IsCollision(Geometric* con
 	return {};
 }
 
-std::optional<std::pair<float,Vector3>> Engine::OBB::IsCollisionOBB(Geometric* const Rhs) const&
+std::optional<std::pair<float, Vector3>> Engine::OBB::IsCollisionSphere(GSphere* const Rhs) const&
 {
-	auto RhsOBB = static_cast<OBB*const>(Rhs);
+	return FMath::IsSphereToOBB(Rhs->WorldSphere.Center,
+		Rhs->WorldSphere.Radius,
+		WorldCenter,
+		WorldFaceNormals,
+		WorldHalfDistances);
+}
 
+std::optional<std::pair<float,Vector3>> Engine::OBB::IsCollisionOBB(OBB* const Rhs) const&
+{
 	std::vector<Vector3> CheckNormals;
 	CheckNormals.reserve(15u);
 	CheckNormals.insert(std::end(CheckNormals), std::begin(WorldFaceNormals), std::end(WorldFaceNormals));
-	std::copy_if(std::begin(RhsOBB->WorldFaceNormals), std::end(RhsOBB->WorldFaceNormals), std::back_inserter(CheckNormals),
+	std::copy_if(std::begin(Rhs->WorldFaceNormals), std::end(Rhs->WorldFaceNormals), std::back_inserter(CheckNormals),
 		[&LhsWorldFaceNormals = WorldFaceNormals](const Vector3& Target)
 	{
 		for (auto& RhsNormal : LhsWorldFaceNormals)
@@ -273,7 +151,7 @@ std::optional<std::pair<float,Vector3>> Engine::OBB::IsCollisionOBB(Geometric* c
 
 	for (auto& LhsNormal : WorldFaceNormals)
 	{
-		for (auto& RhsNormal : RhsOBB->WorldFaceNormals)
+		for (auto& RhsNormal : Rhs->WorldFaceNormals)
 		{
 			// 외적해서 새로운 SA후보를 선정할때 두 벡터가 같을경우 외적은 성립하지 않으므로 제외한다.
 			if (FMath::Equal(LhsNormal, RhsNormal))continue;
@@ -287,7 +165,7 @@ std::optional<std::pair<float,Vector3>> Engine::OBB::IsCollisionOBB(Geometric* c
 
 	for (auto& CheckNormal : CheckNormals)
 	{
-		auto ProjectionArea = FMath::IsProjectionIntersectAreaAABB(CheckNormal, WorldCenter, WorldPoints, RhsOBB->WorldCenter, RhsOBB->WorldPoints);
+		auto ProjectionArea = FMath::IsProjectionIntersectAreaAABB(CheckNormal, WorldCenter, WorldPoints, Rhs->WorldCenter, Rhs->WorldPoints);
 
 		if (false == ProjectionArea.has_value())
 			return {};
@@ -301,7 +179,102 @@ std::optional<std::pair<float,Vector3>> Engine::OBB::IsCollisionOBB(Geometric* c
 	return { *ProjectionAreaMap.begin()};
 }
 
-std::optional<std::pair<float, Vector3>> Engine::OBB::IsCollisionAABB(Geometric* const Rhs) const&
+
+Engine::GSphere::GSphere(const float Radius, const Vector3 Center)
+	:Geometric(Radius,Center) 
 {
+
+}
+
+void Engine::GSphere::MakeDebugCollisionSphere(IDirect3DDevice9* const Device)
+{
+	auto& ResourceSys = ResourceSystem::Instance;
+
+	ID3DXBuffer* _SphereAdjacency{ nullptr };
+	D3DXCreateSphere(Device, LocalSphere.Radius, 16u, 16u, &_SphereMesh, &_SphereAdjacency);
+
+	uint8* VertexBufferPtr{ nullptr };
+	_SphereMesh->LockVertexBuffer(0,reinterpret_cast<void**> (&VertexBufferPtr ) );
+	const uint32 Stride = _SphereMesh->GetNumBytesPerVertex();
+	for (uint32 Idx = 0u; Idx < _SphereMesh->GetNumVertices(); ++Idx)
+	{
+		Vector3* const VertexLocationPtr =
+			reinterpret_cast<Vector3* const> ((VertexBufferPtr + (Idx * Stride)));
+
+		*VertexLocationPtr += LocalSphere.Center;
+	}
+	_SphereMesh->UnlockVertexBuffer();
+
+	
+	ResourceSys->Insert<ID3DXMesh>
+		(L"Mesh_Sphere_Collision_"+      std::to_wstring(++CollisionResourceID), _SphereMesh);
+	ResourceSys->Insert<ID3DXBuffer>
+		(L"Adjacency_Sphere_Collision_"+ std::to_wstring(++CollisionResourceID), _SphereAdjacency);
+
+	CollisionTexture = ResourceSys->Get<IDirect3DTexture9>(L"Texture_Collision");
+	NoCollisionTexture = ResourceSys->Get<IDirect3DTexture9>(L"Texture_NoCollision");
+}
+
+Engine::Geometric::Type Engine::GSphere::GetType() const&
+{
+	return Engine::Geometric::Type::Sphere;
+}
+
+void Engine::GSphere::Update(const Vector3 Scale, const Vector3 Rotation, const Vector3 Location)&
+{
+	const Matrix ToWorld = FMath::WorldMatrix(Scale, Rotation, Location);
+	WorldSphere.Center = FMath::Mul(LocalSphere.Center, ToWorld);
+	WorldSphere.Radius = LocalSphere.Radius * ((Scale.x + Scale.y + Scale.z) / 3.f);
+}
+
+void Engine::GSphere::Render(IDirect3DDevice9* const Device, const bool bCurrentUpdateCollision)&
+{
+	IDirect3DTexture9* DebugTexture = bCurrentUpdateCollision ? CollisionTexture : NoCollisionTexture;
+	Device->SetTexture(0, DebugTexture);
+	_SphereMesh->DrawSubset(0);
+}
+
+std::optional<std::pair<float, Vector3>> Engine::GSphere::IsCollision(Geometric* const Rhs)&
+{
+	switch (Rhs->GetType())
+	{
+	case Type::OBB:
+		if (FMath::Length(WorldSphere.Center - Rhs->WorldSphere.Center) > (WorldSphere.Radius + Rhs->WorldSphere.Radius))
+		{
+			return {};
+		}
+		else
+		{
+			return IsCollisionOBB(static_cast<Engine::OBB* const>(Rhs));
+		}
+		break;
+	case Type::Sphere:
+		return IsCollisionSphere(static_cast<Engine::GSphere* const>(Rhs));
+		break;
+	default:
+		break;
+	}
+
 	return {};
+}
+
+std::optional<std::pair<float, Vector3>> Engine::GSphere::IsCollisionOBB(
+	OBB* const Rhs) const&
+{
+	return FMath::IsSphereToOBB(
+		WorldSphere.Center, WorldSphere.Radius,
+		Rhs->WorldCenter, Rhs->WorldFaceNormals,
+		Rhs->WorldHalfDistances);
+};
+
+std::optional<std::pair<float, Vector3>> Engine::GSphere::IsCollisionSphere(GSphere* const Rhs) const&
+{
+	const Vector3 ToRhs = Rhs->WorldSphere.Center - WorldSphere.Center;
+	const float Distance = FMath::Length(ToRhs);
+	const float RadiusSum = WorldSphere.Radius + Rhs->WorldSphere.Radius;
+	if (Distance > RadiusSum)return {};
+	else
+	{
+		return {{ RadiusSum - Distance , FMath::Normalize(ToRhs) }};
+	}
 }

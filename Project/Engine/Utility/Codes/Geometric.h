@@ -15,8 +15,8 @@ namespace Engine
 		enum class Type : uint8
 		{
 			None,
-			AABB,
 			OBB,
+			Sphere,
 		};
 	protected:
 		Geometric(const float Radius, const Vector3 Center) : LocalSphere{Radius,Center}  {};
@@ -35,25 +35,22 @@ namespace Engine
 		Sphere WorldSphere;
 	};
 
-	class DLL_DECL AABB : public Geometric
+	class DLL_DECL GSphere : public Geometric
 	{
 	public:
-		AABB(const Vector3 LocalMin, const Vector3 LocalMax);
+		GSphere(const float Radius,const Vector3 Center);
+		void MakeDebugCollisionSphere(IDirect3DDevice9* const Device);
 		virtual Type GetType() const& override;
-		void MakeDebugCollisionBox(IDirect3DDevice9* const Device)&;
 		virtual void Update(const Vector3 Scale,
-			const Vector3 Rotation,
-			const Vector3 Location) & override;
-		virtual void Render(IDirect3DDevice9* const Device , const bool bCurrentUpdateCollision) & override;
+		                 	const Vector3 Rotation,
+			                const Vector3 Location) & override;
+		virtual void Render(IDirect3DDevice9* const Device, const bool bCurrentUpdateCollision) & override;
 		virtual std::optional<std::pair<float, Vector3>> IsCollision(Geometric* const Rhs) & override;
-		std::optional<std::pair<float, Vector3>> IsCollisionAABB(Geometric* const Rhs)const&;
-		std::optional<std::pair<float, Vector3>> IsCollisionOBB(Geometric* const Rhs)const&;
-
-		Vector3 Min;
-		Vector3 Max;
-		const Vector3 LocalMax;
-		const Vector3 LocalMin;
+		std::optional<std::pair<float, Vector3>> IsCollisionOBB(class OBB* const Rhs)const&;
+		std::optional<std::pair<float, Vector3>> IsCollisionSphere(GSphere* const Rhs)const&;
+		ID3DXMesh* _SphereMesh{ nullptr };
 	};
+
 	class DLL_DECL OBB : public Geometric
 	{
 	public:
@@ -65,14 +62,16 @@ namespace Engine
 			const Vector3 Location) & override;
 		virtual void Render(IDirect3DDevice9* const Device , const bool bCurrentUpdateCollision) & override;
 		virtual std::optional<std::pair<float, Vector3>> IsCollision(Geometric* const Rhs) & override;
-		std::optional<std::pair<float,Vector3>> IsCollisionOBB(Geometric* const Rhs)const&;
-		std::optional<std::pair<float, Vector3>> IsCollisionAABB(Geometric* const Rhs)const&;
-		std::array<Vector3, 8u> WorldPoints;
-		Vector3 WorldCenter; 
-		std::array<Vector3, 3u> WorldFaceNormals;
-		const std::array<Vector3, 8u> LocalPoints;
-		const std::array<Vector3, 3u > LocalFaceNormals;
-		const Vector3 LocalCenter;
-	};
+		std::optional<std::pair<float,Vector3>> IsCollisionOBB(OBB* const Rhs)const&;
+		std::optional<std::pair<float, Vector3>>IsCollisionSphere(GSphere* const Rhs)const&;
 
+		std::array<Vector3,8u> WorldPoints;
+		Vector3 WorldCenter; 
+		Vector3 WorldHalfDistances{};
+		std::array<Vector3,3u> WorldFaceNormals;
+		const std::array<Vector3,8u> LocalPoints;
+		const std::array<Vector3,3u> LocalFaceNormals;
+		const Vector3 LocalCenter;
+		const Vector3 LocalHalfDistances{};
+	};
 }

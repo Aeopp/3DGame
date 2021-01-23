@@ -62,6 +62,8 @@ void Engine::Renderer::RenderDebugCollision()&
 {
 	//if (Global::bDebugMode)
 	{
+		Device->SetVertexShader(nullptr);
+		Device->SetPixelShader(nullptr);
 		Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 		Device->SetRenderState(D3DRS_LIGHTING, FALSE);
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);

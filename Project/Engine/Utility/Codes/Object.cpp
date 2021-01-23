@@ -1,6 +1,8 @@
 #include "Object.h"
 #include "imgui.h"
 #include <string>
+#include <iostream>
+
 
 void Engine::Object::Initialize()&
 {}
@@ -20,10 +22,12 @@ void Engine::Object::Clone()&
 }
 void Engine::Object::Event()&
 {
-	 std::string _Name;
-	 _Name.assign(std::begin(Name), std::end(Name));
-	 _Name += "Information";
+#ifdef DEVELOP
+	std::string _Name;
+	_Name.assign(std::begin(Name), std::end(Name));
+	_Name += "Information";
 	ImGui::Text(_Name.c_str());
+#endif
 
 	for (auto& [PropertyKey, ComponentContainer] : _Components)
 	{
@@ -55,8 +59,18 @@ void Engine::Object::ComponentUpdate(const float DeltaTime)&
 	};
 }
 
-void Engine::Object::HitNotify( Object* const Target, 
+void Engine::Object::HitBegin(Object* const Target, const Vector3 PushDir, const float CrossAreaScale)&
+{
+	
+}
+
+void Engine::Object::HitEnd(Object* const Target)&
+{
+	std::wcout << Target->GetName() << L" 과 충돌 끝" << std::endl;
+}
+
+void Engine::Object::HitNotify( Object* const Target,
 								const Vector3 PushDir, const float CrossAreaScale)&
 {
-
+	
 }

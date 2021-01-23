@@ -54,6 +54,9 @@ void Engine::Management::Initialize(
 	_ResourceSys = Engine::ResourceSystem::Init();
 	_Renderer = Engine::Renderer::Init(Device);
 	ImGuiInitialize(Hwnd, Device.get());
+
+	CreateStaticResource();
+	CreateCollisionDebugResource();
 }
 
 Engine::Management::~Management() noexcept
@@ -143,4 +146,107 @@ void ImGuiFrameStart()
 	ImGui::NewFrame();
 	ImGui::ShowDemoWindow();
 }
+
+void Engine::Management::CreateStaticResource()&
+{
+		// 큐브용 인덱스 버퍼 로딩.
+	auto Device = _GraphicDevice->GetDevice();
+
+		IDirect3DIndexBuffer9* IdxBuffer{ nullptr };
+		Device->CreateIndexBuffer(sizeof(Index::_16) * 12u,
+			0,
+			D3DFMT_INDEX16,
+			D3DPOOL_MANAGED,
+			&IdxBuffer, nullptr);
+		_ResourceSys->Insert<IDirect3DIndexBuffer9>
+			(L"IndexBuffer_Cube", IdxBuffer);
+
+		Index::_16* IndexBufferPtr{ nullptr };
+		IdxBuffer->Lock(0, 0, (void**)&IndexBufferPtr, 0);
+
+		// x+
+		IndexBufferPtr[0]._1 = 1;
+		IndexBufferPtr[0]._2 = 5;
+		IndexBufferPtr[0]._3 = 6;
+
+		IndexBufferPtr[1]._1 = 1;
+		IndexBufferPtr[1]._2 = 6;
+		IndexBufferPtr[1]._3 = 2;
+
+		// x-
+		IndexBufferPtr[2]._1 = 4;
+		IndexBufferPtr[2]._2 = 0;
+		IndexBufferPtr[2]._3 = 3;
+
+		IndexBufferPtr[3]._1 = 4;
+		IndexBufferPtr[3]._2 = 3;
+		IndexBufferPtr[3]._3 = 7;
+
+		// y+
+		IndexBufferPtr[4]._1 = 4;
+		IndexBufferPtr[4]._2 = 5;
+		IndexBufferPtr[4]._3 = 1;
+
+		IndexBufferPtr[5]._1 = 4;
+		IndexBufferPtr[5]._2 = 1;
+		IndexBufferPtr[5]._3 = 0;
+
+		// y-
+		IndexBufferPtr[6]._1 = 3;
+		IndexBufferPtr[6]._2 = 2;
+		IndexBufferPtr[6]._3 = 6;
+
+		IndexBufferPtr[7]._1 = 3;
+		IndexBufferPtr[7]._2 = 6;
+		IndexBufferPtr[7]._3 = 7;
+
+		// z+
+		IndexBufferPtr[8]._1 = 7;
+		IndexBufferPtr[8]._2 = 6;
+		IndexBufferPtr[8]._3 = 5;
+
+		IndexBufferPtr[9]._1 = 7;
+		IndexBufferPtr[9]._2 = 5;
+		IndexBufferPtr[9]._3 = 4;
+
+		// z-
+		IndexBufferPtr[10]._1 = 0;
+		IndexBufferPtr[10]._2 = 1;
+		IndexBufferPtr[10]._3 = 2;
+
+		IndexBufferPtr[11]._1 = 0;
+		IndexBufferPtr[11]._2 = 2;
+		IndexBufferPtr[11]._3 = 3;
+
+		IdxBuffer->Unlock();
+	
+}
+void Engine::Management::CreateCollisionDebugResource()&
+{
+	auto Device = _GraphicDevice->GetDevice();
+
+	IDirect3DTexture9* TextureNoCollision{ nullptr };
+	IDirect3DTexture9* TextureCollision{ nullptr };
+
+	{
+		Device->CreateTexture(1, 1, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &TextureNoCollision, NULL);
+		D3DLOCKED_RECT		LockRect;
+		ZeroMemory(&LockRect, sizeof(D3DLOCKED_RECT));
+		TextureNoCollision->LockRect(0, &LockRect, NULL, 0);
+		*((uint32*)LockRect.pBits) = D3DXCOLOR(1.f, 0.f, 0.f, 1.f);
+		TextureNoCollision->UnlockRect(0);
+		_ResourceSys->Insert<IDirect3DTexture9>(L"Texture_Collision", TextureNoCollision);
+	}
+
+	{
+		Device->CreateTexture(1, 1, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &TextureCollision, NULL);
+		D3DLOCKED_RECT		LockRect;
+		ZeroMemory(&LockRect, sizeof(D3DLOCKED_RECT));
+		TextureCollision->LockRect(0, &LockRect, NULL, 0);
+		*((uint32*)LockRect.pBits) = D3DXCOLOR(0.f, 1.f, 0.f, 1.f);
+		TextureCollision->UnlockRect(0);
+		_ResourceSys->Insert<IDirect3DTexture9>(L"Texture_NoCollision", TextureCollision);
+	}
+};
+
 

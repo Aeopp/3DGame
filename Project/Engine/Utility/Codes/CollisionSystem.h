@@ -28,6 +28,7 @@ namespace Engine
 		void Initialize()&;
 		void Update(const float DeltaTime)&;
 	private:
+		std::unordered_map<uint32, class Collision*> CollisionCompIDMap{};
 		std::map<CollisionTag, std::vector<class Collision*> >
 			CollisionCompMap{};
 	};

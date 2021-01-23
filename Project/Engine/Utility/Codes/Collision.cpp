@@ -3,15 +3,15 @@
 #include "Transform.h"
 #include "Vertexs.hpp"
 #include "ResourceSystem.h"
-
+#include "imgui.h"
 
 void Engine::Collision::Initialize(
 	IDirect3DDevice9* const Device,
 	const CollisionTag _Tag,
 	class Transform* const OwnerTransform)&
 {
-	this->Device = Device;
 	Super::Initialize();
+	this->Device = Device;
 	this->_Tag = _Tag;
 	this->OwnerTransform = OwnerTransform;
 	SetUpRenderingInformation(RenderInterface::Group::DebugCollision);
@@ -26,6 +26,8 @@ void Engine::Collision::Update(Object* const Owner, const float DeltaTime)&
 	_Geometric->Update(OwnerTransform->GetScale(),
 		OwnerTransform->GetRotation(),
 		OwnerTransform->GetLocation());
+	bImmobility = false;
+	CurrentCheckedCollisionIDs.clear();
 };
 
 void Engine::Collision::Event(Object* Owner)&
@@ -48,18 +50,55 @@ bool Engine::Collision::IsCollision(Collision* const Rhs)&
 		const auto [CrossArea, PushDir] = *CollisionInfo;
 
 		bCurrentFrameCollision = true;
-		if (PushCollisionables.contains(Rhs->_Tag))
+
+		if (PushCollisionables.contains(Rhs->_Tag) && false==Rhs->bImmobility)
 		{
-			Rhs->OwnerTransform->SetLocation(
-				Rhs->OwnerTransform->GetLocation() + PushDir *CrossArea);
+			if (Rhs->PushCollisionables.contains(_Tag) && false==bImmobility)
+			{
+				Rhs->OwnerTransform->SetLocation(
+					Rhs->OwnerTransform->GetLocation() + PushDir * CrossArea*0.5f);
 
-			Rhs->_Geometric->Update(Rhs->OwnerTransform->GetScale(),
-				Rhs->OwnerTransform->GetRotation(),
-				Rhs->OwnerTransform->GetLocation());
+				Rhs->_Geometric->Update(Rhs->OwnerTransform->GetScale(),
+										Rhs->OwnerTransform->GetRotation(),
+										Rhs->OwnerTransform->GetLocation());
+
+				OwnerTransform->SetLocation(
+					OwnerTransform->GetLocation() + -PushDir * CrossArea * 0.5f);
+
+				_Geometric->Update(Rhs->OwnerTransform->GetScale(),
+					OwnerTransform->GetRotation(),
+					OwnerTransform->GetLocation());
+			}
+			else
+			{
+				Rhs->OwnerTransform->SetLocation(
+					Rhs->OwnerTransform->GetLocation() + PushDir * CrossArea);
+
+				Rhs->_Geometric->Update(Rhs->OwnerTransform->GetScale(),
+					Rhs->OwnerTransform->GetRotation(),
+					Rhs->OwnerTransform->GetLocation());
+			}
 		}
+		if (!CurrentCheckedCollisionIDs.contains(Rhs->ID))
+		{
+			CurrentCheckedCollisionIDs.insert(Rhs->ID);
+			Rhs->CurrentCheckedCollisionIDs.insert(ID);
 
-		Owner->HitNotify(Rhs->Owner, PushDir, CrossArea);
-		Rhs->Owner->HitNotify(Owner, -PushDir, CrossArea);
+			auto iter = HitCollisionIDs.find(Rhs->ID);
+
+			if (iter == std::end(HitCollisionIDs))
+			{
+				HitCollisionIDs.insert(iter, Rhs->ID);
+				Rhs->HitCollisionIDs.insert(ID);
+				Owner->HitBegin(Rhs->Owner, PushDir, CrossArea);
+				Rhs->Owner->HitBegin(Owner, -PushDir, CrossArea);
+			}
+			else
+			{
+				Owner->HitNotify(Rhs->Owner, PushDir, CrossArea);
+				Rhs->Owner->HitNotify(Owner, -PushDir, CrossArea);
+			}
+		}
 	}
 
 	return CollisionInfo.has_value();

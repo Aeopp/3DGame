@@ -20,6 +20,7 @@ namespace Engine
 		virtual ~Component()noexcept = default;
 		Component()=default;
 	public:
+		uint32 ID{ 0 };
 		void Initialize()&;
 		virtual void Update(class Object* const Owner,
 			const float DeltaTime)& ;
