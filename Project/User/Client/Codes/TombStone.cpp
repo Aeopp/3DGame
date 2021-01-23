@@ -47,7 +47,7 @@ void TombStone::Initialize(const Vector3& SpawnLocation)&
 
 	_Collision->RefPushCollisionables().insert(
 		{
-			//	Engine::CollisionTag::Decorator
+	          Engine::CollisionTag::Decorator
 		});
 }
 
@@ -80,7 +80,7 @@ void TombStone::Update(const float DeltaTime)&
 	Super::Update(DeltaTime);
 	bTestCollision = false;
 
-	if (_TestID == 0u )
+	if (_TestID == 1u )
 	{
 		auto& Control = RefControl();
 		auto _Transform = GetComponent<Engine::Transform>();
@@ -180,7 +180,7 @@ void TombStone::Update(const float DeltaTime)&
 		{
 			_Transform->RotateRoll(Speed, DeltaTime);
 		}
-		if (Control.IsPressing(DIK_N))
+		if (Control.IsPressing(DIK_M))
 		{
 			_Transform->RotateRoll(-Speed, DeltaTime);
 		}

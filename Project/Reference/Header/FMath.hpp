@@ -8,6 +8,8 @@
 #include <d3dx9.h>
 #include <random>
 #include "MathStruct.h"
+#include <optional>
+
 
 
 class FMath
@@ -15,6 +17,7 @@ class FMath
 public:
 	static constexpr auto PI = std::numbers::pi_v<float>;
 
+	inline static bool IsValid(const Vector3& Target);
 	template<class T>
 	typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
 	static	inline AlmostEqual(T x, T y);
@@ -103,13 +106,13 @@ public:
 		const Ray& Rhs,
 		float& t, Vector3& IntersectPoint);
 
-	static inline bool IsProjectionIntersectAreaAABB(
+	static inline std::optional<std::tuple<float, float, float, float>> /*LhsMin,LhsMax,RhsMin,RhsMax*/ IsProjectionIntersectAreaAABB(
 		Vector3 ProjectionAxis,
 		const Vector3 LhsCenter,
 		// 면6개(최적화3개)의 노말벡터와 중심점으로부터 면까지의 길이를 곱한 3 벡터
 		const std::array<Vector3, 8u> LhsHalfDistanceVecs,
 		const Vector3 RhsCenter,
-		const std::array<Vector3, 8u>  RhsHalfDistanceVecs);
+		const std::array<Vector3, 8u>  RhsHalfDistanceVecs );
 #pragma region RANDOM
 	template<typename Type>
 	static inline Type Random(const Type& Begin, const Type& End);
@@ -118,6 +121,12 @@ private:
 #pragma endregion RANDOM
 };
 
+inline bool FMath::IsValid(const Vector3& Target)
+{
+	return  ( (!FMath::AlmostEqual(Target.x, 0.0f)) &&
+			 (!FMath::AlmostEqual(Target.y, 0.0f)) &&
+		     (!FMath::AlmostEqual(Target.z, 0.0f)));
+}
 template<class T>
 typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
 FMath::AlmostEqual(T x, T y)
@@ -524,13 +533,15 @@ bool FMath::IsPlaneToSphere(
 
 	 return true;
  }
- inline bool FMath::IsProjectionIntersectAreaAABB(
-	const  Vector3 ProjectionAxis,
-	 const Vector3 LhsCenter,
-	 // 면6개(최적화3개)의 노말벡터와 중심점으로부터 면까지의 길이를 곱한 3 벡터
-	 const std::array<Vector3, 8u> LhsHalfDistanceVecs,
-	 const Vector3 RhsCenter,
-	 const std::array<Vector3, 8u>  RhsHalfDistanceVecs)
+
+ inline std::optional<std::tuple<float, float, float, float>> /*LhsMin,LhsMax,RhsMin,RhsMax*/
+	 FMath::IsProjectionIntersectAreaAABB(
+		 Vector3 ProjectionAxis,
+		 const Vector3 LhsCenter,
+		 // 면6개(최적화3개)의 노말벡터와 중심점으로부터 면까지의 길이를 곱한 3 벡터
+		 const std::array<Vector3, 8u> LhsHalfDistanceVecs,
+		 const Vector3 RhsCenter,
+		 const std::array<Vector3, 8u>  RhsHalfDistanceVecs)
  {
 	 std::vector<float> LhsDots;
 	 std::vector<float> RhsDots;
@@ -544,8 +555,15 @@ bool FMath::IsPlaneToSphere(
 		 RhsDots.push_back(FMath::Dot(Point, ProjectionAxis));
 	 }
 
-	 const auto [LhsMin,LhsMax]=std::minmax_element(std::begin(LhsDots), std::end(LhsDots));
-	 const auto [RhsMin,RhsMax]=std::minmax_element(std::begin(RhsDots), std::end(RhsDots));
-	 
-	 return Intersect_1D_Line(*LhsMin, *LhsMax, *RhsMin, *RhsMax);
- }
+	 const auto [LhsMin, LhsMax] = std::minmax_element(std::begin(LhsDots), std::end(LhsDots));
+	 const auto [RhsMin, RhsMax] = std::minmax_element(std::begin(RhsDots), std::end(RhsDots));
+
+	 if (Intersect_1D_Line(*LhsMin, *LhsMax, *RhsMin, *RhsMax))
+	 {
+		 return  { std::tuple<float,float,float,float> { *LhsMin,* LhsMax,* RhsMin,* RhsMax } };
+	 }
+	 else
+	 {
+		 return {};
+	 }
+ };

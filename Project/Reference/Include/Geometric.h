@@ -4,6 +4,7 @@
 #include "TypeAlias.h"
 #include <typeinfo>
 #include <array>
+#include <optional>
 #include "MathStruct.h"
 
 namespace Engine
@@ -20,9 +21,7 @@ namespace Engine
 	protected:
 		Geometric(const float Radius, const Vector3 Center) : LocalSphere{Radius,Center}  {};
 	public:
-		virtual bool IsCollision(Geometric* const Rhs,
-			Vector3& PushDir,
-			float& CrossAreaScale)& abstract;
+		virtual std::optional<std::pair<float, Vector3>> IsCollision(Geometric* const Rhs)& abstract;
 		virtual void Update(const Vector3 Scale,
 							const Vector3 Rotation,
 							const Vector3 Location)& abstract;
@@ -46,15 +45,9 @@ namespace Engine
 			const Vector3 Rotation,
 			const Vector3 Location) & override;
 		virtual void Render(IDirect3DDevice9* const Device , const bool bCurrentUpdateCollision) & override;
-		virtual bool IsCollision(Geometric* const Rhs,
-			Vector3& PushDir,
-			float& CrossAreaScale) & override;
-		bool IsCollisionAABB(Geometric* const Rhs,
-			Vector3& PushDir,
-			float& CrossAreaScale)const&;
-		bool IsCollisionOBB(Geometric* const Rhs,
-			Vector3& PushDir,
-			float& CrossAreaScale)const&;
+		virtual std::optional<std::pair<float, Vector3>> IsCollision(Geometric* const Rhs) & override;
+		std::optional<std::pair<float, Vector3>> IsCollisionAABB(Geometric* const Rhs)const&;
+		std::optional<std::pair<float, Vector3>> IsCollisionOBB(Geometric* const Rhs)const&;
 
 		Vector3 Min;
 		Vector3 Max;
@@ -71,15 +64,9 @@ namespace Engine
 			const Vector3 Rotation,
 			const Vector3 Location) & override;
 		virtual void Render(IDirect3DDevice9* const Device , const bool bCurrentUpdateCollision) & override;
-		virtual bool IsCollision(Geometric* const Rhs,
-			Vector3& PushDir,
-			float& CrossAreaScale) & override;
-		bool IsCollisionOBB(Geometric* const Rhs,
-			Vector3& PushDir,
-			float& CrossAreaScale)const&;
-		bool IsCollisionAABB(Geometric* const Rhs,
-			Vector3& PushDir,
-			float& CrossAreaScale)const&;
+		virtual std::optional<std::pair<float, Vector3>> IsCollision(Geometric* const Rhs) & override;
+		std::optional<std::pair<float,Vector3>> IsCollisionOBB(Geometric* const Rhs)const&;
+		std::optional<std::pair<float, Vector3>> IsCollisionAABB(Geometric* const Rhs)const&;
 		std::array<Vector3, 8u> WorldPoints;
 		Vector3 WorldCenter; 
 		std::array<Vector3, 3u> WorldFaceNormals;

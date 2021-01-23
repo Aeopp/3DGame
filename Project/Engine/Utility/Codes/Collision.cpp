@@ -41,29 +41,27 @@ void Engine::Collision::Render()&
 
 bool Engine::Collision::IsCollision(Collision* const Rhs)&
 {
-	Vector3 PushDir;
-	float CrossAreaScale;
-	const bool bCollision = _Geometric->IsCollision(Rhs->_Geometric.get(),
-		PushDir, CrossAreaScale);
+	const auto CollisionInfo = _Geometric->IsCollision(Rhs->_Geometric.get());
 
-	if (bCollision)
+	if (CollisionInfo)
 	{
+		const auto [CrossArea, PushDir] = *CollisionInfo;
+
 		bCurrentFrameCollision = true;
 		if (PushCollisionables.contains(Rhs->_Tag))
 		{
-			OwnerTransform->SetLocation(
-				OwnerTransform->GetLocation() + PushDir
-				* CrossAreaScale);
+			Rhs->OwnerTransform->SetLocation(
+				Rhs->OwnerTransform->GetLocation() + PushDir *CrossArea);
 
-			_Geometric->Update(OwnerTransform->GetScale(),
-				OwnerTransform->GetRotation(),
-				OwnerTransform->GetLocation());
+			Rhs->_Geometric->Update(Rhs->OwnerTransform->GetScale(),
+				Rhs->OwnerTransform->GetRotation(),
+				Rhs->OwnerTransform->GetLocation());
 		}
 
-		Owner->HitNotify(Rhs->Owner, PushDir, CrossAreaScale);
-		Rhs->Owner->HitNotify(Owner, -PushDir, CrossAreaScale);
+		Owner->HitNotify(Rhs->Owner, PushDir, CrossArea);
+		Rhs->Owner->HitNotify(Owner, -PushDir, CrossArea);
 	}
 
-	return bCollision;
+	return CollisionInfo.has_value();
 };
 

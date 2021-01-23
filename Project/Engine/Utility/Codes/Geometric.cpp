@@ -1,4 +1,6 @@
 #include "Geometric.h"
+
+
 #include "FMath.hpp"
 #include "imgui.h"
 #include <iostream>
@@ -6,6 +8,8 @@
 #include <string>
 #include "ResourceSystem.h"
 #include "imgui.h"
+#include <map>
+
 
 
 
@@ -13,7 +17,7 @@ static uint32 DebugVertexBufferID = 0u;
 
 Engine::AABB::AABB(const Vector3 LocalMin, const Vector3 LocalMax)
 	:  
-	Geometric{ FMath::Length((LocalMax - LocalMax)) , (LocalMin + LocalMax) / 2.f } ,
+	Geometric{ FMath::Length((LocalMax - LocalMin)) /2.f, (LocalMin + LocalMax) / 2.f } ,
 	LocalMin{ LocalMin }, LocalMax{ LocalMax }   
 {
 }
@@ -96,49 +100,56 @@ void Engine::AABB::Render(IDirect3DDevice9* const Device , const bool bCurrentUp
 	Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 8, 0, 12);
 }
 
-bool Engine::AABB::IsCollision
-(Geometric* const Rhs,
-	Vector3& PushDir, float& CrossAreaScale)&
+std::optional<std::pair<float, Vector3>> Engine::AABB::IsCollision
+(Geometric* const Rhs)&
 {
+	if (FMath::Length(WorldSphere.Center - Rhs->WorldSphere.Center) > (WorldSphere.Radius + Rhs->WorldSphere.Radius))
+		return  {};
+
 	switch (Rhs->GetType())
 	{
 	case Type::AABB:
-		return IsCollisionAABB(Rhs, PushDir, CrossAreaScale);
+		return IsCollisionAABB(Rhs);
 		break;
 	case Type::OBB:
-		return IsCollisionOBB(Rhs, PushDir, CrossAreaScale);
+		return IsCollisionOBB(Rhs);
 		break;
 	default:
 		break;
 	}
 
-	return false;
+	return {};
 }
 
-bool Engine::AABB::IsCollisionAABB(
-	Geometric* const Rhs,
-	Vector3& PushDir,
-	float& CrossAreaScale) const&
+std::optional<std::pair<float, Vector3>> Engine::AABB::IsCollisionAABB(
+	Geometric* const Rhs
+	) const&
 {
 	auto RhsAABB = static_cast<AABB* const>(Rhs);
 
 	if (RhsAABB->Min.x > Max.x || RhsAABB->Max.x < Min.x)
-		return false;
+		return {};
 	if (RhsAABB->Min.y > Max.y || RhsAABB->Max.y < Min.y)
-		return false;
+		return {};
 	if (RhsAABB->Min.z > Max.z || RhsAABB->Max.z < Min.z)
-		return false;
+		return {};
 
-	return true;
+	std::map<float, Vector3> CrossAreaMap;
+
+	CrossAreaMap[Max.x - RhsAABB->Min.x] = RhsAABB->Max.x - Min.x > 0.f ? Vector3{1,0,0} : Vector3{-1,0,0};
+	CrossAreaMap[Max.y - RhsAABB->Min.y] = RhsAABB->Max.y - Min.y > 0.f ? Vector3{0,1,0} : Vector3{0,-1,0};
+	CrossAreaMap[Max.z - RhsAABB->Min.z] = RhsAABB->Max.z - Min.z > 0.f ? Vector3{0,0,1} : Vector3{0,0,-1};
+
+	return {*std::begin(CrossAreaMap)};
 }
 
-bool Engine::AABB::IsCollisionOBB(Geometric* const Rhs, Vector3& PushDir, float& CrossAreaScale) const&
+std::optional<std::pair<float, Vector3>> Engine::AABB::IsCollisionOBB(Geometric* const Rhs) const&
 {
-	return false;
+	return {};
 }
 
 Engine::OBB::OBB(const Vector3 LocalMin, const Vector3 LocalMax)
-	: Geometric{  FMath::Length((LocalMax - LocalMax)) , (LocalMin + LocalMax) / 2.f  } ,
+	: Geometric{  FMath::Length((LocalMax - LocalMin)) /2.f, (LocalMin + LocalMax) / 2.f  } ,
 	LocalCenter{ (LocalMin + LocalMax) / 2.f } ,
 	LocalPoints
    {
@@ -203,7 +214,7 @@ void Engine::OBB::Update(const Vector3 Scale, const Vector3 Rotation, const Vect
 	WorldCenter = FMath::Mul(LocalCenter, ToWorld);
 	std::transform(std::begin(LocalFaceNormals), std::end(LocalFaceNormals), std::begin(WorldFaceNormals),
 		[ToWorld](const Vector3& LocalFaceNormal) {
-			return FMath::MulNormal(LocalFaceNormal, ToWorld);
+			return  FMath::Normalize(FMath::MulNormal(LocalFaceNormal, ToWorld));
 		});
 	std::transform(std::begin(LocalPoints), std::end(LocalPoints), std::begin(WorldPoints),
 		[ToWorld](const Vector3& LocalPoint) {
@@ -223,27 +234,27 @@ void Engine::OBB::Render(IDirect3DDevice9* const Device , const bool bCurrentUpd
 	Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 8, 0, 12);
 }
 
-bool Engine::OBB::IsCollision(Geometric* const Rhs, Vector3& PushDir, float& CrossAreaScale)&
+std::optional<std::pair<float, Vector3>> Engine::OBB::IsCollision(Geometric* const Rhs)&
 {
 	if (FMath::Length(WorldSphere.Center - Rhs->WorldSphere.Center) > (WorldSphere.Radius + Rhs->WorldSphere.Radius))
-		return false;
+		return {};
 
 	switch (Rhs->GetType())
 	{
 	case Type::AABB:
-		return IsCollisionAABB(Rhs, PushDir, CrossAreaScale);
+		return IsCollisionAABB(Rhs);
 		break;
 	case Type::OBB:
-		return IsCollisionOBB(Rhs, PushDir, CrossAreaScale);
+		return IsCollisionOBB(Rhs);
 		break;
 	default:
 		break;
 	}
 
-	return false;
+	return {};
 }
 
-bool Engine::OBB::IsCollisionOBB(Geometric* const Rhs, Vector3& PushDir, float& CrossAreaScale) const&
+std::optional<std::pair<float,Vector3>> Engine::OBB::IsCollisionOBB(Geometric* const Rhs) const&
 {
 	auto RhsOBB = static_cast<OBB*const>(Rhs);
 
@@ -256,20 +267,32 @@ bool Engine::OBB::IsCollisionOBB(Geometric* const Rhs, Vector3& PushDir, float& 
 	{
 		for (auto& RhsNormal : RhsOBB->WorldFaceNormals)
 		{
-			CheckNormals.push_back(FMath::Cross(LhsNormal, RhsNormal));
+			const Vector3 CrossVec = (FMath::Cross(LhsNormal, RhsNormal));
+			if(FMath::IsValid(CrossVec))
+				CheckNormals.push_back((FMath::Normalize ( CrossVec) ));
 		}
 	}
 
+	std::map<float, Vector3> ProjectionAreaMap;
+
 	for (auto& CheckNormal : CheckNormals)
 	{
-		if (false == FMath::IsProjectionIntersectAreaAABB(CheckNormal, WorldCenter, WorldPoints, RhsOBB->WorldCenter, RhsOBB->WorldPoints))
-			return false;
+		auto ProjectionArea = FMath::IsProjectionIntersectAreaAABB(CheckNormal, WorldCenter, WorldPoints, RhsOBB->WorldCenter, RhsOBB->WorldPoints);
+
+		if (false == ProjectionArea.has_value())
+			return {};
+
+		const auto [LhsMin, LhsMax, RhsMin, RhsMax] = *ProjectionArea;
+		//if ( false == FMath::AlmostEqual(0.0f, LhsMax - RhsMin  ) )
+					ProjectionAreaMap[ std::fabsf(LhsMax-RhsMin)] = CheckNormal;
+		//if ( false == FMath::AlmostEqual(0.0f,RhsMax - LhsMin  ))
+			       ProjectionAreaMap[std::fabsf(RhsMax-LhsMin)] = -CheckNormal;
 	}
 
-	return true;
+	return { *ProjectionAreaMap.begin()};
 }
 
-bool Engine::OBB::IsCollisionAABB(Geometric* const Rhs, Vector3& PushDir, float& CrossAreaScale) const&
+std::optional<std::pair<float, Vector3>> Engine::OBB::IsCollisionAABB(Geometric* const Rhs) const&
 {
-	return false;
+	return {};
 }
