@@ -45,39 +45,51 @@ void Engine::Transform::Rotate(const Vector3& Rotation, const float DeltaTime)&
 	this->Rotation.x += Rotation.x * DeltaTime;
 	this->Rotation.z += Rotation.z * DeltaTime;
 	Matrix RotationMatrix = FMath::Rotation(Rotation);
-	Up = FMath::MulNormal(Vector3{ 0,1,0 }, RotationMatrix);
+	std::memcpy(&Forward, &RotationMatrix._31, sizeof(Vector3));
+	std::memcpy(&Right, &RotationMatrix._11, sizeof(Vector3));
+	std::memcpy(&Up, &RotationMatrix._21, sizeof(Vector3));
+
+	/*Up = FMath::MulNormal(Vector3{ 0,1,0 }, RotationMatrix);
 	Forward = FMath::MulNormal(Vector3{ 0,0,1 }, RotationMatrix);
-	Right = FMath::MulNormal(Vector3{ 1,0,0 }, RotationMatrix);
+	Right = FMath::MulNormal(Vector3{ 1,0,0 }, RotationMatrix);*/
 }
 
 void Engine::Transform::RotateYaw(const float Radian, const float DeltaTime)&
 {
 	Rotation.y += Radian * DeltaTime;
 	Matrix RotationMatrix = FMath::Rotation(Rotation);
-	/*std::memcpy(&Up, &RotationMatrix._21, sizeof(Vector3));
+	
+	std::memcpy(&Forward, &RotationMatrix._31, sizeof(Vector3));
+	std::memcpy(&Right, &RotationMatrix._11, sizeof(Vector3));
 	std::memcpy(&Up, &RotationMatrix._21, sizeof(Vector3));
-	std::memcpy(&Up, &RotationMatrix._21, sizeof(Vector3));*/
-	Up = FMath::MulNormal(Vector3{ 0,1,0 }, RotationMatrix);
+	/*Up = FMath::MulNormal(Vector3{ 0,1,0 }, RotationMatrix);
 	Forward = FMath::MulNormal(Vector3{ 0,0,1 }, RotationMatrix);
-	Right = FMath::MulNormal(Vector3{ 1,0,0 }, RotationMatrix);
+	Right = FMath::MulNormal(Vector3{ 1,0,0 }, RotationMatrix);*/
 }
 
 void Engine::Transform::RotateRoll(const float Radian, const float DeltaTime)&
 {
 	Rotation.z += Radian * DeltaTime;
 	Matrix RotationMatrix = FMath::Rotation(Rotation);
-	Up = FMath::MulNormal(Vector3{ 0,1,0 }, RotationMatrix);
+	std::memcpy(&Forward, &RotationMatrix._31, sizeof(Vector3));
+	std::memcpy(&Right, &RotationMatrix._11, sizeof(Vector3));
+	std::memcpy(&Up, &RotationMatrix._21, sizeof(Vector3));
+	/*Up = FMath::MulNormal(Vector3{ 0,1,0 }, RotationMatrix);
 	Forward = FMath::MulNormal(Vector3{ 0,0,1 }, RotationMatrix);
-	Right = FMath::MulNormal(Vector3{ 1,0,0 }, RotationMatrix);
+	Right = FMath::MulNormal(Vector3{ 1,0,0 }, RotationMatrix);*/
 }
 
 void Engine::Transform::RotatePitch(const float Radian, const float DeltaTime)&
 {
 	Rotation.x += Radian * DeltaTime;
 	Matrix RotationMatrix = FMath::Rotation(Rotation);
-	Up = FMath::MulNormal(Vector3{ 0,1,0 }, RotationMatrix);
+	std::memcpy(&Forward, &RotationMatrix._31, sizeof(Vector3));
+	std::memcpy(&Right, &RotationMatrix._11, sizeof(Vector3));
+	std::memcpy(&Up, &RotationMatrix._21, sizeof(Vector3));
+
+	/*Up = FMath::MulNormal(Vector3{ 0,1,0 }, RotationMatrix);
 	Forward = FMath::MulNormal(Vector3{ 0,0,1 }, RotationMatrix);
-	Right = FMath::MulNormal(Vector3{ 1,0,0 }, RotationMatrix);
+	Right = FMath::MulNormal(Vector3{ 1,0,0 }, RotationMatrix);*/
 }
 
 void Engine::Transform::RotateAxis(Vector3 Axis, const float Radian,
@@ -133,9 +145,12 @@ void Engine::Transform::MoveUp(const float DeltaTime, const float Speed)
 {
      this->Rotation = Rotation;
 	 Matrix RotationMatrix = FMath::Rotation(Rotation);
-	 Up = FMath::MulNormal(Vector3{ 0,1,0 }, RotationMatrix);
+	 std::memcpy(&Forward, &RotationMatrix._31, sizeof(Vector3));
+	 std::memcpy(&Right, &RotationMatrix._11, sizeof(Vector3));
+	 std::memcpy(&Up, &RotationMatrix._21, sizeof(Vector3));
+	 /*Up = FMath::MulNormal(Vector3{ 0,1,0 }, RotationMatrix);
 	 Forward = FMath::MulNormal(Vector3{ 0,0,1 }, RotationMatrix);
-	 Right = FMath::MulNormal(Vector3{ 1,0,0 }, RotationMatrix);
+	 Right = FMath::MulNormal(Vector3{ 1,0,0 }, RotationMatrix);*/
 };
 
 
