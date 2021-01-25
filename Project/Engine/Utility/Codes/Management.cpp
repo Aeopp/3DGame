@@ -15,6 +15,8 @@
 #include "Vertexs.hpp"
 #include "CollisionSystem.h"
 
+bool DebugMode{ false };
+
 void ImGuiInitialize(const HWND Hwnd, IDirect3DDevice9* const Device);
 void ImGuiFrameStart();
 

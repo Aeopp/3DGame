@@ -7,6 +7,7 @@
 #include "GraphicDevice.h"
 #include "PrototypeManager.h"
 
+
 namespace Engine
 {
 	class DLL_DECL Management : public SingletonInterface<Management>

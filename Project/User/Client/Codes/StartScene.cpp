@@ -21,6 +21,9 @@
 #include "imgui.h"
 #include <array>
 #include "FontManager.h"
+#include "UtilityGlobal.h"
+
+
 
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
 {
@@ -237,33 +240,36 @@ void StartScene::Event() &
 {
 	Super::Event();
 
-	ImGui::Begin("TTEST");
+	if (Engine::Global::bDebugMode)
 	{
-		if (ImGui::Button("ChangeScene"))
+		ImGui::Begin("TTEST");
 		{
-			// 씬전환 테스트.
-			RefManager().ChangeScene<StartScene>();
-		}
-
-		if (ImGui::Button("KILL"))
-		{
-			// 오브젝트 삭제 테스트.
-			for (auto& [Type, Objects] : 
-				RefManager().FindLayer<EnemyLayer>()->RefObjects())
+			if (ImGui::Button("ChangeScene"))
 			{
-				for (auto& Obj : Objects)
-				{
-					auto Name = Obj->GetName();
+				// 씬전환 테스트.
+				RefManager().ChangeScene<StartScene>();
+			}
 
-					if (Name.find(L"HeightMap", 0u) != std::wstring::npos)
+			if (ImGui::Button("KILL"))
+			{
+				// 오브젝트 삭제 테스트.
+				for (auto& [Type, Objects] :
+					RefManager().FindLayer<EnemyLayer>()->RefObjects())
+				{
+					for (auto& Obj : Objects)
 					{
-						Obj->Kill();
+						auto Name = Obj->GetName();
+
+						if (Name.find(L"HeightMap", 0u) != std::wstring::npos)
+						{
+							Obj->Kill();
+						}
 					}
 				}
 			}
 		}
+		ImGui::End();
 	}
-	ImGui::End();
 }
 void StartScene::Update(const float DeltaTime)&
 {

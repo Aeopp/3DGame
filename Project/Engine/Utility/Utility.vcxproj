@@ -221,6 +221,7 @@
     <ClCompile Include="Codes\StaticMesh.cpp" />
     <ClCompile Include="Codes\Transform.cpp" />
     <ClCompile Include="Codes\Frustum.cpp" />
+    <ClCompile Include="Codes\UtilityGlobal.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Camera.h" />
@@ -245,6 +246,7 @@
     <ClInclude Include="Codes\StaticMesh.h" />
     <ClInclude Include="Codes\Transform.h" />
     <ClInclude Include="Codes\Frustum.h" />
+    <ClInclude Include="Codes\UtilityGlobal.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\System\Project.vcxproj">
