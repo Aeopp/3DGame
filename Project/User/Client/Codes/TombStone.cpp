@@ -2,7 +2,6 @@
 #include "TombStone.h"
 #include "Transform.h"
 #include <iostream>
-
 #include "StaticMesh.h"
 #include "Collision.h"
 #include "CollisionSystem.h"
@@ -30,7 +29,7 @@ void TombStone::Initialize(const Vector3& SpawnLocation , const Vector3& Rotatio
 	auto _Collision = AddComponent<Engine::Collision>
 		(Device, Engine::CollisionTag::Decorator, _Transform);
 
-	if(TestID%2)
+	if(true)
 	{
 		Vector3  BoundingBoxMin{}, BoundingBoxMax{};
 		D3DXComputeBoundingBox(_StaticMesh->GetVertexLocations().data(),
@@ -42,18 +41,16 @@ void TombStone::Initialize(const Vector3& SpawnLocation , const Vector3& Rotatio
 
 		static_cast<Engine::OBB* const> (_Collision->_Geometric.get())->MakeDebugCollisionBox(Device);
 	}
-
-	if( !( TestID%2))
+	else
 	{
 		Vector3 BoundingSphereCenter;
-		float BoundingSphereRadius; 
+		float BoundingSphereRadius;
 		D3DXComputeBoundingSphere(_StaticMesh->GetVertexLocations().data(), _StaticMesh->GetVertexLocations().size(),
 			sizeof(Vector3), &BoundingSphereCenter, &BoundingSphereRadius);
-		
+
 		_Collision->_Geometric = std::make_unique<Engine::GSphere>(BoundingSphereRadius, BoundingSphereCenter);
 		static_cast<Engine::GSphere* const>(_Collision->_Geometric.get())->MakeDebugCollisionSphere(Device);
 	}
-	
 
 	_Collision->RefCollisionables().insert(
 		{

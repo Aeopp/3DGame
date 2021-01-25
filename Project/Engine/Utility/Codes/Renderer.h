@@ -9,7 +9,6 @@
 #include "DxHelper.h"
 #include "Frustum.h"
 
-
 namespace Engine
 {
 	class DLL_DECL Renderer : public SingletonInterface<Renderer>

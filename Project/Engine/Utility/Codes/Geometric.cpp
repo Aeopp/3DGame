@@ -149,17 +149,23 @@ std::optional<std::pair<float,Vector3>> Engine::OBB::IsCollisionOBB(OBB* const R
 		return true;
 	});
 
-	for (auto& LhsNormal : WorldFaceNormals)
-	{
-		for (auto& RhsNormal : Rhs->WorldFaceNormals)
-		{
-			// 외적해서 새로운 SA후보를 선정할때 두 벡터가 같을경우 외적은 성립하지 않으므로 제외한다.
-			if (FMath::Equal(LhsNormal, RhsNormal))continue;
+	
+	// 선택사항 1.
+	// Edge 와 Edge 가 충돌하는 경우 두 Edge가 이루는 평면의 수직(normal)이 분리축이다.
+	// 때문에 Edge 충돌까지 검출한다면 Edge의 개수 * Edge의 개수 만큼 외적하여서 만든 축으로 검사를 수행해야 한다.
+	// 그러나 Edge VS Edge 충돌은 많이 발생하는 조합이 아니며 충돌 깊이가 아주 조금이라도 깊어지면 면과 면의 충돌에서 검출이 된다.
+	
+	//for (auto& LhsNormal : WorldFaceNormals)
+	//{
+	//	for (auto& RhsNormal : Rhs->WorldFaceNormals)
+	//	{
+	//		// 외적해서 새로운 SA후보를 선정할때 두 벡터가 같을경우 외적은 성립하지 않으므로 제외한다.
+	//		if (FMath::Equal(LhsNormal, RhsNormal))continue;
 
-				const Vector3 CrossVec = (FMath::Cross(LhsNormal, RhsNormal));
-				CheckNormals.push_back((FMath::Normalize ( CrossVec) ));
-		}
-	}
+	//			const Vector3 CrossVec = (FMath::Cross(LhsNormal, RhsNormal));
+	//			CheckNormals.push_back((FMath::Normalize ( CrossVec) ));
+	//	}
+	//}
 
 	std::map<float, Vector3> ProjectionAreaMap;
 
@@ -170,9 +176,9 @@ std::optional<std::pair<float,Vector3>> Engine::OBB::IsCollisionOBB(OBB* const R
 		if (false == ProjectionArea.has_value())
 			return {};
 
-		const auto [LhsMin, LhsMax, RhsMin, RhsMax] = *ProjectionArea;
+		const auto [LhsMin, LhsMax, RhsMin, RhsMax]  = *ProjectionArea;
 
-		ProjectionAreaMap[ std::fabsf(LhsMax-RhsMin)] = CheckNormal;
+		ProjectionAreaMap[std::fabsf(LhsMax-RhsMin)] = CheckNormal;
         ProjectionAreaMap[std::fabsf(RhsMax-LhsMin)] = -CheckNormal;
 	}
 

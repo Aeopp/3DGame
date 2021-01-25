@@ -81,7 +81,6 @@ public:
 	static inline Matrix Rotation(const Vector3& Rotation);
 	static inline Matrix Translation(const Vector3& Location);
 
-
 	static inline bool IsSphereToSphere(const Sphere& Lhs, const Sphere& Rhs,
 		float& CrossingArea,
 		Vector3& IntersectPointLhs,
