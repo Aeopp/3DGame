@@ -54,6 +54,9 @@ void Engine::Transform::RotateYaw(const float Radian, const float DeltaTime)&
 {
 	Rotation.y += Radian * DeltaTime;
 	Matrix RotationMatrix = FMath::Rotation(Rotation);
+	/*std::memcpy(&Up, &RotationMatrix._21, sizeof(Vector3));
+	std::memcpy(&Up, &RotationMatrix._21, sizeof(Vector3));
+	std::memcpy(&Up, &RotationMatrix._21, sizeof(Vector3));*/
 	Up = FMath::MulNormal(Vector3{ 0,1,0 }, RotationMatrix);
 	Forward = FMath::MulNormal(Vector3{ 0,0,1 }, RotationMatrix);
 	Right = FMath::MulNormal(Vector3{ 1,0,0 }, RotationMatrix);

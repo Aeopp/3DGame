@@ -1,6 +1,8 @@
 #include "..\\stdafx.h"
 #include "TombStone.h"
 #include "Transform.h"
+#include "StaticMesh.h"
+
 #include <iostream>
 #include "StaticMesh.h"
 #include "Collision.h"
@@ -84,7 +86,41 @@ void TombStone::Render()&
 	Super::Render();
 	const Matrix& World = GetComponent<Engine::Transform>()->UpdateWorld();
 	Device->SetTransform(D3DTS_WORLD, &World);
-	GetComponent<Engine::StaticMesh>()->Render();
+	auto _StaticMesh = GetComponent<Engine::StaticMesh>();
+	Matrix View, Proj;
+	Device->GetTransform(D3DTS_VIEW, &View);
+	Device->GetTransform(D3DTS_PROJECTION, &Proj);
+	IDirect3DVertexBuffer9* VertexBuffer{ nullptr }; 
+	_StaticMesh->GetMesh()->GetVertexBuffer(&VertexBuffer);
+	uint8* VertexBufferPtr{ nullptr }; 
+	VertexBuffer->Lock(0, 0, reinterpret_cast<void**>(&VertexBufferPtr), NULL);
+
+	for (uint32 Idx = 0u; Idx < _StaticMesh->GetMesh()->GetNumVertices(); ++Idx)
+	{
+		Vector3* const VertexLocation = 
+			reinterpret_cast<Vector3*const>(  (VertexBufferPtr + (Idx * _StaticMesh->GetMesh()->GetNumBytesPerVertex()))); 
+		Vector4 VectexLocationVec4 = {
+		VertexLocation->x , 
+		VertexLocation->y ,
+		VertexLocation->z ,
+		1.f };
+
+		if (Idx == 10 && _TestID==0u )
+		{
+			int Debug = 0;
+		}
+		Matrix WorldViewProj = World * View * Proj;
+		D3DXVec4Transform(&VectexLocationVec4, &VectexLocationVec4, &WorldViewProj);
+
+		if (Idx ==10 && _TestID == 0u)
+		{
+			int Debug = 0;
+		}
+		
+
+
+	}
+	VertexBuffer->Unlock();
 }
 
 void TombStone::Update(const float DeltaTime)&
@@ -221,3 +257,4 @@ void TombStone::HitEnd(Object* const Target)&
 	std::cout << "Ãæµ¹³¡!" << std::endl;
 
 };
+
