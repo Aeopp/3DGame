@@ -22,11 +22,79 @@
 #include <array>
 #include "FontManager.h"
 #include "UtilityGlobal.h"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 
 
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
 {
+	// D3DXComputeBoundingBox()
+	Assimp::Importer AssimpImporter{};
+
+	auto ModelScene = AssimpImporter.ReadFile((App::ResourcePath / L"Mesh" / L"DynamicMesh" / L"Player" / L"Player.x"  ).string(),
+		aiProcess_Triangulate | //사각형 정점 -> 삼각형 정점 컨버트
+		aiProcess_JoinIdenticalVertices | // 중복 정점 하나로 합치기
+		aiProcess_ConvertToLeftHanded | // 왼손 좌표계 변환 (노말과 탄젠트에 영향을 준다)
+		aiProcess_GenNormals | // 모델 정보에 노말이 없을 경우 노말 생성한다. 
+		aiProcess_CalcTangentSpace ); // 모델 정보에 탄젠트와 바이탄젠트가 없을경우 생성
+
+	// 메쉬 개수만큼 순회
+	for (uint32 MeshIdx = 0u; MeshIdx < ModelScene->mNumMeshes; ++MeshIdx)
+	{
+		auto& CurrentMesh = ModelScene->mMeshes[MeshIdx];
+		std::cout << "Mesh Name : " << CurrentMesh->mName.C_Str() << std::endl; 
+
+		// 현재 메쉬 본 개수만큼 순회
+		for (uint32 BoneIdx = 0u; BoneIdx < CurrentMesh->mNumBones; ++BoneIdx)
+		{
+			// 본 정보 디버깅 출력
+			auto& CurrentBone = CurrentMesh->mBones[BoneIdx];
+			std::cout << "Bone Name : " << CurrentBone->mName.C_Str() << std::endl;
+
+			// 본의 행렬 (부모 기준 상대적인 오프셋) 
+			CurrentBone->mOffsetMatrix;
+			std::cout << "Bone Weights : " << CurrentBone->mWeights<< std::endl;
+			// 본을 참조하는 버텍스를 순회
+			for (uint32 VertexID = 0u; VertexID <CurrentBone->mNumWeights; ++VertexID)
+			{
+				// 버텍스 아이디와 가중치 값 디버깅 출력
+				std::cout << "VertexID :  " << CurrentBone->mWeights[VertexID].mVertexId << std::endl;
+				std::cout << "Vertex Weight : " << CurrentBone->mWeights[VertexID].mWeight << std::endl;
+			};
+		}
+	}
+
+	for (uint32 AnimIdx = 0u  ; AnimIdx < ModelScene->mNumAnimations; ++AnimIdx)
+	{
+		auto& CurrentAnim = ModelScene->mAnimations[AnimIdx]; 
+		std::cout << CurrentAnim->mName.C_Str()<< std::endl;
+		std::cout << CurrentAnim->mTicksPerSecond << std::endl;
+		std::cout << CurrentAnim->mDuration << std::endl;
+
+		for (uint32 MeshChannelIdx = 0u; MeshChannelIdx < CurrentAnim->mNumMeshChannels; MeshChannelIdx++)
+		{
+			std::cout << "MeshChannelName : " << CurrentAnim->mMeshChannels[MeshChannelIdx]->mName.C_Str() << std::endl;
+			std::cout << CurrentAnim->mMeshChannels[MeshChannelIdx]->mKeys;
+
+
+		}
+	}
+
+	ModelScene->mNumMaterials; // 메쉬에 매칭되는 재질 정보 (텍스쳐 경로 , 디퓨즈 스페큘러 ,이미시브)
+	ModelScene->mMeshes[0]; // 메쉬 자료형
+
+	// mesh 안에 있는 정점 정보들은 인덱스로 접근 가능
+	// 대부분이 assimp 내장 벡터 형식으로 되어있음
+	// 사이즈가 같다면 reinterpret_cast 로 자신이 사용하는 자료형으로 변환해서 사용
+	// 에) XMVECTOR3 myVector = *reinterpret_cast<XMVECTOR3*>(&pScene->mMeshes[0]->mVertices);
+	ModelScene->mMeshes[0]->mVertices;
+	ModelScene->mMeshes[0]->mNormals;
+	ModelScene->mMeshes[0]->mTangents;
+	// 추가적으로 assimp는 계층구조, 애니메이션 도 있음.
+
+
     Super::Initialize(Device);
 	
 	{
@@ -43,11 +111,9 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 		D3DLOCKED_RECT LockRect;
 		IDirect3DTexture9* ResourcePtr{ nullptr };
 
-		RefResourceSys().Insert<IDirect3DVertexDeclaration9>(
-			L"QQ", Vertex::Texture::GetVertexDecl(Device));
+		RefResourceSys().Insert<IDirect3DVertexDeclaration9>(L"QQ", Vertex::Texture::GetVertexDecl(Device));
 
-		auto Tex = RefResourceSys().Emplace<IDirect3DTexture9>(
-			L"Texture", D3DXCreateTextureFromFile, Device,
+		auto Tex = RefResourceSys().Emplace<IDirect3DTexture9>(L"Texture", D3DXCreateTextureFromFile, Device,
 			(App::ResourcePath / L"Texture" / L"Player0.jpg").c_str(), &ResourcePtr);
 	}
 
