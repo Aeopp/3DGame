@@ -15,11 +15,12 @@ void Engine::Model::LoadModel(const std::filesystem::path& Path, const std::file
 
 	std::vector<Vertex::Texture> Vertices;
 	uint32 CountAllVertices = 0u;
+	
 	for (uint32 MeshIdx = 0u; MeshIdx < ModelScene->mNumMeshes; ++MeshIdx)
 	{
 		auto& CurretMesh = ModelScene->mMeshes[MeshIdx];
-		const uint32 NumVertices = ModelScene->mMeshes[MeshIdx]->mNumVertices;
-
+		const uint32 NumVertices = CurretMesh->mNumVertices;
+		CountAllFacices +=CurretMesh->mNumFaces;
 		for(uint32 VertexIdx = 0u; VertexIdx < NumVertices; ++VertexIdx)
 		{
 			Vertex::Texture CurrentVertex;
@@ -41,7 +42,7 @@ void Engine::Model::LoadModel(const std::filesystem::path& Path, const std::file
 		}
 		CountAllVertices += NumVertices;
 	}
-	IDirect3DVertexBuffer9* VertexBuffer{}; 
+	
 	Device->CreateVertexBuffer(sizeof(Vertex::Texture) * CountAllVertices,
 		D3DUSAGE_DYNAMIC, Vertex::Texture::FVF, D3DPOOL_DEFAULT, &VertexBuffer,
 		nullptr);
@@ -60,7 +61,10 @@ void Engine::Model::LoadModel(const std::filesystem::path& Path, const std::file
 
 void Engine::Model::Render(IDirect3DDevice9* Device)&
 {
-
-
+	Device->SetFVF(Vertex::Texture::FVF);
+	Device->SetStreamSource(0, VertexBuffer, 0, sizeof(Vertex::Texture));
+	Device->DrawPrimitive(D3DPT_TRIANGLELIST, 0u, CountAllFacices);
+	Device->SetVertexShader(nullptr);
+	Device->SetPixelShader(nullptr);
 }
 

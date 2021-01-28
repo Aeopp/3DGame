@@ -1,5 +1,6 @@
 #pragma once
 #include "RenderObject.h"
+#include "Model.h"
 
 class TombStone final: public Engine::RenderObject
 {
@@ -19,6 +20,7 @@ public:
 		const float CrossAreaScale) & override;
 	virtual void HitEnd(Object* const Target) & override;
 private:
+	Engine::Model _Model;
 	uint32 _TestID = 0u;
 	IDirect3DDevice9* Device{ nullptr };
 };

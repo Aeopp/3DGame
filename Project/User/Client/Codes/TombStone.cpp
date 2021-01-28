@@ -64,6 +64,11 @@ void TombStone::Initialize(const Vector3& SpawnLocation , const Vector3& Rotatio
 		{
 	          Engine::CollisionTag::Decorator
 		});
+
+	_Model.LoadModel(App::ResourcePath/L"Mesh"/L"DynamicMesh"/L"PlayerXfile"
+		,std::filesystem::path(L"Player.x") ,
+		Device);
+
 }
 
 void TombStone::PrototypeInitialize(IDirect3DDevice9* const Device,
@@ -91,8 +96,11 @@ void TombStone::Render()&
 	Matrix View, Proj;
 	Device->GetTransform(D3DTS_VIEW, &View);
 	Device->GetTransform(D3DTS_PROJECTION, &Proj);
-	IDirect3DVertexBuffer9* VertexBuffer{ nullptr }; 
-	_StaticMesh->GetMesh()->GetVertexBuffer(&VertexBuffer);
+	_StaticMesh->Render();
+	_Model.Render(Device);
+	//_StaticMesh->GetMesh()->GetVertexBuffer(&VertexBuffer);
+	/*IDirect3DVertexBuffer9* VertexBuffer{ nullptr }; 
+
 	uint8* VertexBufferPtr{ nullptr }; 
 	VertexBuffer->Lock(0, 0, reinterpret_cast<void**>(&VertexBufferPtr), NULL);
 
@@ -121,7 +129,7 @@ void TombStone::Render()&
 
 
 	}
-	VertexBuffer->Unlock();
+	VertexBuffer->Unlock();*/
 }
 
 void TombStone::Update(const float DeltaTime)&
