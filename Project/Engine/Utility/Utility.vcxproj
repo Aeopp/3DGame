@@ -208,6 +208,7 @@
     <ClCompile Include="Codes\ImGui\imgui_tables.cpp" />
     <ClCompile Include="Codes\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Codes\Mesh.cpp" />
+    <ClCompile Include="Codes\Model.cpp" />
     <ClCompile Include="Codes\RenderObject.cpp" />
     <ClCompile Include="Codes\Layer.cpp" />
     <ClCompile Include="Codes\Management.cpp" />
@@ -233,6 +234,7 @@
     <ClInclude Include="Codes\ExportUtility.hpp" />
     <ClInclude Include="Codes\HeightMap.h" />
     <ClInclude Include="Codes\Mesh.h" />
+    <ClInclude Include="Codes\Model.h" />
     <ClInclude Include="Codes\RenderObject.h" />
     <ClInclude Include="Codes\Layer.h" />
     <ClInclude Include="Codes\Management.h" />

@@ -145,6 +145,7 @@
       <Filter>Component\Collision</Filter>
     </ClInclude>
     <ClInclude Include="Codes\UtilityGlobal.h" />
+    <ClInclude Include="Codes\Model.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">
@@ -232,5 +233,6 @@
       <Filter>Component\Collision</Filter>
     </ClCompile>
     <ClCompile Include="Codes\UtilityGlobal.cpp" />
+    <ClCompile Include="Codes\Model.cpp" />
   </ItemGroup>
 </Project>

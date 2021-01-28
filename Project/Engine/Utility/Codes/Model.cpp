@@ -1,6 +1,8 @@
 #include "Model.h"
+#include "ResourceSystem.h"
 
-void Engine::Model::LoadModel(const std::filesystem::path& Path, const std::filesystem::path& Name)&
+void Engine::Model::LoadModel(const std::filesystem::path& Path, const std::filesystem::path& Name ,
+	IDirect3DDevice9* const Device)&
 {
 	Assimp::Importer AssimpImporter{};
 
@@ -11,30 +13,54 @@ void Engine::Model::LoadModel(const std::filesystem::path& Path, const std::file
 		aiProcess_GenNormals | // 모델 정보에 노말이 없을 경우 노말 생성한다. 
 		aiProcess_CalcTangentSpace); // 모델 정보에 탄젠트와 바이탄젠트가 없을경우 생성
 
+	std::vector<Vertex::Texture> Vertices;
+	uint32 CountAllVertices = 0u;
 	for (uint32 MeshIdx = 0u; MeshIdx < ModelScene->mNumMeshes; ++MeshIdx)
 	{
 		auto& CurretMesh = ModelScene->mMeshes[MeshIdx];
 		const uint32 NumVertices = ModelScene->mMeshes[MeshIdx]->mNumVertices;
 
-		for (uint32 VertexIdx = 0u; VertexIdx < NumVertices; ++VertexIdx)
+		for(uint32 VertexIdx = 0u; VertexIdx < NumVertices; ++VertexIdx)
 		{
-			const uint32 Face = CurretMesh[VertexIdx].mNumFaces;
-				const uint32 VerteicesNumber = CurretMesh[VertexIdx].mNumVertices;
+			Vertex::Texture CurrentVertex;
+			Vector3 Location, Normal; Vector2 UV;
 
-				for (uint32 VertexIdx = 0u ; VertexIdx < VerteicesNumber; VertexIdx)
+			std::memcpy(&Location,&CurretMesh->mVertices[VertexIdx],
+				sizeof(Vector3));
+			std::memcpy(&Normal, &CurretMesh->mNormals[VertexIdx],
+				sizeof(Vector3));
+			std::memcpy(&UV, &CurretMesh->mTextureCoords[VertexIdx],
+				sizeof(Vector2));
+
+			Vertices.push_back(Vertex::Texture
 				{
-					auto& Vertices = CurretMesh[VertexIdx].mVertices[VertexIdx];
-
-					Vector3  CurrentVertexLocation 
-					{
-						Vertices.x, 
-						Vertices.y ,
-						Vertices.z
-					};
-				}
-
-			Face;
+					std::move(Location), 
+					std::move(Normal),
+					std::move(UV) 
+				} );
 		}
+		CountAllVertices += NumVertices;
 	}
-	
+	IDirect3DVertexBuffer9* VertexBuffer{}; 
+	Device->CreateVertexBuffer(sizeof(Vertex::Texture) * CountAllVertices,
+		D3DUSAGE_DYNAMIC, Vertex::Texture::FVF, D3DPOOL_DEFAULT, &VertexBuffer,
+		nullptr);
+	auto& ResourceSys = ResourceSystem::Instance;
+	;
+	ResourceSys->Insert<IDirect3DVertexBuffer9>(L"VertexBuffer" + Name.generic_wstring(), VertexBuffer);
+
+	decltype(Vertices)::value_type*  VertexBufferPtr{};
+	VertexBuffer->Lock(0, 0, reinterpret_cast<void**>(&VertexBuffer), NULL);
+
+	std::memcpy(VertexBufferPtr, Vertices.data(),
+	sizeof( decltype(Vertices)::value_type )* Vertices.size());
+
+	VertexBuffer->Unlock();
 }
+
+void Engine::Model::Render(IDirect3DDevice9* Device)&
+{
+
+
+}
+

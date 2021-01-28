@@ -23,10 +23,8 @@ namespace Engine
 		
 	public:
 		void LoadModel(const std::filesystem::path& Path,
-						const std::filesystem::path& Name ,
-			IDirect3DDevice9*const Device)&;	
+						const std::filesystem::path& Name)&;	
 		std::vector<IDirect3DVertexBuffer9*> Vertecies{};
-		void Render(IDirect3DDevice9* Device);
 		/*std::vector<Vertex::Texture > Vertices;
 		std::vector<Index::_16> Indices;
 		std::vector<IDirect3DTexture9*> Textures;
