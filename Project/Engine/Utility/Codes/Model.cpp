@@ -1,10 +1,13 @@
 #include "Model.h"
 #include "ResourceSystem.h"
+#include <iostream>
 
 
 // assimp Node 클래스의 정보를 참조해서 로딩이 완료되었다고
 // 가정하는 본 정보 테이블에서 타겟 본 정보를 초기화해서 넘겨준다.
-bool Engine::Model::ReadSkeleton(Bone& BoneOutput,aiNode* Node, std::unordered_map<std::string, 
+bool Engine::Model::ReadSkeleton(Bone& BoneOutput,aiNode* Node, 
+	//본인포테이블은 메쉬마다 가지고 있음 .
+	std::unordered_map<std::string,  /*어떠한 메쉬가 참조하는 assimp 본 이름*/
 	std::pair<int32/*본 아이디*/, /*본 오프셋 매트릭스(??)*/Matrix>>& BoneInfoTable)
 {
 	// 본 테이블에서 정보를 찾는데 성공 !!
@@ -42,7 +45,9 @@ bool Engine::Model::ReadSkeleton(Bone& BoneOutput,aiNode* Node, std::unordered_m
 	return false;
 }
 
-void Engine::Model::LOAD_MODEL(const aiScene* Scene, aiMesh* Mesh, std::vector<Vertex::Animation>& VerticesOutput, std::vector<uint32>& IndicesOutput, Bone& SkeletonOutput, uint32& BoneCount)
+void Engine::Model::LOAD_MODEL(const aiScene* Scene, aiMesh* Mesh, std::vector<Vertex::Animation>& VerticesOutput,
+	std::vector<uint32>& IndicesOutput, 
+	Bone& SkeletonOutput, uint32& BoneCount)
 {
 	VerticesOutput = {};
 	IndicesOutput = {};
@@ -74,24 +79,187 @@ void Engine::Model::LOAD_MODEL(const aiScene* Scene, aiMesh* Mesh, std::vector<V
 	}
 
 	// 본 데이터 로딩
-	//                    본 이름          본 아이디   
+	//               어떠한 메쉬가 참조하는 본 (assimp) 이름          본 아이디   
+	//본인포테이블은 메쉬마다 가지고 있음 . 
 	std::unordered_map<std::string, std::pair<int32,Matrix>> BoneInfo{};
-	// 배열의 인덱스는 버텍스의 아이디 원소는 참조하는 본의(최대4개) 인덱스
+	// 배열의 인덱스는 버텍스의 아이디 원소는 참조하는 본의(최대4개) 개수
 	std::vector<uint32>BoneCounts{};
-	BoneCounts.resize(VerticesOutput.size(), 0);
+	BoneCounts.resize(VerticesOutput.size(), 0u);
 	BoneCount = Mesh->mNumBones;
 	
 	// 본을 전부 순회.
-	for (uint32 i = 0; i < BoneCount; ++i)
+	for (uint32 i = 0u; i < BoneCount; ++i)
 	{
 		// 오프셋 매트릭스를 저장. 
 		aiBone* bone = Mesh->mBones[i];
 		Matrix _Matrix;
-		std::memcpy(&_Matrix, &bone->mOffsetMatrix, sizeof(Matrix));
-		
+		                    
+		std::memcpy(&_Matrix, &bone->mOffsetMatrix
+			/*바인드포즈의 메시공간에서 골격 공간으로 변환*/
+			, sizeof(Matrix));
+		BoneInfo[bone->mName.C_Str()] = { i, _Matrix};
+
+		// 해당 본의 가중치 개수만큼 순회
+		for (int32 j = 0; j < bone->mNumWeights; ++j)
+		{
+			// 본이 가지고 있는 버텍스 아이디와 매핑되어있는
+			// 가중치 정보를 참조해서 
+			// 버텍스들의 가중치와 본 참조 인덱스 정보를 채워 넣는다.  
+			uint32 Id = bone->mWeights[j].mVertexId;
+			float weight = bone->mWeights[j].mWeight;
+			BoneCounts[Id]++;
+
+			switch (BoneCounts[Id])
+			{
+			case 1:
+				VerticesOutput[Id].BoneIds.x = i;
+				VerticesOutput[Id].BoneWeights.x = weight;
+				break;	
+			case 2:
+				VerticesOutput[Id].BoneIds.y = i;
+				VerticesOutput[Id].BoneWeights.y = weight;
+				break;
+			case 3:
+				VerticesOutput[Id].BoneIds.z = i;
+				VerticesOutput[Id].BoneWeights.z = weight;
+				break;
+			case 4 :
+				VerticesOutput[Id].BoneIds.w = i;
+				VerticesOutput[Id].BoneWeights.w = weight;
+				break;
+			default :
+				break;
+			}
+		}
+	};
+
+	// 가중치를 정규화 하며 가중치의 합이 반드시 1이 되도록 정보를 검증하고 갱신한다.
+	for (int32 i = 0; i < VerticesOutput.size(); i++)
+	{
+		Vector4& BoneWeights = VerticesOutput[i].BoneWeights;
+		float TotalWeight = 
+			BoneWeights.x + BoneWeights.y + BoneWeights.z + BoneWeights.z;
+		if (TotalWeight > 0.0f)
+		{
+			VerticesOutput[i].BoneWeights = Vector4
+			{
+				BoneWeights.x / TotalWeight , 
+				BoneWeights.y / TotalWeight ,
+				BoneWeights.z / TotalWeight ,
+				BoneWeights.w / TotalWeight ,
+			};
+		}
 	}
 
+	// 왼손 좌표계 옵션으로 로딩 하였다면
+	// 페이스가 참조하는 0,1,2 값이 삼각형의 그리는 순서와
+	// 일치하므로 해당 정보로 인덱스 정보를 채워 넣는다.
+	for (int32 i = 0; i < Mesh->mNumFaces; ++i)
+	{
+		aiFace& _Face = Mesh->mFaces[i];
+		for (uint32 j = 0; j < _Face.mNumIndices; ++j)
+		{
+			IndicesOutput.push_back(_Face.mIndices[j]);
+		}
+	}
 	
+	// 본 테이블 정보가 채워진 이후에 스켈레톤 정보를 로딩한다. 씬의 루트노드로부터.
+	ReadSkeleton(SkeletonOutput, Scene->mRootNode, BoneInfo);
+}
+
+void Engine::Model::LoadAnimation(const aiScene* Scene, Animation& _Animation)
+{
+	aiAnimation* _Anim = Scene->mAnimations[0];
+
+	if (_Anim->mTicksPerSecond != 0.0f)
+	{
+		_Animation.TicksPerSecond = _Anim->mTicksPerSecond;
+	}
+	else
+	{
+		_Animation.TicksPerSecond = 1;
+	}
+
+	_Animation.Duration = _Anim->mDuration * _Anim->mTicksPerSecond;
+	_Animation.BoneTransforms = {};
+	// 각 뼈에 대한 위치 회전 스케일링 로딩
+	// 채널 = 본
+	for (int32 i = 0; i < _Anim->mNumChannels; ++i)
+	{
+		aiNodeAnim* Channel = _Anim->mChannels[i];
+		BoneTransformTrack Track;
+		for (int j = 0; j < Channel->mNumPositionKeys; ++j)
+		{
+			Track.PositionTimeStamps.push_back(Channel->mPositionKeys[j].mTime);
+			Track.Positions.push_back(AssimpTo(Channel->mPositionKeys[j].mValue));
+		}
+		for (int j = 0; j < Channel->mNumRotationKeys; ++j)
+		{
+			Track.RotationTimeStamps.push_back(Channel->mRotationKeys[j].mTime);
+			Track.Rotations.push_back(AssimpTo(Channel->mRotationKeys[j].mValue));
+		}
+		for (int j = 0; j < Channel->mNumScalingKeys; ++j)
+		{
+			Track.ScalTimeStamps.push_back(Channel->mScalingKeys[j].mTime);
+			Track.Scales.push_back(AssimpTo(Channel->mScalingKeys[j].mValue));
+		}
+		_Animation.BoneTransforms[Channel->mNodeName.C_Str()] = Track;
+	}
+}
+
+std::pair<uint32, float> Engine::Model::GetTimeFraction
+          (std::vector<float>& Times, float& DeltaTime)
+{
+	uint32 Segment = 0u;
+	while (DeltaTime > Times[Segment])
+		++Segment; 
+
+	float Start = Times[Segment - 1];
+	float End = Times[Segment];
+	float Frac = (DeltaTime - Start) / (End - Start);
+	return { Segment,Frac };
+}
+
+void Engine::Model::GetPose(
+	Animation& _Animation, 
+	Bone& Skeleton, 
+	float DeltaTime, 
+	std::vector<Matrix>& Output, 
+	Matrix& ParentTransform, 
+	Matrix& GlobalInverseTransform)
+{
+	BoneTransformTrack& Btt = _Animation.BoneTransforms[Skeleton.Name];
+	DeltaTime = std::fmod(DeltaTime,_Animation.Duration);
+	std::pair<uint32, float> Fp;
+	// 선형 보간된 위치를 계산.
+	Fp = GetTimeFraction(Btt.PositionTimeStamps, DeltaTime);
+	Vector3 Position1 = Btt.Positions[Fp.first - 1];
+	Vector3 Position2 = Btt.Positions[Fp.first];
+	Vector3 Position = FMath::Lerp(Position1, Position2, Fp.second);
+
+	Fp = GetTimeFraction(Btt.RotationTimeStamps, DeltaTime);
+	Quaternion _Rotation1 = Btt.Rotations[Fp.first - 1];
+	Quaternion _Rotation2 = Btt.Rotations[Fp.first];
+	Quaternion _Rotation = FMath::SLerp(_Rotation1, _Rotation2, Fp.second);
+
+	Fp = GetTimeFraction(Btt.ScalTimeStamps, DeltaTime);
+	Vector3 Scale1 = Btt.Scales[Fp.first - 1];
+	Vector3 Scale2 = Btt.Scales[Fp.first];
+	Vector3 Scale = FMath::Lerp(Scale1, Scale2, Fp.second);
+
+	Matrix PositionMat = FMath::Translation(Position);
+	Matrix RotationMat = FMath::Rotation(_Rotation);
+	Matrix ScaleMat = FMath::Scale(Scale);
+	// 보간된 애니메이션 행렬
+	Matrix LocalTransform = ScaleMat * RotationMat * PositionMat;
+	Matrix GlobalTransform = ParentTransform * LocalTransform;
+
+	Output[Skeleton.ID] = GlobalInverseTransform * GlobalTransform * Skeleton.Offset;
+	for (Bone& Child : Skeleton.Children)
+	{
+		GetPose(_Animation, Child, DeltaTime, Output, GlobalTransform, GlobalInverseTransform);
+	}
+	std::cout << DeltaTime << " => " << Position.x << ":" << Position.y << ":" << Position.z << ":" << std::endl;
 }
 
 
@@ -139,6 +307,31 @@ void Engine::Model::LoadModel(const std::filesystem::path& Path, const std::file
 		aiProcess_JoinIdenticalVertices		   
 		); 
 
+	aiMesh* Mesh = ModelScene->mMeshes[0u];
+
+	std::vector<Vertex::Animation> Vertices = {};
+	std::vector<uint32> Indices = {};
+	uint32 BoneCount = 0u;
+	Animation _Animation;
+	uint32 vao = 0u;
+	Bone Skeleton;
+	uint32 DiffuseTexture;
+
+	Matrix GlobalInverseTransform = AssimpTo(ModelScene->mRootNode->mTransformation);
+	GlobalInverseTransform  = FMath::Inverse(GlobalInverseTransform);
+
+	LOAD_MODEL(ModelScene, Mesh, Vertices, Indices, Skeleton, BoneCount);
+	LoadAnimation(ModelScene, _Animation);
+
+	Device->CreateVertexBuffer(
+		sizeof(Vertex::Animation) * Vertices.size(),
+		D3DUSAGE_DYNAMIC, NULL, D3DPOOL_DEFAULT, &VertexBuffer, nullptr);
+	Vertex::Animation* VertexBufferPtr{}; 
+	VertexBuffer->Lock(0, 0, reinterpret_cast<void**>(&VertexBuffer), NULL);
+	std::memcpy(VertexBufferPtr, Vertices.data(), sizeof(Vertex::Animation) * Vertices.size());
+	VertexBuffer->Unlock();
+
+	
 	/*std::vector<Vertex::Texture> Vertices;
 	uint32 CountAllVertices = 0u;
 	
@@ -193,4 +386,5 @@ void Engine::Model::Render(IDirect3DDevice9* Device)&
 	//Device->SetVertexShader(nullptr);
 	//Device->SetPixelShader(nullptr);
 }
+
 

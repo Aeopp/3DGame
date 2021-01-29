@@ -53,6 +53,11 @@ public:
 		const Vector3& Axis, const float Radian);
 	template<typename _Ty>
 	static inline _Ty Lerp(const _Ty& Lhs, const _Ty& Rhs, const float t);
+	static inline Quaternion SLerp(
+							const Quaternion& Lhs,
+							const  Quaternion& Rhs,
+							const float t);
+
 	static inline float Length(const Vector3& Lhs);
 	static inline float LengthSq(const Vector3& Lhs);;
 	static inline float LengthSq(const Vector4& Lhs);;
@@ -80,7 +85,7 @@ public:
 						// Yaw Pitch Roll
 	static inline Matrix Rotation(const Vector3& Rotation);
 	static inline Matrix Translation(const Vector3& Location);
-
+	static inline Matrix Rotation(const Quaternion& Rotation);
 	static inline bool IsSphereToSphere(const Sphere& Lhs, const Sphere& Rhs,
 		float& CrossingArea,
 		Vector3& IntersectPointLhs,
@@ -186,6 +191,12 @@ auto& FMath::GetGenerator()
 };
 
 
+
+inline Matrix FMath::Rotation(const Quaternion& Rotation)
+{
+	Matrix _Rotation; 
+	return *D3DXMatrixRotationQuaternion(&_Rotation, &Rotation);
+}
 inline Vector4 FMath::ConvertVector4(const Vector3& Lhs, const float w)
 {
 	return Vector4{ Lhs.x, Lhs.y, Lhs.z, w };
@@ -390,6 +401,16 @@ inline _Ty FMath::Lerp(const _Ty& Lhs, const _Ty& Rhs, const float t)
 {
 	return Lhs + t * (Rhs - Lhs);
 }
+
+inline Quaternion FMath::SLerp(
+	const Quaternion& Lhs,
+	const  Quaternion& Rhs,
+	const float t)
+{
+	Quaternion _Quaternion;
+	return *D3DXQuaternionSlerp(&_Quaternion, &Lhs, &Rhs, t);
+}
+
 
 
 template<typename T>

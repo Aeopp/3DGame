@@ -7,9 +7,8 @@
 #include <vector> 
 #include <unordered_map>
 #include <filesystem>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+#include "AssimpHelper.h"
+
 //struct Texture
 //{
 //	uint32 ID;
@@ -39,11 +38,14 @@ namespace Engine
 		std::vector<Vector3> Positions{};
 		std::vector<Quaternion> Rotations{};
 		std::vector<Vector3> Scales{};
+
 	};
 	struct DLL_DECL Animation
 	{
 		float Duration = 0.0f;
 		float TicksPerSecond = 1.0f;
+		     // 해당 애니메이션 본 이름  , 
+		     //해당 애니메이션 본의 해당 키 프레임 에서의 회전,이동,스케일링 값
 		std::unordered_map<std::string, BoneTransformTrack> BoneTransforms{};
 	};
 	class DLL_DECL Model
@@ -57,7 +59,20 @@ namespace Engine
 			std::vector<Vertex::Animation>& VerticesOutput,
 			std::vector<uint32>& IndicesOutput,
 			Bone& SkeletonOutput, uint32& BoneCount); 
+		static void LoadAnimation(const aiScene* Scene,
+			Animation& _Animation);
+		static std::pair<uint32, float> GetTimeFraction(std::vector<float>&
+			Times, float& DeltaTime); 
+		void GetPose(Animation& _Animation,
+			Bone& Skeleton,
+			float DeltaTime,
+			std::vector<Matrix>& Output,
+			Matrix& ParentTransform,
+			Matrix& GlobalInverseTransform);
 
+		IDirect3DVertexBuffer9* VertexBuffer{};
+		IDirect3DTexture9* _Texture{};
+		
 		void LoadModel(const std::filesystem::path& Path,
 						const std::filesystem::path& Name ,
 			IDirect3DDevice9*const Device)&;	
