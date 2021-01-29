@@ -45,40 +45,40 @@ void PrintLog(aiNode* _Node)
 
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
 {
-	/*MyModel(
+	MyModel(
 		L"..\\..\\..\\Resource\\Mesh\\DynamicMesh\\Chaos\\",
-		L"Chaos.fbx");*/
+		L"Chaos.fbx" ,Device);
 
-	Assimp::Importer AssimpImporter{};
+	//Assimp::Importer AssimpImporter{};
 
-	// 모델 생성 플래그 같은 플래그를 두번, 혹은 호환이 안되는
-	// 플래그가 겹칠 경우 런타임 에러이며 에러 핸들링이
-	// 어려우므로 매우 유의 할 것.
-	auto ModelScene = AssimpImporter.ReadFile( 
-		"..\\..\\..\\Resource\\Mesh\\DynamicMesh\\PlayerXfile\\Player.X",
-		aiProcess_Triangulate |
-		aiProcess_ConvertToLeftHanded |
-		aiProcess_CalcTangentSpace |
-		aiProcess_ValidateDataStructure |
-		aiProcess_ImproveCacheLocality |
-		aiProcess_RemoveRedundantMaterials |
-		aiProcess_GenUVCoords |
-		aiProcess_TransformUVCoords |
-		aiProcess_FindInstances |
-		aiProcess_LimitBoneWeights |
-		aiProcess_OptimizeMeshes |
-		aiProcess_GenSmoothNormals |
-		aiProcess_SplitLargeMeshes |
-		aiProcess_SortByPType
-	);
+	//// 모델 생성 플래그 같은 플래그를 두번, 혹은 호환이 안되는
+	//// 플래그가 겹칠 경우 런타임 에러이며 에러 핸들링이
+	//// 어려우므로 매우 유의 할 것.
+	//auto ModelScene = AssimpImporter.ReadFile( 
+	//	"..\\..\\..\\Resource\\Mesh\\DynamicMesh\\PlayerXfile\\Player.X",
+	//	aiProcess_Triangulate |
+	//	aiProcess_ConvertToLeftHanded |
+	//	aiProcess_CalcTangentSpace |
+	//	aiProcess_ValidateDataStructure |
+	//	aiProcess_ImproveCacheLocality |
+	//	aiProcess_RemoveRedundantMaterials |
+	//	aiProcess_GenUVCoords |
+	//	aiProcess_TransformUVCoords |
+	//	aiProcess_FindInstances |
+	//	aiProcess_LimitBoneWeights |
+	//	aiProcess_OptimizeMeshes |
+	//	aiProcess_GenSmoothNormals |
+	//	aiProcess_SplitLargeMeshes |
+	//	aiProcess_SortByPType
+	//);
 
-	FMath::DebugPrintMatrix(FMath::WorldMatrix({1,1,1},
-		{
-			FMath::ToRadian(90.327f),
-			FMath::ToRadian(18.315f),
-			FMath::ToRadian(179.134f),
-		}, {-294.7f,-18.645f,99.751}));
-	PrintLog(ModelScene->mRootNode);
+	//FMath::DebugPrintMatrix(FMath::WorldMatrix({1,1,1},
+	//	{
+	//		FMath::ToRadian(90.327f),
+	//		FMath::ToRadian(18.315f),
+	//		FMath::ToRadian(179.134f),
+	//	}, {-294.7f,-18.645f,99.751}));
+	//PrintLog(ModelScene->mRootNode);
 
     Super::Initialize(Device);
 	
@@ -349,7 +349,9 @@ void StartScene::Update(const float DeltaTime)&
 	}
 }
  // "..\\..\\..\\Resource\\Mesh\\DynamicMesh\\Chaos\\Chaos.fbx" 
-MyModel::MyModel(const std::filesystem::path& Path, const std::filesystem::path& Name)
+MyModel::MyModel(
+	const std::filesystem::path& Path, const std::filesystem::path& Name, 
+	IDirect3DDevice9* const Device) :Device{ Device }
 {
 	Assimp::Importer AssimpImporter{};
 	// 모델 생성 플래그 같은 플래그를 두번, 혹은 호환이 안되는
@@ -372,7 +374,7 @@ MyModel::MyModel(const std::filesystem::path& Path, const std::filesystem::path&
 		aiProcess_SplitLargeMeshes |
 		aiProcess_SortByPType
 	);
-	CreateTextures();
+	CreateMaterials(Path);
 	/*for (uint32 MeshIdx = 0u; MeshIdx < _Scene->mNumMeshes; ++MeshIdx)
 	{
 		aiMesh* _Mesh=_Scene->mMeshes[MeshIdx];
@@ -395,13 +397,24 @@ void MyModel::CreateHierarchy(aiNode* const _Bone)&
 	}	
 }
 
-void MyModel::CreateTextures()&
+void MyModel::CreateMaterials(std::filesystem::path Path)&
 {
-	auto pp = _Scene->mTextures[0]->mFilename;
-
-	for (uint32 i = 0u; i < _Scene->mNumTextures; ++i)
+	auto& ResourceSys = RefResourceSys();
+	//_Scene->mMeshes[1]->머테리얼 인덱스.
+	for (uint32 i = 0u; i < _Scene->mNumMaterials; ++i)
 	{
-	
-	int d = 0;
+		aiMaterial* _Material = _Scene->mMaterials[i];
+		if (_Material->GetTextureCount(aiTextureType_DIFFUSE) > 0u)
+		{
+			aiString TextureName;
+			if (_Material->GetTexture(aiTextureType_DIFFUSE, 0u, &TextureName
+				, nullptr, nullptr, nullptr, nullptr, nullptr) == AI_SUCCESS)
+			{
+				const std::wstring ResourcePathName = Path / TextureName.C_Str();
+				IDirect3DTexture9* _Texture{ nullptr };
+				ResourceSys.Emplace<IDirect3DTexture9>(ResourcePathName.c_str(),
+					D3DXCreateTextureFromFile, Device, ResourcePathName.c_str(), &_Texture);
+			}
+		}
 	}
 }

@@ -64,11 +64,6 @@ void TombStone::Initialize(const Vector3& SpawnLocation , const Vector3& Rotatio
 		{
 	          Engine::CollisionTag::Decorator
 		});
-
-	_Model.LoadModel(App::ResourcePath/L"Mesh"/L"DynamicMesh"/L"PlayerXfile"
-		,std::filesystem::path(L"Player.x") ,
-		Device);
-
 }
 
 void TombStone::PrototypeInitialize(IDirect3DDevice9* const Device,

@@ -25,15 +25,17 @@ class MyModel
 {
 public:
 	MyModel(const std::filesystem::path& Path,
-			const std::filesystem::path& Name);
+			const std::filesystem::path& Name,
+			IDirect3DDevice9*const Device);
 private:
 	void CreateHierarchy(aiNode* const _Bone)&;
-	void CreateTextures()&;
+	void CreateMaterials( std::filesystem::path Path)&;
 private:
 	uint32 BoneCount{ 0u };
 	const aiScene* _Scene{};
 	std::vector<aiNode*> BoneTableFromIdx{};
 	std::unordered_map<std::string,aiNode*> BoneTableFromName{};
+	IDirect3DDevice9* Device{};
 };
 
 
