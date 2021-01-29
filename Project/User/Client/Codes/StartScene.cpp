@@ -22,9 +22,7 @@
 #include <array>
 #include "FontManager.h"
 #include "UtilityGlobal.h"
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+
 
 void PrintLog(aiNode* _Node)
 {
@@ -41,31 +39,39 @@ void PrintLog(aiNode* _Node)
 	}
 }
 
+
+
+
+
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
 {
+	/*MyModel(
+		L"..\\..\\..\\Resource\\Mesh\\DynamicMesh\\Chaos\\",
+		L"Chaos.fbx");*/
+
 	Assimp::Importer AssimpImporter{};
 
 	// 모델 생성 플래그 같은 플래그를 두번, 혹은 호환이 안되는
 	// 플래그가 겹칠 경우 런타임 에러이며 에러 핸들링이
 	// 어려우므로 매우 유의 할 것.
 	auto ModelScene = AssimpImporter.ReadFile( 
-		"..\\..\\..\\Resource\\Mesh\\DynamicMesh\\Chaos\\Chaos.fbx",
-		aiProcess_Triangulate              |
-		aiProcess_JoinIdenticalVertices    |
-		aiProcess_ConvertToLeftHanded      |
-		aiProcess_CalcTangentSpace         |
-		aiProcess_ValidateDataStructure    |
-		aiProcess_ImproveCacheLocality     |
+		"..\\..\\..\\Resource\\Mesh\\DynamicMesh\\PlayerXfile\\Player.X",
+		aiProcess_Triangulate |
+		aiProcess_ConvertToLeftHanded |
+		aiProcess_CalcTangentSpace |
+		aiProcess_ValidateDataStructure |
+		aiProcess_ImproveCacheLocality |
 		aiProcess_RemoveRedundantMaterials |
-		aiProcess_GenUVCoords 			   |
-		aiProcess_TransformUVCoords 	   |
-		aiProcess_FindInstances 		   |
-		aiProcess_LimitBoneWeights 		   |
-		aiProcess_OptimizeMeshes 		   |
-		aiProcess_GenSmoothNormals 		   |
-		aiProcess_SplitLargeMeshes 		   |
-		aiProcess_SortByPType			   
+		aiProcess_GenUVCoords |
+		aiProcess_TransformUVCoords |
+		aiProcess_FindInstances |
+		aiProcess_LimitBoneWeights |
+		aiProcess_OptimizeMeshes |
+		aiProcess_GenSmoothNormals |
+		aiProcess_SplitLargeMeshes |
+		aiProcess_SortByPType
 	);
+
 	FMath::DebugPrintMatrix(FMath::WorldMatrix({1,1,1},
 		{
 			FMath::ToRadian(90.327f),
@@ -73,96 +79,6 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 			FMath::ToRadian(179.134f),
 		}, {-294.7f,-18.645f,99.751}));
 	PrintLog(ModelScene->mRootNode);
-
-	/*std::cout << ModelScene->mRootNode->mName.C_Str() << std::endl;
-	auto _RootTransform = ModelScene->mRootNode->mTransformation;
-	std::cout << " X : " << _RootTransform.a4 << " Y : " << _RootTransform.b4 <<
-		" Z : " << _RootTransform.c4 << std::endl;
-	for (int i = 0; i < ModelScene->mRootNode->mNumChildren; ++i)
-	{
-		std::cout <<ModelScene->mRootNode->mChildren[i]->mName.C_Str() << std::endl;
-		auto _ChildrenTransform = ModelScene->mRootNode->mChildren[i]->mTransformation;
-		
-		std::cout << " X : " << _ChildrenTransform.a4 << " Y : " << _ChildrenTransform.b4 <<
-			" Z : " << _ChildrenTransform.c4 << std::endl;
-
-		for (int j = 0; j < ModelScene->mRootNode->mChildren[i]->mNumChildren; ++j)
-		{
-			std::cout << ModelScene->mRootNode->mChildren[i]->mChildren[j]->mName.C_Str() << std::endl;
-			auto _TT = ModelScene->mRootNode->mChildren[i]->mChildren[j]->mTransformation;
-			std::cout << " X : " << _TT.a4 << " Y : " << _TT.b4 <<
-				" Z : " << _TT.c4 << std::endl;
-
-			int i = 0;
-
-		}
-	}*/
-
-
-	// D3DXComputeBoundingBox()
-	//Assimp::Importer AssimpImporter{};
-
-	//auto ModelScene = AssimpImporter.ReadFile((App::ResourcePath / L"Mesh" / L"DynamicMesh" / L"Player" / L"Player.x"  ).string(),
-	//	aiProcess_Triangulate | //사각형 정점 -> 삼각형 정점 컨버트
-	//	aiProcess_JoinIdenticalVertices | // 중복 정점 하나로 합치기
-	//	aiProcess_ConvertToLeftHanded | // 왼손 좌표계 변환 (노말과 탄젠트에 영향을 준다)
-	//	aiProcess_GenNormals | // 모델 정보에 노말이 없을 경우 노말 생성한다. 
-	//	aiProcess_CalcTangentSpace ); // 모델 정보에 탄젠트와 바이탄젠트가 없을경우 생성
-
-	//// 메쉬 개수만큼 순회
-	//for (uint32 MeshIdx = 0u; MeshIdx < ModelScene->mNumMeshes; ++MeshIdx)
-	//{
-	//	auto& CurrentMesh = ModelScene->mMeshes[MeshIdx];
-	//	std::cout << "Mesh Name : " << CurrentMesh->mName.C_Str() << std::endl; 
-
-	//	// 현재 메쉬 본 개수만큼 순회
-	//	for (uint32 BoneIdx = 0u; BoneIdx < CurrentMesh->mNumBones; ++BoneIdx)
-	//	{
-	//		// 본 정보 디버깅 출력
-	//		auto& CurrentBone = CurrentMesh->mBones[BoneIdx];
-	//		std::cout << "Bone Name : " << CurrentBone->mName.C_Str() << std::endl;
-
-	//		// 본의 행렬 (부모 기준 상대적인 오프셋) 
-	//		CurrentBone->mOffsetMatrix;
-	//		std::cout << "Bone Weights : " << CurrentBone->mWeights<< std::endl;
-	//		// 본을 참조하는 버텍스를 순회
-	//		for (uint32 VertexID = 0u; VertexID <CurrentBone->mNumWeights; ++VertexID)
-	//		{
-	//			// 버텍스 아이디와 가중치 값 디버깅 출력
-	//			std::cout << "VertexID :  " << CurrentBone->mWeights[VertexID].mVertexId << std::endl;
-	//			std::cout << "Vertex Weight : " << CurrentBone->mWeights[VertexID].mWeight << std::endl;
-	//		};
-	//	}
-	//}
-
-	//for (uint32 AnimIdx = 0u  ; AnimIdx < ModelScene->mNumAnimations; ++AnimIdx)
-	//{
-	//	auto& CurrentAnim = ModelScene->mAnimations[AnimIdx]; 
-	//	std::cout << CurrentAnim->mName.C_Str()<< std::endl;
-	//	std::cout << CurrentAnim->mTicksPerSecond << std::endl;
-	//	std::cout << CurrentAnim->mDuration << std::endl;
-
-	//	for (uint32 MeshChannelIdx = 0u; MeshChannelIdx < CurrentAnim->mNumMeshChannels; MeshChannelIdx++)
-	//	{
-	//		std::cout << "MeshChannelName : " << CurrentAnim->mMeshChannels[MeshChannelIdx]->mName.C_Str() << std::endl;
-	//		std::cout << CurrentAnim->mMeshChannels[MeshChannelIdx]->mKeys;
-
-
-	//	}
-	//}
-
-	//ModelScene->mNumMaterials; // 메쉬에 매칭되는 재질 정보 (텍스쳐 경로 , 디퓨즈 스페큘러 ,이미시브)
-	//ModelScene->mMeshes[0]; // 메쉬 자료형
-
-	//// mesh 안에 있는 정점 정보들은 인덱스로 접근 가능
-	//// 대부분이 assimp 내장 벡터 형식으로 되어있음
-	//// 사이즈가 같다면 reinterpret_cast 로 자신이 사용하는 자료형으로 변환해서 사용
-	//// 에) XMVECTOR3 myVector = *reinterpret_cast<XMVECTOR3*>(&pScene->mMeshes[0]->mVertices);
-	//ModelScene->mMeshes[0]->mVertices;
-	//ModelScene->mMeshes[0]->mNormals;
-	//ModelScene->mMeshes[0]->mTangents;
-	//// 추가적으로 assimp는 계층구조, 애니메이션 도 있음.
-
 
     Super::Initialize(Device);
 	
@@ -432,8 +348,60 @@ void StartScene::Update(const float DeltaTime)&
 		auto Objs2 = RefManager().RefObjects<EnemyLayer>();
 	}
 }
+ // "..\\..\\..\\Resource\\Mesh\\DynamicMesh\\Chaos\\Chaos.fbx" 
+MyModel::MyModel(const std::filesystem::path& Path, const std::filesystem::path& Name)
+{
+	Assimp::Importer AssimpImporter{};
+	// 모델 생성 플래그 같은 플래그를 두번, 혹은 호환이 안되는
+	// 플래그가 겹칠 경우 런타임 에러이며 에러 핸들링이
+	// 어려우므로 매우 유의 할 것.
+	_Scene = AssimpImporter.ReadFile(
+		(Path/Name).string(),
+		aiProcess_Triangulate |
+		aiProcess_ConvertToLeftHanded |
+		aiProcess_CalcTangentSpace |
+		aiProcess_ValidateDataStructure |
+		aiProcess_ImproveCacheLocality |
+		aiProcess_RemoveRedundantMaterials |
+		aiProcess_GenUVCoords |
+		aiProcess_TransformUVCoords |
+		aiProcess_FindInstances |
+		aiProcess_LimitBoneWeights |
+		aiProcess_OptimizeMeshes |
+		aiProcess_GenSmoothNormals |
+		aiProcess_SplitLargeMeshes |
+		aiProcess_SortByPType
+	);
+	CreateTextures();
+	/*for (uint32 MeshIdx = 0u; MeshIdx < _Scene->mNumMeshes; ++MeshIdx)
+	{
+		aiMesh* _Mesh=_Scene->mMeshes[MeshIdx];
+		_Mesh->bone
+	}*/
+	CreateHierarchy(_Scene->mRootNode);
+}
 
+void MyModel::CreateHierarchy(aiNode* const _Bone)&
+{
+	if (nullptr == _Bone)return;
 
+	BoneTableFromIdx.push_back(_Bone);
+	BoneTableFromName[_Bone->mName.C_Str()] = _Bone;
+	BoneCount++;
 
+	for (uint32 ChildrenIdx = 0u; ChildrenIdx < _Bone->mNumChildren; ++ChildrenIdx)
+	{
+		CreateHierarchy(_Bone->mChildren[ChildrenIdx]);
+	}	
+}
 
+void MyModel::CreateTextures()&
+{
+	auto pp = _Scene->mTextures[0]->mFilename;
 
+	for (uint32 i = 0u; i < _Scene->mNumTextures; ++i)
+	{
+	
+	int d = 0;
+	}
+}
