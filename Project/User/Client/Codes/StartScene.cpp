@@ -26,10 +26,79 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-
+void PrintLog(aiNode* _Node)
+{
+	if (!_Node)return;
+	std::cout << _Node->mName.C_Str() << std::endl;
+	FMath::DebugPrintMatrix(AssimpTo(_Node->mTransformation));
+	/*std::cout << " X : " << _Node->mTransformation.a4;
+	std::cout << " Y : " << _Node->mTransformation.b4;
+	std::cout << " Z : " << _Node->mTransformation.c4;*/
+	std::cout << std::endl;
+	for (int i = 0; i < _Node->mNumChildren; ++i)
+	{
+		PrintLog(_Node->mChildren[i]);
+	}
+}
 
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
 {
+	Assimp::Importer AssimpImporter{};
+
+	// 모델 생성 플래그 같은 플래그를 두번, 혹은 호환이 안되는
+	// 플래그가 겹칠 경우 런타임 에러이며 에러 핸들링이
+	// 어려우므로 매우 유의 할 것.
+	auto ModelScene = AssimpImporter.ReadFile( 
+		"..\\..\\..\\Resource\\Mesh\\DynamicMesh\\Chaos\\Chaos.fbx",
+		aiProcess_Triangulate |
+	//	aiProcess_JoinIdenticalVertices |
+		aiProcess_ConvertToLeftHanded 
+	//	aiProcess_CalcTangentSpace 
+		//aiProcess_ValidateDataStructure |
+		//aiProcess_ImproveCacheLocality |
+		//aiProcess_RemoveRedundantMaterials |
+		//aiProcess_GenUVCoords |
+		//aiProcess_TransformUVCoords |
+		//aiProcess_FindInstances |
+		//aiProcess_LimitBoneWeights |
+		//aiProcess_OptimizeMeshes |
+		//aiProcess_GenSmoothNormals |
+		//aiProcess_SplitLargeMeshes |
+		//aiProcess_SortByPType
+	);
+	FMath::DebugPrintMatrix(FMath::WorldMatrix({1,1,1},
+		{
+			FMath::ToRadian(90.327f),
+			FMath::ToRadian(18.315f),
+			FMath::ToRadian(179.134f),
+		}, {-294.7f,-18.645f,99.751}));
+	PrintLog(ModelScene->mRootNode);
+
+	/*std::cout << ModelScene->mRootNode->mName.C_Str() << std::endl;
+	auto _RootTransform = ModelScene->mRootNode->mTransformation;
+	std::cout << " X : " << _RootTransform.a4 << " Y : " << _RootTransform.b4 <<
+		" Z : " << _RootTransform.c4 << std::endl;
+	for (int i = 0; i < ModelScene->mRootNode->mNumChildren; ++i)
+	{
+		std::cout <<ModelScene->mRootNode->mChildren[i]->mName.C_Str() << std::endl;
+		auto _ChildrenTransform = ModelScene->mRootNode->mChildren[i]->mTransformation;
+		
+		std::cout << " X : " << _ChildrenTransform.a4 << " Y : " << _ChildrenTransform.b4 <<
+			" Z : " << _ChildrenTransform.c4 << std::endl;
+
+		for (int j = 0; j < ModelScene->mRootNode->mChildren[i]->mNumChildren; ++j)
+		{
+			std::cout << ModelScene->mRootNode->mChildren[i]->mChildren[j]->mName.C_Str() << std::endl;
+			auto _TT = ModelScene->mRootNode->mChildren[i]->mChildren[j]->mTransformation;
+			std::cout << " X : " << _TT.a4 << " Y : " << _TT.b4 <<
+				" Z : " << _TT.c4 << std::endl;
+
+			int i = 0;
+
+		}
+	}*/
+
+
 	// D3DXComputeBoundingBox()
 	//Assimp::Importer AssimpImporter{};
 

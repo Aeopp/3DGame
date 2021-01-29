@@ -225,6 +225,7 @@
     <ClCompile Include="Codes\UtilityGlobal.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Codes\AssimpHelper.h" />
     <ClInclude Include="Codes\Camera.h" />
     <ClInclude Include="Codes\Geometric.h" />
     <ClInclude Include="Codes\Collision.h" />

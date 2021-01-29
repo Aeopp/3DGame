@@ -146,6 +146,7 @@
     </ClInclude>
     <ClInclude Include="Codes\UtilityGlobal.h" />
     <ClInclude Include="Codes\Model.h" />
+    <ClInclude Include="Codes\AssimpHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">

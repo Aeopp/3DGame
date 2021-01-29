@@ -1,6 +1,7 @@
 #pragma once
 #include "TypeAlias.h"
 #include <type_traits>
+#include <iostream>
 #include <numeric>
 #include <numbers>
 #include <array>
@@ -125,6 +126,8 @@ public:
 		const Vector3 OBBCenter,
 		const std::array<Vector3, 3u/*xyz*/>& OBBBasis,
 		const Vector3/*xyz*/OBBHalfDistances);
+
+	static inline void DebugPrintMatrix(const Matrix& _Matrix);
 #pragma region RANDOM
 	template<typename Type>
 	static inline Type Random(const Type& Begin, const Type& End);
@@ -132,6 +135,18 @@ private:
 	static inline auto& GetGenerator();
 #pragma endregion RANDOM
 };
+
+inline void FMath::DebugPrintMatrix(const Matrix& _Matrix)
+{
+	for (uint32 Row = 0u; Row < 4u; ++Row)
+	{
+		for (uint32 Col = 0u; Col < 4u; ++Col)
+		{
+			std::cout << _Matrix(Row, Col) << " ";
+		}
+		std::cout << std::endl;
+	}
+}
 
 inline bool FMath::Equal(const Vector3& Lhs, const Vector3& Rhs)
 {

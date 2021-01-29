@@ -9,7 +9,7 @@ inline Matrix AssimpTo(const aiMatrix4x4& AiMatrix)
 {
 	Matrix _Matrix; 
 	std::memcpy(&_Matrix, &AiMatrix, sizeof(Matrix));
-	return _Matrix;
+	return *D3DXMatrixTranspose(&_Matrix, &_Matrix);
 };
 
 inline Vector3 AssimpTo(const aiVector3D& AiVector3D)

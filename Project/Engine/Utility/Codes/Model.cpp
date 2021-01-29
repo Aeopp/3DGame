@@ -307,7 +307,11 @@ void Engine::Model::LoadModel(const std::filesystem::path& Path, const std::file
 		aiProcess_JoinIdenticalVertices		   
 		); 
 
-	aiMesh* Mesh = ModelScene->mMeshes[0u];
+	ModelScene->mRootNode->mTransformation;
+
+
+
+	/*aiMesh* Mesh = ModelScene->mMeshes[0u];
 
 	std::vector<Vertex::Animation> Vertices = {};
 	std::vector<uint32> Indices = {};
@@ -329,7 +333,7 @@ void Engine::Model::LoadModel(const std::filesystem::path& Path, const std::file
 	Vertex::Animation* VertexBufferPtr{}; 
 	VertexBuffer->Lock(0, 0, reinterpret_cast<void**>(&VertexBuffer), NULL);
 	std::memcpy(VertexBufferPtr, Vertices.data(), sizeof(Vertex::Animation) * Vertices.size());
-	VertexBuffer->Unlock();
+	VertexBuffer->Unlock();*/
 
 	
 	/*std::vector<Vertex::Texture> Vertices;
