@@ -264,7 +264,7 @@ void Engine::Model::GetPose(
 
 
 
-//aiProcess_JoinIdenticalVertices // 동일한 꼭지점 결합, 인덱싱 최적화
+//aiProcess_JoinIdenticalVertices // 동일한 꼭지점 결합, 인덱싱 최적화 중복 정점 하나로 합치기
 //aiProcess_ValidateDataStructure // 로더의 출력을 검증
 //aiProcess_ImproveCacheLocality// 출력 정점의 캐쉬위치를 개선
 //aiProcess_RemoveRedundantMaterials // 중복된 매터리얼 제거
@@ -280,7 +280,6 @@ void Engine::Model::GetPose(
 //aiProcess_SortByPType// 단일타입의 프리미티브로 구성된 '깨끗한' 매쉬를 만듬
 //aiProcess_GenNormals // 모델 정보에 노말이 없을 경우 노말 생성한다. 
 //aiProcess_CalcTangentSpace// 모델 정보에 탄젠트와 바이탄젠트가 없을경우 생성
-//aiProcess_JoinIdenticalVertices // 중복 정점 하나로 합치기
 
 void Engine::Model::LoadModel(const std::filesystem::path& Path, const std::filesystem::path& Name ,
 	IDirect3DDevice9* const Device)&

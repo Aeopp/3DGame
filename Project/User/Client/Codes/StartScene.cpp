@@ -50,21 +50,21 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	// 어려우므로 매우 유의 할 것.
 	auto ModelScene = AssimpImporter.ReadFile( 
 		"..\\..\\..\\Resource\\Mesh\\DynamicMesh\\Chaos\\Chaos.fbx",
-		aiProcess_Triangulate |
-	//	aiProcess_JoinIdenticalVertices |
-		aiProcess_ConvertToLeftHanded 
-	//	aiProcess_CalcTangentSpace 
-		//aiProcess_ValidateDataStructure |
-		//aiProcess_ImproveCacheLocality |
-		//aiProcess_RemoveRedundantMaterials |
-		//aiProcess_GenUVCoords |
-		//aiProcess_TransformUVCoords |
-		//aiProcess_FindInstances |
-		//aiProcess_LimitBoneWeights |
-		//aiProcess_OptimizeMeshes |
-		//aiProcess_GenSmoothNormals |
-		//aiProcess_SplitLargeMeshes |
-		//aiProcess_SortByPType
+		aiProcess_Triangulate              |
+		aiProcess_JoinIdenticalVertices    |
+		aiProcess_ConvertToLeftHanded      |
+		aiProcess_CalcTangentSpace         |
+		aiProcess_ValidateDataStructure    |
+		aiProcess_ImproveCacheLocality     |
+		aiProcess_RemoveRedundantMaterials |
+		aiProcess_GenUVCoords 			   |
+		aiProcess_TransformUVCoords 	   |
+		aiProcess_FindInstances 		   |
+		aiProcess_LimitBoneWeights 		   |
+		aiProcess_OptimizeMeshes 		   |
+		aiProcess_GenSmoothNormals 		   |
+		aiProcess_SplitLargeMeshes 		   |
+		aiProcess_SortByPType			   
 	);
 	FMath::DebugPrintMatrix(FMath::WorldMatrix({1,1,1},
 		{

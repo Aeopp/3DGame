@@ -114,6 +114,24 @@ else 충돌 아님
  * Root 의 Transform 이 모델링의 기저와 일치하지 않거나 포지션 이동 하였을 경우 당연하지만
  Bind Space 와 모델의 Local Space 는 일치하지 않는다. 그 이외는 일치.
  * Assimp 로 로딩하는 Bone Transform은 행 기준 행렬이 아님.
+  ## 자주쓰일 법한 로딩 옵션
+aiProcess_JoinIdenticalVertices // 동일한 꼭지점 결합, 인덱싱 최적화 중복 정점 하나로 합치기
+aiProcess_ValidateDataStructure // 로더의 출력을 검증
+aiProcess_ImproveCacheLocality// 출력 정점의 캐쉬위치를 개선
+aiProcess_RemoveRedundantMaterials // 중복된 매터리얼 제거
+aiProcess_GenUVCoords // 구형, 원통형, 상자 및 평면 매핑을 적절한 UV로 변환
+aiProcess_TransformUVCoords // UV 변환 처리기 (스케일링, 변환...)
+aiProcess_FindInstances // 인스턴스된 매쉬를 검색하여 하나의 마스터에 대한 참조로 제거
+aiProcess_LimitBoneWeights// 정점당 뼈의 가중치를 최대 4개로 제한
+aiProcess_OptimizeMeshes// 가능한 경우 작은 매쉬를 조인
+aiProcess_GenSmoothNormals// 부드러운 노말벡터(법선벡터) 생성
+aiProcess_SplitLargeMeshes// 거대한 하나의 매쉬를 하위매쉬들로 분활(나눔)
+aiProcess_Triangulate// 3개 이상의 모서리를 가진 다각형 면을 삼각형으로 만듬(나눔)
+aiProcess_ConvertToLeftHanded// D3D의 왼손좌표계로 변환
+aiProcess_SortByPType// 단일타입의 프리미티브로 구성된 '깨끗한' 매쉬를 만듬
+aiProcess_GenNormals // 모델 정보에 노말이 없을 경우 노말 생성한다. 
+aiProcess_CalcTangentSpace// 모델 정보에 탄젠트와 바이탄젠트가 없을경우 생성
+
 ## 스켈레톤 애니메이션 수학(?)
 **1. Bone 의 트랜스폼 변환을 b라 할때 b의 변환은 부모 공간에서의 상대적인 위치로의 변환이다.**
 **2. Bone의 부모의 트랜스폼 변환을 p라 할때 1의 정의가 맞다면
