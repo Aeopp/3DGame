@@ -3,6 +3,17 @@
 
 namespace Vertex
 {
+	struct Animation
+	{
+		Vector3 Location{}; 
+		Vector3 Normal{}; 
+		Vector2 UV{}; 
+		Vector4 BoneIds{ 0,0,0,0 };
+		Vector4 BoneWeights{0,0,0,0};
+		static IDirect3DVertexDeclaration9* const
+			GetVertexDecl(IDirect3DDevice9* const Device);
+	};
+
 	struct Location3DUV
 	{
 		Vector3 Location;
@@ -81,6 +92,23 @@ namespace Index
 
 
 // Implementation
+
+inline IDirect3DVertexDeclaration9* const
+Vertex::Animation::GetVertexDecl(IDirect3DDevice9* const Device)
+{
+	D3DVERTEXELEMENT9 Decl[] =
+	{
+		{ 0, 0,  D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
+		{ 0, 12, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL,   0 },
+		{ 0, 24, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0 },
+		{ 0, 32, D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 1 },
+		{ 0, 48, D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 2 },
+		D3DDECL_END()
+	};
+	IDirect3DVertexDeclaration9* VertexDeclaration{ nullptr };
+	Device->CreateVertexDeclaration(Decl, &VertexDeclaration);
+	return VertexDeclaration;
+};
 
 inline IDirect3DVertexDeclaration9* const Vertex::Texture::GetVertexDecl(IDirect3DDevice9* const Device)
 {
