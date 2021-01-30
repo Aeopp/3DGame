@@ -191,17 +191,17 @@ void Engine::Model::LoadAnimation(const aiScene* Scene, Animation& _Animation)
 		for (int j = 0; j < Channel->mNumPositionKeys; ++j)
 		{
 			Track.PositionTimeStamps.push_back(Channel->mPositionKeys[j].mTime);
-			Track.Positions.push_back(AssimpTo(Channel->mPositionKeys[j].mValue));
+			Track.Positions.push_back(FromAssimp(Channel->mPositionKeys[j].mValue));
 		}
 		for (int j = 0; j < Channel->mNumRotationKeys; ++j)
 		{
 			Track.RotationTimeStamps.push_back(Channel->mRotationKeys[j].mTime);
-			Track.Rotations.push_back(AssimpTo(Channel->mRotationKeys[j].mValue));
+			Track.Rotations.push_back(FromAssimp(Channel->mRotationKeys[j].mValue));
 		}
 		for (int j = 0; j < Channel->mNumScalingKeys; ++j)
 		{
 			Track.ScalTimeStamps.push_back(Channel->mScalingKeys[j].mTime);
-			Track.Scales.push_back(AssimpTo(Channel->mScalingKeys[j].mValue));
+			Track.Scales.push_back(FromAssimp(Channel->mScalingKeys[j].mValue));
 		}
 		_Animation.BoneTransforms[Channel->mNodeName.C_Str()] = Track;
 	}

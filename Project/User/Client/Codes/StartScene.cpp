@@ -27,17 +27,53 @@
 void PrintLog(aiNode* _Node)
 {
 	if (!_Node)return;
-	std::cout << _Node->mName.C_Str() << std::endl;
-	FMath::DebugPrintMatrix(AssimpTo(_Node->mTransformation));
-	/*std::cout << " X : " << _Node->mTransformation.a4;
-	std::cout << " Y : " << _Node->mTransformation.b4;
-	std::cout << " Z : " << _Node->mTransformation.c4;*/
-	std::cout << std::endl;
+	
+	if (std::string(_Node->mName.C_Str()) == "Spine")
+	{
+		/*auto Null = AssimpTo(_Node->mParent->mParent->mParent->mTransformation);
+		std::cout << _Node->mParent->mParent->mParent->mName.C_Str() << std::endl;
+		FMath::DebugPrintMatrix(Null);
+
+		auto Root = AssimpTo(_Node->mParent->mParent->mTransformation);
+		std::cout << _Node->mParent->mParent->mName.C_Str() << std::endl;
+		FMath::DebugPrintMatrix(Root);
+
+		auto Pelvis = AssimpTo(_Node->mParent->mTransformation);
+		std::cout << _Node->mParent->mName.C_Str() << std::endl;
+		FMath::DebugPrintMatrix(Pelvis);
+
+		auto Transform_ = AssimpTo(_Node->mTransformation);
+		std::cout << _Node->mName.C_Str() << std::endl;
+		FMath::DebugPrintMatrix(Transform_);
+		
+		Null *= Root;
+		Null *= Pelvis;
+		Null *= Transform_;
+		std::cout << "Final \n";
+		FMath::DebugPrintMatrix(FMath::Inverse(Null));
+		std::cout << std::endl;*/
+
+		auto RootDummyDummy = _Node->mParent->mParent->mParent->mParent->mParent->mTransformation;
+		auto RootDummy = (_Node->mParent->mParent->mParent->mParent->mTransformation);
+		auto Null = (_Node->mParent->mParent->mParent->mTransformation);
+		auto Root = (_Node->mParent->mParent->mTransformation);
+		auto Pelvis = (_Node->mParent->mTransformation);
+		auto Transform_ = (_Node->mTransformation);
+		AssimpDebugPrint(Transform_);
+		auto Final = 
+			Null* Root * Pelvis  * Transform_ ;
+		Final.Inverse();
+		std::cout << "Final: " << std::endl;
+
+		AssimpDebugPrint(Final);
+	}
 	for (int i = 0; i < _Node->mNumChildren; ++i)
 	{
 		PrintLog(_Node->mChildren[i]);
 	}
+
 }
+
 
 
 
@@ -46,39 +82,8 @@ void PrintLog(aiNode* _Node)
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
 {
 	MyModel(
-		L"..\\..\\..\\Resource\\Mesh\\DynamicMesh\\Chaos\\",
-		L"Chaos.fbx" ,Device);
-
-	//Assimp::Importer AssimpImporter{};
-
-	//// 모델 생성 플래그 같은 플래그를 두번, 혹은 호환이 안되는
-	//// 플래그가 겹칠 경우 런타임 에러이며 에러 핸들링이
-	//// 어려우므로 매우 유의 할 것.
-	//auto ModelScene = AssimpImporter.ReadFile( 
-	//	"..\\..\\..\\Resource\\Mesh\\DynamicMesh\\PlayerXfile\\Player.X",
-	//	aiProcess_Triangulate |
-	//	aiProcess_ConvertToLeftHanded |
-	//	aiProcess_CalcTangentSpace |
-	//	aiProcess_ValidateDataStructure |
-	//	aiProcess_ImproveCacheLocality |
-	//	aiProcess_RemoveRedundantMaterials |
-	//	aiProcess_GenUVCoords |
-	//	aiProcess_TransformUVCoords |
-	//	aiProcess_FindInstances |
-	//	aiProcess_LimitBoneWeights |
-	//	aiProcess_OptimizeMeshes |
-	//	aiProcess_GenSmoothNormals |
-	//	aiProcess_SplitLargeMeshes |
-	//	aiProcess_SortByPType
-	//);
-
-	//FMath::DebugPrintMatrix(FMath::WorldMatrix({1,1,1},
-	//	{
-	//		FMath::ToRadian(90.327f),
-	//		FMath::ToRadian(18.315f),
-	//		FMath::ToRadian(179.134f),
-	//	}, {-294.7f,-18.645f,99.751}));
-	//PrintLog(ModelScene->mRootNode);
+		L"..\\..\\..\\Resource\\Mesh\\DynamicMesh\\TestCharacter\\",
+		L"Chaos_T_Pose.fbx" ,Device);
 
     Super::Initialize(Device);
 	
@@ -354,13 +359,16 @@ MyModel::MyModel(
 	IDirect3DDevice9* const Device) :Device{ Device }
 {
 	Assimp::Importer AssimpImporter{};
-	// 모델 생성 플래그 같은 플래그를 두번, 혹은 호환이 안되는
+	// 모델 생성 플래그 , 같은 플래그를 두번, 혹은 호환이 안되는
 	// 플래그가 겹칠 경우 런타임 에러이며 에러 핸들링이
 	// 어려우므로 매우 유의 할 것.
+
 	_Scene = AssimpImporter.ReadFile(
 		(Path/Name).string(),
+		aiProcess_MakeLeftHanded |
+		aiProcess_FlipUVs |
+		aiProcess_FlipWindingOrder |
 		aiProcess_Triangulate |
-		aiProcess_ConvertToLeftHanded |
 		aiProcess_CalcTangentSpace |
 		aiProcess_ValidateDataStructure |
 		aiProcess_ImproveCacheLocality |
@@ -374,7 +382,46 @@ MyModel::MyModel(
 		aiProcess_SplitLargeMeshes |
 		aiProcess_SortByPType
 	);
-	CreateMaterials(Path);
+	//PrintLog(_Scene->mRootNode);
+	static bool bDebug = false;
+	/*int qq=_Scene->mNumAnimations;
+	int ss =_Scene->mAnimations[0]->mNumChannels;
+	_Scene->mAnimations[0]->mChannels[0]->mRotationKeys[0].mValue;
+	_Scene->mAnimations[0]->mChannels[0]->mPositionKeys[0].mValue;
+	_Scene->mAnimations[0]->mChannels[0]->mScalingKeys[0].mValue;*/
+
+	//_Scene->mAnimations[0]->mNumMorphMeshChannels*/
+	for (int i = 0; i < _Scene->mNumMeshes; ++i)
+	{
+		for (int j = 0; j < _Scene->mMeshes[i]->mNumBones; ++j)
+		{
+			if (std::string(_Scene->mMeshes[i]->mBones[j]->mName.C_Str()) ==
+					std::string("Bone_Arm_L_01") && !bDebug)
+			{
+				std::cout << "\n\nOffsetMatrix\n";
+				bDebug = true;
+				FMath::DebugPrintMatrix(FromAssimp(_Scene->mMeshes[i]->mBones[j]->mOffsetMatrix));
+
+				//AssimpDebugPrint(_Scene->mMeshes[i]->mBones[j]->mOffsetMatrix);
+			}
+		}
+	}
+
+	
+	auto Calc = FromAssimp(_Scene->mRootNode->mChildren[0]->mChildren[0]->FindNode("Bone_Arm_L_01")->mTransformation);
+	Calc *= FromAssimp(_Scene->mRootNode->mChildren[0]->mChildren[0]->mTransformation);
+	 Calc *= FromAssimp(_Scene->mRootNode->mChildren[0]->mTransformation);
+	 Calc *= FromAssimp(_Scene->mRootNode->mTransformation);
+
+
+
+
+
+	std::cout << "Calc\n";
+	FMath::DebugPrintMatrix(FMath::Inverse(Calc));
+
+	std::cout << "\n";
+	//CreateMaterials(Path);
 	/*for (uint32 MeshIdx = 0u; MeshIdx < _Scene->mNumMeshes; ++MeshIdx)
 	{
 		aiMesh* _Mesh=_Scene->mMeshes[MeshIdx];

@@ -22,12 +22,12 @@ public:
 	inline static bool IsValid(const Vector3& Target);
 	template<class T>
 	typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
-	static	inline AlmostEqual(T x, T y);
-   
+		static	inline AlmostEqual(T x, T y);
+
 	static inline float Dot(const Vector3& Lhs, const Vector3& Rhs);
 	static inline Vector3 Cross(const Vector3& Lhs, const Vector3& Rhs);
 	static inline Vector3 Normalize(const Vector3& Lhs);
-    static inline Vector3 GetNormalFromFace(const Vector3& p0,
+	static inline Vector3 GetNormalFromFace(const Vector3& p0,
 		const Vector3& p1, const Vector3& p2);
 
 	static inline Vector4 ConvertVector4(const Vector3& Lhs, const float w);;
@@ -43,21 +43,21 @@ public:
 
 	// 삼각형을 둘러치는 선분 3개.
 	static inline std::array<Segment, 3ul>
-			MakeSegmentFromFace(const std::array<Vector3, 3ul>& Face);
-	
+		MakeSegmentFromFace(const std::array<Vector3, 3ul>& Face);
+
 	static inline float ToRadian(const float Degree);
 	static inline float ToDegree(const float Radian);
-	
+
 	static inline Vector3 RotationVecCoord(const Vector3& Lhs,
-					const Vector3& Axis, const float Radian);
+		const Vector3& Axis, const float Radian);
 	static inline Vector3 RotationVecNormal(const Vector3& Lhs,
 		const Vector3& Axis, const float Radian);
 	template<typename _Ty>
 	static inline _Ty Lerp(const _Ty& Lhs, const _Ty& Rhs, const float t);
 	static inline Quaternion SLerp(
-							const Quaternion& Lhs,
-							const  Quaternion& Rhs,
-							const float t);
+		const Quaternion& Lhs,
+		const  Quaternion& Rhs,
+		const float t);
 
 	static inline float Length(const Vector3& Lhs);
 	static inline float LengthSq(const Vector3& Lhs);;
@@ -71,19 +71,19 @@ public:
 		const Vector3 Axis, const float Radian);;
 
 	static inline Matrix Identity(Matrix& _Matrix);
-
+	static inline Matrix Identity();
 	static inline Matrix WorldMatrix(
-									const Vector3& Scale, 
-									const Vector3& Forward,
-									const Vector3& Right,
-									const Vector3& Up,
-									const Vector3& Location);
+		const Vector3& Scale,
+		const Vector3& Forward,
+		const Vector3& Right,
+		const Vector3& Up,
+		const Vector3& Location);
 
 	static inline Matrix WorldMatrix(const Vector3& Scale, const Vector3& Rotation,
-								const Vector3& Location);
+		const Vector3& Location);
 
 	static inline Matrix Scale(const Vector3& Scale);
-						// Yaw Pitch Roll
+	// Yaw Pitch Roll
 	static inline Matrix Rotation(const Vector3& Rotation);
 	static inline Matrix Translation(const Vector3& Location);
 	static inline Matrix Rotation(const Quaternion& Rotation);
@@ -102,7 +102,7 @@ public:
 			float& t0, float& t1, Vector3& IntersectPoint);
 
 	static inline bool  IsPlaneToSphere(const PlaneInfo& Lhs,
-								const Sphere& Rhs, float& CrossingArea);
+		const Sphere& Rhs, float& CrossingArea);
 
 
 	static inline bool Intersect_1D_Line(const float LhsMin, const float LhsMax, const float RhsMin, const float RhsMax);
@@ -118,10 +118,10 @@ public:
 		// 면6개(최적화3개)의 노말벡터와 중심점으로부터 면까지의 길이를 곱한 3 벡터
 		const std::array<Vector3, 8u> LhsHalfDistanceVecs,
 		const Vector3 RhsCenter,
-		const std::array<Vector3, 8u>  RhsHalfDistanceVecs );
+		const std::array<Vector3, 8u>  RhsHalfDistanceVecs);
 
 	static inline std::optional<std::pair<float, Vector3>> IsSphereToOBB
-	(   const Vector3 SphereCeneter,
+	(const Vector3 SphereCeneter,
 		const float SphereRadius,
 		const Vector3 OBBCenter,
 		const std::array<Vector3, 3u/*xyz*/>& OBBBasis,
@@ -146,19 +146,20 @@ inline void FMath::DebugPrintMatrix(const Matrix& _Matrix)
 		}
 		std::cout << std::endl;
 	}
+	std::cout << std::endl;
 }
 
 inline bool FMath::Equal(const Vector3& Lhs, const Vector3& Rhs)
 {
 	return  (FMath::AlmostEqual(Lhs.x, Rhs.x) &&
-			FMath::AlmostEqual(Lhs.y, Rhs.y) &&
-			FMath::AlmostEqual(Lhs.z, Rhs.z));
+		FMath::AlmostEqual(Lhs.y, Rhs.y) &&
+		FMath::AlmostEqual(Lhs.z, Rhs.z));
 }
 inline bool FMath::IsValid(const Vector3& Target)
 {
-	return  ( (!FMath::AlmostEqual(Target.x, 0.0f)) &&
-			 (!FMath::AlmostEqual(Target.y, 0.0f)) &&
-		     (!FMath::AlmostEqual(Target.z, 0.0f)));
+	return  ((!FMath::AlmostEqual(Target.x, 0.0f)) &&
+		(!FMath::AlmostEqual(Target.y, 0.0f)) &&
+		(!FMath::AlmostEqual(Target.z, 0.0f)));
 }
 template<class T>
 typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
@@ -169,7 +170,7 @@ FMath::AlmostEqual(T x, T y)
 };
 
 template<typename Type>
- Type FMath::Random(const Type& Begin, const Type& End)
+Type FMath::Random(const Type& Begin, const Type& End)
 {
 	if constexpr (std::is_floating_point_v<Type>)
 	{
@@ -209,7 +210,7 @@ auto& FMath::GetGenerator()
 
 inline Matrix FMath::Rotation(const Quaternion& Rotation)
 {
-	Matrix _Rotation; 
+	Matrix _Rotation;
 	return *D3DXMatrixRotationQuaternion(&_Rotation, &Rotation);
 }
 inline Vector4 FMath::ConvertVector4(const Vector3& Lhs, const float w)
@@ -230,7 +231,7 @@ Vector3 FMath::MulNormal(const Vector3& Lhs, const Matrix& Rhs)
 }
 
 inline  Vector3 FMath::GetNormalFromFace(const Vector3& p0,
-								const Vector3& p1, const Vector3& p2)
+	const Vector3& p1, const Vector3& p2)
 {
 	const Vector3 u = p1 - p0;
 	const Vector3 v = p2 - p0;
@@ -238,9 +239,9 @@ inline  Vector3 FMath::GetNormalFromFace(const Vector3& p0,
 }
 
 Ray FMath::GetRayScreenProjection(
-	const Vector3& ScreenPos, 
-	IDirect3DDevice9* const _Device, 
-	const float Width, 
+	const Vector3& ScreenPos,
+	IDirect3DDevice9* const _Device,
+	const float Width,
 	const float Height)
 {
 	Vector3 Dir{ (ScreenPos.x),(ScreenPos.y),1.f };
@@ -278,8 +279,8 @@ inline Vector3 FMath::Cross(const Vector3& Lhs, const Vector3& Rhs)
 inline Vector3 FMath::Normalize(const Vector3& Lhs)
 {
 	Vector3 Target;
-	 D3DXVec3Normalize(&Target, &Lhs);
-	 return Target;
+	D3DXVec3Normalize(&Target, &Lhs);
+	return Target;
 }
 
 Vector3 FMath::ProjectionPointFromFace(const D3DXPLANE _Plane, const Vector3& Point)
@@ -382,27 +383,32 @@ inline Matrix FMath::Translation(const Vector3& Location)
 {
 	Matrix Target;
 	return *D3DXMatrixTranslation(&Target, Location.x, Location.y, Location.z);
-}
+};
 
 inline Matrix FMath::Identity(Matrix& _Matrix)
 {
 	return *D3DXMatrixIdentity(&_Matrix);
 };
+inline Matrix FMath::Identity()
+{
+	Matrix _Matrix;
+	return *D3DXMatrixIdentity(&_Matrix);
+}
 
- inline Matrix FMath::WorldMatrix(
+inline Matrix FMath::WorldMatrix(
 	const Vector3& Scale,
 	const Vector3& Forward,
 	const Vector3& Right,
 	const Vector3& Up,
 	const Vector3& Location)
 {
-	static constexpr size_t Vec3Size = sizeof(Vector3); 
+	static constexpr size_t Vec3Size = sizeof(Vector3);
 	Matrix BasisMatrix;
-	BasisMatrix=FMath::Identity(BasisMatrix);
+	BasisMatrix = FMath::Identity(BasisMatrix);
 	memcpy(&BasisMatrix._11, &Right, Vec3Size);
 	memcpy(&BasisMatrix._21, &Up, Vec3Size);
 	memcpy(&BasisMatrix._31, &Forward, Vec3Size);
-	return 	FMath::Scale(Scale)* BasisMatrix* FMath::Translation(Location);
+	return 	FMath::Scale(Scale) * BasisMatrix * FMath::Translation(Location);
 };
 
 Matrix FMath::WorldMatrix(
@@ -503,7 +509,7 @@ bool FMath::IsPlaneToSphere(
 	Vector3 ToPlaneCenter = Lhs.Center - Rhs.Center;
 
 	if (Fomula <= Rhs.Radius && Fomula >= 0)
-	{		
+	{
 		CrossingArea = Rhs.Radius - Fomula;
 		return true;
 	}
@@ -512,7 +518,7 @@ bool FMath::IsPlaneToSphere(
 };
 
 
- bool FMath::IsSphereToSphere(const Sphere& Lhs, const Sphere& Rhs,
+bool FMath::IsSphereToSphere(const Sphere& Lhs, const Sphere& Rhs,
 	float& CrossingArea,
 	Vector3& IntersectPointLhs,
 	Vector3& IntersectPointRhs)
@@ -534,126 +540,126 @@ bool FMath::IsPlaneToSphere(
 	return false;
 };
 
- bool FMath::IsRayToSphere(
-	 const Ray& Lhs, const Sphere& Rhs,
-	 float& t0, float& t1, Vector3& OutIntersectPoint)
- {
-	 const Vector3 RayStartToCenter = Rhs.Center - Lhs.Start;
-	 const float dot = FMath::Dot(Lhs.Direction, RayStartToCenter);
-	 const Vector3 IntersectPoint = Lhs.Start + Lhs.Direction * dot;
-	 Vector3 ItPtToCenter = IntersectPoint - Rhs.Center;
-	 const float Distance = FMath::Length(ItPtToCenter);
-	 const float m = FMath::Length(IntersectPoint - Rhs.Center);
-	 const float q = std::sqrtf((Rhs.Radius * Rhs.Radius) - (m * m));
-	 t0 = dot - q;
-	 t1 = dot + q;
-	 if (Distance < Rhs.Radius && (t0 >= 0 || t1 >= 0))
-	 {
-		 OutIntersectPoint = IntersectPoint;
-		 return true;
-	 }
+bool FMath::IsRayToSphere(
+	const Ray& Lhs, const Sphere& Rhs,
+	float& t0, float& t1, Vector3& OutIntersectPoint)
+{
+	const Vector3 RayStartToCenter = Rhs.Center - Lhs.Start;
+	const float dot = FMath::Dot(Lhs.Direction, RayStartToCenter);
+	const Vector3 IntersectPoint = Lhs.Start + Lhs.Direction * dot;
+	Vector3 ItPtToCenter = IntersectPoint - Rhs.Center;
+	const float Distance = FMath::Length(ItPtToCenter);
+	const float m = FMath::Length(IntersectPoint - Rhs.Center);
+	const float q = std::sqrtf((Rhs.Radius * Rhs.Radius) - (m * m));
+	t0 = dot - q;
+	t1 = dot + q;
+	if (Distance < Rhs.Radius && (t0 >= 0 || t1 >= 0))
+	{
+		OutIntersectPoint = IntersectPoint;
+		return true;
+	}
 
-	 return false;
- }
+	return false;
+}
 
- inline bool FMath::InnerPointFromFace(const Vector3& Point, const std::array<Vector3, 3ul>& Face)
- {
-	 std::array <Vector3, 3u> ToVertexs;
+inline bool FMath::InnerPointFromFace(const Vector3& Point, const std::array<Vector3, 3ul>& Face)
+{
+	std::array <Vector3, 3u> ToVertexs;
 
-	 for (size_t i = 0; i < ToVertexs.size(); ++i)
-	 {
-		 ToVertexs[i] = FMath::Normalize(Face[i] - Point);
-	 }
+	for (size_t i = 0; i < ToVertexs.size(); ++i)
+	{
+		ToVertexs[i] = FMath::Normalize(Face[i] - Point);
+	}
 
-	 float Radian = 0;
-	 Radian += std::acosf(Dot(ToVertexs[0], ToVertexs[1]));
-	 Radian += std::acosf(Dot(ToVertexs[1], ToVertexs[2]));
-	 Radian += std::acosf(Dot(ToVertexs[2], ToVertexs[0]));
+	float Radian = 0;
+	Radian += std::acosf(Dot(ToVertexs[0], ToVertexs[1]));
+	Radian += std::acosf(Dot(ToVertexs[1], ToVertexs[2]));
+	Radian += std::acosf(Dot(ToVertexs[2], ToVertexs[0]));
 
-	 return AlmostEqual<float>(Radian, PI * 2.f);
+	return AlmostEqual<float>(Radian, PI * 2.f);
 
- }
+}
 
 
- inline bool FMath::Intersect_1D_Line(const float LhsMin, const float LhsMax, const float RhsMin, const float RhsMax)
- {
-	 if (RhsMin > LhsMax || RhsMax < LhsMin)
-		 return false;
+inline bool FMath::Intersect_1D_Line(const float LhsMin, const float LhsMax, const float RhsMin, const float RhsMax)
+{
+	if (RhsMin > LhsMax || RhsMax < LhsMin)
+		return false;
 
-	 return true;
- }
+	return true;
+}
 
- inline std::optional<std::tuple<float, float, float, float>> /*LhsMin,LhsMax,RhsMin,RhsMax*/
-	 FMath::IsProjectionIntersectAreaAABB(
-		 Vector3 ProjectionAxis,
-		 const Vector3 LhsCenter,
-		 // 면6개(최적화3개)의 노말벡터와 중심점으로부터 면까지의 길이를 곱한 3 벡터
-		 const std::array<Vector3, 8u> LhsHalfDistanceVecs,
-		 const Vector3 RhsCenter,
-		 const std::array<Vector3, 8u>  RhsHalfDistanceVecs)
- {
-	 std::vector<float> LhsDots;
-	 std::vector<float> RhsDots;
+inline std::optional<std::tuple<float, float, float, float>> /*LhsMin,LhsMax,RhsMin,RhsMax*/
+FMath::IsProjectionIntersectAreaAABB(
+	Vector3 ProjectionAxis,
+	const Vector3 LhsCenter,
+	// 면6개(최적화3개)의 노말벡터와 중심점으로부터 면까지의 길이를 곱한 3 벡터
+	const std::array<Vector3, 8u> LhsHalfDistanceVecs,
+	const Vector3 RhsCenter,
+	const std::array<Vector3, 8u>  RhsHalfDistanceVecs)
+{
+	std::vector<float> LhsDots;
+	std::vector<float> RhsDots;
 
-	 for (auto& Point : LhsHalfDistanceVecs)
-	 {
-		 LhsDots.push_back(FMath::Dot(Point, ProjectionAxis));
-	 }
-	 for (auto& Point : RhsHalfDistanceVecs)
-	 {
-		 RhsDots.push_back(FMath::Dot(Point, ProjectionAxis));
-	 }
+	for (auto& Point : LhsHalfDistanceVecs)
+	{
+		LhsDots.push_back(FMath::Dot(Point, ProjectionAxis));
+	}
+	for (auto& Point : RhsHalfDistanceVecs)
+	{
+		RhsDots.push_back(FMath::Dot(Point, ProjectionAxis));
+	}
 
-	 const auto [LhsMin, LhsMax] = std::minmax_element(std::begin(LhsDots), std::end(LhsDots));
-	 const auto [RhsMin, RhsMax] = std::minmax_element(std::begin(RhsDots), std::end(RhsDots));
+	const auto [LhsMin, LhsMax] = std::minmax_element(std::begin(LhsDots), std::end(LhsDots));
+	const auto [RhsMin, RhsMax] = std::minmax_element(std::begin(RhsDots), std::end(RhsDots));
 
-	 if (Intersect_1D_Line(*LhsMin, *LhsMax, *RhsMin, *RhsMax))
-	 {
-		 return  { std::tuple<float,float,float,float> { *LhsMin,* LhsMax,* RhsMin,* RhsMax } };
-	 }
-	 else
-	 {
-		 return {};
-	 }
- };
+	if (Intersect_1D_Line(*LhsMin, *LhsMax, *RhsMin, *RhsMax))
+	{
+		return  { std::tuple<float,float,float,float> { *LhsMin,* LhsMax,* RhsMin,* RhsMax } };
+	}
+	else
+	{
+		return {};
+	}
+};
 
- inline std::optional<std::pair<float,Vector3>> FMath::IsSphereToOBB(const Vector3 SphereCeneter,
-	  const float SphereRadius,
-	   const Vector3 OBBCenter,
-		const std::array<Vector3,3u/*xyz*/>& OBBBasis ,
-		const Vector3/*xyz*/OBBHalfDistances)
- {
-	 const Vector3 ToSphere = SphereCeneter -OBBCenter;
-	 //구의 중심에서 박스의 중심을 향하는 벡터 D를  박스의 각 축에 투영한다
-	 //투영된 길이를 박스의 각 축의 절반 길이 만큼 제한한다. 
-	 //(박스의 테두리를 넘지않도록) (a,b,c) 
-	 const Vector3 AxisDots
-	 {
-		 std::clamp(FMath::Dot(OBBBasis[0],ToSphere),
-							-OBBHalfDistances.x,
-							 OBBHalfDistances.x),
-		 std::clamp(FMath::Dot(OBBBasis[1],ToSphere),
-							-OBBHalfDistances.y,
-							 OBBHalfDistances.y),
-		 std::clamp(FMath::Dot(OBBBasis[2],ToSphere),
-							-OBBHalfDistances.z,
-							 OBBHalfDistances.z),
-	 };
+inline std::optional<std::pair<float, Vector3>> FMath::IsSphereToOBB(const Vector3 SphereCeneter,
+	const float SphereRadius,
+	const Vector3 OBBCenter,
+	const std::array<Vector3, 3u/*xyz*/>& OBBBasis,
+	const Vector3/*xyz*/OBBHalfDistances)
+{
+	const Vector3 ToSphere = SphereCeneter - OBBCenter;
+	//구의 중심에서 박스의 중심을 향하는 벡터 D를  박스의 각 축에 투영한다
+	//투영된 길이를 박스의 각 축의 절반 길이 만큼 제한한다. 
+	//(박스의 테두리를 넘지않도록) (a,b,c) 
+	const Vector3 AxisDots
+	{
+		std::clamp(FMath::Dot(OBBBasis[0],ToSphere),
+						   -OBBHalfDistances.x,
+							OBBHalfDistances.x),
+		std::clamp(FMath::Dot(OBBBasis[1],ToSphere),
+						   -OBBHalfDistances.y,
+							OBBHalfDistances.y),
+		std::clamp(FMath::Dot(OBBBasis[2],ToSphere),
+						   -OBBHalfDistances.z,
+							OBBHalfDistances.z),
+	};
 
-	 // 박스의 각 기저 3개의 축과 각 축의 투영된 길이를 전부 곱한 벡터의 합이
-	 // 박스와 구의 가장 가까운 점이다.
-	 const Vector3 NearestPoint =
-		 OBBBasis[0] * AxisDots.x
-		 + OBBBasis[1] * AxisDots.y
-		 + OBBBasis[2] * AxisDots.z
-		 + OBBCenter;
+	// 박스의 각 기저 3개의 축과 각 축의 투영된 길이를 전부 곱한 벡터의 합이
+	// 박스와 구의 가장 가까운 점이다.
+	const Vector3 NearestPoint =
+		OBBBasis[0] * AxisDots.x
+		+ OBBBasis[1] * AxisDots.y
+		+ OBBBasis[2] * AxisDots.z
+		+ OBBCenter;
 
-	 const Vector3 ToNearestPoint = NearestPoint - SphereCeneter;
-	 const float ToNearestPointDistance = FMath::Length(ToNearestPoint);
-	 if (ToNearestPointDistance > SphereRadius)
-		 return {};
+	const Vector3 ToNearestPoint = NearestPoint - SphereCeneter;
+	const float ToNearestPointDistance = FMath::Length(ToNearestPoint);
+	if (ToNearestPointDistance > SphereRadius)
+		return {};
 
-	 return   { { SphereRadius - ToNearestPointDistance ,
-				  -FMath::Normalize(ToNearestPoint)} };
+	return   { { SphereRadius - ToNearestPointDistance ,
+				 -FMath::Normalize(ToNearestPoint)} };
 
- }
+}

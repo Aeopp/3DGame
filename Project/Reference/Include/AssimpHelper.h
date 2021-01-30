@@ -5,14 +5,29 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-inline Matrix AssimpTo(const aiMatrix4x4& AiMatrix)
+inline void AssimpDebugPrint(const aiMatrix4x4& AiMatrix)
 {
-	Matrix _Matrix; 
-	std::memcpy(&_Matrix, &AiMatrix, sizeof(Matrix));
-	return *D3DXMatrixTranspose(&_Matrix, &_Matrix);
+	for (uint32 Row = 0u; Row < 4u; ++Row)
+	{
+		for (uint32 Col = 0u; Col < 4u; ++Col)
+		{
+			std::cout << AiMatrix[Row][Col] << " "; 
+		}
+		std::cout << std::endl; 
+	}
+	std::cout << std::endl; 
+}
+
+// 열기준 행렬을 전치해 DX의 행기준 행렬로 변환한다.
+inline Matrix FromAssimp(const aiMatrix4x4& AiMatrix)
+{
+	Matrix _Matrix;
+	std::memcpy(&_Matrix, &AiMatrix, sizeof(aiMatrix4x4));
+	D3DXMatrixTranspose(&_Matrix, &_Matrix);
+	return _Matrix;
 };
 
-inline Vector3 AssimpTo(const aiVector3D& AiVector3D)
+inline Vector3 FromAssimp(const aiVector3D& AiVector3D)
 {
 	return Vector3
 	{
@@ -22,7 +37,7 @@ inline Vector3 AssimpTo(const aiVector3D& AiVector3D)
 	};
 };
 
-inline Quaternion AssimpTo(const aiQuaternion& AiQuaternion)
+inline Quaternion FromAssimp(const aiQuaternion& AiQuaternion)
 {
 	return Quaternion{
 	AiQuaternion.x ,
