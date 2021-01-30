@@ -113,7 +113,8 @@ else 충돌 아님
  * Bone.Transform == Bone Local Space To Parent Space
  * Root 의 Transform 이 모델링의 기저와 일치하지 않거나 포지션 이동 하였을 경우 당연하지만
  Bind Space 와 모델의 Local Space 는 일치하지 않는다. 그 이외는 일치.
- * Assimp 로 로딩하는 Bone Transform은 행 기준 행렬이 아님.
+ * Assimp 에서 사용하는 좌표축은 OpenGL과 동일한 오른손 좌표계이며 열기준 행렬이므로 directx 의 왼손 좌표계로 데이터를 읽어들이도록 ReadFile 사용시
+ 몇가지 옵션을 지정해주어야 하며 행렬 사용시 전치해주어야 함.
   ## 자주쓰일 법한 로딩 옵션
 aiProcess_JoinIdenticalVertices // 동일한 꼭지점 결합, 인덱싱 최적화 중복 정점 하나로 합치기
 aiProcess_ValidateDataStructure // 로더의 출력을 검증
