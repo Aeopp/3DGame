@@ -22,7 +22,7 @@ void TombStone::Initialize(const Vector3& SpawnLocation , const Vector3& Rotatio
 	Super::Initialize();
 	_TestID = TestID++;
 
-	auto _Transform =AddComponent<Engine::Transform>();
+	auto _Transform =AddComponent<Engine::OriginTransform>();
 	_Transform->SetScale({ 1,1,1 });
 	_Transform->SetRotation(Rotation);
 	_Transform->SetLocation(SpawnLocation);
@@ -85,7 +85,7 @@ void TombStone::Event()&
 void TombStone::Render()&
 {
 	Super::Render();
-	const Matrix& World = GetComponent<Engine::Transform>()->UpdateWorld();
+	const Matrix& World = GetComponent<Engine::OriginTransform>()->UpdateWorld();
 	Device->SetTransform(D3DTS_WORLD, &World);
 	auto _StaticMesh = GetComponent<Engine::StaticMesh>();
 	Matrix View, Proj;
@@ -135,7 +135,7 @@ void TombStone::Update(const float DeltaTime)&
 	if (_TestID == 1u )
 	{
 		auto& Control = RefControl();
-		auto _Transform = GetComponent<Engine::Transform>();
+		auto _Transform = GetComponent<Engine::OriginTransform>();
 		static constexpr float Speed = 10.f;
 	/*	_Transform->Rotate({ 0,1,0 }, 3.14f * 1 * DeltaTime);
 		_Transform->Rotate({ 1,0,0 }, 3.14f * 1 * DeltaTime);
@@ -170,7 +170,7 @@ void TombStone::Update(const float DeltaTime)&
 	if (_TestID == 0u)
 	{
 		auto& Control = RefControl();
-		auto _Transform = GetComponent<Engine::Transform>();
+		auto _Transform = GetComponent<Engine::OriginTransform>();
 		static constexpr float Speed = 10.f;
 		/*	_Transform->Rotate({ 0,1,0 }, 3.14f * 1 * DeltaTime);
 			_Transform->Rotate({ 1,0,0 }, 3.14f * 1 * DeltaTime);
@@ -206,7 +206,7 @@ void TombStone::Update(const float DeltaTime)&
 	if (_TestID == 1u)
 	{
 		auto& Control = RefControl();
-		auto _Transform = GetComponent<Engine::Transform>();
+		auto _Transform = GetComponent<Engine::OriginTransform>();
 		static constexpr float Speed = 10.f;
 		/*	_Transform->Rotate({ 0,1,0 }, 3.14f * 1 * DeltaTime);
 			_Transform->Rotate({ 1,0,0 }, 3.14f * 1 * DeltaTime);

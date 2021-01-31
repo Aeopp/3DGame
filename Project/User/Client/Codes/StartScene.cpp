@@ -347,8 +347,6 @@ MyModel::MyModel(
 //본 월드에 맞게 업데이트
 //메쉬마다 애니메이션
 
-
-
 void MyModel::BoneUpdate()&
 {
 	auto iter = BoneTableIndexFromName.find
@@ -437,6 +435,11 @@ void MyModel::Render()&
 	Device->SetVertexDeclaration(VertexDecl);
 	for (auto& CurrentMesh : Meshes)
 	{
+		for (uint32 FinalTransformIdx=0u;FinalTransformIdx<CurrentMesh.FinalTransform.size();++FinalTransformIdx)
+		{
+			CurrentMesh.FinalTransform[FinalTransformIdx] = BoneTable[CurrentMesh.BoneTableIdxFromFinalTransformIdx[FinalTransformIdx]].FinalMatrix;
+		}
+
 		Device->SetStreamSource(0, CurrentMesh.VertexBuffer, 0, sizeof(decltype(CurrentMesh.Vertices)::value_type));
 		// 텍스쳐 바인딩.
 		Device->SetIndices(CurrentMesh.IndexBuffer);
