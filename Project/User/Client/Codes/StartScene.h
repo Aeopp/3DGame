@@ -18,15 +18,29 @@ public:
 private:
 };
 
-struct Bone
+struct Track 
 {
-	int32 TableIdx{ 0u };
-	Matrix ToRootSpace{};
-	Matrix Offset{};
-	Matrix Transform{};
+	uint32 PositionKey{ 0u };
+	uint32 RotationKey{ 0u };
+	uint32 ScaleKey{ 0u };
 };
 
-struct MeshInformation
+struct Bone
+{
+	int32              ParentIdx{ -1 };
+	int32              TableIdx{ 0 };
+	std::vector<int32> ChildrensIndices{};
+
+	Track              CurrentAnimTrack{}; 
+	Matrix             FinalMatrix{};
+	Matrix             ToRootSpace{};
+	Matrix             Offset{};
+	Matrix             OriginTransform{};
+	Matrix             CurrentTransform{}; 
+	std::string        NodeName{};
+};
+
+struct AnimationMesh
 {
 	IDirect3DVertexBuffer9* VertexBuffer{ nullptr };
 	IDirect3DIndexBuffer9* IndexBuffer{nullptr};
@@ -36,8 +50,11 @@ struct MeshInformation
 	std::vector<Matrix> FinalTransform{};
 	             //     최종 행렬 인덱스와 본 정보 테이블 인덱스 매핑
 	std::unordered_map<uint32,uint32> BoneTableIdxFromFinalTransformIdx{};
+	uint32 NumVertices{ 0u };
+	uint32 FaceCount{ 0u };
 	uint32 MaterialIndex{ 0u };
 	std::vector<uint32> Indices{};
+	std::vector<Vertex::Animation> Vertices;
 };
 
 class MyModel
@@ -46,11 +63,19 @@ public:
 	MyModel(const std::filesystem::path& Path,
 			const std::filesystem::path& Name,
 			IDirect3DDevice9*const Device);
+public:
+	void BoneUpdate()&;
+	void Render()&;
 private:
-	void CreateHierarchy(aiNode*const _Node,const Matrix ToRootSpace)&;
+	const aiNodeAnim* const FindAnimationNode
+	(const aiAnimation*	_Animation, const std::string NodeName)&;
+	void BoneUpdateChildren(Bone& Parent,Bone& TargetBone , const aiAnimation* const _Animation,const double t)&;
+	int32 CreateHierarchy(const uint32 ParentIdx,aiNode*const _Node,const Matrix ToRootSpace)&;
 	void CreateMeshInformation(const std::filesystem::path& Path)&;
+	void CreateBuffer(const std::wstring& Name)&;
 private:
-	std::vector<MeshInformation> _MeshInformations{};
+	IDirect3DVertexDeclaration9* VertexDecl{nullptr}; 
+	std::vector<AnimationMesh> Meshes{};
 	IDirect3DDevice9* Device{};
 	uint32 BoneCount{ 0u };
 	const aiScene* _Scene{};

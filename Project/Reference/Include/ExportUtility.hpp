@@ -9,7 +9,7 @@ inline auto& RefControl() { return *Engine::Management::Instance->_Controller; }
 inline auto& RefProto() { return *Engine::Management::Instance->_PrototypeManager; };
 inline auto& RefFontManager() {return *Engine::Management::Instance->_FontManager;}
 inline auto& RefResourceSys() { return *Engine::Management::Instance->_ResourceSys; }
-
+inline auto& RefShaderSys() { return *Engine::Management::Instance->_ShaderManager; };
 //template<typename ObjectSubType,	typename...Params>
 //	void LoadPrototype(const std::wstring& Tag,Params&&... _Params)
 //{
