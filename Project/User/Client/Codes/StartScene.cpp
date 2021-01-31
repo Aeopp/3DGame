@@ -26,8 +26,8 @@
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
 {
 	MyModel(
-		L"..\\..\\..\\Resource\\Mesh\\DynamicMesh\\TestCharacter\\",
-		L"Chaos_T_Pose.fbx" ,Device);
+		L"..\\..\\..\\Resource\\Mesh\\DynamicMesh\\Chaos\\",
+		L"Chaos.fbx" ,Device);
 
     Super::Initialize(Device);
 	
@@ -321,7 +321,8 @@ MyModel::MyModel(
 	);
 	CreateHierarchy(_Scene->mRootNode,FMath::Identity());
 	CreateMeshInformation(Path);
-	CreateMaterials(Path);
+
+
 }
 
 void MyModel::CreateHierarchy(aiNode* const _Node,const Matrix ToRootSpace)&
@@ -345,13 +346,13 @@ void MyModel::CreateMeshInformation(const std::filesystem::path& Path)&
 {
 	auto& ResourceSys = RefResourceSys();
 	//      메쉬 인덱스 와 메쉬의 버텍스들.
-	const uint32 NumMesh = _Scene->mNumMeshes; 
+	const uint32 NumMesh = _Scene->mNumMeshes;
 	std::vector<std::vector<Vertex::Animation>> MeshVertices;
 	MeshVertices.resize(NumMesh);
 	_MeshInformations.resize(NumMesh);
 	for (uint32 MeshIdx = 0u; MeshIdx < NumMesh; ++MeshIdx)
 	{
-		const aiMesh*const CurrentMesh = _Scene->mMeshes[MeshIdx];
+		const aiMesh* const CurrentMesh = _Scene->mMeshes[MeshIdx];
 		auto& CurrentMeshInfo = _MeshInformations[MeshIdx];
 		CurrentMeshInfo.MaterialIndex = CurrentMesh->mMaterialIndex;
 		auto& CurrentMeshVertices = MeshVertices[MeshIdx];
@@ -360,7 +361,7 @@ void MyModel::CreateMeshInformation(const std::filesystem::path& Path)&
 		for (uint32 VerticesIdx = 0u; VerticesIdx < CurrentNumVertices; ++VerticesIdx)
 		{
 			Vertex::Animation TargetVertex;
-			TargetVertex.Location  = FromAssimp(CurrentMesh->mVertices[VerticesIdx]);
+			TargetVertex.Location = FromAssimp(CurrentMesh->mVertices[VerticesIdx]);
 			TargetVertex.Normal = FMath::Normalize(FromAssimp(CurrentMesh->mNormals[VerticesIdx]));
 			TargetVertex.UV = Vector2{ FromAssimp(CurrentMesh->mTextureCoords[0][VerticesIdx]) };
 
@@ -370,7 +371,7 @@ void MyModel::CreateMeshInformation(const std::filesystem::path& Path)&
 		const uint32 NumFaces = CurrentMesh->mNumFaces;
 		for (uint32 FaceIdx = 0u; FaceIdx < NumFaces; ++FaceIdx)
 		{
-			aiFace CurrentFace=CurrentMesh->mFaces[FaceIdx];
+			aiFace CurrentFace = CurrentMesh->mFaces[FaceIdx];
 			for (uint32 IndicesIndex = 0u; IndicesIndex < CurrentFace.mNumIndices;
 				++IndicesIndex)
 			{
@@ -383,17 +384,39 @@ void MyModel::CreateMeshInformation(const std::filesystem::path& Path)&
 		if (CurrentMesh->mMaterialIndex >= 0)
 		{
 			aiMaterial* Material = _Scene->mMaterials[CurrentMesh->mMaterialIndex];
-			CurrentMeshInfo.DiffuseMap = ResourceSys.Emplace<IDirect3DTexture9>
-				(ResourcePathName.c_str(),
-					D3DXCreateTextureFromFile, Device, ResourcePathName.c_str(), &_Texture);
+			if (Material->GetTextureCount(aiTextureType_DIFFUSE) > 0u)
+			{
+				aiString aiTextureName;
+				if (Material->GetTexture(aiTextureType_DIFFUSE, 0u, &aiTextureName
+					, nullptr, nullptr, nullptr, nullptr, nullptr) == AI_SUCCESS)
+				{
+					const std::string TextureName = aiTextureName.C_Str();
+					std::wstring WTextureName;
+					WTextureName.assign(std::begin(TextureName), std::end(TextureName));
+					std::filesystem::path TexturePath = Path / TextureName;
+
+					CurrentMeshInfo.DiffuseMap = ResourceSys.Get<IDirect3DTexture9>(WTextureName);
+
+					if (CurrentMeshInfo.DiffuseMap == nullptr)
+					{
+
+						CurrentMeshInfo.DiffuseMap =
+							ResourceSys.Emplace<IDirect3DTexture9>(
+								WTextureName,D3DXCreateTextureFromFile,Device, 
+								TexturePath.wstring().c_str(), &CurrentMeshInfo.DiffuseMap);
+
+					}
+				}
+			}
+
 		}
 
-		const uint32 NumBone = CurrentMesh->mNumBones; 
+		const uint32 NumBone = CurrentMesh->mNumBones;
 		CurrentMeshInfo.FinalTransform.resize(NumBone);
-		for (uint32 BoneIdx = 0u; BoneIdx < NumBone;++BoneIdx)
+		for (uint32 BoneIdx = 0u; BoneIdx < NumBone; ++BoneIdx)
 		{
-			const aiBone*const CurrentBone = CurrentMesh->mBones[BoneIdx];
-			CurrentMeshInfo.BoneTableIdxFromFinalTransformIdx.insert({BoneIdx,BoneTableIndexFromName.find(CurrentBone->mName.C_Str())->second});
+			const aiBone* const CurrentBone = CurrentMesh->mBones[BoneIdx];
+			CurrentMeshInfo.BoneTableIdxFromFinalTransformIdx.insert({ BoneIdx,BoneTableIndexFromName.find(CurrentBone->mName.C_Str())->second });
 			for (uint32 BoneAffectedVertexIdx = 0u; BoneAffectedVertexIdx < CurrentBone->mNumWeights; ++BoneAffectedVertexIdx)
 			{
 				const aiVertexWeight VertexWeight = CurrentBone->mWeights[BoneAffectedVertexIdx];
@@ -414,27 +437,4 @@ void MyModel::CreateMeshInformation(const std::filesystem::path& Path)&
 			}
 		}
 	}
-}
-
-
-void MyModel::CreateMaterials(std::filesystem::path Path)&
-{
-
-	//_Scene->mMeshes[1]->머테리얼 인덱스.
-	for (uint32 i = 0u; i < _Scene->mNumMaterials; ++i)
-	{
-		aiMaterial* _Material = _Scene->mMaterials[i];
-		if (_Material->GetTextureCount(aiTextureType_DIFFUSE) > 0u)
-		{
-			aiString TextureName;
-			if (_Material->GetTexture(aiTextureType_DIFFUSE,0u,&TextureName
-				, nullptr, nullptr, nullptr, nullptr, nullptr) == AI_SUCCESS)
-			{
-				const std::wstring ResourcePathName = Path/TextureName.C_Str();
-				IDirect3DTexture9* _Texture{ nullptr };
-				ResourceSys.Emplace<IDirect3DTexture9>(ResourcePathName.c_str(),
-					D3DXCreateTextureFromFile, Device, ResourcePathName.c_str(), &_Texture);
-			}
-		}
-	}
-}
+};

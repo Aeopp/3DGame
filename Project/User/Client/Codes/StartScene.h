@@ -49,7 +49,6 @@ public:
 private:
 	void CreateHierarchy(aiNode*const _Node,const Matrix ToRootSpace)&;
 	void CreateMeshInformation(const std::filesystem::path& Path)&;
-	void CreateMaterials(std::filesystem::path Path)&;
 private:
 	std::vector<MeshInformation> _MeshInformations{};
 	IDirect3DDevice9* Device{};
