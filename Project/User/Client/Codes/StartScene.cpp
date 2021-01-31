@@ -23,62 +23,6 @@
 #include "FontManager.h"
 #include "UtilityGlobal.h"
 
-
-void PrintLog(aiNode* _Node)
-{
-	if (!_Node)return;
-	
-	if (std::string(_Node->mName.C_Str()) == "Spine")
-	{
-		/*auto Null = AssimpTo(_Node->mParent->mParent->mParent->mTransformation);
-		std::cout << _Node->mParent->mParent->mParent->mName.C_Str() << std::endl;
-		FMath::DebugPrintMatrix(Null);
-
-		auto Root = AssimpTo(_Node->mParent->mParent->mTransformation);
-		std::cout << _Node->mParent->mParent->mName.C_Str() << std::endl;
-		FMath::DebugPrintMatrix(Root);
-
-		auto Pelvis = AssimpTo(_Node->mParent->mTransformation);
-		std::cout << _Node->mParent->mName.C_Str() << std::endl;
-		FMath::DebugPrintMatrix(Pelvis);
-
-		auto Transform_ = AssimpTo(_Node->mTransformation);
-		std::cout << _Node->mName.C_Str() << std::endl;
-		FMath::DebugPrintMatrix(Transform_);
-		
-		Null *= Root;
-		Null *= Pelvis;
-		Null *= Transform_;
-		std::cout << "Final \n";
-		FMath::DebugPrintMatrix(FMath::Inverse(Null));
-		std::cout << std::endl;*/
-
-		auto RootDummyDummy = _Node->mParent->mParent->mParent->mParent->mParent->mTransformation;
-		auto RootDummy = (_Node->mParent->mParent->mParent->mParent->mTransformation);
-		auto Null = (_Node->mParent->mParent->mParent->mTransformation);
-		auto Root = (_Node->mParent->mParent->mTransformation);
-		auto Pelvis = (_Node->mParent->mTransformation);
-		auto Transform_ = (_Node->mTransformation);
-		AssimpDebugPrint(Transform_);
-		auto Final = 
-			Null* Root * Pelvis  * Transform_ ;
-		Final.Inverse();
-		std::cout << "Final: " << std::endl;
-
-		AssimpDebugPrint(Final);
-	}
-	for (int i = 0; i < _Node->mNumChildren; ++i)
-	{
-		PrintLog(_Node->mChildren[i]);
-	}
-
-}
-
-
-
-
-
-
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
 {
 	MyModel(
@@ -271,24 +215,12 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	}
 
 	{
-	
-
-	{
-			// 오브젝트 스폰
-		//RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_1" ,
-		//	Vector3{ 0,0,10 }, Vector3{0,0,0});
+		// 오브젝트 스폰
+		RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_1" ,
+			Vector3{ 0,0,10 }, Vector3{0,0,0});
 
 		RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_2",
 			Vector3{ 5,0,10 }, Vector3{0,0,0});
-	}
-	
-
-		/*for (size_t i = 0; i < 100; ++i)
-		{
-			RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_"
-				+std::to_wstring(i),
-				FMath::Random(Vector3{ -5,-5,-5 }, Vector3{ 5,5,5 }));
-		}*/
 	}
 };
 
@@ -341,21 +273,27 @@ void StartScene::Update(const float DeltaTime)&
 
 		auto& LeyerMap = RefManager().RefLayers();
 
-		for (auto& q : RefManager().FindObjects<EnemyLayer, Engine::HeightMap>())
+		for (auto& _HeightMap : RefManager().FindObjects<EnemyLayer, Engine::HeightMap>())
 		{
 			//std::wcout << q->GetName() << std::endl;
 		}
-		for (auto& q : RefManager().FindObjects<StaticLayer, Engine::DynamicCamera>())
+		for (auto& _Camera : RefManager().FindObjects<StaticLayer, Engine::DynamicCamera>())
 		{
 			//std::wcout << q->GetName() << std::endl;
 		}
 
-		auto Objs2 = RefManager().RefObjects<EnemyLayer>();
+		auto Objects = RefManager().RefObjects<EnemyLayer>();
 	}
 }
+
+
+
+
+
  // "..\\..\\..\\Resource\\Mesh\\DynamicMesh\\Chaos\\Chaos.fbx" 
 MyModel::MyModel(
-	const std::filesystem::path& Path, const std::filesystem::path& Name, 
+	const std::filesystem::path& Path, 
+	const std::filesystem::path& Name, 
 	IDirect3DDevice9* const Device) :Device{ Device }
 {
 	Assimp::Importer AssimpImporter{};
@@ -377,76 +315,111 @@ MyModel::MyModel(
 		aiProcess_TransformUVCoords |
 		aiProcess_FindInstances |
 		aiProcess_LimitBoneWeights |
-		aiProcess_OptimizeMeshes |
 		aiProcess_GenSmoothNormals |
 		aiProcess_SplitLargeMeshes |
 		aiProcess_SortByPType
 	);
-	//PrintLog(_Scene->mRootNode);
-	static bool bDebug = false;
-	/*int qq=_Scene->mNumAnimations;
-	int ss =_Scene->mAnimations[0]->mNumChannels;
-	_Scene->mAnimations[0]->mChannels[0]->mRotationKeys[0].mValue;
-	_Scene->mAnimations[0]->mChannels[0]->mPositionKeys[0].mValue;
-	_Scene->mAnimations[0]->mChannels[0]->mScalingKeys[0].mValue;*/
+	CreateHierarchy(_Scene->mRootNode,FMath::Identity());
+	CreateMeshInformation(Path);
+	CreateMaterials(Path);
+}
 
-	//_Scene->mAnimations[0]->mNumMorphMeshChannels*/
-	for (int i = 0; i < _Scene->mNumMeshes; ++i)
+void MyModel::CreateHierarchy(aiNode* const _Node,const Matrix ToRootSpace)&
+{
+	Bone _Bone;
+	_Bone.Transform = FromAssimp(_Node->mTransformation);
+	_Bone.ToRootSpace = ToRootSpace;
+	_Bone.TableIdx = BoneTable.size();
+	auto BoneShared = std::make_shared<Bone>(_Bone);
+
+	BoneTableIndexFromName.insert({ _Node->mName.C_Str(),_Bone.TableIdx});
+	BoneTable.push_back(_Bone);
+
+	const Matrix ChildrenToRootSpace = _Bone.Transform * ToRootSpace;
+	for (uint32 ChildrenIdx = 0u; ChildrenIdx < _Node->mNumChildren; ++ChildrenIdx)
 	{
-		for (int j = 0; j < _Scene->mMeshes[i]->mNumBones; ++j)
-		{
-			if (std::string(_Scene->mMeshes[i]->mBones[j]->mName.C_Str()) ==
-					std::string("Bone_Arm_L_01") && !bDebug)
-			{
-				std::cout << "\n\nOffsetMatrix\n";
-				bDebug = true;
-				FMath::DebugPrintMatrix(FromAssimp(_Scene->mMeshes[i]->mBones[j]->mOffsetMatrix));
+		CreateHierarchy(_Node->mChildren[ChildrenIdx],ChildrenToRootSpace);
+	}
+};
+void MyModel::CreateMeshInformation(const std::filesystem::path& Path)&
+{
+	auto& ResourceSys = RefResourceSys();
+	//      메쉬 인덱스 와 메쉬의 버텍스들.
+	const uint32 NumMesh = _Scene->mNumMeshes; 
+	std::vector<std::vector<Vertex::Animation>> MeshVertices;
+	MeshVertices.resize(NumMesh);
+	_MeshInformations.resize(NumMesh);
+	for (uint32 MeshIdx = 0u; MeshIdx < NumMesh; ++MeshIdx)
+	{
+		const aiMesh*const CurrentMesh = _Scene->mMeshes[MeshIdx];
+		auto& CurrentMeshInfo = _MeshInformations[MeshIdx];
+		CurrentMeshInfo.MaterialIndex = CurrentMesh->mMaterialIndex;
+		auto& CurrentMeshVertices = MeshVertices[MeshIdx];
 
-				//AssimpDebugPrint(_Scene->mMeshes[i]->mBones[j]->mOffsetMatrix);
+		const uint32 CurrentNumVertices = CurrentMesh->mNumVertices;
+		for (uint32 VerticesIdx = 0u; VerticesIdx < CurrentNumVertices; ++VerticesIdx)
+		{
+			Vertex::Animation TargetVertex;
+			TargetVertex.Location  = FromAssimp(CurrentMesh->mVertices[VerticesIdx]);
+			TargetVertex.Normal = FMath::Normalize(FromAssimp(CurrentMesh->mNormals[VerticesIdx]));
+			TargetVertex.UV = Vector2{ FromAssimp(CurrentMesh->mTextureCoords[0][VerticesIdx]) };
+
+			CurrentMeshVertices.push_back(TargetVertex);
+		}
+
+		const uint32 NumFaces = CurrentMesh->mNumFaces;
+		for (uint32 FaceIdx = 0u; FaceIdx < NumFaces; ++FaceIdx)
+		{
+			aiFace CurrentFace=CurrentMesh->mFaces[FaceIdx];
+			for (uint32 IndicesIndex = 0u; IndicesIndex < CurrentFace.mNumIndices;
+				++IndicesIndex)
+			{
+				CurrentMeshInfo.Indices.push_back(
+					CurrentFace.mIndices[IndicesIndex]
+				);
+			}
+		}
+
+		if (CurrentMesh->mMaterialIndex >= 0)
+		{
+			aiMaterial* Material = _Scene->mMaterials[CurrentMesh->mMaterialIndex];
+			CurrentMeshInfo.DiffuseMap = ResourceSys.Emplace<IDirect3DTexture9>
+				(ResourcePathName.c_str(),
+					D3DXCreateTextureFromFile, Device, ResourcePathName.c_str(), &_Texture);
+		}
+
+		const uint32 NumBone = CurrentMesh->mNumBones; 
+		CurrentMeshInfo.FinalTransform.resize(NumBone);
+		for (uint32 BoneIdx = 0u; BoneIdx < NumBone;++BoneIdx)
+		{
+			const aiBone*const CurrentBone = CurrentMesh->mBones[BoneIdx];
+			CurrentMeshInfo.BoneTableIdxFromFinalTransformIdx.insert({BoneIdx,BoneTableIndexFromName.find(CurrentBone->mName.C_Str())->second});
+			for (uint32 BoneAffectedVertexIdx = 0u; BoneAffectedVertexIdx < CurrentBone->mNumWeights; ++BoneAffectedVertexIdx)
+			{
+				const aiVertexWeight VertexWeight = CurrentBone->mWeights[BoneAffectedVertexIdx];
+				const uint32 AffectedVertexIdx = VertexWeight.mVertexId;
+				const float Weight = VertexWeight.mWeight;
+
+				auto& TargetVertex = CurrentMeshVertices[AffectedVertexIdx];
+				float* BoneIDsPtr = TargetVertex.BoneIds;
+				float* BoneWeightsPtr = TargetVertex.BoneWeights;
+				uint32 EmptyIdx = 0u;
+				for (; EmptyIdx < 4u; ++EmptyIdx)
+				{
+					if (FMath::AlmostEqual(BoneWeightsPtr[EmptyIdx], 0.0f))
+						break;
+				}
+				BoneWeightsPtr[EmptyIdx] = Weight;
+				BoneIDsPtr[EmptyIdx] = BoneIdx;
 			}
 		}
 	}
-
-	
-	auto Calc = FromAssimp(_Scene->mRootNode->mChildren[0]->mChildren[0]->FindNode("Bone_Arm_L_01")->mTransformation);
-	Calc *= FromAssimp(_Scene->mRootNode->mChildren[0]->mChildren[0]->mTransformation);
-	 Calc *= FromAssimp(_Scene->mRootNode->mChildren[0]->mTransformation);
-	 Calc *= FromAssimp(_Scene->mRootNode->mTransformation);
-
-
-
-
-
-	std::cout << "Calc\n";
-	FMath::DebugPrintMatrix(FMath::Inverse(Calc));
-
-	std::cout << "\n";
-	//CreateMaterials(Path);
-	/*for (uint32 MeshIdx = 0u; MeshIdx < _Scene->mNumMeshes; ++MeshIdx)
-	{
-		aiMesh* _Mesh=_Scene->mMeshes[MeshIdx];
-		_Mesh->bone
-	}*/
-	CreateHierarchy(_Scene->mRootNode);
 }
 
-void MyModel::CreateHierarchy(aiNode* const _Bone)&
-{
-	if (nullptr == _Bone)return;
-
-	BoneTableFromIdx.push_back(_Bone);
-	BoneTableFromName[_Bone->mName.C_Str()] = _Bone;
-	BoneCount++;
-
-	for (uint32 ChildrenIdx = 0u; ChildrenIdx < _Bone->mNumChildren; ++ChildrenIdx)
-	{
-		CreateHierarchy(_Bone->mChildren[ChildrenIdx]);
-	}	
-}
 
 void MyModel::CreateMaterials(std::filesystem::path Path)&
 {
-	auto& ResourceSys = RefResourceSys();
+
 	//_Scene->mMeshes[1]->머테리얼 인덱스.
 	for (uint32 i = 0u; i < _Scene->mNumMaterials; ++i)
 	{
@@ -454,10 +427,10 @@ void MyModel::CreateMaterials(std::filesystem::path Path)&
 		if (_Material->GetTextureCount(aiTextureType_DIFFUSE) > 0u)
 		{
 			aiString TextureName;
-			if (_Material->GetTexture(aiTextureType_DIFFUSE, 0u, &TextureName
+			if (_Material->GetTexture(aiTextureType_DIFFUSE,0u,&TextureName
 				, nullptr, nullptr, nullptr, nullptr, nullptr) == AI_SUCCESS)
 			{
-				const std::wstring ResourcePathName = Path / TextureName.C_Str();
+				const std::wstring ResourcePathName = Path/TextureName.C_Str();
 				IDirect3DTexture9* _Texture{ nullptr };
 				ResourceSys.Emplace<IDirect3DTexture9>(ResourcePathName.c_str(),
 					D3DXCreateTextureFromFile, Device, ResourcePathName.c_str(), &_Texture);

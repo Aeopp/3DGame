@@ -8,7 +8,7 @@ namespace Vertex
 		Vector3 Location{}; 
 		Vector3 Normal{}; 
 		Vector2 UV{}; 
-		Vector4 BoneIds{ 0,0,0,0 };
+		Vector4 BoneIds{0,0,0,0};
 		Vector4 BoneWeights{0,0,0,0};
 		static IDirect3DVertexDeclaration9* const
 			GetVertexDecl(IDirect3DDevice9* const Device);
