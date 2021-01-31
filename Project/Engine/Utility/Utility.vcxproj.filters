@@ -236,4 +236,8 @@
     <ClCompile Include="Codes\UtilityGlobal.cpp" />
     <ClCompile Include="Codes\Model.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\..\Resource\Shader\SkeletonPS.hlsl" />
+    <FxCompile Include="..\..\..\Resource\Shader\SkeletonVS.hlsl" />
+  </ItemGroup>
 </Project>

@@ -20,8 +20,6 @@ Engine::Shader::CompileAndCreate(
 	const std::wstring& ShaderFileName, 
 	IDirect3DDevice9* const Device)
 {
-	Shader _Shader;
-
 	// ¹öÅØ½º
 	{
 		const std::wstring VsFileName = ShaderFileName + L"VS.hlsl";
@@ -48,7 +46,7 @@ Engine::Shader::CompileAndCreate(
 			ErrorBuffer->Release();
 		}
 
-		_Shader.VsConstantTable = DX::MakeUnique(VsConstantTableTemp);
+		VsConstantTable = DX::MakeUnique(VsConstantTableTemp);
 
 		if (FAILED(Hr))
 			throw std::exception(__FUNCTION__);
@@ -57,14 +55,14 @@ Engine::Shader::CompileAndCreate(
 		Hr = Device->CreateVertexShader(
 			(DWORD*)ShaderBuffer->GetBufferPointer(),
 			&VertexShaderTemp);
-		_Shader.VsShader = DX::MakeUnique(VertexShaderTemp);
+		VsShader = DX::MakeUnique(VertexShaderTemp);
 
 		if (FAILED(Hr))
 		{
 			throw std::exception(__FUNCTION__);
 		}
 		ShaderBuffer->Release();
-		_Shader.VsConstantTable->SetDefaults(Device);
+		VsConstantTable->SetDefaults(Device);
 	}
 
 	// ÇÈ¼¿
@@ -86,7 +84,7 @@ Engine::Shader::CompileAndCreate(
 			&ErrorBuffer,
 			&PsConstantTableTemp);
 
-		_Shader.PsConstantTable = DX::MakeUnique(PsConstantTableTemp);
+		PsConstantTable = DX::MakeUnique(PsConstantTableTemp);
 
 		if (ErrorBuffer)
 		{
@@ -103,7 +101,7 @@ Engine::Shader::CompileAndCreate(
 		Hr = Device->CreatePixelShader(
 			(DWORD*)ShaderBuffer->GetBufferPointer(),
 			&PixelShaderTemp);
-		_Shader.PsShader = DX::MakeUnique(PixelShaderTemp);
+	PsShader = DX::MakeUnique(PixelShaderTemp);
 
 		if (FAILED(Hr))
 		{
@@ -111,7 +109,7 @@ Engine::Shader::CompileAndCreate(
 		}
 		ShaderBuffer->Release();
 
-		_Shader.PsConstantTable->SetDefaults(Device);
+		PsConstantTable->SetDefaults(Device);
 	};
 
 }

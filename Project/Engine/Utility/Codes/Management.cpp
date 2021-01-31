@@ -106,6 +106,12 @@ void Engine::Management::Update(const float DeltaTime)&
 
 void Engine::Management::Render()&
 {
+	Matrix InvView; 
+	_GraphicDevice->GetDevice()->GetTransform(D3DTS_VIEW, &InvView);
+	InvView =FMath::Inverse(InvView);
+	const Vector3 LightLocation{ 0,0,0 };
+	const Vector3 CameraLocation{ InvView ._41,InvView._42,InvView ._43};
+	_ShaderManager->Update(CameraLocation,LightLocation);
 	_GraphicDevice->Begin();
 	
 	_Renderer->Render();

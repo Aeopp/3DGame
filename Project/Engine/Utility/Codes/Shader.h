@@ -30,16 +30,16 @@ namespace Engine
 		void  ConstantHandleDescInitialize(
 				const std::vector<std::string>& SamplerNames);
 	public:
-		uint32  GetSamplerIndex(const std::string& SamplerName);
+		uint32     GetSamplerIndex(const std::string& SamplerName);
 		D3DXHANDLE GetVsConstantHandle(const std::string& HandleKey);
 		D3DXHANDLE GetPsConstantHandle(const std::string& HandleKey);
 	public:
 		template<typename Type>
-		void SetVSCostantData(const DX::SharedPtr<IDirect3DDevice9>& Device,
+		void SetVSCostantData(IDirect3DDevice9* const Device,
 			const std::string& ConstantHandleMapKey,const Type& Data,
 			const uint32 Num = 1);
 		template<typename Type>
-		void SetPSCostantData(const DX::SharedPtr<IDirect3DDevice9>& Device,
+		void SetPSCostantData(IDirect3DDevice9* const Device,
 			const std::string& ConstantHandleMapKey, const Type& Data,
 			const uint32 Num = 1);
 	private:
@@ -47,10 +47,10 @@ namespace Engine
 		void SetCostantDataImplementation
 			(   DX::UniquePtr<ID3DXConstantTable>& ConstantTable,
 				std::unordered_map<std::string,D3DXHANDLE>& HandleMap,
-				DX::SharedPtr<IDirect3DDevice9>& Device,
+				IDirect3DDevice9* const Device,
 			const std::string& ConstantHandleMapKey, const Type& Data,
 			const uint32 Num = 1);
-	private:
+	public:
 		DX::UniquePtr<IDirect3DPixelShader9> PsShader{ nullptr };
 		DX::UniquePtr<ID3DXConstantTable> PsConstantTable{ nullptr };
 		DX::UniquePtr<IDirect3DVertexShader9> VsShader{ nullptr };
@@ -63,13 +63,13 @@ namespace Engine
 
 
 template<typename Type>
-inline void Engine::Shader::SetVSCostantData(const DX::SharedPtr<IDirect3DDevice9>& Device, const std::string& ConstantHandleMapKey, const Type& Data, const uint32 Num)
+inline void Engine::Shader::SetVSCostantData(IDirect3DDevice9* const Device, const std::string& ConstantHandleMapKey, const Type& Data, const uint32 Num)
 {
 	SetCostantDataImplementation(VsConstantTable,
 		VsHandleMap,Device, ConstantHandleMapKey, Data, Num);
 }
 template<typename Type>
-inline void Engine::Shader::SetPSCostantData(const DX::SharedPtr<IDirect3DDevice9>& Device, const std::string& ConstantHandleMapKey, const Type& Data, const uint32 Num)
+inline void Engine::Shader::SetPSCostantData(IDirect3DDevice9* const Device, const std::string& ConstantHandleMapKey, const Type& Data, const uint32 Num)
 {
 	SetCostantDataImplementation(PsConstantTable,
 		PsHandleMap,Device, ConstantHandleMapKey, Data, Num);
@@ -79,7 +79,8 @@ template<typename Type>
 inline void Engine::Shader::SetCostantDataImplementation(
 	DX::UniquePtr<ID3DXConstantTable>& ConstantTable,
 	std::unordered_map<std::string, D3DXHANDLE>& HandleMap, 
-	 DX::SharedPtr<IDirect3DDevice9>& Device, const std::string& ConstantHandleMapKey, const Type& Data, const uint32 Num)
+	IDirect3DDevice9* const Device, 
+	const std::string& ConstantHandleMapKey, const Type& Data, const uint32 Num)
 {
 	const uint32 DataSize = sizeof(std::decay_t<Type>) * Num;
 	
