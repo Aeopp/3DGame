@@ -76,6 +76,15 @@
     <Filter Include="Collision">
       <UniqueIdentifier>{d651ec5a-a14a-4e47-a965-5fb95cff8935}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assimp">
+      <UniqueIdentifier>{09ddf18c-5c5a-48d5-82c6-47eb4bad17d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UtilityGlobal">
+      <UniqueIdentifier>{46257d73-f11e-448e-b974-6f608d81a512}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component\Render\Mesh\Dynamic">
+      <UniqueIdentifier>{4e427c5d-389e-4e96-99cc-8d4b46cdfee3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
@@ -144,9 +153,21 @@
     <ClInclude Include="Codes\Collision.h">
       <Filter>Component\Collision</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\UtilityGlobal.h" />
-    <ClInclude Include="Codes\Model.h" />
-    <ClInclude Include="Codes\AssimpHelper.h" />
+    <ClInclude Include="Codes\AssimpHelper.h">
+      <Filter>Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\Model.h">
+      <Filter>Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\UtilityGlobal.h">
+      <Filter>UtilityGlobal</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\DynamicMesh.h">
+      <Filter>Component\Render\Mesh\Dynamic</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\HierarchyLoader.h">
+      <Filter>Component\Render\Mesh\Dynamic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">
@@ -233,11 +254,25 @@
     <ClCompile Include="Codes\Collision.cpp">
       <Filter>Component\Collision</Filter>
     </ClCompile>
-    <ClCompile Include="Codes\UtilityGlobal.cpp" />
-    <ClCompile Include="Codes\Model.cpp" />
+    <ClCompile Include="Codes\Model.cpp">
+      <Filter>Assimp</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\UtilityGlobal.cpp">
+      <Filter>UtilityGlobal</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\DynamicMesh.cpp">
+      <Filter>Component\Render\Mesh\Dynamic</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\HierarchyLoader.cpp">
+      <Filter>Component\Render\Mesh\Dynamic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\..\..\Resource\Shader\SkeletonPS.hlsl" />
-    <FxCompile Include="..\..\..\Resource\Shader\SkeletonVS.hlsl" />
+    <FxCompile Include="..\..\..\Resource\Shader\SkeletonPS.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\..\Resource\Shader\SkeletonVS.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

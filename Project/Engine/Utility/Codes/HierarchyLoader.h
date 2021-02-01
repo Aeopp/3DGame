@@ -5,14 +5,14 @@
 
 namespace Engine
 {
-	struct DLL_DECL FrameSub : public D3DXFRAME
+	struct DLL_DECL Bone : public D3DXFRAME
 	{
-		Matrix CombinedTransformationMatrix{};
+		Matrix ToRootSpace{};
 	};
 
 	struct DLL_DECL MeshContainerSub : public D3DXMESHCONTAINER
 	{
-		IDirect3DTexture9* Texture{ nullptr };
+		std::vector<IDirect3DTexture9*> Textures{ };
 		// 최초 로드 시점의 상태를 가지고 있는 메쉬 객체
 		ID3DXMesh* OriginMesh{ nullptr };
 		uint32 NumBones{ 0u };
@@ -41,11 +41,10 @@ namespace Engine
 		STDMETHOD(DestroyFrame)(THIS_ LPD3DXFRAME FrameToFree);
 		STDMETHOD(DestroyMeshContainer)(THIS_ LPD3DXMESHCONTAINER MeshContainerToFree);
 	private:
-		void AllocateName(const std::vector<std::wstring>& Names,
-			const std::wstring FrameName)&;
+		void AllocateName(char** ppName, const char* pFrameName)&;
 	private:
 		IDirect3DDevice9*  Device{ nullptr };
-		std::wstring Path;
+		std::filesystem::path Path;
 	};
 };
 

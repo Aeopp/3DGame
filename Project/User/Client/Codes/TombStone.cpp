@@ -82,8 +82,10 @@ void TombStone::PrototypeInitialize(IDirect3DDevice9* const Device,
 
 void TombStone::Event()&
 {
+
 	Super::Event();
 	ImGui::Begin("CollisionTest");
+
 	const std::string Msg = bTestCollision ? "Overlapped": "NoOverlapped" ;
 	ImGui::Text(Msg.c_str());
 	ImGui::End();

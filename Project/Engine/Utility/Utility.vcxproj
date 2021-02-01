@@ -194,12 +194,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Camera.cpp" />
+    <ClCompile Include="Codes\DynamicMesh.cpp" />
     <ClCompile Include="Codes\Geometric.cpp" />
     <ClCompile Include="Codes\Collision.cpp" />
     <ClCompile Include="Codes\CollisionSystem.cpp" />
     <ClCompile Include="Codes\Component.cpp" />
     <ClCompile Include="Codes\DynamicCamera.cpp" />
     <ClCompile Include="Codes\HeightMap.cpp" />
+    <ClCompile Include="Codes\HierarchyLoader.cpp" />
     <ClCompile Include="Codes\ImGui\imgui.cpp" />
     <ClCompile Include="Codes\ImGui\imgui_demo.cpp" />
     <ClCompile Include="Codes\ImGui\imgui_draw.cpp" />
@@ -227,6 +229,7 @@
   <ItemGroup>
     <ClInclude Include="Codes\AssimpHelper.h" />
     <ClInclude Include="Codes\Camera.h" />
+    <ClInclude Include="Codes\DynamicMesh.h" />
     <ClInclude Include="Codes\Geometric.h" />
     <ClInclude Include="Codes\Collision.h" />
     <ClInclude Include="Codes\CollisionSystem.h" />
@@ -234,6 +237,7 @@
     <ClInclude Include="Codes\DynamicCamera.h" />
     <ClInclude Include="Codes\ExportUtility.hpp" />
     <ClInclude Include="Codes\HeightMap.h" />
+    <ClInclude Include="Codes\HierarchyLoader.h" />
     <ClInclude Include="Codes\Mesh.h" />
     <ClInclude Include="Codes\Model.h" />
     <ClInclude Include="Codes\RenderObject.h" />
