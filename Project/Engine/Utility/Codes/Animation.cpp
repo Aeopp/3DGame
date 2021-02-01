@@ -19,7 +19,7 @@ void Engine::Aniamtion::Clone()&
 	AnimationControl  = DX::MakeShared<ID3DXAnimationController>(_Clone);
 }
 
-void Engine::Aniamtion::SetAnimationIndex(const uint32 Index)&
+void Engine::Aniamtion::Set(const uint32 Index)&
 {
 	OriginIndex = Index;
 
@@ -29,26 +29,47 @@ void Engine::Aniamtion::SetAnimationIndex(const uint32 Index)&
 	// 애니메이션 셋이 진행되는 최종의 시간 값을 반환
 	Duration = AnimSet->GetPeriod();
 
-	m_pAniCtrl->SetTrackAnimationSet(m_iNewTrack, pAS);
+	AnimationControl->SetTrackAnimationSet(NewTrack, AnimSet);
 
-	m_pAniCtrl->UnkeyAllTrackEvents(m_iCurrentTrack);
-	m_pAniCtrl->UnkeyAllTrackEvents(m_iNewTrack);
+	AnimationControl->UnkeyAllTrackEvents(CurrentTrack);
+	AnimationControl->UnkeyAllTrackEvents(NewTrack);
 
-	m_pAniCtrl->KeyTrackEnable(m_iCurrentTrack, FALSE, m_fAccTime + 0.25);
-	m_pAniCtrl->KeyTrackSpeed(m_iCurrentTrack, 1.f, m_fAccTime, 0.25, D3DXTRANSITION_LINEAR);
+	AnimationControl->KeyTrackEnable(CurrentTrack, FALSE, AccelerationTime + 0.25);
+	AnimationControl->KeyTrackSpeed(CurrentTrack, 1.f, AccelerationTime,
+		0.25, D3DXTRANSITION_LINEAR);
 	// 현재 구동하는 트랙의 가중치를 결정하는 함수
-	m_pAniCtrl->KeyTrackWeight(m_iCurrentTrack, 0.1f, m_fAccTime, 0.25, D3DXTRANSITION_LINEAR);
+	AnimationControl->KeyTrackWeight(CurrentTrack, 0.1f,
+		AccelerationTime, 0.25, D3DXTRANSITION_LINEAR);
 
 	// 트랙을 활성화할지 결정하는 함수
-	m_pAniCtrl->SetTrackEnable(m_iNewTrack, TRUE);
-	m_pAniCtrl->KeyTrackSpeed(m_iNewTrack, 1.f, m_fAccTime, 0.25, D3DXTRANSITION_LINEAR);
-	m_pAniCtrl->KeyTrackWeight(m_iNewTrack, 0.9f, m_fAccTime, 0.25, D3DXTRANSITION_LINEAR);
+	AnimationControl->SetTrackEnable(NewTrack, TRUE);
+	AnimationControl->KeyTrackSpeed(NewTrack, 1.f, AccelerationTime, 0.25, D3DXTRANSITION_LINEAR);
+	AnimationControl->KeyTrackWeight(NewTrack, 0.9f, AccelerationTime, 0.25, D3DXTRANSITION_LINEAR);
 
-	m_pAniCtrl->ResetTime();	// 애니메이션이 재생될 때 증가는 시간값을 초기화하는 함수
-	m_fAccTime = 0.f;
+	AnimationControl->ResetTime();	// 애니메이션이 재생될 때 증가는 시간값을 초기화하는 함수
+	AccelerationTime = 0.f;
 
-	m_pAniCtrl->SetTrackPosition(m_iNewTrack, 0.0);
-	m_iOriginIdx = iIndex;
+	AnimationControl->SetTrackPosition(NewTrack, 0.0);
+	OriginIndex = Index;
 
-	m_iCurrentTrack = m_iNewTrack;
+	CurrentTrack = NewTrack;
 };
+
+void Engine::Aniamtion::Play(const float DeltaTime)&
+{
+	AnimationControl->AdvanceTime(DeltaTime, NULL);
+	AccelerationTime += DeltaTime;
+}
+bool Engine::Aniamtion::IsEnd()&
+{
+	D3DXTRACK_DESC  TrackInfo{};
+	ZeroMemory(&TrackInfo, sizeof(D3DXTRACK_DESC));
+
+	AnimationControl->GetTrackDesc(CurrentTrack, &TrackInfo);
+
+	if (TrackInfo.Position >= Duration - 0.1)
+		return true;
+
+	return false;
+}
+;

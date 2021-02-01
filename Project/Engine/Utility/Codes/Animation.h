@@ -11,8 +11,9 @@ namespace Engine
 	public:
 		void Initialize(ID3DXAnimationController* const AnimationControl)&;
 		void Clone()&;
-		void SetAnimationIndex(const uint32 Index)&;
-		// GetAnimationControl() 
+		void Set(const uint32 Index)&;
+		void Play(const float DeltaTime)&;
+		bool IsEnd()&;
 	private:
 		DX::SharedPtr<ID3DXAnimationController>AnimationControl{ nullptr };
 		uint32 CurrentTrack{ 0u };
