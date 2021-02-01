@@ -4,9 +4,12 @@
 #include <filesystem>
 
 
-namespace Engine::Global
+namespace Engine
 {
-	extern DLL_DECL bool bDebugMode;
-	extern DLL_DECL std::filesystem::path ResourcePath;
-	extern DLL_DECL Assimp::Importer AssimpImporter;
+	namespace Global
+	{
+		extern DLL_DECL bool bDebugMode;
+		extern DLL_DECL std::filesystem::path ResourcePath;
+		extern DLL_DECL Assimp::Importer AssimpImporter;
+	}
 }

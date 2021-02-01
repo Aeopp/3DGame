@@ -239,5 +239,7 @@
   <ItemGroup>
     <FxCompile Include="..\..\..\Resource\Shader\SkeletonPS.hlsl" />
     <FxCompile Include="..\..\..\Resource\Shader\SkeletonVS.hlsl" />
+    <FxCompile Include="..\..\..\Resource\Shader\TestVS.hlsl" />
+    <FxCompile Include="..\..\..\Resource\Shader\TestPS.hlsl" />
   </ItemGroup>
 </Project>

@@ -16,15 +16,22 @@
 #include "App.h"
 #include "ShaderManager.h"
 
+IDirect3DTexture9* TestTexture{ nullptr };
+
 static uint32 TestID = 0u;
 static bool bTestCollision = false;
 void TombStone::Initialize(const Vector3& SpawnLocation , const Vector3& Rotation)&
 {
 	Super::Initialize();
 
+	D3DXCreateTextureFromFile(Device, L"..\\..\\..\\Resource\\Mesh\\DynamicMesh\\TestCharacter\\diffuse.png"
+	 , &TestTexture);
 
-	_Model.Initialize(L"..\\..\\..\\Resource\\Mesh\\DynamicMesh\\Chaos\\",
-		L"Chaos.fbx", Device);
+
+	TestTexture;
+
+	_Model.Initialize(L"..\\..\\..\\Resource\\Mesh\\DynamicMesh\\TestCharacter\\",
+		L"model.dae", Device);
 
 
 	_TestID = TestID++;
@@ -368,7 +375,7 @@ void MyModel::BoneUpdateChildren(Bone& Parent, Bone& TargetBone, const aiAnimati
 
 	Matrix AnimationMatrix = FMath::Identity();
 
-	if (AnimationChannel)
+	if (AnimationChannel && false)
 	{
 		while (AnimationChannel->mScalingKeys[TargetBone.CurrentAnimTrack.ScaleKey].mTime < t
 			&& TargetBone.CurrentAnimTrack.ScaleKey < (AnimationChannel->mNumScalingKeys - 1))
@@ -415,14 +422,10 @@ void MyModel::BoneUpdateChildren(Bone& Parent, Bone& TargetBone, const aiAnimati
 		AnimationMatrix = FMath::Scale(CurrentAnimScale) * FMath::Rotation(CurrentAnimRotation) * FMath::Translation(CurrentAnimLocation);
 	};
 
-	if (TargetBone.TableIdx == 77)
-	{
-		int i = 0;
-	}
 	TargetBone.CurrentTransform = TargetBone.OriginTransform * AnimationMatrix;
 	TargetBone.ToRootSpace = Parent.ToRootSpace * Parent.CurrentTransform;
 	TargetBone.FinalMatrix = TargetBone.Offset * AnimationMatrix * TargetBone.ToRootSpace;
-
+	
 	for (const int32 ChildrenIdx : TargetBone.ChildrensIndices)
 	{
 		BoneUpdateChildren(TargetBone, BoneTable[ChildrenIdx], _Animation, t);
@@ -434,6 +437,10 @@ void MyModel::Render()&
 	Matrix View, Projection, ViewProjection;
 	Device->GetTransform(D3DTS_VIEW, &View);
 	Device->GetTransform(D3DTS_PROJECTION, &Projection);
+	Device->SetTransform(D3DTS_VIEW, &View);
+	Device->SetTransform(D3DTS_PROJECTION, &Projection);
+	auto Identity = FMath::Identity();
+	Device->SetTransform(D3DTS_WORLD, &Identity);
 	ViewProjection = View * Projection;
 	auto& TargetShader = RefShaderSys().RefShader(L"Skeleton");
 	TargetShader.GetSamplerIndex("DiffuseSampler");
@@ -441,22 +448,26 @@ void MyModel::Render()&
 		"World", FMath::Identity(), 1u);
 	TargetShader.SetVSCostantData<Matrix>(Device,
 		"ViewProjection", ViewProjection, 1u);
-	Device->SetVertexShader(TargetShader.VsShader.get());
-	Device->SetPixelShader(TargetShader.PsShader.get());
-	Device->SetVertexDeclaration(VertexDecl);
 
+	Device->SetVertexShader(nullptr);
+	Device->SetPixelShader(nullptr);
+	//Device->SetVertexShader(TargetShader.VsShader.get());
+	//Device->SetPixelShader(TargetShader.PsShader.get());
+	Device->SetVertexDeclaration(VertexDecl);
+	//Device->SetFVF(D3DFVF_XYZ | D3DFVF_NORMAL |D3DFVF_TEX1 | D3DFVF_TEXCOORDSIZE1(2));
 	for (auto& CurrentMesh : Meshes)
 	{
-		for (uint32 FinalTransformIdx = 0u; FinalTransformIdx < CurrentMesh.FinalTransform.size(); ++FinalTransformIdx)
+		for (uint32 FinalTransformIdx = 0u; FinalTransformIdx < CurrentMesh.FinalTransform.size();
+			++FinalTransformIdx)
 		{
 			CurrentMesh.FinalTransform[FinalTransformIdx] = BoneTable[CurrentMesh.BoneTableIdxFromFinalTransformIdx[FinalTransformIdx]].FinalMatrix;
 		};
 		Device->SetTexture(TargetShader.GetSamplerIndex("DiffuseSampler"),
 			CurrentMesh.DiffuseMap);
+		//Device->SetTexture(0,CurrentMesh.DiffuseMap); 
 		TargetShader.SetVSCostantData<Matrix>(Device, "FinalMatrix",
 			CurrentMesh.FinalTransform[0],
 			CurrentMesh.FinalTransform.size());
-
 
 		Device->SetStreamSource(0, CurrentMesh.VertexBuffer, 0, sizeof(decltype(CurrentMesh.Vertices)::value_type));
 		// 텍스쳐 바인딩.
@@ -552,7 +563,8 @@ void MyModel::CreateMeshInformation(const std::filesystem::path& Path)&
 				if (Material->GetTexture(aiTextureType_DIFFUSE, 0u, &aiTextureName
 					, nullptr, nullptr, nullptr, nullptr, nullptr) == AI_SUCCESS)
 				{
-					const std::string TextureName = aiTextureName.C_Str();
+					const std::string TextureName = "diffuse.png";
+					aiTextureName.C_Str();
 					std::wstring WTextureName;
 					WTextureName.assign(std::begin(TextureName), std::end(TextureName));
 					std::filesystem::path TexturePath = Path / TextureName;
@@ -561,11 +573,14 @@ void MyModel::CreateMeshInformation(const std::filesystem::path& Path)&
 
 					if (CurrentMesh.DiffuseMap == nullptr)
 					{
-
 						CurrentMesh.DiffuseMap =
 							ResourceSys.Emplace<IDirect3DTexture9>(
-								WTextureName, D3DXCreateTextureFromFile, Device,
+								WTextureName,D3DXCreateTextureFromFile, Device,
 								TexturePath.wstring().c_str(), &CurrentMesh.DiffuseMap);
+
+						CurrentMesh.DiffuseMap = TestTexture;
+
+						int i = 0;
 
 					}
 				}
@@ -577,8 +592,6 @@ void MyModel::CreateMeshInformation(const std::filesystem::path& Path)&
 		for (uint32 BoneIdx = 0u; BoneIdx < NumBone; ++BoneIdx)
 		{
 			const aiBone* const CurrentBone = Current_aiMesh->mBones[BoneIdx];
-
-			CurrentBone->mOffsetMatrix;
 			const uint32 CurrentBoneTableIdx = BoneTableIndexFromName.find(CurrentBone->mName.C_Str())->second;
 			BoneTable[CurrentBoneTableIdx].Offset = FromAssimp(CurrentBone->mOffsetMatrix);
 			CurrentMesh.BoneTableIdxFromFinalTransformIdx.insert({ BoneIdx, CurrentBoneTableIdx });

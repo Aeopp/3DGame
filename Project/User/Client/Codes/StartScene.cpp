@@ -225,6 +225,13 @@ void StartScene::Event() &
 {
 	Super::Event();
 
+	ImGui::Begin("Object Tool");
+	static float scale[3]={1,1,1};
+	ImGui::Text("%f,%f,%f", scale[0] , scale[1] , scale[2] );
+	ImGui::SliderFloat3("Scale Tool:", scale, 0.0f, 1.f);
+	ImGui::End();
+
+
 	if (Engine::Global::bDebugMode)
 	{
 		ImGui::Begin("TTEST");

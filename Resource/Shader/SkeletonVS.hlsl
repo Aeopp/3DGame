@@ -36,7 +36,8 @@ VS_OUTPUT main(VS_INPUT Input)
     
 	FinalLocation = mul(FinalLocation, WorldViewProjection);
 	Output.Location = FinalLocation;
-//    Output.Location = mul(Input.Location, WorldViewProjection);
+    // Output.Location = mul(Input.Location, WorldViewProjection);
+   
     Output.Normal = mul(Input.Normal, (float3x3)WorldViewProjection);
 	Output.UV = Input.UV;
     
