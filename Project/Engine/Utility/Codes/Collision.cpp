@@ -15,6 +15,7 @@ void Engine::Collision::Initialize(
 	this->_Tag = _Tag;
 	this->OwnerTransform = OwnerTransform;
 	SetUpRenderingInformation(RenderInterface::Group::DebugCollision);
+	RenderInterface::bCullingOn = false;
 };
 
 void Engine::Collision::Update(Object* const Owner, const float DeltaTime)&

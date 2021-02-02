@@ -18,8 +18,8 @@ namespace Engine
 		void Render(IDirect3DDevice9* const Device)&;
 	private:
 		Matrix World{};
-		IDirect3DVertexBuffer9 *CubeVtxBuf{ nullptr };
-		IDirect3DIndexBuffer9* CubeIdxBuf{ nullptr };
+		IDirect3DVertexBuffer9 *VertexBuffer{ nullptr };
+		IDirect3DIndexBuffer9* IndexBuffer{ nullptr };
 		std::array<D3DXPLANE, 6u> Planes;
 		std::array<Vector3, 8u> Points;
 	};

@@ -42,7 +42,12 @@ namespace Engine
 template<typename LayerSubType, typename ObjectSubType>
 inline auto Engine::Scene::FindObject(const std::wstring& TargetName)&
 {
-	return FindLayer<LayerSubType>()->FindObject<ObjectSubType>(TargetName);
+	auto* const TargetLayer = FindLayer<LayerSubType>();
+	ObjectSubType* TargetObject{ nullptr };
+	if (TargetLayer == nullptr)
+		return TargetObject;
+
+	return TargetLayer->FindObject<ObjectSubType>(TargetName);
 }
 template<typename LayerSubType, typename ObjectSubType>
 inline auto Engine::Scene::NewObject(
@@ -74,6 +79,15 @@ inline auto Engine::Scene::FindLayer()&
 {
 	static_assert(std::is_base_of_v<Layer, LayerSubType>, __FUNCTION__);
 
-	return static_cast<LayerSubType* const>(LayerMap.find(typeid(LayerSubType).name())->second.get());
+	LayerSubType*  TargetLayer{ nullptr };
+
+	auto iter= LayerMap.find(typeid(LayerSubType).name());
+
+	if (iter != std::end(LayerMap))
+	{
+		TargetLayer = static_cast<LayerSubType* const>(iter->second.get());
+	}
+
+	return TargetLayer; 
 }
 

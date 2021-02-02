@@ -46,13 +46,16 @@ inline auto Engine::Layer::FindObject(const std::wstring& TargetName)&
 	static_assert(std::is_base_of_v<Object, ObjectSubType>, __FUNCTION__);
 
 	auto TargetContainer = FindObjects<ObjectSubType>();
+	ObjectSubType* Target{ nullptr };
+
+	if (TargetContainer.empty())
+		return Target;
+
 	auto iter = std::find_if(std::begin(TargetContainer), std::end(TargetContainer),
 		[TargetName](const std::shared_ptr<ObjectSubType>& Target)
 		{
 			return Target->GetName() == TargetName;
 		});
-
-	ObjectSubType* Target{ nullptr };
 
 	if (std::end(TargetContainer) != iter)
 		Target = static_cast<ObjectSubType*>((*iter).get());
@@ -80,5 +83,18 @@ template<typename ObjectSubType>
 inline auto Engine::Layer::FindObjects()&
 {
 	static_assert(std::is_base_of_v<Object, ObjectSubType>, __FUNCTION__);
-	return reinterpret_cast<std::vector<std::shared_ptr<ObjectSubType>>&>					(_ObjectMap.find(typeid(ObjectSubType).name())->second);
+
+	auto iter = _ObjectMap.find(typeid(ObjectSubType).name());
+
+	std::vector<std::shared_ptr<ObjectSubType>> TargetObjects{};
+	
+	if (iter != std::end(_ObjectMap))
+	{
+		for (auto& TargetObjectType : iter->second)
+		{
+			TargetObjects.push_back(std::dynamic_pointer_cast<ObjectSubType>(TargetObjectType));
+		}
+	}
+
+	return TargetObjects;
 };

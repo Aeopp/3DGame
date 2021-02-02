@@ -4,7 +4,6 @@
 #include "Shader.h"
 #include "Vertexs.hpp"
 #include "Management.h"
-#include "HeightMap.h"
 #include "EnemyLayer.h"
 #include "ExportUtility.hpp"
 #include "ResourceSystem.h"
@@ -191,7 +190,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	// 오브젝트 스폰
 	{
 		RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_1" ,
-			Vector3{ 0,0,10 }, Vector3{0,0,0});
+			Vector3{ 1,1,1 },Vector3{ 0,0,10 }, Vector3{ 0,0,0 });
 	}
 };
 
@@ -233,14 +232,14 @@ void StartScene::Update(const float DeltaTime)&
 	
 	// 오브젝트 레이어 검색.
 	{
-		auto _Target = RefManager().FindObject<EnemyLayer, Engine::HeightMap>(L"HeightMap2");
+		auto _Target = RefManager().FindObject<EnemyLayer, TombStone>(L"TombStone_1");
 		auto _TargetLayer = RefManager().FindLayer<EnemyLayer>();
 
 		auto& LayerMap = RefManager().RefLayers();
 
-		for (auto& _HeightMap : RefManager().FindObjects<EnemyLayer, Engine::HeightMap>())
+		for (auto& _TombStone : RefManager().FindObjects<EnemyLayer, TombStone>())
 		{
-			_HeightMap->GetName();
+			_TombStone->GetName();
 		}
 		for (auto& _Camera: RefManager().FindObjects<StaticLayer, Engine::DynamicCamera>())
 		{

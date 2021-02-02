@@ -15,12 +15,16 @@
 #include "App.h"
 #include "ShaderManager.h"
 
-void TombStone::Initialize(const Vector3& SpawnLocation , const Vector3& Rotation)&
+void TombStone::Initialize(
+	const Vector3& Scale,
+	const Vector3& Rotation,
+	const Vector3& SpawnLocation)&
 {
 	Super::Initialize();
 
 	auto _Transform =AddComponent<Engine::Transform>();
 	_Transform->SetScale({ 1,1,1 });
+	_Transform->SetScale(Scale);
 	_Transform->SetRotation(Rotation);
 	_Transform->SetLocation(SpawnLocation);
 
@@ -37,12 +41,18 @@ void TombStone::Initialize(const Vector3& SpawnLocation , const Vector3& Rotatio
 			sizeof(Vector3), &BoundingBoxMin, &BoundingBoxMax);
 
 		_Collision->_Geometric = std::make_unique<Engine::OBB>
-										(BoundingBoxMin, BoundingBoxMax);
+			(BoundingBoxMin, BoundingBoxMax);
 
 		static_cast<Engine::OBB* const> (_Collision->_Geometric.get())->MakeDebugCollisionBox(Device);
 	}
-	
-	// 바운딩 스피어. 
+
+	RenderInterface::SetUpCullingInformation(
+		_Collision->_Geometric->LocalSphere  ,
+		_Transform);
+
+	RenderInterface::bCullingOn = true;
+
+	// 바운딩 스피어
 	{
 		/*Vector3 BoundingSphereCenter;
 		float BoundingSphereRadius;

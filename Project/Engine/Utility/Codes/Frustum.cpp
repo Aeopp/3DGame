@@ -7,97 +7,17 @@
 #include "Vertexs.hpp"
 #include "GraphicDevice.h"
 
-
-IDirect3DVertexBuffer9* VB = 0;
-IDirect3DIndexBuffer9* IB = 0;
-
-struct VRETEX
-{
-	VRETEX() {}
-	VRETEX(float x, float y, float z)
-	{
-		_x = x;  _y = y;  _z = z;
-	}
-	float _x, _y, _z;
-	static const DWORD FVF;
-};
-const DWORD VRETEX::FVF = D3DFVF_XYZ;
-
 void Engine::Frustum::Initialize()&
 {
 	auto Device = GraphicDevice::Instance->GetDevice();
-
-	Device->CreateVertexBuffer(
-		8 * sizeof(VRETEX),
-		D3DUSAGE_WRITEONLY,
-		VRETEX::FVF,
-		D3DPOOL_MANAGED,
-		&VB,
-		0);
-
-	Device->CreateIndexBuffer(
-		36 * sizeof(WORD),
-		D3DUSAGE_WRITEONLY,
-		D3DFMT_INDEX16,
-		D3DPOOL_MANAGED,
-		&IB,
-		0);
-	//
-	// Fill the buffers with the cube data.
-	//
-
-	// define unique vertices:
-	VRETEX* vertices;
-	VB->Lock(0, 0, (void**)&vertices, 0);
-
-	// vertices of a unit cube
-	vertices[0] = VRETEX(-1.0f, -1.0f, 0.f);
-	vertices[1] = VRETEX(-1.0f, 1.0f, 0.f);
-	vertices[2] = VRETEX(1.0f, 1.0f, 0.f);
-	vertices[3] = VRETEX(1.0f, -1.0f, 0.f);
-	vertices[4] = VRETEX(-1.0f, -1.0f, 1.0f);
-	vertices[5] = VRETEX(-1.0f, 1.0f, 1.0f);
-	vertices[6] = VRETEX(1.0f, 1.0f, 1.0f);
-	vertices[7] = VRETEX(1.0f, -1.0f, 1.0f);
-
-	VB->Unlock();
-
-	// define the triangles of the cube:
-	WORD* indices = 0;
-	IB->Lock(0, 0, (void**)&indices, 0);
-
-	// front side
-	indices[0] = 0; indices[1] = 1; indices[2] = 2;
-	indices[3] = 0; indices[4] = 2; indices[5] = 3;
-
-	// back side
-	indices[6] = 4; indices[7] = 6; indices[8] = 5;
-	indices[9] = 4; indices[10] = 7; indices[11] = 6;
-
-	// left side
-	indices[12] = 4; indices[13] = 5; indices[14] = 1;
-	indices[15] = 4; indices[16] = 1; indices[17] = 0;
-
-	// right side
-	indices[18] = 3; indices[19] = 2; indices[20] = 6;
-	indices[21] = 3; indices[22] = 6; indices[23] = 7;
-
-	// top
-	indices[24] = 1; indices[25] = 5; indices[26] = 6;
-	indices[27] = 1; indices[28] = 6; indices[29] = 2;
-
-	// bottom
-	indices[30] = 4; indices[31] = 0; indices[32] = 3;
-	indices[33] = 4; indices[34] = 3; indices[35] = 7;
-
-	IB->Unlock();
+	auto& ResourceSys = ResourceSystem::Instance;
+	VertexBuffer = ResourceSys->Get<IDirect3DVertexBuffer9>(L"VertexBuffer_Frustum");
+	IndexBuffer = ResourceSys->Get<IDirect3DIndexBuffer9>(L"IndexBuffer_Frustum");
 
 }
 
 Engine::Frustum::~Frustum() noexcept
 {
-	IB->Release();
-	VB->Release();
 }
 
 void Engine::Frustum::Make(const Matrix& CameraWorld, const Matrix& Projection)&
@@ -128,10 +48,10 @@ void Engine::Frustum::Make(const Matrix& CameraWorld, const Matrix& Projection)&
 	// f를 카메라 위치로 이동시켜서 월드좌표에서의 f로 만든다.
 	const Matrix InvProjection = FMath::Inverse(Projection);
 	World = InvProjection * CameraWorld;
-	 
+
 	std::transform(std::execution::par,
 		std::begin(Points), std::end(Points), std::begin(Points),
-		[_World=World](const Vector3& Point)
+		[_World = World](const Vector3& Point)
 		{
 			return FMath::Mul(Point, _World);
 		});
@@ -152,38 +72,6 @@ void Engine::Frustum::Make(const Matrix& CameraWorld, const Matrix& Projection)&
 
 bool Engine::Frustum::IsIn(const Vector3& Point)&
 {
-	ImGui::Begin("Frustum");
-	for (size_t i = 0u; i < Planes.size(); ++i)
-	{
-		const auto& Plane = Planes[i];
-		std::wstring Name;
-		switch (i)
-		{
-		case 0:
-			Name = L"Near";
-			break;
-		case 1:
-			Name = L"Far";
-			break;
-		case 2:
-			Name = L"Left";
-			break;
-		case 3:
-			Name = L"Right";
-			break;
-		case 4:
-			Name = L"Top";
-			break;
-		case 5:
-			Name = L"Bottom";
-			break;
-		default:
-			break;
-		}
-		ImGui::Text("Distance From %s : %f\n", Name.c_str(),D3DXPlaneDotCoord(&Plane, &Point));
-	}
-	ImGui::End();
-
 	return std::all_of(std::execution::seq, std::begin(Planes), std::end(Planes),
 		[Point](const D3DXPLANE& Plane)
 		{
@@ -193,38 +81,6 @@ bool Engine::Frustum::IsIn(const Vector3& Point)&
 
 bool Engine::Frustum::IsIn(const Sphere& _Sphere)&
 {
-	ImGui::Begin("Frustum");
-	for (size_t i = 0u; i < Planes.size(); ++i)
-	{
-		const auto& Plane = Planes[i];
-		std::wstring Name;
-		switch (i)
-		{
-		case 0:
-			Name = L"Near";
-			break;
-		case 1:
-			Name = L"Far";
-			break;
-		case 2:
-			Name = L"Left";
-			break;
-		case 3:
-			Name = L"Right";
-			break;
-		case 4:
-			Name = L"Top";
-			break;
-		case 5:
-			Name = L"Bottom";
-			break;
-		default:
-			break;
-		}
-		ImGui::Text("Distance From %s : %f\n", Name.c_str(), D3DXPlaneDotCoord(&Plane, &_Sphere.Center));
-	}
-	ImGui::End();
-
 	return std::all_of(std::execution::seq, std::begin(Planes), std::end(Planes),
 		[_Sphere](const D3DXPLANE& Plane)
 		{
@@ -239,9 +95,9 @@ void Engine::Frustum::Render(IDirect3DDevice9* const Device)&
 	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	Device->SetRenderState(D3DRS_ZENABLE, FALSE);
 	Device->SetTransform(D3DTS_WORLD, &World);
-	Device->SetStreamSource(0, VB, 0, sizeof(VRETEX));
-	Device->SetIndices(IB);
-	Device->SetFVF(VRETEX::FVF);
+	Device->SetStreamSource(0, VertexBuffer, 0, sizeof(Vector3));
+	Device->SetIndices(IndexBuffer);
+	Device->SetFVF(D3DFVF_XYZ);
 	Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 8, 0, 12);
 	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);

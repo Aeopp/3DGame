@@ -24,7 +24,7 @@ void Engine::Management::Initialize(
 	const HWND _Hwnd,
 	const HINSTANCE HInstance,
 	const bool bFullScreen,
-	const std::pair<uint32,uint32> ClientSize,
+	const std::pair<uint32, uint32> ClientSize,
 	const D3DMULTISAMPLE_TYPE MultiSample,
 	const float DeltaMax,
 	const std::filesystem::path& ResourcePath)&
@@ -46,10 +46,10 @@ void Engine::Management::Initialize(
 		[this]() {Render(); },
 		[this]() {LastEvent(); });
 
-	_Sound =Engine::Sound::Init(ResourcePath/L"Sound");
-	_Controller = Engine::Controller::Init(HInstance,_Hwnd);
+	_Sound = Engine::Sound::Init(ResourcePath / L"Sound");
+	_Controller = Engine::Controller::Init(HInstance, _Hwnd);
 	_CollisionSys = Engine::CollisionSystem::Init();
-	auto Device = _GraphicDevice->GetDevice(); 
+	auto Device = _GraphicDevice->GetDevice();
 	_ShaderManager = Engine::ShaderManager::Init(Device);
 	_PrototypeManager = Engine::PrototypeManager::Init();
 	_FontManager = Engine::FontManager::Init();
@@ -106,18 +106,21 @@ void Engine::Management::Update(const float DeltaTime)&
 
 void Engine::Management::Render()&
 {
-	Matrix InvView; 
+	Matrix InvView;
 	_GraphicDevice->GetDevice()->GetTransform(D3DTS_VIEW, &InvView);
-	InvView =FMath::Inverse(InvView);
+	InvView = FMath::Inverse(InvView);
 	const Vector3 LightLocation{ 0,0,0 };
-	const Vector3 CameraLocation{ InvView ._41,InvView._42,InvView ._43};
-	_ShaderManager->Update(CameraLocation,LightLocation);
+	const Vector3 CameraLocation{ InvView._41,InvView._42,InvView._43 };
+	_ShaderManager->Update(CameraLocation, LightLocation);
 	_GraphicDevice->Begin();
-	
+
 	_Renderer->Render();
 
-	_FontManager->RenderFont(L"Font_Jinji", L"진지함", { 400,300 }, D3DXCOLOR{0.5f,1.f,0.5f,0.1f});
-	_FontManager->RenderFont(L"Font_Default", L"기본", { 600,200}, D3DXCOLOR{ 0.5f,0.f,0.5f,1.f });
+	// 폰트 드로우콜
+	{
+		_FontManager->RenderFont(L"Font_Jinji", L"진지함", { 400,300 }, D3DXCOLOR{ 0.5f,1.f,0.5f,0.1f });
+		_FontManager->RenderFont(L"Font_Default", L"기본", { 600,200 }, D3DXCOLOR{ 0.5f,0.f,0.5f,1.f });
+	}
 
 	ImGui::EndFrame();
 	ImGui::Render();
@@ -129,7 +132,7 @@ void Engine::Management::LastEvent()&
 {
 	_CurrentScene->PendingKill();
 
-	if(SceneChangeEvent)
+	if (SceneChangeEvent)
 	{
 		SceneChangeEvent();
 		SceneChangeEvent = nullptr;
@@ -157,77 +160,143 @@ void ImGuiFrameStart()
 
 void Engine::Management::CreateStaticResource()&
 {
-		// 큐브용 인덱스 버퍼 로딩.
+	// 큐브용 인덱스 버퍼 로딩.
 	auto Device = _GraphicDevice->GetDevice();
 
-		IDirect3DIndexBuffer9* IdxBuffer{ nullptr };
-		Device->CreateIndexBuffer(sizeof(Index::_16) * 12u,
-			0,
-			D3DFMT_INDEX16,
-			D3DPOOL_MANAGED,
-			&IdxBuffer, nullptr);
-		_ResourceSys->Insert<IDirect3DIndexBuffer9>
-			(L"IndexBuffer_Cube", IdxBuffer);
+	IDirect3DIndexBuffer9* CubeIdxBuffer{ nullptr };
+	Device->CreateIndexBuffer(sizeof(Index::_16) * 12u,
+		0,
+		D3DFMT_INDEX16,
+		D3DPOOL_MANAGED,
+		&CubeIdxBuffer, nullptr);
+	_ResourceSys->Insert<IDirect3DIndexBuffer9>
+		(L"IndexBuffer_Cube", CubeIdxBuffer);
 
-		Index::_16* IndexBufferPtr{ nullptr };
-		IdxBuffer->Lock(0, 0, (void**)&IndexBufferPtr, 0);
+	Index::_16* IndexBufferPtr{ nullptr };
+	CubeIdxBuffer->Lock(0, 0, (void**)&IndexBufferPtr, 0);
 
-		// x+
-		IndexBufferPtr[0]._1 = 1;
-		IndexBufferPtr[0]._2 = 5;
-		IndexBufferPtr[0]._3 = 6;
+	// x+
+	IndexBufferPtr[0]._1 = 1;
+	IndexBufferPtr[0]._2 = 5;
+	IndexBufferPtr[0]._3 = 6;
 
-		IndexBufferPtr[1]._1 = 1;
-		IndexBufferPtr[1]._2 = 6;
-		IndexBufferPtr[1]._3 = 2;
+	IndexBufferPtr[1]._1 = 1;
+	IndexBufferPtr[1]._2 = 6;
+	IndexBufferPtr[1]._3 = 2;
 
-		// x-
-		IndexBufferPtr[2]._1 = 4;
-		IndexBufferPtr[2]._2 = 0;
-		IndexBufferPtr[2]._3 = 3;
+	// x-
+	IndexBufferPtr[2]._1 = 4;
+	IndexBufferPtr[2]._2 = 0;
+	IndexBufferPtr[2]._3 = 3;
 
-		IndexBufferPtr[3]._1 = 4;
-		IndexBufferPtr[3]._2 = 3;
-		IndexBufferPtr[3]._3 = 7;
+	IndexBufferPtr[3]._1 = 4;
+	IndexBufferPtr[3]._2 = 3;
+	IndexBufferPtr[3]._3 = 7;
 
-		// y+
-		IndexBufferPtr[4]._1 = 4;
-		IndexBufferPtr[4]._2 = 5;
-		IndexBufferPtr[4]._3 = 1;
+	// y+
+	IndexBufferPtr[4]._1 = 4;
+	IndexBufferPtr[4]._2 = 5;
+	IndexBufferPtr[4]._3 = 1;
 
-		IndexBufferPtr[5]._1 = 4;
-		IndexBufferPtr[5]._2 = 1;
-		IndexBufferPtr[5]._3 = 0;
+	IndexBufferPtr[5]._1 = 4;
+	IndexBufferPtr[5]._2 = 1;
+	IndexBufferPtr[5]._3 = 0;
 
-		// y-
-		IndexBufferPtr[6]._1 = 3;
-		IndexBufferPtr[6]._2 = 2;
-		IndexBufferPtr[6]._3 = 6;
+	// y-
+	IndexBufferPtr[6]._1 = 3;
+	IndexBufferPtr[6]._2 = 2;
+	IndexBufferPtr[6]._3 = 6;
 
-		IndexBufferPtr[7]._1 = 3;
-		IndexBufferPtr[7]._2 = 6;
-		IndexBufferPtr[7]._3 = 7;
+	IndexBufferPtr[7]._1 = 3;
+	IndexBufferPtr[7]._2 = 6;
+	IndexBufferPtr[7]._3 = 7;
 
-		// z+
-		IndexBufferPtr[8]._1 = 7;
-		IndexBufferPtr[8]._2 = 6;
-		IndexBufferPtr[8]._3 = 5;
+	// z+
+	IndexBufferPtr[8]._1 = 7;
+	IndexBufferPtr[8]._2 = 6;
+	IndexBufferPtr[8]._3 = 5;
 
-		IndexBufferPtr[9]._1 = 7;
-		IndexBufferPtr[9]._2 = 5;
-		IndexBufferPtr[9]._3 = 4;
+	IndexBufferPtr[9]._1 = 7;
+	IndexBufferPtr[9]._2 = 5;
+	IndexBufferPtr[9]._3 = 4;
 
-		// z-
-		IndexBufferPtr[10]._1 = 0;
-		IndexBufferPtr[10]._2 = 1;
-		IndexBufferPtr[10]._3 = 2;
+	// z-
+	IndexBufferPtr[10]._1 = 0;
+	IndexBufferPtr[10]._2 = 1;
+	IndexBufferPtr[10]._3 = 2;
 
-		IndexBufferPtr[11]._1 = 0;
-		IndexBufferPtr[11]._2 = 2;
-		IndexBufferPtr[11]._3 = 3;
+	IndexBufferPtr[11]._1 = 0;
+	IndexBufferPtr[11]._2 = 2;
+	IndexBufferPtr[11]._3 = 3;
 
-		IdxBuffer->Unlock();
-	
+	CubeIdxBuffer->Unlock();
+
+	IDirect3DVertexBuffer9* FrustumVertexBuffer{ nullptr };
+	IDirect3DIndexBuffer9* FrustumIndexBuffer{ nullptr };
+
+	Device->CreateVertexBuffer(
+		8 * sizeof(Vector3),
+		D3DUSAGE_WRITEONLY,
+		D3DFVF_XYZ,
+		D3DPOOL_MANAGED,
+		&FrustumVertexBuffer,
+		0);
+
+	Device->CreateIndexBuffer(
+		36 * sizeof(WORD),
+		D3DUSAGE_WRITEONLY,
+		D3DFMT_INDEX16,
+		D3DPOOL_MANAGED,
+		&FrustumIndexBuffer,
+		0);
+
+	Vector3* Vertices;
+	FrustumVertexBuffer->Lock(0, 0, (void**)&Vertices, 0);
+
+	Vertices[0] = Vector3(-1.0f, -1.0f, 0.f);
+	Vertices[1] = Vector3(-1.0f, 1.0f, 0.f);
+	Vertices[2] = Vector3(1.0f, 1.0f, 0.f);
+	Vertices[3] = Vector3(1.0f, -1.0f, 0.f);
+	Vertices[4] = Vector3(-1.0f, -1.0f, 1.0f);
+	Vertices[5] = Vector3(-1.0f, 1.0f, 1.0f);
+	Vertices[6] = Vector3(1.0f, 1.0f, 1.0f);
+	Vertices[7] = Vector3(1.0f, -1.0f, 1.0f);
+
+	FrustumVertexBuffer->Unlock();
+
+	WORD* Indices = 0;
+	FrustumIndexBuffer->Lock(0, 0, (void**)&Indices, 0);
+
+	// front side
+	Indices[0] = 0; Indices[1] = 1; Indices[2] = 2;
+	Indices[3] = 0; Indices[4] = 2; Indices[5] = 3;
+
+	// back side
+	Indices[6] = 4; Indices[7] = 6; Indices[8] = 5;
+	Indices[9] = 4; Indices[10] = 7; Indices[11] = 6;
+
+	// left side
+	Indices[12] = 4; Indices[13] = 5; Indices[14] = 1;
+	Indices[15] = 4; Indices[16] = 1; Indices[17] = 0;
+
+	// right side
+	Indices[18] = 3; Indices[19] = 2; Indices[20] = 6;
+	Indices[21] = 3; Indices[22] = 6; Indices[23] = 7;
+
+	// top
+	Indices[24] = 1; Indices[25] = 5; Indices[26] = 6;
+	Indices[27] = 1; Indices[28] = 6; Indices[29] = 2;
+
+	// bottom
+	Indices[30] = 4; Indices[31] = 0; Indices[32] = 3;
+	Indices[33] = 4; Indices[34] = 3; Indices[35] = 7;
+
+	FrustumIndexBuffer->Unlock();
+
+	_ResourceSys->Insert<IDirect3DVertexBuffer9>
+		(L"VertexBuffer_Frustum", FrustumVertexBuffer);
+	_ResourceSys->Insert<IDirect3DIndexBuffer9>
+		(L"IndexBuffer_Frustum", FrustumIndexBuffer);
 }
 void Engine::Management::CreateCollisionDebugResource()&
 {
@@ -256,5 +325,3 @@ void Engine::Management::CreateCollisionDebugResource()&
 		_ResourceSys->Insert<IDirect3DTexture9>(L"Texture_NoCollision", TextureCollision);
 	}
 };
-
-

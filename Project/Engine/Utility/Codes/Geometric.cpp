@@ -43,6 +43,7 @@ Engine::OBB::OBB(const Vector3 LocalMin, const Vector3 LocalMax)
 
 void Engine::OBB::MakeDebugCollisionBox(IDirect3DDevice9* const Device)
 {
+	
 	Device->CreateVertexBuffer(
 		sizeof(Vertex::Location3DUV) * 8u,
 		D3DUSAGE_WRITEONLY,

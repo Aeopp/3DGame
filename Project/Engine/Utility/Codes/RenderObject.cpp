@@ -3,6 +3,7 @@
 void Engine::RenderObject::Initialize()&
 {
 	Super::Initialize();
+	
 }
 
 void Engine::RenderObject::PrototypeInitialize(
@@ -11,6 +12,7 @@ void Engine::RenderObject::PrototypeInitialize(
 {
 	RenderInterface::SetUpRenderingInformation(_Group);
 	this->Device = Device;
+
 };
 
 void Engine::RenderObject::Event()&

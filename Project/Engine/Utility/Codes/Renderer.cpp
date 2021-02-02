@@ -12,44 +12,18 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 
 void Engine::Renderer::Render()&
 {
-	if(Engine::Global::bDebugMode)
-	{
-		// �ø� �׽�Ʈ �ڵ�...
-		Matrix View, Projection, CameraWorld;
-		Device->GetTransform(D3DTS_VIEW, &View);
-		Device->GetTransform(D3DTS_PROJECTION, &Projection);
-		CameraWorld = FMath::Inverse(View);
-		const Vector3 CameraLocation = { CameraWorld._41,CameraWorld._42,CameraWorld._43 };
-
-		if (ImGui::Button("Make Frustum"))
-		{
-			_Frustum.Make(CameraWorld, Projection);
-		}
-
-		Sphere _Sphere;
-		_Sphere.Center = CameraLocation;
-		_Sphere.Radius = 2.f;
-		ImGui::Begin("Culling");
-		ImGui::Text("CameraLocation: %f %f %f", _Sphere.Center.x, _Sphere.Center.y, _Sphere.Center.z);
-		ImGui::End();
-
-		if (_Frustum.IsIn(_Sphere))
-		{
-			ImGui::Begin("Culling");
-			ImGui::Text("In");
-			ImGui::End();
-		}
-		else
-		{
-			ImGui::Begin("Culling");
-			ImGui::Text("Out");
-			ImGui::End();
-		}
-	};
-
+	Matrix View, Projection, CameraWorld;
+	Device->GetTransform(D3DTS_VIEW, &View);
+	Device->GetTransform(D3DTS_PROJECTION, &Projection);
+	CameraWorld = FMath::Inverse(View);
+	const Vector3 CameraLocation = { CameraWorld._41,CameraWorld._42,CameraWorld._43 };
+	_Frustum.Make(CameraWorld, Projection);
 	RenderEnviroment();
 	RenderNoAlpha();
-	RenderDebugCollision();
+	if (Engine::Global::bDebugMode)
+	{
+		RenderDebugCollision();
+	}
 	_Frustum.Render(Device.get());
 	RenderObjects.clear();
 };
@@ -61,7 +35,7 @@ void Engine::Renderer::Regist(RenderInterface* const Target)
 
 void Engine::Renderer::RenderDebugCollision()&
 {
-	//if (Global::bDebugMode)
+	if (Engine::Global::bDebugMode)
 	{
 		Device->SetVertexShader(nullptr);
 		Device->SetPixelShader(nullptr);
@@ -77,8 +51,13 @@ void Engine::Renderer::RenderDebugCollision()&
 			for (auto& _RenderEntity : iter->second)
 			{
 				Futures.push_back(std::async(std::launch::async,
-					[_RenderEntity]() {
-						_RenderEntity.get().Render();
+					[_Frustum,_RenderEntity]() {
+						RenderInterface& _RefRender = _RenderEntity.get();
+						const Sphere CullingCheckSphere = _RefRender.GetCullingSphere();
+						if (_Frustum.IsIn(CullingCheckSphere))
+						{
+							_RefRender.Render();
+						};
 					}));
 			}
 			for (auto& Future : Futures)
@@ -93,7 +72,18 @@ void Engine::Renderer::RenderDebugCollision()&
 		{
 			for (auto& _RenderEntity : iter->second)
 			{
-				_RenderEntity.get().Render();
+				RenderInterface& _RefRender = _RenderEntity.get();
+				if (_RefRender.bCullingOn)
+				{
+					if (_Frustum.IsIn(_RefRender.GetCullingSphere()))
+					{
+						_RefRender.Render();
+					}
+				}
+				else
+				{
+					_RefRender.Render();
+				}
 			}
 		}
 #endif
@@ -116,8 +106,14 @@ void Engine::Renderer::RenderNoAlpha()&
 		for (auto& NoAlphaRender : iter->second)
 		{
 			Futures.push_back(std::async(std::launch::async,
-				[NoAlphaRender]() {
-					NoAlphaRender.get().Render();
+				[_Frustum, _RenderEntity]() {
+					RenderInterface& _RefRender = _RenderEntity.get();
+					const Sphere CullingCheckSphere = _RefRender.GetCullingSphere();
+					if (_Frustum.IsIn(CullingCheckSphere))
+					{
+						_RefRender.Render();
+};
+					}));
 				}));
 		}
 		for (auto& Future : Futures)
@@ -130,9 +126,20 @@ void Engine::Renderer::RenderNoAlpha()&
 	if (auto iter = RenderObjects.find(RenderInterface::Group::NoAlpha);
 		iter != std::end(RenderObjects))
 	{
-		for (auto& NoAlphaRender : iter->second)
+		for (auto& _RenderEntity : iter->second)
 		{
-			NoAlphaRender.get().Render();
+			RenderInterface& _RefRender = _RenderEntity.get();
+			if (_RefRender.bCullingOn)
+			{
+				if (_Frustum.IsIn(_RefRender.GetCullingSphere()))
+				{
+					_RefRender.Render();
+				}
+			}
+			else
+			{
+				_RefRender.Render();
+			}
 		}
 	}
 #endif
@@ -154,8 +161,14 @@ void Engine::Renderer::RenderEnviroment()&
 		for (auto& Enviroment : iter->second)
 		{
 			Futures.push_back(std::async(std::launch::async,
-				[Enviroment]() {
-					Enviroment.get().Render();
+				[_Frustum , _RenderEntity]() {
+					RenderInterface& _RefRender = _RenderEntity.get();
+					const Sphere CullingCheckSphere = _RefRender.GetCullingSphere();
+					if (_Frustum.IsIn(CullingCheckSphere))
+					{
+						_RefRender.Render();
+					};
+				}));
 				}));
 		}
 		for (auto& Future : Futures)
@@ -168,9 +181,20 @@ void Engine::Renderer::RenderEnviroment()&
 	if (auto iter = RenderObjects.find(RenderInterface::Group::Enviroment);
 		iter != std::end(RenderObjects))
 	{
-		for (auto& Enviroment : iter->second)
+		for (auto& _RenderEntity : iter->second)
 		{
-			Enviroment.get().Render();
+			RenderInterface& _RefRender = _RenderEntity.get();
+			if (_RefRender.bCullingOn)
+			{
+				if (_Frustum.IsIn(_RefRender.GetCullingSphere()))
+				{
+					_RefRender.Render();
+				}
+			}
+			else
+			{
+				_RefRender.Render();
+			}
 		}
 	}
 #endif
