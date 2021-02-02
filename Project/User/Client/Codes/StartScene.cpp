@@ -71,7 +71,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 
 		Manager.NewObject<StaticLayer, Engine::DynamicCamera>(
 			L"Static", L"Camera",
-			FMath::PI / 3.f, 0.1f, 100.f, Aspect, 10.f, Control);
+			FMath::PI / 3.f, 0.1f, 100.f, Aspect, 10.f, &Control);
 	}
 
 	{
@@ -216,7 +216,7 @@ void StartScene::Event() &
 					{
 						auto TargetName = Target->GetName();
 
-						if (TargetName.find(L"HeightMap",0u) != std::wstring::npos)
+						if (TargetName.find(L"TombStone",0u) != std::wstring::npos)
 						{
 							Target->Kill();
 						}
