@@ -3,6 +3,8 @@
 #include "FMath.hpp"
 #include "ResourceSystem.h"
 #include "ExportUtility.hpp"
+#include "imgui.h"
+
 
 
 
@@ -387,8 +389,8 @@ void SkeletonMesh::Load(IDirect3DDevice9* const Device)&
 	/// <summary>
 	using Type = SkeletonVertex;
 	const std::wstring ResourceName = L"InputNameHere";
-	const std::filesystem::path FilePath = "..\\..\\..\\Resource\\Mesh\\DynamicMesh\\Chaos\\";
-	const std::filesystem::path FileName = "Chaos.fbx";
+	const std::filesystem::path FilePath = "..\\..\\..\\Resource\\Mesh\\DynamicMesh\\Player\\";
+	const std::filesystem::path FileName = "Player.x";
 	/// </summary>
 	this->Device = Device;
 	// 모델 생성 플래그 , 같은 플래그를 두번, 혹은 호환이 안되는
@@ -418,6 +420,24 @@ void SkeletonMesh::Load(IDirect3DDevice9* const Device)&
 	
 
 	auto& ResourceSys = RefResourceSys();
+
+	// Bone Info 
+	Bone Root;
+	Root.Name = AiScene->mRootNode->mName.C_Str();
+	Root.Transform = FromAssimp(AiScene->mRootNode->mTransformation);
+	Root.Parent = nullptr;
+	Root.ToRoot = FMath::Identity();
+	
+	std::shared_ptr<Bone> _BoneShared = std::make_shared<Bone>(Root);
+	BoneTable.insert({ Root.Name,_BoneShared });
+	for (uint32 i = 0; i < AiScene->mRootNode->mNumChildren; ++i)
+	{
+		_BoneShared->Childrens.push_back(MakeHierarchy(_BoneShared.get(), AiScene->mRootNode->mChildren[i]));
+	}
+
+	RootBone = _BoneShared.get();
+
+
 	for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
 	{
 		const std::wstring CurrentResourceName =
@@ -426,25 +446,26 @@ void SkeletonMesh::Load(IDirect3DDevice9* const Device)&
 		Mesh CreateMesh{};
 		aiMesh* _AiMesh = AiScene->mMeshes[MeshIdx];
 		// 버텍스 버퍼.
-		std::vector<Type> Vertices{};
+		std::vector<Type> Verticies{};
 		for (uint32 VerticesIdx = 0u; VerticesIdx < _AiMesh->mNumVertices; ++VerticesIdx)
 		{
-			Vertices.push_back(Type::MakeFromAssimpMesh(_AiMesh, VerticesIdx));
+			Verticies.push_back(Type::MakeFromAssimpMesh(_AiMesh, VerticesIdx));
 		}
 		
 		const std::wstring MeshVtxBufResourceName =
 			L"SkeletonMesh_VertexBuffer_" + CurrentResourceName;
 		IDirect3DVertexBuffer9* _VertexBuffer{ nullptr };
-		const uint32 VtxBufSize = sizeof(Type) * Vertices.size();
+		const uint32 VtxBufSize = sizeof(Type) * Verticies.size();
 		Device->CreateVertexBuffer(VtxBufSize,D3DUSAGE_DYNAMIC, Type::FVF,
 			D3DPOOL_DEFAULT, &_VertexBuffer, nullptr);
 		CreateMesh.VertexBuffer =  ResourceSys.Insert<IDirect3DVertexBuffer9>(MeshVtxBufResourceName, _VertexBuffer);
 		CreateMesh.PrimitiveCount=CreateMesh.FaceCount = _AiMesh->mNumFaces;
 		Type* VertexBufferPtr{ nullptr };
 		CreateMesh.VertexBuffer->Lock(0, 0, reinterpret_cast<void**>(&VertexBufferPtr), NULL);
-		std::memcpy(VertexBufferPtr, Vertices.data(), VtxBufSize);
+		std::memcpy(VertexBufferPtr, Verticies.data(), VtxBufSize);
 		CreateMesh.VertexBuffer->Unlock();
-		CreateMesh.VtxCount = Vertices.size();
+		CreateMesh.VtxCount = Verticies.size();
+
 		// 인덱스 버퍼.
 		std::vector<uint32> Indicies{};
 		for (uint32 FaceIdx = 0u; FaceIdx < _AiMesh->mNumFaces; ++FaceIdx)
@@ -467,6 +488,7 @@ void SkeletonMesh::Load(IDirect3DDevice9* const Device)&
 		CreateMesh.IndexBuffer->Lock(0, 0, reinterpret_cast<void**>(&IndexBufferPtr), NULL);
 		std::memcpy(IndexBufferPtr, Indicies.data(), IdxBufSize);
 		CreateMesh.IndexBuffer->Unlock();
+		 CreateMesh.Verticies = Verticies;
 		// 머테리얼.
 		aiMaterial* AiMaterial = AiScene->mMaterials[_AiMesh->mMaterialIndex];
 		if (AiMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0)
@@ -520,14 +542,67 @@ void SkeletonMesh::Load(IDirect3DDevice9* const Device)&
 						D3DXCreateTextureFromFile, Device, TexFileFullPath.c_str(), &CreateMesh.SpecularTexture);
 			}
 		}
+
+		// Vtx Bone 정보,
+		if (_AiMesh->HasBones())
+		{
+			CreateMesh.Offsets.resize(CreateMesh.VtxCount);
+			CreateMesh.Weights.resize(CreateMesh.VtxCount);
+			CreateMesh.Finals. resize(CreateMesh.VtxCount);
+			for (uint32 BoneIdx = 0u; BoneIdx < _AiMesh->mNumBones; ++BoneIdx)
+			{
+				const aiBone* const CurVtxBone = _AiMesh->mBones[BoneIdx];
+				auto iter = BoneTable.find(CurVtxBone->mName.C_Str());
+				if (iter != std::end(BoneTable))
+				{
+					for (uint32 WeightIdx = 0u; WeightIdx < CurVtxBone->mNumWeights; ++WeightIdx)
+					{
+						const aiVertexWeight  _AiVtxWit = CurVtxBone->mWeights[WeightIdx];
+						const uint32 VtxIdx = _AiVtxWit.mVertexId;
+						const float _Wit = _AiVtxWit.mWeight;
+						const Matrix OffsetMatrix = FromAssimp(CurVtxBone->mOffsetMatrix);
+						iter->second->Offset = OffsetMatrix;
+						CreateMesh.Offsets[VtxIdx].push_back(OffsetMatrix);
+						CreateMesh.Weights[VtxIdx].push_back(_Wit);
+						CreateMesh.Finals[VtxIdx].push_back(&(iter->second->Final));
+					
+					}
+				}
+			}
+		}
 		MeshContainer.push_back(CreateMesh);
 	}
 
-
+	
 }
+
+void Bone::BoneMatrixUpdate(Bone* Parent)&
+{
+	if (!Parent)return;
+	ToRoot = Parent->ToRoot * Parent->Transform;
+	Matrix AnimationTransform = FMath::Identity();
+	Final = Offset * AnimationTransform * ToRoot;
+	for (auto& ChildrenTarget : Parent->Childrens)
+	{
+		BoneMatrixUpdate(ChildrenTarget);
+	}
+}
+
+void BoneNamePrint(Bone& Target)
+{
+	ImGui::Text("%s", Target.Name.c_str());
+	for (auto& children : Target.Childrens)
+	{
+		BoneNamePrint(*children);
+	}
+};
 
 void SkeletonMesh::Render()&
 {
+	ImGui::Begin("..");
+	ImGui::Text("...");
+	BoneNamePrint(*RootBone);
+	ImGui::End();
 	/// <summary>
 	using Type = SkeletonVertex;
 	/// </summary>
@@ -538,8 +613,48 @@ void SkeletonMesh::Render()&
 	{
 		Device->SetTexture(0, CurrentRenderMesh.DiffuseTexture);
 		Device->SetStreamSource(0, CurrentRenderMesh.VertexBuffer, 0, sizeof(Type));
+		Device->SetIndices(CurrentRenderMesh.IndexBuffer);
+		Type* VertexBufferPtr{ nullptr };
+
+		CurrentRenderMesh.VertexBuffer->Lock(0, 0, reinterpret_cast<void**>(&VertexBufferPtr), NULL);
+		std::memcpy(VertexBufferPtr,CurrentRenderMesh.Verticies.data(),
+			sizeof(Type)*CurrentRenderMesh.Verticies.size());
+		for (uint32 i = 0; i < CurrentRenderMesh.Verticies.size(); ++i)
+		{
+			Vector3 AnimLocation{ 0,0,0 };
+			const Vector3 OriginLocation = VertexBufferPtr[i].Location;
+			for (uint32 j = 0; j < CurrentRenderMesh.Finals[i].size(); ++j)
+			{
+				Vector3 _Location{ 0,0,0 };
+				D3DXVec3TransformCoord(&_Location, &OriginLocation,CurrentRenderMesh.Finals[i][j]);
+				AnimLocation+=_Location *=CurrentRenderMesh.Weights[i][j];
+			}
+			VertexBufferPtr[i].Location = AnimLocation;
+		}
+		CurrentRenderMesh.VertexBuffer->Unlock();
 		Device->DrawIndexedPrimitive(
-			D3DPT_TRIANGLELIST,0u,0u,CurrentRenderMesh.VtxCount,0u,CurrentRenderMesh.PrimitiveCount);
-		Device->DrawPrimitive(D3DPT_TRIANGLELIST, 0u, CurrentRenderMesh.FaceCount);
+			D3DPT_TRIANGLELIST, 0u, 0u, CurrentRenderMesh.VtxCount, 0u, CurrentRenderMesh.PrimitiveCount);
 	}
 }
+
+ Bone* SkeletonMesh::MakeHierarchy(Bone*  BoneParent, const aiNode* const AiNode)
+{
+	Bone Target;
+	Target.Name = AiNode->mName.C_Str(); 
+	Target.Transform = FromAssimp(AiNode->mTransformation);
+	Target.Parent = BoneParent;
+	Target.ToRoot = Target.Transform * BoneParent->Transform;
+	std::shared_ptr<Bone> _BoneShared = std::make_shared<Bone>(Target);
+	BoneTable.insert({ Target.Name,_BoneShared });
+	for (uint32 i = 0; i < AiNode->mNumChildren; ++i)
+	{
+		_BoneShared->Childrens.push_back(MakeHierarchy(_BoneShared.get(), AiNode->mChildren[i]));
+	}
+	return _BoneShared.get();
+}
+
+
+
+
+
+

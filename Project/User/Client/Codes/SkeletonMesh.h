@@ -1,6 +1,8 @@
 #pragma once
 #include "AssimpHelper.h"
 #include <vector>
+#include <unordered_map>
+
 
 //
 //struct Track
@@ -89,16 +91,35 @@ struct SkeletonVertex
 	};
 };
 
+/// <summary>
+using VtxType = SkeletonVertex;
+/// </summary>
 struct Mesh
 {
 	IDirect3DVertexBuffer9* VertexBuffer{ nullptr };
-	IDirect3DTexture9* DiffuseTexture{ nullptr };
-	IDirect3DTexture9* NormalTexture{ nullptr };
-	IDirect3DTexture9* SpecularTexture{ nullptr };
-	IDirect3DIndexBuffer9* IndexBuffer{ nullptr };
+	IDirect3DTexture9*      DiffuseTexture{ nullptr };
+	IDirect3DTexture9*      NormalTexture{ nullptr };
+	IDirect3DTexture9*      SpecularTexture{ nullptr };
+	IDirect3DIndexBuffer9*  IndexBuffer{ nullptr };
+	std::vector<VtxType>    Verticies{};
+	std::vector<std::vector<Matrix>>     Offsets{};
+	std::vector<std::vector<float>>      Weights{};
+	std::vector<std::vector<Matrix*>>                 Finals{};
 	uint32 FaceCount{ 0u };
 	uint32 VtxCount{ 0u };
 	uint32 PrimitiveCount{ 0u };
+};
+
+struct Bone
+{
+	Bone*Parent{};
+	std::vector<Bone*> Childrens{};
+	Matrix Final{FMath::Identity()};
+	Matrix Transform{ FMath::Identity() };
+	Matrix ToRoot{ FMath::Identity() };
+	Matrix Offset{ FMath::Identity() };
+	std::string Name{};
+	void BoneMatrixUpdate(Bone* Parent)&;
 };
 
 class SkeletonMesh
@@ -106,8 +127,12 @@ class SkeletonMesh
 public:
 	void Load(IDirect3DDevice9*const Device)&;
 	void Render()&;
+	Bone* MakeHierarchy(
+		Bone* BoneParent, const aiNode* const AiNode);
 private:
-	
+	Bone* RootBone{ nullptr };
+	std::unordered_map<std::string,std::shared_ptr<Bone>>       BoneTable{};
+	std::vector<Matrix>     AnimationMatrixs{};
 	std::vector<Mesh>       MeshContainer{}; 
 	IDirect3DDevice9*       Device{ nullptr };
 	const aiScene*          AiScene{};
