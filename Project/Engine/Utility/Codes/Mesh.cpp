@@ -11,3 +11,8 @@ void Engine::Mesh::Event(Object* Owner)&
 {
 	Super::Event(Owner);
 }
+
+void Engine::Mesh::Render()&
+{
+
+}

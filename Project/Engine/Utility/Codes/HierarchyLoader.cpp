@@ -132,7 +132,6 @@ CreateMeshContainer(
 		std::begin (_MeshContainerSub->RenderingMatrix) , 
 		std::end (_MeshContainerSub->RenderingMatrix) , FMath::Identity());
 
-
 	for (uint32 i = 0; i < _MeshContainerSub->NumBones; ++i)
 	{
 		_MeshContainerSub->FrameCombinedMatrix[i] = 
@@ -144,21 +143,21 @@ CreateMeshContainer(
 	return S_OK;
 }
 
-STDMETHODIMP_(HRESULT __stdcall) Engine::HierarchyLoader::DestroyFrame(LPD3DXFRAME FrameToFree)
+STDMETHODIMP_(HRESULT __stdcall) Engine::HierarchyLoader::DestroyFrame(LPD3DXFRAME BoneToFree)
 {
-	delete[] FrameToFree->Name;
-	FrameToFree->Name = nullptr;
+	delete[] BoneToFree->Name;
+	BoneToFree->Name = nullptr;
 
-	if (nullptr != FrameToFree->pMeshContainer)
-		DestroyMeshContainer(FrameToFree->pMeshContainer);
+	if (nullptr != BoneToFree->pMeshContainer)
+		DestroyMeshContainer(BoneToFree->pMeshContainer);
 
-	if (nullptr != FrameToFree->pFrameSibling)
-		DestroyFrame(FrameToFree->pFrameSibling);
+	if (nullptr != BoneToFree->pFrameSibling)
+		DestroyFrame(BoneToFree->pFrameSibling);
 
-	if (nullptr != FrameToFree->pFrameFirstChild)
-		DestroyFrame(FrameToFree->pFrameFirstChild);
+	if (nullptr != BoneToFree->pFrameFirstChild)
+		DestroyFrame(BoneToFree->pFrameFirstChild);
 
-	delete FrameToFree;
+	delete BoneToFree;
 	return S_OK;
 }
 
@@ -185,11 +184,11 @@ DestroyMeshContainer(LPD3DXMESHCONTAINER MeshContainerToFree)
 }
 
 void Engine::HierarchyLoader::AllocateName(
-	char** Name, const char* FrameName)&
+	char** Name, const char* TargetName)&
 {
-	if (nullptr == FrameName)
+	if (nullptr == TargetName)
 		return;
-	const uint32	iLength = strlen(FrameName);
-	*Name = new char[iLength + 1u];
-	strcpy_s(*Name, iLength + 1u, FrameName);
+	const uint32	Length = strlen(TargetName);
+	*Name = new char[Length + 1u];
+	strcpy_s(*Name, Length + 1u, TargetName);
 }
