@@ -29,6 +29,9 @@
     <Filter Include="HLSL">
       <UniqueIdentifier>{9c8eda08-8ccb-41a5-a4e5-1e5afa0d65a9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Object">
+      <UniqueIdentifier>{db1b0de6-f234-4c6c-9a35-e35ccdc00492}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -58,7 +61,9 @@
     <ClInclude Include="Codes\StaticLayer.h">
       <Filter>Layer\Static</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\TombStone.h" />
+    <ClInclude Include="Codes\TombStone.h">
+      <Filter>Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -79,7 +84,9 @@
     <ClCompile Include="Codes\StaticLayer.cpp">
       <Filter>Layer\Static</Filter>
     </ClCompile>
-    <ClCompile Include="Codes\TombStone.cpp" />
+    <ClCompile Include="Codes\TombStone.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Client.rc">

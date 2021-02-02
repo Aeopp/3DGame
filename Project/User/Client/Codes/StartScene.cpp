@@ -29,71 +29,50 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 {
     Super::Initialize(Device);
 	
+	auto& FontMgr = RefFontManager();
+	auto& Control = RefControl();
+	auto& ResourceSys = RefResourceSys();
+	auto& Manager = RefManager();
+	auto& Proto = RefProto();
+
 	{
 		// 폰트 로딩
-		RefFontManager().AddFont(Device, L"Font_Default", L"바탕", 15, 20, FW_HEAVY);
-		RefFontManager().AddFont(Device, L"Font_Jinji", L"궁서", 15, 20, FW_THIN);
-	}
-	
-	auto* _Control = &RefControl();
-
-	{
-		// 텍스쳐 리소스 추가. 
-		D3DLOCKED_RECT LockRect;
-		IDirect3DTexture9* ResourcePtr{ nullptr };
-
-		RefResourceSys().Insert<IDirect3DVertexDeclaration9>(L"QQ", Vertex::Texture::GetVertexDecl(Device));
-
-		auto Tex = RefResourceSys().Emplace<IDirect3DTexture9>(L"Texture", D3DXCreateTextureFromFile, Device,
-			(App::ResourcePath / L"Texture" / L"Player0.jpg").c_str(), &ResourcePtr);
+		FontMgr.AddFont(Device, L"Font_Default", L"바탕", 15, 20, FW_HEAVY);
+		FontMgr.AddFont(Device, L"Font_Jinji", L"궁서", 15, 20, FW_THIN);
 	}
 
+	// 텍스쳐 리소스 추가. 
 	{
-		// 현재 씬 레이어 추가.
-		RefManager().NewLayer<EnemyLayer>();
-		RefManager().NewLayer<StaticLayer>();
+		IDirect3DTexture9* TexturePtr{ nullptr };
+		ResourceSys.Insert<IDirect3DVertexDeclaration9>(
+			L"Texture_Player", Vertex::Texture::GetVertexDecl(Device));
+
+		auto Tex = ResourceSys.Emplace<IDirect3DTexture9>(L"Texture", D3DXCreateTextureFromFile, Device,
+			(App::ResourcePath / L"Texture" / L"Player0.jpg").c_str(), &TexturePtr);
 	}
 
+	// 현재 씬 레이어 추가.
 	{
-		// 오브젝트 추가.
-		static bool bInit = false;
-
-		if (bInit == false)
-		{
-			{
-				// 프로토타입 로딩.
-				RefProto().LoadPrototype<Engine::HeightMap>(L"Static",
-					Device, Engine::RenderInterface::Group::Enviroment);
-				RefProto().LoadPrototype<Engine::DynamicCamera>(L"Static", Device, App::Hwnd);
-				RefProto().LoadPrototype<TombStone>(L"Static", Device ,
-					Engine::RenderInterface::Group::NoAlpha);
-			}
-			
-
-			for (size_t i = 0; i < 16; ++i)
-			{
-				RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap" + std::to_wstring(i));
-			}
-			bInit = true;
-		}
-		else
-		{
-			RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap");
-			RefManager().NewObject<EnemyLayer, Engine::HeightMap>(L"Static", L"HeightMap2");
-		}
+		Manager.NewLayer<EnemyLayer>();
+		Manager.NewLayer<StaticLayer>();
 	}
-	
 
+
+	// 프로토타입 로딩.
 	{
-		// 카메라 오브젝트 추가.
+		Proto.LoadPrototype<Engine::DynamicCamera>(L"Static",Device,App::Hwnd);
+		Proto.LoadPrototype<TombStone>(L"Static", Device ,
+			Engine::RenderInterface::Group::NoAlpha);
+	}
+
+	// 카메라 오브젝트 추가.
+	{
 		constexpr float Aspect = App::ClientSize<float>.first / App::ClientSize<float>.second;
 
-		RefManager().NewObject<StaticLayer, Engine::DynamicCamera>(
+		Manager.NewObject<StaticLayer, Engine::DynamicCamera>(
 			L"Static", L"Camera",
-			FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 10.f, _Control);
+			FMath::PI / 3.f, 0.1f, 100.f, Aspect, 10.f, Control);
 	}
-
-	
 
 	{
 		// 메쉬 리소스 로딩.
@@ -109,7 +88,6 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 		std::wstring ResourceName = L"TombStone";
 		std::filesystem::path Path = App::ResourcePath / L"Mesh" / L"StaticMesh" / L"TombStone";
 		std::filesystem::path Name = L"TombStone.x";
-
 
 		RefResourceSys().Emplace<ID3DXMesh>(
 			L"StaticMesh_OriginMesh_" + ResourceName
@@ -154,7 +132,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 			});
 #pragma warning (default : 4834)
 
-		 void* VertexBufferPtr{ nullptr };
+		void* VertexBufferPtr{ nullptr };
 		VertexLocations->resize(_Mesh->GetNumVertices());
 		_Mesh->LockVertexBuffer(0, reinterpret_cast<void**>(&VertexBufferPtr));
 
@@ -177,7 +155,6 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 		Materials = static_cast<D3DXMATERIAL*>(SubSet->GetBufferPointer());
 		std::vector<IDirect3DTexture9*>Textures;
 		Textures.resize(SubSetCount);
-
 
 		for (uint32 Idx = 0u; Idx < SubSetCount; ++Idx)
 		{
@@ -211,13 +188,10 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 			L"StaticMesh_Textures_"+ResourceName, Textures);
 	}
 
+	// 오브젝트 스폰
 	{
-		// 오브젝트 스폰
 		RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_1" ,
 			Vector3{ 0,0,10 }, Vector3{0,0,0});
-
-		/*RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_2",
-			Vector3{ 5,0,10 }, Vector3{0,0,0});*/
 	}
 };
 
@@ -227,27 +201,24 @@ void StartScene::Event() &
 
 	if (Engine::Global::bDebugMode)
 	{
-		ImGui::Begin("TTEST");
+		ImGui::Begin("SceneChange");
 		{
-			if (ImGui::Button("ChangeScene"))
+			if (ImGui::Button("SceneChange"))
 			{
-				// 씬전환 테스트.
 				RefManager().ChangeScene<StartScene>();
 			}
 
-			if (ImGui::Button("KILL"))
+			if (ImGui::Button("Object KILL"))
 			{
-				// 오브젝트 삭제 테스트.
-				for (auto& [Type, Objects] :
-					RefManager().FindLayer<EnemyLayer>()->RefObjects())
+				for (auto& [TypeKey, TargetObjects] :RefManager().FindLayer<EnemyLayer>()->RefObjects())
 				{
-					for (auto& Obj : Objects)
+					for (auto& Target : TargetObjects)
 					{
-						auto Name = Obj->GetName();
+						auto TargetName = Target->GetName();
 
-						if (Name.find(L"HeightMap", 0u) != std::wstring::npos)
+						if (TargetName.find(L"HeightMap",0u) != std::wstring::npos)
 						{
-							Obj->Kill();
+							Target->Kill();
 						}
 					}
 				}
@@ -260,26 +231,29 @@ void StartScene::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
 	
+	// 오브젝트 레이어 검색.
 	{
-		// 오브젝트,레이어 검색 테스트.
-		auto _Map = RefManager().FindObject<EnemyLayer, Engine::HeightMap>(L"HeightMap2");
-		auto _Layer = RefManager().FindLayer<EnemyLayer>();
+		auto _Target = RefManager().FindObject<EnemyLayer, Engine::HeightMap>(L"HeightMap2");
+		auto _TargetLayer = RefManager().FindLayer<EnemyLayer>();
 
-		if (_Map)
-			_Map->GetName();
-
-		auto& LeyerMap = RefManager().RefLayers();
+		auto& LayerMap = RefManager().RefLayers();
 
 		for (auto& _HeightMap : RefManager().FindObjects<EnemyLayer, Engine::HeightMap>())
 		{
-			//std::wcout << q->GetName() << std::endl;
+			_HeightMap->GetName();
 		}
-		for (auto& _Camera : RefManager().FindObjects<StaticLayer, Engine::DynamicCamera>())
+		for (auto& _Camera: RefManager().FindObjects<StaticLayer, Engine::DynamicCamera>())
 		{
-			//std::wcout << q->GetName() << std::endl;
+			_Camera->GetName();
 		}
 
-		auto Objects = RefManager().RefObjects<EnemyLayer>();
+		for (auto&  [_Key,_Objects]: RefManager().RefObjects<EnemyLayer>())
+		{
+			for (auto& _Object : _Objects)
+			{
+				_Object->GetName();
+			};
+		}
 	}
 };
 
