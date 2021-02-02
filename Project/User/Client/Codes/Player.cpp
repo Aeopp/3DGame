@@ -23,7 +23,6 @@ void Player::Initialize(
 	Super::Initialize();
 
 	auto _Transform =AddComponent<Engine::Transform>();
-	_Transform->SetScale({ 1,1,1 });
 	_Transform->SetScale(Scale);
 	_Transform->SetRotation(Rotation);
 	_Transform->SetLocation(SpawnLocation);
@@ -52,7 +51,8 @@ void Player::Initialize(
 		_Transform);
 
 	RenderInterface::bCullingOn = true;
-
+	_DynamicMesh->SetAnimationIdx(57);
+	
 	// 바운딩 스피어
 	{
 		/*Vector3 BoundingSphereCenter;
@@ -99,6 +99,8 @@ void Player::Render()&
 void Player::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
+	auto _DynamicMesh = GetComponent<Engine::DynamicMesh>();
+	_DynamicMesh->PlayAnimation(DeltaTime);
 
 	auto& Control = RefControl();
 	auto _Transform = GetComponent<Engine::Transform>();

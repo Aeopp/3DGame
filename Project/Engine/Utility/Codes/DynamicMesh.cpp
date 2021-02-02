@@ -85,13 +85,13 @@ void Engine::DynamicMesh::Render()&
 		// 2인자 : 원래대로 돌려놓기 위한 상태 행렬(본래는 1인자의 역행렬을 구해서 넣어줘야 하지만 안 넣어줘도 상관없음)
 		// 3인자 : 변하지 않는 원본 메쉬의 정점 정보
 		// 4인자 : 변환된 메쉬의 정점 정보
-
+		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 		for (uint32 Idx = 0; Idx < _MeshContainer->NumMaterials; ++Idx)
 		{
-			Device->SetTexture(0, _MeshContainer->Textures[Idx]);
+			//Device->SetTexture(0, _MeshContainer->Textures[Idx]);
 			_MeshContainer->MeshData.pMesh->DrawSubset(Idx);
 		}
-
+		Device->SetRenderState(D3DRS_FILLMODE,D3DFILL_SOLID);
 		_MeshContainer->OriginMesh->UnlockVertexBuffer();
 		_MeshContainer->MeshData.pMesh->UnlockVertexBuffer();
 	}

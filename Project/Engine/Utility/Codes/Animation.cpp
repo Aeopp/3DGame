@@ -25,7 +25,8 @@ void Engine::Aniamtion::Set(const uint32 Index)&
 
 	NewTrack = CurrentTrack == 0 ? 1 : 0;
 	ID3DXAnimationSet* AnimSet = nullptr;
-
+	//m_pAniCtrl->GetAnimationSetByName();
+	AnimationControl->GetAnimationSet(Index, &AnimSet);
 	// 애니메이션 셋이 진행되는 최종의 시간 값을 반환
 	Duration = AnimSet->GetPeriod();
 

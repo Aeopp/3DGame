@@ -64,7 +64,7 @@ CreateMeshContainer(
 	ZeroMemory(_MeshContainerSub->pMaterials, sizeof(D3DXMATERIAL) *
 		_MeshContainerSub->NumMaterials);
 
-	_MeshContainerSub->Textures.resize(_MeshContainerSub->NumMaterials );
+	_MeshContainerSub->Textures.resize(_MeshContainerSub->NumMaterials);
 	std::fill(std::begin(_MeshContainerSub->Textures),
 		std::end(_MeshContainerSub->Textures), nullptr);
 
