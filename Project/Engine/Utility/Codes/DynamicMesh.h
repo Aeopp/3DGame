@@ -22,6 +22,7 @@ namespace Engine
 		bool IsAnimationEnd()&;
 		void SetAnimationIdx(const uint8 AnimationIndex)&;
 		void PlayAnimation(const float DeltaTime)&;
+		std::vector<Vector3> MakeVertexLocations()&;
 	private:
 		void UpdateBone(Bone* const TargetBone,
 						const Matrix& ToRootSpace)&;

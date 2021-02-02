@@ -1,6 +1,7 @@
 #include "..\\stdafx.h"
 #include "StartScene.h"
 #include "TombStone.h"
+#include "Player.h"
 #include "Shader.h"
 #include "Vertexs.hpp"
 #include "Management.h"
@@ -60,8 +61,8 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	// 프로토타입 로딩.
 	{
 		Proto.LoadPrototype<Engine::DynamicCamera>(L"Static",Device,App::Hwnd);
-		Proto.LoadPrototype<TombStone>(L"Static", Device ,
-			Engine::RenderInterface::Group::NoAlpha);
+		Proto.LoadPrototype<TombStone>(L"Static", Device ,Engine::RenderInterface::Group::NoAlpha);
+		Proto.LoadPrototype<Player>(L"Static", Device,Engine::RenderInterface::Group::NoAlpha);
 	}
 
 	// 카메라 오브젝트 추가.
@@ -189,8 +190,10 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 
 	// 오브젝트 스폰
 	{
-		RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_1" ,
+		RefManager().NewObject<EnemyLayer,TombStone>(L"Static", L"TombStone_1" ,
 			Vector3{ 1,1,1 },Vector3{ 0,0,10 }, Vector3{ 0,0,0 });
+		RefManager().NewObject<StaticLayer,Player>(L"Static", L"Player",
+			Vector3{ 0.01,0.01,0.01 }, Vector3{ 0,0,0}, Vector3{ 1,1,1 });
 	}
 };
 

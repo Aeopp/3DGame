@@ -70,9 +70,6 @@
     <Filter Include="Component\Render\Mesh\Static">
       <UniqueIdentifier>{f01e9271-0b48-4b0a-86f1-f2215bcfe90d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Object\HeightMap">
-      <UniqueIdentifier>{ffbbe15a-7b18-4d2d-91be-a387c539ca3e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Collision">
       <UniqueIdentifier>{d651ec5a-a14a-4e47-a965-5fb95cff8935}</UniqueIdentifier>
     </Filter>
@@ -123,9 +120,6 @@
     <ClInclude Include="Codes\RenderObject.h">
       <Filter>Object\RenderObject</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\HeightMap.h">
-      <Filter>Object\HeightMap</Filter>
-    </ClInclude>
     <ClInclude Include="Codes\Camera.h">
       <Filter>Object\Camera</Filter>
     </ClInclude>
@@ -156,9 +150,6 @@
     <ClInclude Include="Codes\AssimpHelper.h">
       <Filter>Assimp</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\Model.h">
-      <Filter>Assimp</Filter>
-    </ClInclude>
     <ClInclude Include="Codes\UtilityGlobal.h">
       <Filter>UtilityGlobal</Filter>
     </ClInclude>
@@ -166,6 +157,9 @@
       <Filter>Component\Render\Mesh\Dynamic</Filter>
     </ClInclude>
     <ClInclude Include="Codes\HierarchyLoader.h">
+      <Filter>Component\Render\Mesh\Dynamic</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\Animation.h">
       <Filter>Component\Render\Mesh\Dynamic</Filter>
     </ClInclude>
   </ItemGroup>
@@ -202,9 +196,6 @@
     </ClCompile>
     <ClCompile Include="Codes\RenderObject.cpp">
       <Filter>Object\RenderObject</Filter>
-    </ClCompile>
-    <ClCompile Include="Codes\HeightMap.cpp">
-      <Filter>Object\HeightMap</Filter>
     </ClCompile>
     <ClCompile Include="Codes\Camera.cpp">
       <Filter>Object\Camera</Filter>
@@ -254,9 +245,6 @@
     <ClCompile Include="Codes\Collision.cpp">
       <Filter>Component\Collision</Filter>
     </ClCompile>
-    <ClCompile Include="Codes\Model.cpp">
-      <Filter>Assimp</Filter>
-    </ClCompile>
     <ClCompile Include="Codes\UtilityGlobal.cpp">
       <Filter>UtilityGlobal</Filter>
     </ClCompile>
@@ -264,6 +252,9 @@
       <Filter>Component\Render\Mesh\Dynamic</Filter>
     </ClCompile>
     <ClCompile Include="Codes\HierarchyLoader.cpp">
+      <Filter>Component\Render\Mesh\Dynamic</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Animation.cpp">
       <Filter>Component\Render\Mesh\Dynamic</Filter>
     </ClCompile>
   </ItemGroup>

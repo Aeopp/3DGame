@@ -10,7 +10,7 @@ void Engine::DynamicMesh::Initialize(IDirect3DDevice9* const Device, const std::
 
 	wchar_t		szFullPath[MAX_PATH] = L"";
 	const wchar_t* pFilePath =
-		L"..\\..\\..\\Resource\\Mesh\\DynamicMesh\\PlayerXFile\\";
+		L"..\\..\\..\\Resource\\Mesh\\DynamicMesh\\Player\\";
 
 	const wchar_t* pFileName = 
 		L"Player.x";
@@ -22,21 +22,24 @@ void Engine::DynamicMesh::Initialize(IDirect3DDevice9* const Device, const std::
 
 	LPD3DXANIMATIONCONTROLLER	 pAniCtrl = nullptr;
 
-	D3DXLoadMeshHierarchyFromX(szFullPath,
+	if (FAILED(D3DXLoadMeshHierarchyFromX(szFullPath,
 		D3DXMESH_MANAGED,
 		Device,
 		&m_pLoader, // HierarchyLoader
 		NULL,
 		reinterpret_cast<D3DXFRAME**>(&RootBone),
-		&pAniCtrl);
-	Engine::Aniamtion* _Animation;
-	_Animation->Initialize(pAniCtrl);
-	_Animation->Clone();
+		&pAniCtrl)))
+	{
+		int i = 0;
+	}
+	_Animation.Initialize(pAniCtrl);
+	//_Animation.Clone();
 
 	Matrix matTemp;
 	D3DXMatrixRotationY(&matTemp, D3DXToRadian(180.f));
 	UpdateBone((Bone*)RootBone,matTemp);
 	InitBoneToRootSpace(RootBone);
+	
 
 	//_Mesh=ResourceSys->Get<ID3DXMesh>(StaticMeshNaming + L"Mesh_" + MeshResourceName);
 	//Adjacency=ResourceSys->Get<ID3DXBuffer>(StaticMeshNaming + L"Adjacency_" + MeshResourceName);
@@ -60,10 +63,8 @@ void Engine::DynamicMesh::Render()&
 {
 	Super::Render();
 
-	for (auto& iter : MeshContainer)
+	for (auto& _MeshContainer : MeshContainer)
 	{
-		MeshContainerSub* _MeshContainer = iter;
-
 		for (uint32 Idx = 0; Idx < _MeshContainer->NumBones; ++Idx)
 		{
 			_MeshContainer->RenderingMatrix[Idx] = _MeshContainer->FrameOffsetMatrix[Idx] *
@@ -117,6 +118,54 @@ void Engine::DynamicMesh::PlayAnimation(const float DeltaTime)&
 	Matrix RotationY{};
 	D3DXMatrixRotationY(&RotationY, 3.14f);
 	UpdateBone(RootBone, RotationY);
+}
+
+std::vector<Vector3> Engine::DynamicMesh::MakeVertexLocations()&
+{
+	std::vector<Vector3> VertexLocations{}; 
+	for (auto& MeshContainerElement : MeshContainer)
+	{
+		void* VertexBufferPtr{ nullptr };
+		const uint32 VertexCount = MeshContainerElement->OriginMesh->GetNumVertices();
+
+		MeshContainerElement->OriginMesh->LockVertexBuffer(0, reinterpret_cast<void**>(&VertexBufferPtr));
+
+		const uint32 Stride = D3DXGetFVFVertexSize(MeshContainerElement->OriginMesh->GetFVF());
+		std::array<D3DVERTEXELEMENT9, MAX_FVF_DECL_SIZE> VertexDecls;
+		VertexDecls.fill(D3DVERTEXELEMENT9{});
+		MeshContainerElement->OriginMesh->GetDeclaration(VertexDecls.data());
+
+		uint8 _OffSet = 0u;
+#pragma warning (disable :4834  )
+		std::find_if(std::begin(VertexDecls), std::end(VertexDecls),
+			[&_OffSet](const D3DVERTEXELEMENT9& VertexDecl)
+			{
+				if (VertexDecl.Usage == D3DDECLUSAGE_POSITION)
+				{
+					_OffSet = VertexDecl.Offset;
+					return true;
+				}
+				else
+					return false;
+			});
+#pragma warning (default : 4834)
+		for (uint32 Idx = 0u; Idx < VertexCount; ++Idx)
+		{
+			const uint32 PtrByteJumpStride = Idx * Stride + _OffSet;
+
+			const uint8* VertexPtrRead_1_Byte =
+				reinterpret_cast<const uint8*>(VertexBufferPtr);
+
+			VertexPtrRead_1_Byte += PtrByteJumpStride;
+
+			Vector3 CurrentVertexLocation =
+				*reinterpret_cast<const Vector3* const>(VertexPtrRead_1_Byte);
+
+			VertexLocations.push_back(std::move(CurrentVertexLocation));
+		}
+		MeshContainerElement->OriginMesh->UnlockVertexBuffer();
+	}
+	return VertexLocations;
 }
 
 void Engine::DynamicMesh::UpdateBone(

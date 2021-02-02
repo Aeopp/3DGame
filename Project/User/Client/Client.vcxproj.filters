@@ -64,6 +64,9 @@
     <ClInclude Include="Codes\TombStone.h">
       <Filter>Object</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\Player.h">
+      <Filter>Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -85,6 +88,9 @@
       <Filter>Layer\Static</Filter>
     </ClCompile>
     <ClCompile Include="Codes\TombStone.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Player.cpp">
       <Filter>Object</Filter>
     </ClCompile>
   </ItemGroup>

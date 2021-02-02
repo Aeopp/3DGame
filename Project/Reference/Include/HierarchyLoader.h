@@ -39,7 +39,7 @@ namespace Engine
 			LPD3DXSKININFO SkinInfo,
 			LPD3DXMESHCONTAINER* NewMeshContainer);
 		STDMETHOD(DestroyFrame)(THIS_ LPD3DXFRAME FrameToFree);
-		STDMETHOD(DestroyMeshContainer)(THIS_ LPD3DXMESHCONTAINER MeshContainerToFree);
+		STDMETHOD(DestroyMeshContainer)(THIS_ LPD3DXMESHCONTAINER		MeshContainerToFree);
 	private:
 		void AllocateName(char** ppName, const char* pFrameName)&;
 	private:

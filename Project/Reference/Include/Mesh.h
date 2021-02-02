@@ -12,7 +12,7 @@ namespace Engine
 	public:
 		void Initialize(IDirect3DDevice9* const Device)&;
 		virtual void Event(class Object* Owner) & override;
-		virtual void Render()& abstract;
+		virtual void Render()&;
 	public:
 		static const inline Property TypeProperty = Property::Render;
 	protected:

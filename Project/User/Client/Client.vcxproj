@@ -198,6 +198,7 @@
     <ClInclude Include="Client.h" />
     <ClInclude Include="Codes\App.h" />
     <ClInclude Include="Codes\EnemyLayer.h" />
+    <ClInclude Include="Codes\Player.h" />
     <ClInclude Include="Codes\StartScene.h" />
     <ClInclude Include="Codes\StaticLayer.h" />
     <ClInclude Include="Codes\TombStone.h" />
@@ -210,6 +211,7 @@
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="Codes\App.cpp" />
     <ClCompile Include="Codes\EnemyLayer.cpp" />
+    <ClCompile Include="Codes\Player.cpp" />
     <ClCompile Include="Codes\StartScene.cpp" />
     <ClCompile Include="Codes\StaticLayer.cpp" />
     <ClCompile Include="Codes\TombStone.cpp" />
