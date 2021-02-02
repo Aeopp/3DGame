@@ -23,9 +23,8 @@ void TombStone::Initialize(const Vector3& SpawnLocation , const Vector3& Rotatio
 	Super::Initialize();
 
 
-	_Model.Initialize(L"..\\..\\..\\Resource\\Mesh\\DynamicMesh\\Chaos\\",
-		L"Chaos.fbx", Device);
-
+	_Model.Initialize(L"..\\..\\..\\Resource\\Mesh\\DynamicMesh\\PlayerXfile\\",
+		L"Player.x", Device);
 
 	_TestID = TestID++;
 
@@ -82,7 +81,6 @@ void TombStone::PrototypeInitialize(IDirect3DDevice9* const Device,
 
 void TombStone::Event()&
 {
-
 	Super::Event();
 	ImGui::Begin("CollisionTest");
 
@@ -274,15 +272,6 @@ void TombStone::HitEnd(Object* const Target)&
 
 };
 
-
-
-
-
-
-
-
-
-
 // Offset* anim* root* world
 //본 업데이트는 업데이트마다 수항
 //본 업데이트시 루트부터시작
@@ -329,12 +318,14 @@ void MyModel::Initialize(const std::filesystem::path& Path, const std::filesyste
 	CreateHierarchy(-1, _Scene->mRootNode, FMath::Identity());
 	CreateMeshInformation(Path);
 	CreateBuffer(Path / Name);
-	VertexDecl = Vertex::Animation::GetVertexDecl(Device);
+	
+	VertexDecl = DX::MakeShared(Vertex::Animation::GetVertexDecl(Device));
 
 	auto iter = BoneTableIndexFromName.find(_Scene->mRootNode->mName.C_Str());
 	auto& RootBone = BoneTable[iter->second];
 	RootBone.ToRootSpace   = FMath::Identity();
-	RootBone.CurrentTransform = RootBone.OriginTransform = FromAssimp(_Scene->mRootNode->mTransformation);
+	RootBone.CurrentTransform = RootBone.OriginTransform = 
+		FromAssimp(_Scene->mRootNode->mTransformation);
 	RootBone.Offset = FMath::Inverse(RootBone.OriginTransform);
 	RootBone.FinalMatrix = RootBone.Offset * RootBone.ToRootSpace;
 }
@@ -421,6 +412,7 @@ void MyModel::BoneUpdateChildren(Bone& Parent, Bone& TargetBone, const aiAnimati
 	{
 		int i = 0;
 	}
+
 	TargetBone.CurrentTransform = TargetBone.OriginTransform * AnimationMatrix;
 	TargetBone.ToRootSpace = Parent.ToRootSpace * Parent.CurrentTransform;
 	TargetBone.FinalMatrix = TargetBone.Offset * AnimationMatrix * TargetBone.ToRootSpace;
@@ -443,10 +435,17 @@ void MyModel::Render()&
 		"World", FMath::Identity(), 1u);
 	TargetShader.SetVSCostantData<Matrix>(Device,
 		"ViewProjection", ViewProjection, 1u);
-	Device->SetVertexShader(TargetShader.VsShader.get());
-	Device->SetPixelShader(TargetShader.PsShader.get());
-	Device->SetVertexDeclaration(VertexDecl);
-
+	//Device->SetVertexShader(TargetShader.VsShader.get());
+	//Device->SetPixelShader(TargetShader.PsShader.get());
+	Device->SetVertexShader(nullptr);
+	Device->SetPixelShader(nullptr);
+	auto worldmatrix = FMath::Scale({ 0.01,0.01 ,0.01 });
+	Device->SetTransform(D3DTS_WORLD, &worldmatrix);
+	Device->SetVertexDeclaration(VertexDecl.get());
+	//Device->SetFVF(D3DFVF_XYZ | D3DFVF_NORMAL |
+	//	D3DFVF_TEX1 | D3DFVF_TEX2 | D3DFVF_TEX3 | D3DFVF_TEXCOORDSIZE1(2) | 
+	//	D3DFVF_TEXCOORDSIZE2(4) | D3DFVF_TEXCOORDSIZE3(4)
+	//);
 	for (auto& CurrentMesh : Meshes)
 	{
 		for (uint32 FinalTransformIdx = 0u; FinalTransformIdx < CurrentMesh.FinalTransform.size(); ++FinalTransformIdx)
@@ -458,7 +457,26 @@ void MyModel::Render()&
 		TargetShader.SetVSCostantData<Matrix>(Device, "FinalMatrix",
 			CurrentMesh.FinalTransform[0],
 			CurrentMesh.FinalTransform.size());
+		Vertex::Animation* _AnimationVertexPtr{};
+		CurrentMesh.VertexBuffer->Lock(0, 0, reinterpret_cast<void**>(&_AnimationVertexPtr), NULL);
+		_AnimationVertexPtr;
+		std::memcpy(_AnimationVertexPtr, CurrentMesh.Vertices.data(),
+			CurrentMesh.Vertices.size() * sizeof(decltype(CurrentMesh.Vertices)::value_type));
+		for (size_t i = 0; i < CurrentMesh.Vertices.size(); ++i)
+		{
+			Vertex::Animation& _Vertex = _AnimationVertexPtr[i];
 
+			Vector3 AnimLocation = { 0,0,0 };
+
+			const Vector3 OriginLocation = _Vertex.Location;
+
+			for (size_t i = 0; i < 4; ++i)
+			{
+				AnimLocation +=(FMath::Mul(OriginLocation, CurrentMesh.FinalTransform[static_cast<uint32>(_Vertex.BoneIds[i])])* _Vertex.BoneWeights[i]);
+			}
+			_Vertex.Location = AnimLocation;
+		}
+		CurrentMesh.VertexBuffer->Unlock();
 
 		Device->SetStreamSource(0, CurrentMesh.VertexBuffer, 0, sizeof(decltype(CurrentMesh.Vertices)::value_type));
 		// 텍스쳐 바인딩.
@@ -603,8 +621,6 @@ void MyModel::CreateMeshInformation(const std::filesystem::path& Path)&
 				BoneIDsPtr[EmptyIdx] = BoneIdx;
 			}
 		}
-
-
 	}
 };
 
@@ -637,7 +653,6 @@ void MyModel::CreateBuffer(const std::wstring& Name)&
 		CurrentMesh.IndexBuffer->Unlock();
 
 		CurrentMesh.NumVertices = CurrentMesh.Vertices.size();
-		CurrentMesh.Vertices.clear();
 		CurrentMesh.Indices.clear();
 
 		ResourceSys.Insert<IDirect3DVertexBuffer9>(L"VertexBuffer_" + Name + L"_" + std::to_wstring(MeshIdx), CurrentMesh.VertexBuffer);
@@ -646,4 +661,5 @@ void MyModel::CreateBuffer(const std::wstring& Name)&
 		++MeshIdx;
 	}
 };
+
 

@@ -3,6 +3,7 @@
 #include "Model.h"
 
 
+
 struct Track
 {
 	uint32 PositionKey{ 0u };
@@ -56,10 +57,9 @@ private:
 	void BoneUpdateChildren(Bone& Parent, Bone& TargetBone, const aiAnimation* const _Animation, const double t)&;
 	int32 CreateHierarchy(const uint32 ParentIdx, aiNode* const _Node, const Matrix ToRootSpace)&;
 	void CreateMeshInformation(const std::filesystem::path& Path)&;
-	void CreateBuffer(const std::wstring& Name)&;
+	void CreateBuffer         (const std::wstring& Name)&;
 private:
-	
-	IDirect3DVertexDeclaration9* VertexDecl{ nullptr };
+	std::shared_ptr<IDirect3DVertexDeclaration9>VertexDecl;
 	std::vector<AnimationMesh> Meshes{};
 	IDirect3DDevice9* Device{};
 	uint32 BoneCount{ 0u };
