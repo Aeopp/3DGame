@@ -27,14 +27,14 @@ void Player::Initialize(
 	_Transform->SetRotation(Rotation);
 	_Transform->SetLocation(SpawnLocation);
 
-	auto _DynamicMesh =AddComponent<Engine::DynamicMesh>(Device,L"Player");
-	
+//	auto _DynamicMesh =AddComponent<Engine::DynamicMesh>(Device,L"Player");
+	/*
 	auto _Collision = AddComponent<Engine::Collision>
-		(Device, Engine::CollisionTag::Decorator, _Transform);
+		(Device, Engine::CollisionTag::Decorator, _Transform);*/
 	
 	// 바운딩 박스.
 	{
-		auto VertexLocations = _DynamicMesh->MakeVertexLocations(); 
+		/*auto VertexLocations = _DynamicMesh->MakeVertexLocations(); 
 		Vector3  BoundingBoxMin{}, BoundingBoxMax{};
 		D3DXComputeBoundingBox(VertexLocations.data(),
 								VertexLocations.size(),
@@ -43,15 +43,15 @@ void Player::Initialize(
 		_Collision->_Geometric = std::make_unique<Engine::OBB>
 			(BoundingBoxMin, BoundingBoxMax);
 
-		static_cast<Engine::OBB* const> (_Collision->_Geometric.get())->MakeDebugCollisionBox(Device);
+		static_cast<Engine::OBB* const> (_Collision->_Geometric.get())->MakeDebugCollisionBox(Device);*/
 	}
 
-	RenderInterface::SetUpCullingInformation(
+	/*RenderInterface::SetUpCullingInformation(
 		_Collision->_Geometric->LocalSphere  ,
-		_Transform);
+		_Transform);*/
 
-	RenderInterface::bCullingOn = true;
-	_DynamicMesh->SetAnimationIdx(57);
+	RenderInterface::bCullingOn = false;
+	//_DynamicMesh->SetAnimationIdx(57);
 	
 	// 바운딩 스피어
 	{
@@ -64,15 +64,17 @@ void Player::Initialize(
 		static_cast<Engine::GSphere* const>(_Collision->_Geometric.get())->MakeDebugCollisionSphere(Device);*/
 	}
 
-	_Collision->RefCollisionables().insert(
-		{
-			Engine::CollisionTag::Decorator
-		});
+	//_Collision->RefCollisionables().insert(
+	//	{
+	//		Engine::CollisionTag::Decorator
+	//	});
 
-	_Collision->RefPushCollisionables().insert(
-		{
-	          Engine::CollisionTag::Decorator
-		});
+	//_Collision->RefPushCollisionables().insert(
+	//	{
+	//          Engine::CollisionTag::Decorator
+	//	});
+
+	_SkeletonMeshComponent.Load(Device);
 }
 
 void Player::PrototypeInitialize(IDirect3DDevice9* const Device,
@@ -92,15 +94,16 @@ void Player::Render()&
 	Super::Render();
 	const Matrix& World = GetComponent<Engine::Transform>()->UpdateWorld();
 	Device->SetTransform(D3DTS_WORLD, &World);
-	auto _DynamicMesh = GetComponent<Engine::DynamicMesh>();
-	_DynamicMesh->Render();
+	/*auto _DynamicMesh = GetComponent<Engine::DynamicMesh>();
+	_DynamicMesh->Render();*/
+	_SkeletonMeshComponent.Render();
 }
 
 void Player::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
-	auto _DynamicMesh = GetComponent<Engine::DynamicMesh>();
-	_DynamicMesh->PlayAnimation(DeltaTime);
+	//auto _DynamicMesh = GetComponent<Engine::DynamicMesh>();
+	//_DynamicMesh->PlayAnimation(DeltaTime);
 
 	auto& Control = RefControl();
 	auto _Transform = GetComponent<Engine::Transform>();

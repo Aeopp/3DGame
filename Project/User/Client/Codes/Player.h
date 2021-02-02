@@ -1,5 +1,6 @@
 #pragma once
 #include "RenderObject.h"
+#include "SkeletonMesh.h"
 
 class Player final: public Engine::RenderObject
 {
@@ -22,5 +23,6 @@ public:
 	virtual void HitEnd(Object* const Target) & override;
 private:
 	IDirect3DDevice9* Device{ nullptr };
+	SkeletonMesh _SkeletonMeshComponent{};
 };
 

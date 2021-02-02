@@ -34,6 +34,7 @@ public:
 	static inline Vector3 Mul(const Vector3& Lhs, const Matrix& Rhs);
 	static inline Vector3 MulNormal(const Vector3& Lhs, const Matrix& Rhs);
 
+	static inline Vector2 ToVec2(const Vector3& Lhs);
 	static inline Ray GetRayScreenProjection(const Vector3& ScreenPos,
 		IDirect3DDevice9* const _Device, const float Width, const float Height);
 	static inline bool InnerPointFromFace(const Vector3& Point, const std::array<Vector3, 3ul>& Face);
@@ -222,6 +223,14 @@ Vector3 FMath::Mul(const Vector3& Lhs, const Matrix& Rhs)
 {
 	Vector3 TransformVec;
 	return *D3DXVec3TransformCoord(&TransformVec, &Lhs, &Rhs);;
+}
+
+inline Vector2 FMath::ToVec2(const Vector3& Lhs)
+{
+	Vector2 Output;
+	Output.x = Lhs.x;
+	Output.y = Lhs.y;
+	return Output;
 }
 
 Vector3 FMath::MulNormal(const Vector3& Lhs, const Matrix& Rhs)
