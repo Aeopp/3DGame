@@ -389,8 +389,8 @@ void SkeletonMesh::Load(IDirect3DDevice9* const Device)&
 	/// <summary>
 	using Type = SkeletonVertex;
 	const std::wstring ResourceName = L"InputNameHere";
-	const std::filesystem::path FilePath = "..\\..\\..\\Resource\\Mesh\\DynamicMesh\\Player\\";
-	const std::filesystem::path FileName = "Player.x";
+	const std::filesystem::path FilePath = "..\\..\\..\\Resource\\Mesh\\DynamicMesh\\Chaos\\";
+	const std::filesystem::path FileName = "Chaos.fbx";
 	/// </summary>
 	this->Device = Device;
 	// 모델 생성 플래그 , 같은 플래그를 두번, 혹은 호환이 안되는
@@ -631,9 +631,10 @@ void SkeletonMesh::Render()&
 			}
 			VertexBufferPtr[i].Location = AnimLocation;
 		}
-		CurrentRenderMesh.VertexBuffer->Unlock();
+		
 		Device->DrawIndexedPrimitive(
-			D3DPT_TRIANGLELIST, 0u, 0u, CurrentRenderMesh.VtxCount, 0u, CurrentRenderMesh.PrimitiveCount);
+			D3DPT_TRIANGLELIST, 0u, 0u, CurrentRenderMesh.VtxCount, 0u, CurrentRenderMesh.PrimitiveCount); 
+		CurrentRenderMesh.VertexBuffer->Unlock();
 	}
 }
 
