@@ -389,8 +389,8 @@ void SkeletonMesh::Load(IDirect3DDevice9* const Device)&
 	/// <summary>
 	using Type = SkeletonVertex;
 	const std::wstring ResourceName = L"InputNameHere";
-	const std::filesystem::path FilePath = "..\\..\\..\\Resource\\Mesh\\DynamicMesh\\Chaos\\";
-	const std::filesystem::path FileName = "Chaos.fbx";
+	const std::filesystem::path FilePath = "..\\..\\..\\Resource\\Mesh\\DynamicMesh\\Golem\\";
+	const std::filesystem::path FileName = "Golem.fbx";
 	/// </summary>
 	this->Device = Device;
 	// 모델 생성 플래그 , 같은 플래그를 두번, 혹은 호환이 안되는
@@ -417,26 +417,23 @@ void SkeletonMesh::Load(IDirect3DDevice9* const Device)&
 	);
 
 	static uint32 SkeletonResourceID = 0u;
-	
 
 	auto& ResourceSys = RefResourceSys();
 
 	// Bone Info 
 	Bone Root;
 	Root.Name = AiScene->mRootNode->mName.C_Str();
-	Root.Transform = FromAssimp(AiScene->mRootNode->mTransformation);
+	Root.OriginTransform=Root.Transform = FromAssimp(AiScene->mRootNode->mTransformation);
 	Root.Parent = nullptr;
 	Root.ToRoot = FMath::Identity();
-	
 	std::shared_ptr<Bone> _BoneShared = std::make_shared<Bone>(Root);
-	BoneTable.insert({ Root.Name,_BoneShared });
+	BoneTable.insert({Root.Name,_BoneShared});
 	for (uint32 i = 0; i < AiScene->mRootNode->mNumChildren; ++i)
 	{
 		_BoneShared->Childrens.push_back(MakeHierarchy(_BoneShared.get(), AiScene->mRootNode->mChildren[i]));
 	}
 
 	RootBone = _BoneShared.get();
-
 
 	for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
 	{
@@ -572,19 +569,54 @@ void SkeletonMesh::Load(IDirect3DDevice9* const Device)&
 		}
 		MeshContainer.push_back(CreateMesh);
 	}
-
-	
 }
 
-void Bone::BoneMatrixUpdate(Bone* Parent)&
+void Bone::BoneMatrixUpdate(
+	const uint32 TargetAnimIdx,const aiScene*const AiScene,Bone* Parent,
+	const float T)&
 {
 	if (!Parent)return;
-	ToRoot = Parent->ToRoot * Parent->Transform;
 	Matrix AnimationTransform = FMath::Identity();
-	Final = Offset * AnimationTransform * ToRoot;
-	for (auto& ChildrenTarget : Parent->Childrens)
+
+	if (AiScene->HasAnimations())
 	{
-		BoneMatrixUpdate(ChildrenTarget);
+		aiAnimation* _Animation = AiScene->mAnimations[TargetAnimIdx];
+		if (_Animation)
+		{
+			for (uint32 Channel = 0; Channel < _Animation->mNumChannels; ++Channel)
+			{
+				aiNodeAnim* _NodeAnim = _Animation->mChannels[Channel];
+	
+				if (std::string(_NodeAnim->mNodeName.C_Str())==this->Name)
+				{
+					const aiVectorKey ScaleLhs = (_NodeAnim->mScalingKeys[0]);
+					const aiVectorKey ScaleRhs = (_NodeAnim->mScalingKeys[1]);
+					const aiQuatKey   QuatLhs = (_NodeAnim->mRotationKeys[0]);
+					const aiQuatKey   QuatRhs = (_NodeAnim->mRotationKeys[1]);
+					const aiVectorKey PosLhs = (_NodeAnim->mPositionKeys[0]);
+					const aiVectorKey PosRhs = (_NodeAnim->mPositionKeys[1]);
+
+					ImGui::Text("Scale 0 : %f : ", _NodeAnim->mScalingKeys[0].mTime);
+					ImGui::Text("Scale 1 : %f : ", _NodeAnim->mScalingKeys[1].mTime);
+					ImGui::Text("Quat 0 : %f : ", _NodeAnim->mRotationKeys[0].mTime);
+					ImGui::Text("Quat 1 : %f : ", _NodeAnim->mRotationKeys[1].mTime);
+					ImGui::Text("Pos 0 : %f : ", _NodeAnim->mPositionKeys[0].mTime);
+					ImGui::Text("Pos 1 : %f : ", _NodeAnim->mPositionKeys[1].mTime);
+
+					AnimationTransform *= FMath::Scale(FMath::Lerp(FromAssimp(ScaleLhs.mValue), FromAssimp(ScaleRhs.mValue), T));
+					AnimationTransform *= FMath::Rotation(FMath::Lerp(FromAssimp(QuatLhs.mValue), FromAssimp(QuatRhs.mValue), T));
+					AnimationTransform *= FMath::Translation(FMath::Lerp(FromAssimp(PosLhs.mValue), FromAssimp(PosRhs.mValue), T));
+				}
+			}
+		}
+	}
+
+	ToRoot = Parent->ToRoot * Parent->Transform;
+	Transform = OriginTransform * AnimationTransform;
+	Final = Offset * AnimationTransform * ToRoot;
+	for (auto& ChildrenTarget : Childrens)
+	{
+		ChildrenTarget->BoneMatrixUpdate(TargetAnimIdx,AiScene,this,T);
 	}
 }
 
@@ -599,6 +631,7 @@ void BoneNamePrint(Bone& Target)
 
 void SkeletonMesh::Render()&
 {
+	T = std::fmodf(T + (1.f / 60.f), 1.f);
 	ImGui::Begin("..");
 	ImGui::Text("...");
 	BoneNamePrint(*RootBone);
@@ -638,15 +671,14 @@ void SkeletonMesh::Render()&
 	}
 }
 
- Bone* SkeletonMesh::MakeHierarchy(Bone*  BoneParent, const aiNode* const AiNode)
+Bone* SkeletonMesh::MakeHierarchy(Bone*  BoneParent, const aiNode* const AiNode)
 {
-	Bone Target;
-	Target.Name = AiNode->mName.C_Str(); 
-	Target.Transform = FromAssimp(AiNode->mTransformation);
-	Target.Parent = BoneParent;
-	Target.ToRoot = Target.Transform * BoneParent->Transform;
-	std::shared_ptr<Bone> _BoneShared = std::make_shared<Bone>(Target);
-	BoneTable.insert({ Target.Name,_BoneShared });
+	std::shared_ptr<Bone> _BoneShared = std::make_shared<Bone>(Bone{});
+	_BoneShared->Name = AiNode->mName.C_Str(); 
+	_BoneShared->OriginTransform=_BoneShared->Transform = FromAssimp(AiNode->mTransformation);
+	_BoneShared->Parent = BoneParent;
+	_BoneShared->ToRoot = _BoneShared->OriginTransform * BoneParent->Transform;
+	BoneTable.insert({ _BoneShared->Name,_BoneShared });
 	for (uint32 i = 0; i < AiNode->mNumChildren; ++i)
 	{
 		_BoneShared->Childrens.push_back(MakeHierarchy(_BoneShared.get(), AiNode->mChildren[i]));

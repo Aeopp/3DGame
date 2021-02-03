@@ -159,6 +159,18 @@ void Player::Update(const float DeltaTime)&
 	{
 		_Transform->RotateRoll(-Speed, DeltaTime);
 	}
+
+	ImGui::Begin("AnimationBoneUpdate");
+	for (auto& Children : _SkeletonMeshComponent.RootBone->Childrens)
+	{
+		Children->BoneMatrixUpdate(
+			_SkeletonMeshComponent.AnimIdx,
+			_SkeletonMeshComponent.AiScene,
+			_SkeletonMeshComponent.RootBone ,
+			_SkeletonMeshComponent.T
+		);
+	}
+	ImGui::End();
 };
 
 void Player::HitNotify(Object* const Target, const Vector3 PushDir,

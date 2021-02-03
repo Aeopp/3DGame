@@ -86,6 +86,7 @@ struct SkeletonVertex
 		{
 			FromAssimp(AiMesh->mVertices[CurrentIdx]),  
 			FromAssimp(AiMesh->mNormals[CurrentIdx]),
+			//Vector2{0,0}
 			FMath::ToVec2(FromAssimp(AiMesh->mTextureCoords[0][CurrentIdx]))
 		};
 	};
@@ -116,10 +117,15 @@ struct Bone
 	std::vector<Bone*> Childrens{};
 	Matrix Final{FMath::Identity()};
 	Matrix Transform{ FMath::Identity() };
+	Matrix OriginTransform{ FMath::Identity() };
 	Matrix ToRoot{ FMath::Identity() };
 	Matrix Offset{ FMath::Identity() };
 	std::string Name{};
-	void BoneMatrixUpdate(Bone* Parent)&;
+	void BoneMatrixUpdate(
+						  const uint32 TargetAnimIdx,
+						  const aiScene* const AiScene,
+		                  Bone* Parent,
+		                  const float T)&;
 };
 
 class SkeletonMesh
@@ -129,11 +135,12 @@ public:
 	void Render()&;
 	Bone* MakeHierarchy(
 		Bone* BoneParent, const aiNode* const AiNode);
-private:
 	Bone* RootBone{ nullptr };
-	std::unordered_map<std::string,std::shared_ptr<Bone>>       BoneTable{};
-	std::vector<Matrix>     AnimationMatrixs{};
+	const aiScene* AiScene{};
+	uint32 AnimIdx{ 0u };
+	std::unordered_map<std::string, std::shared_ptr<Bone>>       BoneTable{};
+	float T = 0.0f;
+private:
 	std::vector<Mesh>       MeshContainer{}; 
 	IDirect3DDevice9*       Device{ nullptr };
-	const aiScene*          AiScene{};
 };
