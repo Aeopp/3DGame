@@ -1,8 +1,27 @@
 #pragma once
 #include "TypeAlias.h"
+#include "AssimpHelper.h"
+#include "FMath.hpp"
 
 namespace Vertex
 {
+	struct Skeleton
+	{
+		Vector3 Location{ 0,0,0 };
+		Vector3 Normal{ 0 , 0,  0 };
+		Vector2 UV{ 0,0 };
+		static inline Skeleton MakeFromAssimpMesh(const aiMesh* const AiMesh,const uint32 CurrentIdx)
+		{
+			return Skeleton
+			{
+				FromAssimp(AiMesh->mVertices[CurrentIdx]),
+				FromAssimp(AiMesh->mNormals[CurrentIdx]),
+				FMath::ToVec2(FromAssimp(AiMesh->mTextureCoords[0][CurrentIdx]))
+			};
+		};
+		static const DWORD FVF = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1;
+	};
+
 	struct Animation
 	{
 		Vector3 Location{}; 

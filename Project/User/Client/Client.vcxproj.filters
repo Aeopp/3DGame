@@ -32,9 +32,6 @@
     <Filter Include="Object">
       <UniqueIdentifier>{db1b0de6-f234-4c6c-9a35-e35ccdc00492}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Impl">
-      <UniqueIdentifier>{0e66d20c-cf5c-4b2d-9107-42e856632477}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -70,9 +67,6 @@
     <ClInclude Include="Codes\Player.h">
       <Filter>Object</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\SkeletonMesh.h">
-      <Filter>Impl</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -98,9 +92,6 @@
     </ClCompile>
     <ClCompile Include="Codes\Player.cpp">
       <Filter>Object</Filter>
-    </ClCompile>
-    <ClCompile Include="Codes\SkeletonMesh.cpp">
-      <Filter>Impl</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

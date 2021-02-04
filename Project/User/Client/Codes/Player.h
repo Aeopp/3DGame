@@ -11,7 +11,7 @@ public:
 					const Vector3& Rotation,
 					const Vector3& SpawnLocation)&;
 	void PrototypeInitialize(IDirect3DDevice9*const Device ,
-							const Engine::RenderInterface::Group _Group)&;
+							 const Engine::RenderInterface::Group _Group)&;
 	virtual void Event()&override;
 	virtual void Render() & override;
 	virtual void Update(const float DeltaTime)&;
@@ -23,6 +23,5 @@ public:
 	virtual void HitEnd(Object* const Target) & override;
 private:
 	IDirect3DDevice9* Device{ nullptr };
-	SkeletonMesh _SkeletonMeshComponent{};
 };
 

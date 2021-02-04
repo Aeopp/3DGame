@@ -54,11 +54,11 @@ public:
 	static inline Vector3 RotationVecNormal(const Vector3& Lhs,
 		const Vector3& Axis, const float Radian);
 	template<typename _Ty>
-	static inline _Ty Lerp(const _Ty& Lhs, const _Ty& Rhs, const float t);
+	static inline _Ty Lerp(const _Ty& Lhs, const _Ty& Rhs, const double t);
 	static inline Quaternion SLerp(
 		const Quaternion& Lhs,
 		const  Quaternion& Rhs,
-		const float t);
+		const double t);
 
 	static inline float Length(const Vector3& Lhs);
 	static inline float LengthSq(const Vector3& Lhs);;
@@ -427,15 +427,15 @@ Matrix FMath::WorldMatrix(
 }
 
 template<typename _Ty>
-inline _Ty FMath::Lerp(const _Ty& Lhs, const _Ty& Rhs, const float t)
+inline _Ty FMath::Lerp(const _Ty& Lhs, const _Ty& Rhs, const double t)
 {
 	return Lhs + t * (Rhs - Lhs);
 }
 
 inline Quaternion FMath::SLerp(
-	const Quaternion& Lhs,
+	const  Quaternion& Lhs,
 	const  Quaternion& Rhs,
-	const float t)
+	const double t)
 {
 	Quaternion _Quaternion;
 	return *D3DXQuaternionSlerp(&_Quaternion, &Lhs, &Rhs, t);

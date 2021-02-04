@@ -40,12 +40,12 @@ inline Vector3 FromAssimp(const aiVector3D& AiVector3D)
 
 inline Quaternion FromAssimp(const aiQuaternion& AiQuaternion)
 {
-	return Quaternion{
-	AiQuaternion.x ,
-	AiQuaternion.y ,
-	AiQuaternion.z ,
-	AiQuaternion.w
-	};
+	Quaternion _Quat;
+	_Quat.x = AiQuaternion.x;
+	_Quat.y = AiQuaternion.y;
+	_Quat.z = AiQuaternion.z;
+	_Quat.w = AiQuaternion.w;
+	return _Quat;
 };
 
 

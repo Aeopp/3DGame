@@ -15,6 +15,7 @@
 #include "App.h"
 #include "ShaderManager.h"
 
+
 void Player::Initialize(
 	const Vector3& Scale,
 	const Vector3& Rotation,
@@ -26,32 +27,31 @@ void Player::Initialize(
 	_Transform->SetScale(Scale);
 	_Transform->SetRotation(Rotation);
 	_Transform->SetLocation(SpawnLocation);
+	
+	auto _SkeletonMesh = AddComponent<Engine::SkeletonMesh>(L"Player");
 
-//	auto _DynamicMesh =AddComponent<Engine::DynamicMesh>(Device,L"Player");
-	/*
 	auto _Collision = AddComponent<Engine::Collision>
-		(Device, Engine::CollisionTag::Decorator, _Transform);*/
+		(Device, Engine::CollisionTag::Decorator, _Transform);
 	
 	// 바운딩 박스.
 	{
-		/*auto VertexLocations = _DynamicMesh->MakeVertexLocations(); 
 		Vector3  BoundingBoxMin{}, BoundingBoxMax{};
-		D3DXComputeBoundingBox(VertexLocations.data(),
-								VertexLocations.size(),
+		D3DXComputeBoundingBox(_SkeletonMesh->LocalVertexLocations->data(),
+			                   _SkeletonMesh->LocalVertexLocations->size(),
 			sizeof(Vector3), &BoundingBoxMin, &BoundingBoxMax);
 
 		_Collision->_Geometric = std::make_unique<Engine::OBB>
 			(BoundingBoxMin, BoundingBoxMax);
 
-		static_cast<Engine::OBB* const> (_Collision->_Geometric.get())->MakeDebugCollisionBox(Device);*/
+		static_cast<Engine::OBB* const> (_Collision->_Geometric.get())->MakeDebugCollisionBox(Device);
 	}
 
-	/*RenderInterface::SetUpCullingInformation(
+	RenderInterface::SetUpCullingInformation(
 		_Collision->_Geometric->LocalSphere  ,
-		_Transform);*/
+		_Transform);
 
 	RenderInterface::bCullingOn = false;
-	//_DynamicMesh->SetAnimationIdx(57);
+	_SkeletonMesh->PlayAnimation(0u,1.0);
 	
 	// 바운딩 스피어
 	{
@@ -64,17 +64,15 @@ void Player::Initialize(
 		static_cast<Engine::GSphere* const>(_Collision->_Geometric.get())->MakeDebugCollisionSphere(Device);*/
 	}
 
-	//_Collision->RefCollisionables().insert(
-	//	{
-	//		Engine::CollisionTag::Decorator
-	//	});
+	_Collision->RefCollisionables().insert(
+		{
+			Engine::CollisionTag::Decorator
+		});
 
-	//_Collision->RefPushCollisionables().insert(
-	//	{
-	//          Engine::CollisionTag::Decorator
-	//	});
-
-	_SkeletonMeshComponent.Load(Device);
+	_Collision->RefPushCollisionables().insert(
+		{
+	          Engine::CollisionTag::Decorator
+		});
 }
 
 void Player::PrototypeInitialize(IDirect3DDevice9* const Device,
@@ -82,29 +80,45 @@ void Player::PrototypeInitialize(IDirect3DDevice9* const Device,
 {
 	Super::PrototypeInitialize(Device,_Group);
 	this->Device = Device;
+
+	auto _SkeletonMeshProto = std::make_shared<Engine::SkeletonMesh>();
+
+	_SkeletonMeshProto->Load<Vertex::Skeleton>(Device, 
+		App::ResourcePath/L"Mesh"/L"DynamicMesh"/L"Player"/L"",
+		L"Player.x", L"Player");
+
+	RefResourceSys().InsertAny<decltype(_SkeletonMeshProto)>(L"Player", _SkeletonMeshProto);
 }
 
 void Player::Event()&
 {
 	Super::Event();
+
+	auto _SkeletonMeshComponent = GetComponent<Engine::SkeletonMesh>();
+	ImGui::Begin("Animation");
+	static int32 AnimIndex = 0u;
+	static float Acceleration = 1.f;
+	ImGui::SliderInt("Index : %d", &AnimIndex, 0, 50);
+	ImGui::SliderFloat("Acceleration : %f", &Acceleration, 1.f, 1000.f);
+	if (ImGui::Button("Play"))
+	{
+		_SkeletonMeshComponent->PlayAnimation(AnimIndex, static_cast<double>(Acceleration));
+	}
+	ImGui::End();
 }
 
 void Player::Render()&
 {
 	Super::Render();
+	auto _SkeletonMeshComponent = GetComponent<Engine::SkeletonMesh>();
 	const Matrix& World = GetComponent<Engine::Transform>()->UpdateWorld();
 	Device->SetTransform(D3DTS_WORLD, &World);
-	/*auto _DynamicMesh = GetComponent<Engine::DynamicMesh>();
-	_DynamicMesh->Render();*/
-	_SkeletonMeshComponent.Render();
+	_SkeletonMeshComponent->Render();
 }
 
 void Player::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
-	//_SkeletonMeshComponent.UpdateTrackIndex(DeltaTime);
-	//auto _DynamicMesh = GetComponent<Engine::DynamicMesh>();
-	//_DynamicMesh->PlayAnimation(DeltaTime);
 
 	auto& Control = RefControl();
 	auto _Transform = GetComponent<Engine::Transform>();
@@ -160,29 +174,6 @@ void Player::Update(const float DeltaTime)&
 	{
 		_Transform->RotateRoll(-Speed, DeltaTime);
 	}
-
-	ImGui::Begin("AnimationBoneUpdate");
-	static float T = 0.0f; 
-	static int IdxScale = 0;
-	static int IdxRotation = 0;
-	static int IdxPos = 0;
-	ImGui::SliderFloat("Time Track Control", &T, 0.f, 28800.f);
-	ImGui::SliderInt("Anim Track Scale Idx Control", &IdxScale, 0u, 1000u);
-	ImGui::SliderInt("Anim Track Quat Idx Control", &IdxRotation, 0u, 1000u);
-	ImGui::SliderInt("Anim Track Pos Idx Control", &IdxPos, 0u, 1000u);
-	for (auto& Children : _SkeletonMeshComponent.RootBone->Childrens)
-	{
-		Children->BoneMatrixUpdate(
-			_SkeletonMeshComponent.AnimIdx,
-			_SkeletonMeshComponent.AiScene,
-			_SkeletonMeshComponent.RootBone ,
-			T,
-			IdxScale,
-			IdxRotation,
-			IdxPos
-		);
-	}
-	ImGui::End();
 };
 
 void Player::HitNotify(Object* const Target, const Vector3 PushDir,

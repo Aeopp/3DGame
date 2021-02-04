@@ -82,6 +82,9 @@
     <Filter Include="Component\Render\Mesh\Dynamic">
       <UniqueIdentifier>{4e427c5d-389e-4e96-99cc-8d4b46cdfee3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Component\Render\Mesh\Skeleton">
+      <UniqueIdentifier>{e3b73fb3-9314-4b11-8f56-46a85637f292}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
@@ -156,11 +159,14 @@
     <ClInclude Include="Codes\DynamicMesh.h">
       <Filter>Component\Render\Mesh\Dynamic</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\HierarchyLoader.h">
-      <Filter>Component\Render\Mesh\Dynamic</Filter>
-    </ClInclude>
     <ClInclude Include="Codes\Animation.h">
       <Filter>Component\Render\Mesh\Dynamic</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\SkeletonMesh.h">
+      <Filter>Component\Render\Mesh\Skeleton</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\Bone.h">
+      <Filter>Component\Render\Mesh\Skeleton</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -251,11 +257,14 @@
     <ClCompile Include="Codes\DynamicMesh.cpp">
       <Filter>Component\Render\Mesh\Dynamic</Filter>
     </ClCompile>
-    <ClCompile Include="Codes\HierarchyLoader.cpp">
-      <Filter>Component\Render\Mesh\Dynamic</Filter>
-    </ClCompile>
     <ClCompile Include="Codes\Animation.cpp">
       <Filter>Component\Render\Mesh\Dynamic</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\SkeletonMesh.cpp">
+      <Filter>Component\Render\Mesh\Skeleton</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Bone.cpp">
+      <Filter>Component\Render\Mesh\Skeleton</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
