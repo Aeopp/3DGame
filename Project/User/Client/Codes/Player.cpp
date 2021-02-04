@@ -102,6 +102,7 @@ void Player::Render()&
 void Player::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
+	//_SkeletonMeshComponent.UpdateTrackIndex(DeltaTime);
 	//auto _DynamicMesh = GetComponent<Engine::DynamicMesh>();
 	//_DynamicMesh->PlayAnimation(DeltaTime);
 
@@ -161,13 +162,24 @@ void Player::Update(const float DeltaTime)&
 	}
 
 	ImGui::Begin("AnimationBoneUpdate");
+	static float T = 0.0f; 
+	static int IdxScale = 0;
+	static int IdxRotation = 0;
+	static int IdxPos = 0;
+	ImGui::SliderFloat("Time Track Control", &T, 0.f, 28800.f);
+	ImGui::SliderInt("Anim Track Scale Idx Control", &IdxScale, 0u, 1000u);
+	ImGui::SliderInt("Anim Track Quat Idx Control", &IdxRotation, 0u, 1000u);
+	ImGui::SliderInt("Anim Track Pos Idx Control", &IdxPos, 0u, 1000u);
 	for (auto& Children : _SkeletonMeshComponent.RootBone->Childrens)
 	{
 		Children->BoneMatrixUpdate(
 			_SkeletonMeshComponent.AnimIdx,
 			_SkeletonMeshComponent.AiScene,
 			_SkeletonMeshComponent.RootBone ,
-			_SkeletonMeshComponent.T
+			T,
+			IdxScale,
+			IdxRotation,
+			IdxPos
 		);
 	}
 	ImGui::End();

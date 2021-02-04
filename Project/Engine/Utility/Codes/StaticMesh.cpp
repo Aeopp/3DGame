@@ -32,7 +32,7 @@ void Engine::StaticMesh::Render()&
 {
 	for (uint32 Idx = 0u; Idx < SubSetCount; ++Idx)
 	{
-		Device->SetTexture(0, Textures[Idx]);
+		Device->SetTexture(0,Textures[Idx]);
 		_Mesh->DrawSubset(Idx); 
 	}
 }
