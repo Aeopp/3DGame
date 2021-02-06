@@ -196,7 +196,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 			Vector3{ 0.01f,0.01f,0.01f }, Vector3{ 0,0,0}, Vector3{ 0,0,5 });
 
 		RefManager().NewObject<StaticLayer, Player>(L"Static", L"Player_1",
-			Vector3{ 0.015f,0.015f,0.015f }, Vector3{ 0,0,0 }, Vector3{ 0,0,-5 });
+			Vector3{ 0.01f,0.01f,0.01f }, Vector3{ 0,0,0 }, Vector3{ 0,0,-5 });
 	}
 };
 

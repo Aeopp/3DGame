@@ -73,6 +73,11 @@ void Player::Initialize(
 		{
 	          Engine::CollisionTag::Decorator
 		});
+
+	if (FMath::Random(0,1 ))
+		_SkeletonMesh->PlayAnimation(1, 100);
+	else 
+		_SkeletonMesh->PlayAnimation(0, 100);
 }
 
 void Player::PrototypeInitialize(IDirect3DDevice9* const Device,
@@ -84,8 +89,8 @@ void Player::PrototypeInitialize(IDirect3DDevice9* const Device,
 	auto _SkeletonMeshProto = std::make_shared<Engine::SkeletonMesh>();
 
 	_SkeletonMeshProto->Load<Vertex::Skeleton>(Device, 
-		App::ResourcePath/L"Mesh"/L"DynamicMesh"/L"PlayerXfile"/L"",
-		L"Player.X", L"Player");
+		App::ResourcePath/L"Mesh"/L"DynamicMesh"/L"Golem"/L"",
+		L"Golem.fbx", L"Player");
 
 	RefResourceSys().InsertAny<decltype(_SkeletonMeshProto)>(L"Player", _SkeletonMeshProto);
 }
@@ -95,16 +100,19 @@ void Player::Event()&
 	Super::Event();
 
 	auto _SkeletonMeshComponent = GetComponent<Engine::SkeletonMesh>();
-	ImGui::Begin("Animation");
-	static int32 AnimIndex = 0u;
-	static float Acceleration = 1.f;
-	ImGui::SliderInt("Index : %d", &AnimIndex, 0, 50);
-	ImGui::SliderFloat("Acceleration : %f", &Acceleration, 1.f, 1000.f);
-	if (ImGui::Button("Play"))
-	{
-		_SkeletonMeshComponent->PlayAnimation(AnimIndex, static_cast<double>(Acceleration));
-	}
-	ImGui::End();
+	////_SkeletonMeshComponent->PlayAnimation()
+	//float t = 0.0f;
+	//int32 AIdx = 0;
+	//float InputT = 1.f;
+	//ImGui::Begin("Debug Animation");
+	//ImGui::SliderFloat("T", &InputT, 0.0f, 10000.f);
+	//t = InputT;
+	//int32 InputAnimIdx = _SkeletonMeshComponent->AnimIdx;
+	//ImGui::SliderInt("SliderInd", &InputAnimIdx, 0, 58);
+	//AIdx = InputAnimIdx;
+	//ImGui::End();
+	//_SkeletonMeshComponent->T = t;
+	//_SkeletonMeshComponent->AnimIdx = AIdx;
 }
 
 void Player::Render()&

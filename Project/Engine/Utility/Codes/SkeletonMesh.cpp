@@ -6,27 +6,6 @@
 #include <optional>
 #include "imgui.h"
 
-std::optional<aiNode*>  FindBoneRoot(std::set<std::string>& BoneNameSet, aiNode* TargetNode)
-{
-	std::optional< aiNode*> Value{};
-	const bool bNotValidParent = (TargetNode->mParent == nullptr ||
-		                      !BoneNameSet.contains(TargetNode->mParent->mName.C_Str()));
-	if (BoneNameSet.contains(TargetNode->mName.C_Str()) && bNotValidParent )
-	{
-		Value = TargetNode;
-		return Value;
-	}
-	else
-	{
-		for (uint32 i = 0; i < TargetNode->mNumChildren; ++i)
-		{
-			Value= FindBoneRoot(BoneNameSet, TargetNode->mChildren[i]);
-			if (Value.has_value())
-				return Value;
-		}
-	}
-	return Value;
-};
 
 void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 {
@@ -38,90 +17,23 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 	this->operator=(*ProtoSkeletonMesh);
 
 	BoneTable.clear();
-	std::set<std::string> BoneNames{};
-
-	for (uint32 i = 0; i < AiScene->mNumMeshes; ++i)
-	{
-		aiMesh* CurMesh = AiScene->mMeshes[i];
-		if (CurMesh->HasBones())
-		{
-			for (uint32 j = 0; j < CurMesh->mNumBones; ++j)
-			{
-				aiBone* CurBone = CurMesh->mBones[j];  
-				BoneNames.insert(CurMesh->mName.C_Str());
-			}
-		}
-	}
-
-	/*auto RootBone = FindBoneRoot(BoneNames ,AiScene->mRootNode);
-	aiNode* AiBone = *RootBone;
-	Bone* Root = &(BoneTable[AiBone->mName.C_Str()] = Bone{});
-	Root->Name = AiBone->mName.C_Str();
-	Root->OriginTransform = Root->Transform = FromAssimp(AiBone->mTransformation);
-	Root->Parent = nullptr;
-	Root->ToRoot = Root->OriginTransform * FMath::Identity();
-	for (uint32 j = 0; j < AiBone->mNumChildren; ++j)
-	{
-		Root->Childrens.push_back(MakeHierarchy(Root, AiBone->mChildren[j]));
-	}
-	this->RootBone = Root;
-	*/
-
-	/*Bone* Root = &(BoneTable[AiScene->mRootNode->mName.C_Str()] = Bone{});
+	// Bone Info 
+	Bone* Root = &(BoneTable[AiScene->mRootNode->mName.C_Str()] = Bone{});
 	Root->Name = AiScene->mRootNode->mName.C_Str();
 	Root->OriginTransform = Root->Transform = FromAssimp(AiScene->mRootNode->mTransformation);
 	Root->Parent = nullptr;
-	Root->ToRoot = Root->OriginTransform; *FMath::Identity();
-
+	Root->ToRoot = Root->OriginTransform;  *FMath::Identity();
 	for (uint32 i = 0; i < AiScene->mRootNode->mNumChildren; ++i)
 	{
 		Root->Childrens.push_back(MakeHierarchy(Root, AiScene->mRootNode->mChildren[i]));
 	}
-
-	this->RootBone = Root;*/
-
-	//if (AiScene->mRootNode->mNumMeshes > 0u)
-	//{
-	//	// Bone Info 
-	//	Bone* Root = &(BoneTable[AiScene->mRootNode->mName.C_Str()] = Bone{});
-	//	Root->Name = AiScene->mRootNode->mName.C_Str();
-	//	Root->OriginTransform = Root->Transform = FromAssimp(AiScene->mRootNode->mTransformation);
-	//	Root->Parent = nullptr;
-	//	Root->ToRoot = Root->OriginTransform; *FMath::Identity();
-
-	//	for (uint32 i = 0; i < AiScene->mRootNode->mNumChildren; ++i)
-	//	{
-	//		Root->Childrens.push_back(MakeHierarchy(Root, AiScene->mRootNode->mChildren[i]));
-	//	}
-
-	//	this->RootBone = Root;
-	//}
-	//else
-	//{
-	//	for (uint32 i = 0; i < AiScene->mRootNode->mNumChildren; ++i)
-	//	{
-	//		if (AiScene->mRootNode->mChildren[i]->mNumMeshes > 0u)
-	//		{
-	//			// Bone Info 
-	//			Bone* Root = &(BoneTable[AiScene->mRootNode->mChildren[i]->mName.C_Str()] = Bone{});
-	//			Root->Name = AiScene->mRootNode->mChildren[i]->mName.C_Str();
-	//			Root->OriginTransform = Root->Transform = FromAssimp(AiScene->mRootNode->mChildren[i]->mTransformation);
-	//			Root->Parent = nullptr;
-	//			Root->ToRoot = Root->OriginTransform; *FMath::Identity();
-
-	//			for (uint32 j = 0; j < AiScene->mRootNode->mChildren[i]->mNumChildren; ++j)
-	//			{
-	//				Root->Childrens.push_back(MakeHierarchy(Root, AiScene->mRootNode->mChildren[i]->mChildren[j]));
-	//			}
-
-	//			this->RootBone = Root;
-	//		}
-	//		break;
-	//	}
-	//}
+	RootBone = Root;
 
 	for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
 	{
+		MeshContainer[MeshIdx].Finals.clear();
+		MeshContainer[MeshIdx].VertexBuffer = nullptr;
+
 		Device->CreateVertexBuffer(MeshContainer[MeshIdx].VtxBufSize,
 			D3DUSAGE_DYNAMIC, MeshContainer[MeshIdx].FVF,D3DPOOL_DEFAULT,
 			&MeshContainer[MeshIdx].VertexBuffer, nullptr);
@@ -139,6 +51,9 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 
 		if (_AiMesh->HasBones())
 		{
+			MeshContainer[MeshIdx].Finals.clear();
+			MeshContainer[MeshIdx].Weights.clear();
+
 			MeshContainer[MeshIdx].Finals.resize(MeshContainer[MeshIdx].VtxCount);
 		    MeshContainer[MeshIdx].Weights.resize(MeshContainer[MeshIdx].VtxCount);
 
@@ -238,24 +153,11 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 		CurAnimTable = &AnimTable[AnimIdx];
 		TimeLineIdx = AnimIdx;
 		Duration = AiScene->mAnimations[AnimIdx]->mDuration;
-		if (Engine::Global::bDebugMode)
-		{
-			ImGui::Text("TickPerSecond : %f", CurAnimation->mTicksPerSecond);
-			ImGui::Text("Duration      : %f", CurAnimation->mDuration);
-			ImGui::Text("T : %f", T);
-		}
 		T=std::fmod(T,CurAnimation->mDuration);
 	}
 
-	float InputT = T;
-	ImGui::Begin("Debug T");
-	ImGui::SliderFloat("Slider", &InputT, 0.0f, Duration);
-	 int32 InputAnimIdx = AnimIdx;
-	ImGui::SliderInt("SliderInd",&InputAnimIdx, 0, AiScene->mNumAnimations-1);
-	AnimIdx = InputAnimIdx;
-	ImGui::End();
 	RootBone->BoneMatrixUpdate(FMath::Identity(), 
-		InputT, CurAnimation, CurAnimTable ,
+		T, CurAnimation, CurAnimTable ,
 		_AnimationTrack->ScaleTimeLine[TimeLineIdx],
 		_AnimationTrack->QuatTimeLine[TimeLineIdx],
 		_AnimationTrack->PosTimeLine[TimeLineIdx]);

@@ -42,14 +42,14 @@ namespace Engine
 		void  Render() & override;
 		void  Update(Object* const Owner, const float DeltaTime)&;
 		Bone* MakeHierarchy(Bone* BoneParent, const aiNode* const AiNode);
-		void  PlayAnimation(const uint32 AnimIdx,const double Acceleration)&;
+		void  PlayAnimation(const uint32 AnimIdx, const double Acceleration)&;
 	public:
-		static const inline Property TypeProperty = Property::Render;
+		static const inline Property          TypeProperty = Property::Render;
 		std::shared_ptr<std::vector<Vector3>> LocalVertexLocations;
 		uint32    AnimIdx{ 0u };
+		double T{ 0.0f };
 	private:
 		double Acceleration = 1.f;
-		double T{ 0.0f };
 		std::vector       <std::unordered_map<std::string, aiNodeAnim*>>  AnimTable{};
 		std::shared_ptr<AnimationTrack>                            _AnimationTrack{};
 		std::unordered_map<std::string, Bone>                             BoneTable{};
@@ -84,7 +84,7 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 		aiProcess_FindInstances |
 		aiProcess_GenSmoothNormals |
 		aiProcess_SortByPType |
-		aiProcess_OptimizeMeshes 
+		aiProcess_OptimizeMeshes
 	);
 
 	static uint32 SkeletonResourceID = 0u;
@@ -214,7 +214,6 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 		// Vtx Bone Á¤º¸,
 		if (_AiMesh->HasBones())
 		{
-			//CreateMesh.Offsets.resize(CreateMesh.VtxCount);
 			CreateMesh.Weights.resize(CreateMesh.VtxCount);
 			CreateMesh.Finals.resize(CreateMesh.VtxCount);
 			for (uint32 BoneIdx = 0u; BoneIdx < _AiMesh->mNumBones; ++BoneIdx)
@@ -230,7 +229,6 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 						const float _Wit = _AiVtxWit.mWeight;
 						const Matrix OffsetMatrix = FromAssimp(CurVtxBone->mOffsetMatrix);
 						iter->second.Offset = OffsetMatrix;
-						//CreateMesh.Offsets[VtxIdx].push_back(OffsetMatrix);
 						CreateMesh.Weights[VtxIdx].push_back(_Wit);
 						CreateMesh.Finals[VtxIdx].push_back(&(iter->second.Final));
 					}
