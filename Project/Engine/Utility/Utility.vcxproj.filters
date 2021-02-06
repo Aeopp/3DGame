@@ -85,6 +85,12 @@
     <Filter Include="Component\Render\Mesh\Skeleton">
       <UniqueIdentifier>{e3b73fb3-9314-4b11-8f56-46a85637f292}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{af9ae71c-6521-476d-abb1-050d01be10b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility\Cell">
+      <UniqueIdentifier>{8cf175b6-6de4-4db4-b2dc-f18f52c4d72e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
@@ -167,6 +173,12 @@
     </ClInclude>
     <ClInclude Include="Codes\Bone.h">
       <Filter>Component\Render\Mesh\Skeleton</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\NavigationMesh.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\Cell.h">
+      <Filter>Utility\Cell</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -265,6 +277,12 @@
     </ClCompile>
     <ClCompile Include="Codes\Bone.cpp">
       <Filter>Component\Render\Mesh\Skeleton</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\NavigationMesh.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Cell.cpp">
+      <Filter>Utility\Cell</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

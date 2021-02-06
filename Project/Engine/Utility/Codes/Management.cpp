@@ -1,5 +1,7 @@
 #include "Management.h"
 #include "Timer.h"
+#include "NavigationMesh.h"
+
 #include <chrono>
 #include "Controller.h"
 #include "Sound.h"
@@ -55,6 +57,8 @@ void Engine::Management::Initialize(
 	_FontManager = Engine::FontManager::Init();
 	_ResourceSys = Engine::ResourceSystem::Init();
 	_Renderer = Engine::Renderer::Init(Device);
+	_NaviMesh = Engine::NavigationMesh::Init(Device.get());
+
 	ImGuiInitialize(Hwnd, Device.get());
 
 	CreateStaticResource();
@@ -73,6 +77,7 @@ Engine::Management::~Management() noexcept
 	Sound::Reset();
 	Controller::Reset();
 	Timer::Reset();
+	NavigationMesh::Reset();
 	CollisionSystem::Reset();
 	PrototypeManager::Reset();
 	Renderer::Reset();
@@ -297,6 +302,15 @@ void Engine::Management::CreateStaticResource()&
 		(L"VertexBuffer_Frustum", FrustumVertexBuffer);
 	_ResourceSys->Insert<IDirect3DIndexBuffer9>
 		(L"IndexBuffer_Frustum", FrustumIndexBuffer);
+
+	ID3DXLine* _DxLine{ nullptr };
+	_ResourceSys->Emplace<ID3DXLine>(L"Line", D3DXCreateLine,
+		Device.get(), &_DxLine);
+	ID3DXMesh* SphereMesh{ nullptr };
+	ID3DXBuffer* SphereMeshAdjacency{ nullptr };
+	D3DXCreateSphere(Device.get(), 5.f, 10, 10, &SphereMesh, &SphereMeshAdjacency);
+	_ResourceSys->Insert<ID3DXMesh>(L"SphereMesh", SphereMesh);
+	_ResourceSys->Insert<ID3DXBuffer>(L"SphereMeshAdjacency", SphereMeshAdjacency);
 }
 void Engine::Management::CreateCollisionDebugResource()&
 {

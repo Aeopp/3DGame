@@ -153,8 +153,8 @@ inline void FMath::DebugPrintMatrix(const Matrix& _Matrix)
 inline bool FMath::Equal(const Vector3& Lhs, const Vector3& Rhs)
 {
 	return  (FMath::AlmostEqual(Lhs.x, Rhs.x) &&
-		FMath::AlmostEqual(Lhs.y, Rhs.y) &&
-		FMath::AlmostEqual(Lhs.z, Rhs.z));
+			FMath::AlmostEqual(Lhs.y, Rhs.y) &&
+			FMath::AlmostEqual(Lhs.z, Rhs.z));
 }
 inline bool FMath::IsValid(const Vector3& Target)
 {

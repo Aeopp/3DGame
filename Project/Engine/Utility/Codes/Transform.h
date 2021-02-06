@@ -22,7 +22,7 @@ namespace Engine
 		void RotateRoll(const float Radian, const float DeltaTime)&;
 		void RotatePitch(const float Radian, const float DeltaTime)&;
 		void RotateAxis(Vector3 Axis, const float Radian,const float DeltaTime)&;
-		void Move(Vector3 Direction, const float DeltaTime,const float Speed);
+		void Move(Vector3 ToEnd, const float DeltaTime,const float Speed);
 		void MoveForward(const float DeltaTime ,const float Speed);
 		void MoveRight(const float DeltaTime, const float Speed);
 		void MoveUp(const float DeltaTime, const float Speed);

@@ -71,6 +71,7 @@ namespace Engine
 		class FontManager* _FontManager{ nullptr };
 		class ResourceSystem* _ResourceSys{ nullptr };
 		class CollisionSystem* _CollisionSys{ nullptr };
+		class NavigationMesh* _NaviMesh{ nullptr }; 
 	};
 };
 

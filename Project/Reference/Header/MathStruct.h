@@ -14,11 +14,36 @@ struct Ray
 	Vector3 Direction;
 };
 
+struct Ray2D
+{
+	Vector2 Start;
+	Vector2 Direction;
+};
+
+struct Segment2D
+{
+	static Segment2D Make(const Vector2& Begin, const Vector2& End)
+	{
+		Segment2D _Segment;
+		_Segment.End = End;
+		_Segment._Ray.Start = Begin;
+		Vector2 ToEnd = End - Begin;
+		_Segment.t = D3DXVec2Length(&ToEnd);
+		_Segment._Ray.Direction = *D3DXVec2Normalize(nullptr, &ToEnd);
+		return _Segment;
+	};
+
+	Ray2D _Ray{};
+	Vector2 End{};
+	float t{ 0.f };
+};
+
 struct Segment
 {
 	static Segment Make(const Vector3& Begin, const Vector3& End)
 	{
 		Segment _Segment;
+		_Segment.End = End;
 		_Segment._Ray.Start = Begin;
 		Vector3 ToEnd = End - Begin;
 		_Segment.t = D3DXVec3Length(&ToEnd);
@@ -27,6 +52,7 @@ struct Segment
 	};
 
 	Ray _Ray{};
+	Vector3 End{};
 	float t{0.f};
 };
 

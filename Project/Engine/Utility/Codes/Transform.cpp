@@ -118,12 +118,12 @@ void Engine::Transform::RotateAxis(Vector3 Axis, const float Radian,
 
 
 void Engine::Transform::Move
-	(Vector3 Direction, 
+	(Vector3 ToEnd, 
 	const float DeltaTime,
 	const float Speed)
 {
-	Direction = FMath::Normalize(Direction);
-	Location += Direction * DeltaTime * Speed;
+	ToEnd = FMath::Normalize(ToEnd);
+	Location += ToEnd * DeltaTime * Speed;
 }
 
 void Engine::Transform::MoveForward(const float DeltaTime, const float Speed)

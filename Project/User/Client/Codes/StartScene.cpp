@@ -60,7 +60,6 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 
 	// 프로토타입 로딩.
 	{
-		Proto.LoadPrototype<Engine::DynamicCamera>(L"Static",Device,App::Hwnd);
 		Proto.LoadPrototype<TombStone>(L"Static", Device ,Engine::RenderInterface::Group::NoAlpha);
 		Proto.LoadPrototype<Player>(L"Static", Device,Engine::RenderInterface::Group::NoAlpha);
 	}

@@ -8,7 +8,6 @@
 
 
 
-
 class StartScene final : public Engine::Scene
 {
 public:

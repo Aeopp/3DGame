@@ -32,6 +32,12 @@
     <Filter Include="Object">
       <UniqueIdentifier>{db1b0de6-f234-4c6c-9a35-e35ccdc00492}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scene\Tool">
+      <UniqueIdentifier>{f22bc479-0a94-461f-8c41-e757c6c5521e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\Enter">
+      <UniqueIdentifier>{d82fc86d-dc43-41c6-bc43-7afb342c9813}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -67,6 +73,12 @@
     <ClInclude Include="Codes\Player.h">
       <Filter>Object</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\Tool.h">
+      <Filter>Scene\Tool</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\EnterGame.h">
+      <Filter>Scene\Enter</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -92,6 +104,12 @@
     </ClCompile>
     <ClCompile Include="Codes\Player.cpp">
       <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Tool.cpp">
+      <Filter>Scene\Tool</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\EnterGame.cpp">
+      <Filter>Scene\Enter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -196,6 +196,7 @@
     <ClCompile Include="Codes\Animation.cpp" />
     <ClCompile Include="Codes\Bone.cpp" />
     <ClCompile Include="Codes\Camera.cpp" />
+    <ClCompile Include="Codes\Cell.cpp" />
     <ClCompile Include="Codes\DynamicMesh.cpp" />
     <ClCompile Include="Codes\Geometric.cpp" />
     <ClCompile Include="Codes\Collision.cpp" />
@@ -210,6 +211,7 @@
     <ClCompile Include="Codes\ImGui\imgui_tables.cpp" />
     <ClCompile Include="Codes\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Codes\Mesh.cpp" />
+    <ClCompile Include="Codes\NavigationMesh.cpp" />
     <ClCompile Include="Codes\RenderObject.cpp" />
     <ClCompile Include="Codes\Layer.cpp" />
     <ClCompile Include="Codes\Management.cpp" />
@@ -231,6 +233,7 @@
     <ClInclude Include="Codes\AssimpHelper.h" />
     <ClInclude Include="Codes\Bone.h" />
     <ClInclude Include="Codes\Camera.h" />
+    <ClInclude Include="Codes\Cell.h" />
     <ClInclude Include="Codes\DynamicMesh.h" />
     <ClInclude Include="Codes\Geometric.h" />
     <ClInclude Include="Codes\Collision.h" />
@@ -239,6 +242,7 @@
     <ClInclude Include="Codes\DynamicCamera.h" />
     <ClInclude Include="Codes\ExportUtility.hpp" />
     <ClInclude Include="Codes\Mesh.h" />
+    <ClInclude Include="Codes\NavigationMesh.h" />
     <ClInclude Include="Codes\RenderObject.h" />
     <ClInclude Include="Codes\Layer.h" />
     <ClInclude Include="Codes\Management.h" />
