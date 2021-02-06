@@ -42,8 +42,7 @@ namespace Engine
 		void  Render() & override;
 		void  Update(Object* const Owner, const float DeltaTime)&;
 		Bone* MakeHierarchy(Bone* BoneParent, const aiNode* const AiNode);
-		void  PlayAnimation(const uint32 AnimIdx,
-			const double Acceleration)&;
+		void  PlayAnimation(const uint32 AnimIdx,const double Acceleration)&;
 	public:
 		static const inline Property TypeProperty = Property::Render;
 		std::shared_ptr<std::vector<Vector3>> LocalVertexLocations;
@@ -83,11 +82,9 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 		aiProcess_GenUVCoords |
 		aiProcess_TransformUVCoords |
 		aiProcess_FindInstances |
-		aiProcess_LimitBoneWeights |
 		aiProcess_GenSmoothNormals |
 		aiProcess_SortByPType |
-		aiProcess_OptimizeMeshes |
-		aiProcess_OptimizeGraph
+		aiProcess_OptimizeMeshes 
 	);
 
 	static uint32 SkeletonResourceID = 0u;

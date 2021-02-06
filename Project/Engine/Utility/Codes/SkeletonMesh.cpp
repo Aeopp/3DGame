@@ -18,19 +18,58 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 
 	BoneTable.clear();
 
-	// Bone Info 
-	Bone* Root = &(BoneTable[AiScene->mRootNode->mName.C_Str()] = Bone{});
+	/*Bone* Root = &(BoneTable[AiScene->mRootNode->mName.C_Str()] = Bone{});
 	Root->Name = AiScene->mRootNode->mName.C_Str();
 	Root->OriginTransform = Root->Transform = FromAssimp(AiScene->mRootNode->mTransformation);
 	Root->Parent = nullptr;
-	Root->ToRoot = Root->OriginTransform;* FMath::Identity();
+	Root->ToRoot = Root->OriginTransform; *FMath::Identity();
 
 	for (uint32 i = 0; i < AiScene->mRootNode->mNumChildren; ++i)
 	{
 		Root->Childrens.push_back(MakeHierarchy(Root, AiScene->mRootNode->mChildren[i]));
 	}
 
-	this->RootBone = Root;
+	this->RootBone = Root;*/
+
+	if (AiScene->mRootNode->mNumMeshes > 0u)
+	{
+		// Bone Info 
+		Bone* Root = &(BoneTable[AiScene->mRootNode->mName.C_Str()] = Bone{});
+		Root->Name = AiScene->mRootNode->mName.C_Str();
+		Root->OriginTransform = Root->Transform = FromAssimp(AiScene->mRootNode->mTransformation);
+		Root->Parent = nullptr;
+		Root->ToRoot = Root->OriginTransform; *FMath::Identity();
+
+		for (uint32 i = 0; i < AiScene->mRootNode->mNumChildren; ++i)
+		{
+			Root->Childrens.push_back(MakeHierarchy(Root, AiScene->mRootNode->mChildren[i]));
+		}
+
+		this->RootBone = Root;
+	}
+	else
+	{
+		for (uint32 i = 0; i < AiScene->mRootNode->mNumChildren; ++i)
+		{
+			if (AiScene->mRootNode->mChildren[i]->mNumMeshes > 0u)
+			{
+				// Bone Info 
+				Bone* Root = &(BoneTable[AiScene->mRootNode->mChildren[i]->mName.C_Str()] = Bone{});
+				Root->Name = AiScene->mRootNode->mChildren[i]->mName.C_Str();
+				Root->OriginTransform = Root->Transform = FromAssimp(AiScene->mRootNode->mChildren[i]->mTransformation);
+				Root->Parent = nullptr;
+				Root->ToRoot = Root->OriginTransform; *FMath::Identity();
+
+				for (uint32 j = 0; j < AiScene->mRootNode->mChildren[i]->mNumChildren; ++j)
+				{
+					Root->Childrens.push_back(MakeHierarchy(Root, AiScene->mRootNode->mChildren[i]->mChildren[j]));
+				}
+
+				this->RootBone = Root;
+			}
+			break;
+		}
+	}
 
 	for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
 	{
@@ -88,8 +127,33 @@ void Engine::SkeletonMesh::Render()&
 
 	for (auto& CurrentRenderMesh : MeshContainer)
 	{
-		ParallelSkinnings.push_back(std::async(std::launch::async, [this, CurrentRenderMesh]()
-			{
+		//ParallelSkinnings.push_back(std::async(std::launch::async, [this, CurrentRenderMesh]()
+		//	{
+		//		byte* VertexBufferPtr{ nullptr };
+
+		//		CurrentRenderMesh.VertexBuffer->Lock(0, 0, reinterpret_cast<void**>(&VertexBufferPtr), NULL);
+
+		//		std::memcpy(VertexBufferPtr, CurrentRenderMesh.VerticiesPtr,
+		//			CurrentRenderMesh.VtxBufSize);
+
+		//		for (uint32 i = 0; i < CurrentRenderMesh.VtxCount; ++i)
+		//		{
+		//			Vector3       AnimLocation{ 0,0,0 };
+		//			// 버텍스의 첫번째 메모리 주소가 반드시 Vector3 이라고 가정하고 있음. 유의해야함.
+		//			void* CurrentMemory = (VertexBufferPtr + (i * CurrentRenderMesh.Stride));
+		//			Vector3* CurrentLocationPtr = reinterpret_cast<Vector3*>(CurrentMemory);
+		//			const Vector3 OriginLocation = *CurrentLocationPtr;
+		//			for (uint32 j = 0; j < CurrentRenderMesh.Finals[i].size(); ++j)
+		//			{
+		//				Vector3 _Location{ 0,0,0 };
+		//				D3DXVec3TransformCoord(&_Location, &OriginLocation, CurrentRenderMesh.Finals[i][j]);
+		//				AnimLocation += (_Location *= CurrentRenderMesh.Weights[i][j]);
+		//			}
+		//			static constexpr uint32 _float3Size = sizeof(Vector3);
+		//			std::memcpy(CurrentMemory, &AnimLocation, _float3Size);
+		//		}
+		//		CurrentRenderMesh.VertexBuffer->Unlock();
+		//	}));
 				byte* VertexBufferPtr{ nullptr };
 
 				CurrentRenderMesh.VertexBuffer->Lock(0, 0, reinterpret_cast<void**>(&VertexBufferPtr), NULL);
@@ -114,8 +178,6 @@ void Engine::SkeletonMesh::Render()&
 					std::memcpy(CurrentMemory, &AnimLocation, _float3Size);
 				}
 				CurrentRenderMesh.VertexBuffer->Unlock();
-			}));
-		
 	}
 
 	for (auto& Joinable : ParallelSkinnings)
@@ -154,6 +216,7 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 		{
 			ImGui::Text("TickPerSecond : %f", CurAnimation->mTicksPerSecond);
 			ImGui::Text("Duration      : %f", CurAnimation->mDuration);
+			ImGui::Text("T : %f", T);
 		}
 		T=std::fmod(T, CurAnimation->mDuration);
 	}
@@ -185,6 +248,7 @@ Engine::Bone* Engine::SkeletonMesh::MakeHierarchy(Bone* BoneParent,const aiNode*
 void Engine::SkeletonMesh::PlayAnimation(const uint32 AnimIdx ,
 	                                     const double Acceleration)&
 {
+	this->T = 0.0f;
 	this->AnimIdx = AnimIdx;
 	this->Acceleration = Acceleration;
 }

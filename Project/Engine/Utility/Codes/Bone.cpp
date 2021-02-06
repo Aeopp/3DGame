@@ -22,10 +22,7 @@ void Engine::Bone::BoneMatrixUpdate(
 			iter != std::end(*TargetAnimTable))
 		{
 			aiNodeAnim* CurAnimation = iter->second;
-			ImGui::Text("Scale Max Key    : %d", CurAnimation->mNumScalingKeys);
-			ImGui::Text("Rotation Max Key : %d", CurAnimation->mNumRotationKeys);
-			ImGui::Text("Position Max Key : %d", CurAnimation->mNumPositionKeys);
-			
+
 				auto ScaleEnd = ScaleTrack[Name].upper_bound(T);
 				auto ScaleBegin = ScaleEnd;
 				std::advance(ScaleBegin, -1);
@@ -41,7 +38,7 @@ void Engine::Bone::BoneMatrixUpdate(
 				const double QuatInterval = QuatEnd->first - QuatBegin->first;
 				 Quaternion QuatLerp = FMath::SLerp(QuatBegin->second, QuatEnd->second,
 					(T-QuatBegin->first) / QuatInterval);
-				D3DXQuaternionNormalize(&QuatLerp, &QuatLerp);
+				//D3DXQuaternionNormalize(&QuatLerp, &QuatLerp);
 
 				auto PosEnd = PosTrack[Name].upper_bound(T);
 				auto PosBegin = PosEnd;
@@ -53,6 +50,11 @@ void Engine::Bone::BoneMatrixUpdate(
 			
 				AnimationTransform=
 			   (FMath::Scale(ScaleLerp)* FMath::Rotation(QuatLerp)* FMath::Translation(PosLerp));
+
+				ImGui::Text("Scale : %f,%f,%f", ScaleLerp.x, ScaleLerp.y , ScaleLerp.z);
+				ImGui::Text("Rotation : %f,%f,%f", QuatLerp.x, QuatLerp.y, QuatLerp.z);
+				ImGui::Text("Pos : %f,%f,%f", PosLerp.x, PosLerp.y, PosLerp.z);
+
 		}
 	}
 
