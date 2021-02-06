@@ -84,8 +84,8 @@ void Player::PrototypeInitialize(IDirect3DDevice9* const Device,
 	auto _SkeletonMeshProto = std::make_shared<Engine::SkeletonMesh>();
 
 	_SkeletonMeshProto->Load<Vertex::Skeleton>(Device, 
-		App::ResourcePath/L"Mesh"/L"DynamicMesh"/L"Player"/L"",
-		L"Player.x", L"Player");
+		App::ResourcePath/L"Mesh"/L"DynamicMesh"/L"PlayerXfile"/L"",
+		L"Player.X", L"Player");
 
 	RefResourceSys().InsertAny<decltype(_SkeletonMeshProto)>(L"Player", _SkeletonMeshProto);
 }
