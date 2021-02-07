@@ -19,5 +19,6 @@ public :
 	static constexpr inline std::pair<Type,Type> ClientSize{ 1920,1080};
 	static inline HWND Hwnd;
 	static inline HINSTANCE HInstance;
+	static inline IDirect3DDevice9* Device{ nullptr };
 };
 

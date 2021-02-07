@@ -4,8 +4,15 @@
 #include "ResourceSystem.h"
 #include "UtilityGlobal.h"
 #include <array>
+#include "NavigationMesh.h"
 
-void Engine::Cell::Initialize(const uint32 Index, const Vector3& PointA, const Vector3& PointB, const Vector3& PointC)&
+void Engine::Cell::Initialize(
+	Engine::NavigationMesh* const NaviMesh,
+	const uint32 Index, 
+	const Vector3& PointA,
+	const Vector3& PointB, 
+	const Vector3& PointC,
+	IDirect3DDevice9*const Device)&
 {
 	this->Index = Index;
 	this->PointA = PointA;
@@ -20,8 +27,9 @@ void Engine::Cell::Initialize(const uint32 Index, const Vector3& PointA, const V
 
 	if (Engine::Global::bDebugMode)
 	{
-		Line = ResourceSystem::Instance->Get<ID3DXLine>(L"Line"); 
-		DebugSphereMesh = ResourceSystem::Instance->Get<ID3DXMesh>(L"SphereMesh");
+		D3DXCreateLine(Device, &Line);
+		ResourceSystem::Instance->Insert<ID3DXLine>(L"Line"+std::to_wstring(Index), Line);
+		Line->SetWidth(2.5f);
 	}
 }
 
@@ -97,21 +105,15 @@ void Engine::Cell::Render(IDirect3DDevice9* Device)&
 		Points[i].z = (std::fmaxf)(0.1f, Points[i].z);
 		D3DXVec3TransformCoord(&Points[i], &Points[i], &Projection);
 	}
-	Line->SetWidth(5.f);
-	Device->EndScene();
-	Device->BeginScene();
+	
 	Line->Begin();
 	Matrix Identity = FMath::Identity();
 	Line->DrawTransform(Points.data(),Points.size(),
 		&Identity, D3DXCOLOR(1.f, 0.f, 0.f, 1.f));
+
 	Line->End();
 
-	for (uint32 i = 0; i < 3; ++i)
-	{
-		const Matrix PointLocation = FMath::Translation(Points[i]); 
-		Device->SetTransform(D3DTS_WORLD, &PointLocation);
-		DebugSphereMesh->DrawSubset(0);
-	}
+	
 }
 
 std::pair<Engine::Cell::CompareType, uint32>

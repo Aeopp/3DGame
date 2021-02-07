@@ -19,10 +19,12 @@ namespace Engine
 		enum class CompareType :uint8  {Moving,Stop,End};
 	public:
 		void Initialize(
+			class NavigationMesh* const NaviMesh,
 			const uint32 Index,
 			const Vector3& PointA,
 			const Vector3& PointB,
-			const Vector3& PointC)&;
+			const Vector3& PointC ,
+			IDirect3DDevice9* const Device)&;
 		bool FindNeighbor(const Vector3& PointFirst,const Vector3& PointSecond,
 			Cell* _Cell)&;
 		void Render(IDirect3DDevice9* Device)&;
@@ -48,7 +50,6 @@ namespace Engine
 		ID3DXMesh* DebugSphereMesh{ nullptr };
 		ID3DXLine* Line{ nullptr };
 		uint32 Index{ 0u };
-		IDirect3DDevice9* Device{ nullptr };
 	};
 };
 

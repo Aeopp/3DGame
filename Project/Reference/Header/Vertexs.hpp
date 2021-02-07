@@ -22,6 +22,64 @@ namespace Vertex
 		static const DWORD FVF = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1;
 	};
 
+	struct LocationNormalUV2D
+	{
+		Vector3 Location{ 0,0,0 };
+		Vector3 Normal{ 0 , 0,  0 };
+		Vector2 UV{ 0,0 };
+		static inline LocationNormalUV2D MakeFromAssimpMesh(const aiMesh* const AiMesh,
+			const uint32 CurrentIdx)
+		{
+			return LocationNormalUV2D
+			{
+				FromAssimp(AiMesh->mVertices[CurrentIdx]),
+				FromAssimp(AiMesh->mNormals[CurrentIdx]),
+				FMath::ToVec2(FromAssimp(AiMesh->mTextureCoords[0][CurrentIdx]))
+			};
+		};
+		static const DWORD FVF = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1;
+	};
+
+	struct LocationUV2D
+	{
+		Vector3 Location{ 0,0,0 };
+		Vector2 UV{ 0,0 };
+		static inline LocationUV2D MakeFromAssimpMesh(const aiMesh* const AiMesh,
+			const uint32 CurrentIdx)
+		{
+			return LocationUV2D
+			{
+				FromAssimp(AiMesh->mVertices[CurrentIdx]),
+				FMath::ToVec2(FromAssimp(AiMesh->mTextureCoords[0][CurrentIdx]))
+			};
+		};
+		static const DWORD FVF = D3DFVF_XYZ | D3DFVF_TEX1;
+	};
+
+	struct LocationNormal
+	{
+		Vector3 Location{ 0,0,0 };
+		Vector3 Normal{ 0 , 0,  0 };
+		static inline LocationNormal MakeFromAssimpMesh(const aiMesh* const AiMesh,
+			const uint32 CurrentIdx)
+		{
+			return LocationNormal
+			{
+				FromAssimp(AiMesh->mVertices[CurrentIdx]),
+				FromAssimp(AiMesh->mNormals[CurrentIdx]),
+			};
+		};
+		static const DWORD FVF = D3DFVF_XYZ | D3DFVF_NORMAL;
+	};
+
+	struct LocationColor
+	{
+		Vector3 Location{ 0,0,0 };
+		DWORD Diffuse{ 0xff0000ff };
+		static const DWORD FVF = D3DFVF_XYZ | D3DFVF_DIFFUSE;
+	};
+
+
 	struct Animation
 	{
 		Vector3 Location{}; 

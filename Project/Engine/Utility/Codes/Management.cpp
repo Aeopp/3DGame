@@ -51,15 +51,16 @@ void Engine::Management::Initialize(
 	_Sound = Engine::Sound::Init(ResourcePath / L"Sound");
 	_Controller = Engine::Controller::Init(HInstance, _Hwnd);
 	_CollisionSys = Engine::CollisionSystem::Init();
-	auto Device = _GraphicDevice->GetDevice();
-	_ShaderManager = Engine::ShaderManager::Init(Device);
+	auto SharedDevice = _GraphicDevice->GetDevice();
+	Device = SharedDevice.get();
+	_ShaderManager = Engine::ShaderManager::Init(SharedDevice);
 	_PrototypeManager = Engine::PrototypeManager::Init();
 	_FontManager = Engine::FontManager::Init();
 	_ResourceSys = Engine::ResourceSystem::Init();
-	_Renderer = Engine::Renderer::Init(Device);
-	_NaviMesh = Engine::NavigationMesh::Init(Device.get());
+	_Renderer = Engine::Renderer::Init(SharedDevice);
+	_NaviMesh = Engine::NavigationMesh::Init(Device);
 
-	ImGuiInitialize(Hwnd, Device.get());
+	ImGuiInitialize(Hwnd, Device);
 
 	CreateStaticResource();
 	CreateCollisionDebugResource();
@@ -118,9 +119,8 @@ void Engine::Management::Render()&
 	const Vector3 CameraLocation{ InvView._41,InvView._42,InvView._43 };
 	_ShaderManager->Update(CameraLocation, LightLocation);
 	_GraphicDevice->Begin();
-
 	_Renderer->Render();
-
+	_NaviMesh->Render(Device);
 	// 폰트 드로우콜
 	{
 		_FontManager->RenderFont(L"Font_Jinji", L"진지함", { 400,300 }, D3DXCOLOR{ 0.5f,1.f,0.5f,0.1f });
@@ -303,9 +303,9 @@ void Engine::Management::CreateStaticResource()&
 	_ResourceSys->Insert<IDirect3DIndexBuffer9>
 		(L"IndexBuffer_Frustum", FrustumIndexBuffer);
 
-	ID3DXLine* _DxLine{ nullptr };
+	/*ID3DXLine* _DxLine{ nullptr };
 	_ResourceSys->Emplace<ID3DXLine>(L"Line", D3DXCreateLine,
-		Device.get(), &_DxLine);
+		Device.get(), &_DxLine);*/
 	ID3DXMesh* SphereMesh{ nullptr };
 	ID3DXBuffer* SphereMeshAdjacency{ nullptr };
 	D3DXCreateSphere(Device.get(), 5.f, 10, 10, &SphereMesh, &SphereMeshAdjacency);

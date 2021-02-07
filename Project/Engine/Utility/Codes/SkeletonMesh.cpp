@@ -9,6 +9,8 @@
 
 void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 {
+	Super::Initialize(Device);
+
 	auto& ResourceSys = Engine::ResourceSystem::Instance;
 
 	auto ProtoSkeletonMesh = 
@@ -23,7 +25,6 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 	RootBone->OriginTransform = RootBone->Transform = FromAssimp(AiScene->mRootNode->mTransformation);
 	RootBone->Parent = nullptr;
 	RootBone->ToRoot = RootBone->OriginTransform;  *FMath::Identity();
-	std::cout << RootBone->Name << std::endl;
 
 	for (uint32 i = 0; i < AiScene->mRootNode->mNumChildren; ++i)
 	{
@@ -85,6 +86,8 @@ void Engine::SkeletonMesh::Event(Object* Owner)&
 
 void Engine::SkeletonMesh::Render()&
 {
+	Super::Render();
+
 	Device->SetVertexShader(nullptr);
 	Device->SetPixelShader(nullptr);
 

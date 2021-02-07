@@ -21,6 +21,8 @@ namespace Engine
 	{
 		std::vector<std::vector<float>>     Weights{};
 		std::vector<std::vector<Matrix*>>   Finals{};
+		std::any                Verticies{};
+		void* VerticiesPtr{ nullptr };
 	};
 
 	class DLL_DECL SkeletonMesh : public Mesh
@@ -47,7 +49,6 @@ namespace Engine
 		void  PlayAnimation(const uint32 AnimIdx, const double Acceleration)&;
 	public:
 		static const inline Property          TypeProperty = Property::Render;
-		std::shared_ptr<std::vector<Vector3>> LocalVertexLocations;
 		uint32    AnimIdx{ 0u };
 		double T{ 0.0f };
 		uint32 NumMaxRefBone{ 0u };

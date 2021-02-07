@@ -14,8 +14,6 @@ namespace Engine
 		IDirect3DTexture9*      NormalTexture  { nullptr };
 		IDirect3DTexture9*      SpecularTexture{ nullptr };
 		IDirect3DIndexBuffer9*  IndexBuffer    { nullptr };
-		std::any                Verticies{};
-		void*                   VerticiesPtr{nullptr};
 		DWORD  Stride        { 0u };
 		DWORD  FVF           { 0u };
 		uint32 FaceCount     { 0u };
@@ -34,7 +32,9 @@ namespace Engine
 		virtual void Render()&;
 	public:
 		static const inline Property TypeProperty = Property::Render;
+		std::shared_ptr<std::vector<Vector3>> LocalVertexLocations;
 	protected:
+	
 		const aiScene* AiScene{};
 		IDirect3DDevice9* Device{ nullptr };
 	};

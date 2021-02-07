@@ -184,9 +184,12 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	// 오브젝트 스폰
 	{
 		RefManager().NewObject<EnemyLayer,TombStone>(L"Static", L"TombStone_1" ,
-			Vector3{ 1,1,1 },Vector3{ 0,0,10 }, Vector3{ 0,0,0 });
+			Vector3{ 0.01,0.01,0.01 },Vector3{ 0,0,0 }, Vector3{ 0,0,0 });
 		RefManager().NewObject<StaticLayer,Player>(L"Static", L"Player",
 			Vector3{ 0.01f,0.01f,0.01f }, Vector3{ 0,0,0}, Vector3{ 0,0,5 });
+
+		/*RefManager().NewObject<EnemyLayer, TombStone>(L"Static", L"TombStone_2",
+			Vector3{ 0.01,0.01,0.01 }, Vector3{ 0,0,20}, Vector3{ 0,0,0 });*/
 
 		//RefManager().NewObject<StaticLayer, Player>(L"Static", L"Player_1",
 		//	Vector3{ 0.01f,0.01f,0.01f }, Vector3{ 0,0,0 }, Vector3{ 0,0,-5 });

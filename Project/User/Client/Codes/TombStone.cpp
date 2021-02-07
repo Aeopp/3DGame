@@ -28,7 +28,7 @@ void TombStone::Initialize(
 	_Transform->SetRotation(Rotation);
 	_Transform->SetLocation(SpawnLocation);
 
-	auto _StaticMesh =AddComponent<Engine::StaticMesh>(Device,L"TombStone");
+	auto _StaticMesh =AddComponent<Engine::StaticMesh>(L"Floor");
 
 	auto _Collision = AddComponent<Engine::Collision>
 		(Device, Engine::CollisionTag::Decorator, _Transform);
@@ -36,8 +36,8 @@ void TombStone::Initialize(
 	// 바운딩 박스.
 	{
 		Vector3  BoundingBoxMin{}, BoundingBoxMax{};
-		D3DXComputeBoundingBox(_StaticMesh->GetVertexLocations().data(),
-			_StaticMesh->GetVertexLocations().size(),
+		D3DXComputeBoundingBox(_StaticMesh->LocalVertexLocations->data(),
+			_StaticMesh->LocalVertexLocations->size(),
 			sizeof(Vector3), &BoundingBoxMin, &BoundingBoxMax);
 
 		_Collision->_Geometric = std::make_unique<Engine::OBB>
@@ -79,6 +79,14 @@ void TombStone::PrototypeInitialize(IDirect3DDevice9* const Device,
 {
 	Super::PrototypeInitialize(Device,_Group);
 	this->Device = Device;
+
+	auto _StaticMeshProto = std::make_shared<Engine::StaticMesh>();
+
+	_StaticMeshProto->Load<Vertex::LocationNormal>(Device,
+		App::ResourcePath / L"Mesh" / L"StaticMesh" / L"SnowTerrain" / L"",
+		L"SnowTerrain.dae", L"Floor");
+
+	RefResourceSys().InsertAny<decltype(_StaticMeshProto)>(L"Floor", _StaticMeshProto);
 }
 
 void TombStone::Event()&
@@ -92,8 +100,9 @@ void TombStone::Render()&
 	const Matrix& World = GetComponent<Engine::Transform>()->UpdateWorld();
 	Device->SetTransform(D3DTS_WORLD, &World);
 	auto _StaticMesh = GetComponent<Engine::StaticMesh>();
-
+	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 	_StaticMesh->Render();
+	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 }
 
 void TombStone::Update(const float DeltaTime)&

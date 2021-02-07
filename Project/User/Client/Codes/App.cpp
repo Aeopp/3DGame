@@ -24,7 +24,7 @@ void App::Initialize(const HWND _Hwnd, const HINSTANCE HInstance)&
 		1.f/20.f,
 		ResourcePath);
 
-	auto Device = RefGraphic().GetDevice();
+	Device = RefGraphic().GetDevice().get();
 	//RefSound().Play("song", 1.f, true, true);
 
 	StartSceneLoad();

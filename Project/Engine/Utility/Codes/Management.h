@@ -55,6 +55,7 @@ namespace Engine
 		void CreateStaticResource()&;
 		void CreateCollisionDebugResource()&;
 	private:
+		IDirect3DDevice9* Device{ nullptr }; 
 		HWND Hwnd{ NULL };
 		std::pair<uint32, uint32> ClientSize{};
 		std::unique_ptr<Scene> _CurrentScene{ nullptr };
