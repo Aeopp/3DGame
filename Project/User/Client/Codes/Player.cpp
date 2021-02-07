@@ -51,7 +51,7 @@ void Player::Initialize(
 		_Transform);
 
 	RenderInterface::bCullingOn = false;
-	_SkeletonMesh->PlayAnimation(11u,1000.0f);
+	_SkeletonMesh->PlayAnimation(0u,1.f);
 	
 	// 바운딩 스피어
 	{
@@ -84,8 +84,8 @@ void Player::PrototypeInitialize(IDirect3DDevice9* const Device,
 	auto _SkeletonMeshProto = std::make_shared<Engine::SkeletonMesh>();
 
 	_SkeletonMeshProto->Load<Vertex::Skeleton>(Device, 
-		App::ResourcePath/L"Mesh"/L"DynamicMesh"/L"Guardian"/L"",
-		L"Guardian.fbx", L"Player");
+		App::ResourcePath/L"Mesh"/L"DynamicMesh"/L"Golem"/L"",
+		L"Golem.fbx", L"Player");
 
 	RefResourceSys().InsertAny<decltype(_SkeletonMeshProto)>(L"Player", _SkeletonMeshProto);
 }
@@ -95,19 +95,6 @@ void Player::Event()&
 	Super::Event();
 
 	auto _SkeletonMeshComponent = GetComponent<Engine::SkeletonMesh>();
-	////_SkeletonMeshComponent->PlayAnimation()
-	//float t = 0.0f;
-	//int32 AIdx = 0;
-	//float InputT = 1.f;
-	//ImGui::Begin("Debug Animation");
-	//ImGui::SliderFloat("T", &InputT, 0.0f, 10000.f);
-	//t = InputT;
-	//int32 InputAnimIdx = _SkeletonMeshComponent->AnimIdx;
-	//ImGui::SliderInt("SliderInd", &InputAnimIdx, 0, 58);
-	//AIdx = InputAnimIdx;
-	//ImGui::End();
-	//_SkeletonMeshComponent->T = t;
-	//_SkeletonMeshComponent->AnimIdx = AIdx;
 }
 
 void Player::Render()&

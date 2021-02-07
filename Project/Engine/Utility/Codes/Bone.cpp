@@ -25,7 +25,7 @@ void Engine::Bone::BoneMatrixUpdate(
 		{
 			    aiNodeAnim* CurAnimation = iter->second;
 				
-				Vector3 ScaleLerp;  
+			/*	Vector3 ScaleLerp;  
 				if (ScaleTrack[Name].size() > 1u)
 				{
 					auto ScaleLast = ScaleTrack[Name].end();
@@ -92,7 +92,32 @@ void Engine::Bone::BoneMatrixUpdate(
 					auto PosLast = PosTrack[Name].end();
 					std::advance(PosLast, -1);
 					PosLerp = PosLast->second;
-				}
+				}*/
+
+				auto ScaleEnd = ScaleTrack[Name].upper_bound(T);
+				auto ScaleBegin = ScaleEnd;
+				std::advance(ScaleBegin, -1);
+
+				const double ScaleInterval = ScaleEnd->first - ScaleBegin->first;
+				const Vector3 ScaleLerp = FMath::Lerp(ScaleBegin->second, ScaleEnd->second,
+					(T - ScaleBegin->first) / ScaleInterval);
+
+				auto QuatEnd = QuatTrack[Name].upper_bound(T);
+				auto QuatBegin = QuatEnd;
+				std::advance(QuatBegin, -1);
+
+				const double QuatInterval = QuatEnd->first - QuatBegin->first;
+				Quaternion QuatLerp = FMath::SLerp(QuatBegin->second, QuatEnd->second,
+					(T - QuatBegin->first) / QuatInterval);
+				//D3DXQuaternionNormalize(&QuatLerp, &QuatLerp);
+
+				auto PosEnd = PosTrack[Name].upper_bound(T);
+				auto PosBegin = PosEnd;
+				std::advance(PosBegin, -1);
+
+				const double PosInterval = PosEnd->first - PosBegin->first;
+				const Vector3 PosLerp = FMath::Lerp(PosBegin->second, PosEnd->second,
+					(T - PosBegin->first) / PosInterval);
 			
 				AnimationTransform=
 			   (FMath::Scale(ScaleLerp)* FMath::Rotation(QuatLerp)* FMath::Translation(PosLerp));
@@ -102,26 +127,6 @@ void Engine::Bone::BoneMatrixUpdate(
     Transform = AnimationTransform;
 	ToRoot =    Transform * ParentToRoot;
 	Final =     Offset * ToRoot;
-
-	if (++Bone::CallCount>= Bone::BoneCount)
-	{
-		bool bDebug = !!!!!!!!!!!!!!!!!!!!!!!!!!!!true;
-	}
-	
-	/// <summary>
-	/// TOOD :: TEST CODE 
-	std::cout << Name << std::endl;
-
-	if (Name.find("Bip001-R-Toe0") != std::string::npos)
-	{ 
-		uint32 Debug = Childrens.size();   // ?? 
-		for (auto& ChildrenTarget : Childrens)
-		{
-			const std::string TargetName = ChildrenTarget->Name;
-			std::cout << ChildrenTarget->Name << std::endl;
-		}
-	}
-	/// <summary>
 
 	for (auto& ChildrenTarget : Childrens)
 	{

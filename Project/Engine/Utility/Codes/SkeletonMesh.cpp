@@ -18,16 +18,17 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 
 	BoneTable.clear();
 	// Bone Info 
-	Bone* Root = &(BoneTable[AiScene->mRootNode->mName.C_Str()] = Bone{});
-	Root->Name = AiScene->mRootNode->mName.C_Str();
-	Root->OriginTransform = Root->Transform = FromAssimp(AiScene->mRootNode->mTransformation);
-	Root->Parent = nullptr;
-	Root->ToRoot = Root->OriginTransform;  *FMath::Identity();
+	RootBone = &(BoneTable[AiScene->mRootNode->mName.C_Str()] = Bone{});
+	RootBone->Name = AiScene->mRootNode->mName.C_Str();
+	RootBone->OriginTransform = RootBone->Transform = FromAssimp(AiScene->mRootNode->mTransformation);
+	RootBone->Parent = nullptr;
+	RootBone->ToRoot = RootBone->OriginTransform;  *FMath::Identity();
+	std::cout << RootBone->Name << std::endl;
+
 	for (uint32 i = 0; i < AiScene->mRootNode->mNumChildren; ++i)
 	{
-		Root->Childrens.push_back(MakeHierarchy(Root, AiScene->mRootNode->mChildren[i]));
+		RootBone->Childrens.push_back(MakeHierarchy(RootBone, AiScene->mRootNode->mChildren[i]));
 	}
-	RootBone = Root;
 
 	for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
 	{
@@ -155,9 +156,7 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 		Duration = AiScene->mAnimations[AnimIdx]->mDuration;
 		T=std::fmod(T,CurAnimation->mDuration);
 	}
-	
-	Bone::CallCount = 0u;
-	Bone::BoneCount = BoneTable.size(); 
+
 
 	RootBone->BoneMatrixUpdate(FMath::Identity(), 
 		T, CurAnimation, CurAnimTable ,
@@ -166,13 +165,15 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 		_AnimationTrack->PosTimeLine[TimeLineIdx]);
 }
 
-Engine::Bone* Engine::SkeletonMesh::MakeHierarchy(Bone* BoneParent,const aiNode* const AiNode)
+Engine::Bone* Engine::SkeletonMesh::MakeHierarchy(
+	Bone* BoneParent,const aiNode* const AiNode)
 {
 	Bone* TargetBone =     &(BoneTable[AiNode->mName.C_Str()] = Bone{});
 	TargetBone->Name = AiNode->mName.C_Str();
 	TargetBone->OriginTransform = TargetBone->Transform = FromAssimp(AiNode->mTransformation);
 	TargetBone->Parent = BoneParent;
 	TargetBone->ToRoot = TargetBone->OriginTransform * BoneParent->ToRoot;
+	std::cout << TargetBone->Name << std::endl;
 
 	for (uint32 i = 0; i < AiNode->mNumChildren; ++i)
 	{

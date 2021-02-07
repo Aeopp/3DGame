@@ -62,47 +62,6 @@ namespace Engine
 	};
 }
 
-static std::optional<aiNode* const>  FindRootBone (
-	const std::set<std::string>& BoneNameSet,
-	aiNode* const TargetNode)
-{
-	auto  TargetName = TargetNode->mName.C_Str();
-
-	if (TargetNode->mParent)
-	{
-		const std::string ParentName = TargetNode->mParent->mName.C_Str();
-		if (BoneNameSet.contains(TargetName) && !BoneNameSet.contains(ParentName))
-		{
-			return  { TargetNode };
-		}
-		else
-		{
-			for (uint32 i = 0; i < TargetNode->mNumChildren; ++i)
-			{
-				auto Result= FindRootBone(BoneNameSet, TargetNode->mChildren[i]);
-				if (Result.has_value())
-				{
-					return Result;
-				}
-			}
-		}
-	}
-	else
-	{
-		for (uint32 i = 0; i < TargetNode->mNumChildren; ++i)
-		{
-			auto Result = FindRootBone(BoneNameSet, TargetNode->mChildren[i]);
-			if (Result.has_value())
-			{
-				return Result;
-			}
-		}
-	}
-
-	return std::nullopt;
-};
-
-
 template<typename VertexType>
 void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 	const std::filesystem::path FilePath,
@@ -129,40 +88,25 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 		aiProcess_GenSmoothNormals |
 		aiProcess_SortByPType |
 		aiProcess_OptimizeMeshes |
-		aiProcess_OptimizeGraph |
 		aiProcess_SplitLargeMeshes
 	);
-	/// <summary>
-/// 1. 메시가 참조하는 본이름의 집합을 구성 = A
-/// 2. 루트의 조건은 A에 포함 안되있고 자식이 본이어야함 = R
-/// 3. R 의 부모의 정보는 필요없음 R부터 로직 시작.
-/// </summary>
-	std::set<std::string> BoneNameSet;
-	for (uint32 i = 0; i < AiScene->mNumMeshes; ++i)
-	{
-		BoneNameSet.insert(AiScene->mMeshes[i]->mName.C_Str());
-	}
-
-	auto Result = FindRootBone(BoneNameSet, AiScene->mRootNode);
-	aiNode* ResultRoot = *Result;
-
-
-
-
 	static uint32 SkeletonResourceID = 0u;
 	auto& ResourceSys = RefResourceSys();
 	MaxAnimIdx = AiScene->mNumAnimations;
+
 	// Bone Info 
-	Bone* Root = &(BoneTable[AiScene->mRootNode->mName.C_Str()] = Bone{});
-	Root->Name = AiScene->mRootNode->mName.C_Str();
-	Root->OriginTransform = Root->Transform = FromAssimp(AiScene->mRootNode->mTransformation);
-	Root->Parent = nullptr;
-	Root->ToRoot = Root->OriginTransform;  *FMath::Identity();
+	 RootBone = &(BoneTable[AiScene->mRootNode->mName.C_Str()] = Bone{});
+	 RootBone->Name = AiScene->mRootNode->mName.C_Str();
+	 RootBone->OriginTransform = RootBone->Transform = FromAssimp(AiScene->mRootNode->mTransformation);
+	 RootBone->Parent = nullptr;
+	 RootBone->ToRoot = RootBone->OriginTransform;  *FMath::Identity();
+	 std::cout << RootBone->Name.c_str() << std::endl;
+
 	for (uint32 i = 0; i < AiScene->mRootNode->mNumChildren; ++i)
 	{
-		Root->Childrens.push_back(MakeHierarchy(Root, AiScene->mRootNode->mChildren[i]));
+		RootBone->Childrens.push_back(MakeHierarchy(RootBone, AiScene->mRootNode->mChildren[i]));
 	}
-	RootBone = Root;
+	std::cout << "프로토타입 파싱 끝\n";
 	LocalVertexLocations = std::make_shared<std::vector<Vector3>>();
 	for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
 	{
