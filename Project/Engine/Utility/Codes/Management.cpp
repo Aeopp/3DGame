@@ -311,6 +311,13 @@ void Engine::Management::CreateStaticResource()&
 	D3DXCreateSphere(Device.get(), 5.f, 10, 10, &SphereMesh, &SphereMeshAdjacency);
 	_ResourceSys->Insert<ID3DXMesh>(L"SphereMesh", SphereMesh);
 	_ResourceSys->Insert<ID3DXBuffer>(L"SphereMeshAdjacency", SphereMeshAdjacency);
+
+	
+	{
+		// ÆùÆ® ·Îµù
+		_FontManager->AddFont(Device.get(), L"Font_Default", L"¹ÙÅÁ", 15, 20, FW_HEAVY);
+		_FontManager->AddFont(Device.get(), L"Font_Jinji", L"±Ã¼­", 15, 20, FW_THIN);
+	}
 }
 void Engine::Management::CreateCollisionDebugResource()&
 {

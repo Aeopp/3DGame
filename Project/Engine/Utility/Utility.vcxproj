@@ -198,6 +198,7 @@
     <ClCompile Include="Codes\Camera.cpp" />
     <ClCompile Include="Codes\Cell.cpp" />
     <ClCompile Include="Codes\DynamicMesh.cpp" />
+    <ClCompile Include="Codes\FileHelper.cpp" />
     <ClCompile Include="Codes\Geometric.cpp" />
     <ClCompile Include="Codes\Collision.cpp" />
     <ClCompile Include="Codes\CollisionSystem.cpp" />
@@ -235,6 +236,7 @@
     <ClInclude Include="Codes\Camera.h" />
     <ClInclude Include="Codes\Cell.h" />
     <ClInclude Include="Codes\DynamicMesh.h" />
+    <ClInclude Include="Codes\FileHelper.h" />
     <ClInclude Include="Codes\Geometric.h" />
     <ClInclude Include="Codes\Collision.h" />
     <ClInclude Include="Codes\CollisionSystem.h" />

@@ -9,6 +9,7 @@
 #include "imgui_impl_win32.h"
 #include <chrono>
 #include <filesystem>
+#include "EnterGame.h"
 
 void App::Initialize(const HWND _Hwnd, const HINSTANCE HInstance)&
 {
@@ -35,5 +36,5 @@ void App::GameLoop()
 
 void App::StartSceneLoad()&
 {
-	Engine::Management::Instance->ChangeScene<StartScene>();
+	Engine::Management::Instance->ChangeScene<EnterGame>();
 };

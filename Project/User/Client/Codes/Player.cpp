@@ -51,7 +51,7 @@ void Player::Initialize(
 		_Transform);
 
 	RenderInterface::bCullingOn = false;
-	_SkeletonMesh->PlayAnimation(0u,1.0);
+	_SkeletonMesh->PlayAnimation(11u,1000.0f);
 	
 	// 바운딩 스피어
 	{
@@ -73,11 +73,6 @@ void Player::Initialize(
 		{
 	          Engine::CollisionTag::Decorator
 		});
-
-	if (FMath::Random(0,1 ))
-		_SkeletonMesh->PlayAnimation(1, 100);
-	else 
-		_SkeletonMesh->PlayAnimation(0, 100);
 }
 
 void Player::PrototypeInitialize(IDirect3DDevice9* const Device,
@@ -89,8 +84,8 @@ void Player::PrototypeInitialize(IDirect3DDevice9* const Device,
 	auto _SkeletonMeshProto = std::make_shared<Engine::SkeletonMesh>();
 
 	_SkeletonMeshProto->Load<Vertex::Skeleton>(Device, 
-		App::ResourcePath/L"Mesh"/L"DynamicMesh"/L"Golem"/L"",
-		L"Golem.fbx", L"Player");
+		App::ResourcePath/L"Mesh"/L"DynamicMesh"/L"Guardian"/L"",
+		L"Guardian.fbx", L"Player");
 
 	RefResourceSys().InsertAny<decltype(_SkeletonMeshProto)>(L"Player", _SkeletonMeshProto);
 }

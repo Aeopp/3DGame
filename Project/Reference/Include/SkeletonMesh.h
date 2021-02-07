@@ -11,6 +11,8 @@
 #include "UtilityGlobal.h"
 #include "ResourceSystem.h"
 #include "ExportUtility.hpp"
+#include <optional>
+#include <set>
 
 
 namespace Engine
@@ -48,6 +50,8 @@ namespace Engine
 		std::shared_ptr<std::vector<Vector3>> LocalVertexLocations;
 		uint32    AnimIdx{ 0u };
 		double T{ 0.0f };
+		uint32 NumMaxRefBone{ 0u };
+		uint32 MaxAnimIdx{ 0u };
 	private:
 		double Acceleration = 1.f;
 		std::vector       <std::unordered_map<std::string, aiNodeAnim*>>  AnimTable{};
@@ -57,6 +61,46 @@ namespace Engine
 		std::vector       <SkinningMeshElement>                          MeshContainer{};
 	};
 }
+
+static std::optional<aiNode* const>  FindRootBone (
+	const std::set<std::string>& BoneNameSet,
+	aiNode* const TargetNode)
+{
+	auto  TargetName = TargetNode->mName.C_Str();
+
+	if (TargetNode->mParent)
+	{
+		const std::string ParentName = TargetNode->mParent->mName.C_Str();
+		if (BoneNameSet.contains(TargetName) && !BoneNameSet.contains(ParentName))
+		{
+			return  { TargetNode };
+		}
+		else
+		{
+			for (uint32 i = 0; i < TargetNode->mNumChildren; ++i)
+			{
+				auto Result= FindRootBone(BoneNameSet, TargetNode->mChildren[i]);
+				if (Result.has_value())
+				{
+					return Result;
+				}
+			}
+		}
+	}
+	else
+	{
+		for (uint32 i = 0; i < TargetNode->mNumChildren; ++i)
+		{
+			auto Result = FindRootBone(BoneNameSet, TargetNode->mChildren[i]);
+			if (Result.has_value())
+			{
+				return Result;
+			}
+		}
+	}
+
+	return std::nullopt;
+};
 
 
 template<typename VertexType>
@@ -84,12 +128,30 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 		aiProcess_FindInstances |
 		aiProcess_GenSmoothNormals |
 		aiProcess_SortByPType |
-		aiProcess_OptimizeMeshes
+		aiProcess_OptimizeMeshes |
+		aiProcess_OptimizeGraph |
+		aiProcess_SplitLargeMeshes
 	);
+	/// <summary>
+/// 1. 메시가 참조하는 본이름의 집합을 구성 = A
+/// 2. 루트의 조건은 A에 포함 안되있고 자식이 본이어야함 = R
+/// 3. R 의 부모의 정보는 필요없음 R부터 로직 시작.
+/// </summary>
+	std::set<std::string> BoneNameSet;
+	for (uint32 i = 0; i < AiScene->mNumMeshes; ++i)
+	{
+		BoneNameSet.insert(AiScene->mMeshes[i]->mName.C_Str());
+	}
+
+	auto Result = FindRootBone(BoneNameSet, AiScene->mRootNode);
+	aiNode* ResultRoot = *Result;
+
+
+
 
 	static uint32 SkeletonResourceID = 0u;
 	auto& ResourceSys = RefResourceSys();
-
+	MaxAnimIdx = AiScene->mNumAnimations;
 	// Bone Info 
 	Bone* Root = &(BoneTable[AiScene->mRootNode->mName.C_Str()] = Bone{});
 	Root->Name = AiScene->mRootNode->mName.C_Str();
@@ -216,6 +278,7 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 		{
 			CreateMesh.Weights.resize(CreateMesh.VtxCount);
 			CreateMesh.Finals.resize(CreateMesh.VtxCount);
+			NumMaxRefBone = (std::max)(_AiMesh->mNumBones , NumMaxRefBone);
 			for (uint32 BoneIdx = 0u; BoneIdx < _AiMesh->mNumBones; ++BoneIdx)
 			{
 				const aiBone* const CurVtxBone = _AiMesh->mBones[BoneIdx];

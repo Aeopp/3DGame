@@ -5,6 +5,7 @@
 #include <numeric>
 #include <filesystem>
 #include "Vertexs.hpp"
+#include "NavigationMesh.h"
 
 
 class Tool final : public Engine::Scene
@@ -16,7 +17,7 @@ public:
 	virtual void Event()& override;
 	virtual void Update(const float DeltaTime) & override;
 private:
-	class Engine::NavigationMesh* _NaviMesh{ nullptr };
+	Engine::NavigationMesh* _NaviMesh{ nullptr };
 	uint32 NavigationMeshModeSelect{ 0u };
 };
 

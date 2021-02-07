@@ -31,6 +31,9 @@ namespace Engine
 		Matrix Offset         { FMath::Identity() };
 		std::string Name{};
 
+		static inline uint32 BoneCount = 0u; 
+		static inline uint32 CallCount = 0u;
+
 		void BoneMatrixUpdate(
 			const Matrix ParentToRoot,
 			const double T,

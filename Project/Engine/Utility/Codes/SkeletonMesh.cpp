@@ -155,6 +155,9 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 		Duration = AiScene->mAnimations[AnimIdx]->mDuration;
 		T=std::fmod(T,CurAnimation->mDuration);
 	}
+	
+	Bone::CallCount = 0u;
+	Bone::BoneCount = BoneTable.size(); 
 
 	RootBone->BoneMatrixUpdate(FMath::Identity(), 
 		T, CurAnimation, CurAnimTable ,

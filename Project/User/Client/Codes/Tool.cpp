@@ -1,11 +1,11 @@
 #include "..\\stdafx.h"
 #include "Tool.h"
+#include "FileHelper.h"
 #include "TombStone.h"
 #include "Player.h"
 #include "Shader.h"
 #include "Vertexs.hpp"
 #include "NavigationMesh.h"
-
 #include "Management.h"
 #include "EnemyLayer.h"
 #include "ExportUtility.hpp"
@@ -21,11 +21,13 @@
 #include "DynamicCamera.h"
 #include <d3d9.h>
 #include <d3dx9.h>
-#include "imgui.h"
 #include <array>
+#include "imgui.h"
 #include "FontManager.h"
 #include "UtilityGlobal.h"
 #include "ShaderManager.h"
+#include <Windows.h>
+#include <stdio.h>
 
 void Tool::Initialize(IDirect3DDevice9* const Device)&
 {
@@ -70,6 +72,15 @@ void Tool::Event() &
 
 	if (Engine::Global::bDebugMode)
 	{
+		if (ImGui::Button("Save"))
+		{
+			std::filesystem::path OpenPath = Engine::FileHelper::OpenDialogBox();
+		}
+		if (ImGui::Button("Load"))
+		{
+			std::filesystem::path OpenPath = Engine::FileHelper::OpenDialogBox();
+		}
+
 		// _NaviMesh->InsertPoint()
 	}
 }

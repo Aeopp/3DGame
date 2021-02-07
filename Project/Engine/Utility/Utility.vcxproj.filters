@@ -91,6 +91,9 @@
     <Filter Include="Utility\Cell">
       <UniqueIdentifier>{8cf175b6-6de4-4db4-b2dc-f18f52c4d72e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utility\FileHelper">
+      <UniqueIdentifier>{d10f06b3-4163-4fb6-bcdd-680d44d851b1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
@@ -179,6 +182,9 @@
     </ClInclude>
     <ClInclude Include="Codes\Cell.h">
       <Filter>Utility\Cell</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\FileHelper.h">
+      <Filter>Utility\FileHelper</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -283,6 +289,9 @@
     </ClCompile>
     <ClCompile Include="Codes\Cell.cpp">
       <Filter>Utility\Cell</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\FileHelper.cpp">
+      <Filter>Utility\FileHelper</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

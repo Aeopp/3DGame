@@ -35,11 +35,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	auto& Manager = RefManager();
 	auto& Proto = RefProto();
 
-	{
-		// 폰트 로딩
-		FontMgr.AddFont(Device, L"Font_Default", L"바탕", 15, 20, FW_HEAVY);
-		FontMgr.AddFont(Device, L"Font_Jinji", L"궁서", 15, 20, FW_THIN);
-	}
+	
 
 	// 텍스쳐 리소스 추가. 
 	{
@@ -194,8 +190,8 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 		RefManager().NewObject<StaticLayer,Player>(L"Static", L"Player",
 			Vector3{ 0.01f,0.01f,0.01f }, Vector3{ 0,0,0}, Vector3{ 0,0,5 });
 
-		RefManager().NewObject<StaticLayer, Player>(L"Static", L"Player_1",
-			Vector3{ 0.01f,0.01f,0.01f }, Vector3{ 0,0,0 }, Vector3{ 0,0,-5 });
+		//RefManager().NewObject<StaticLayer, Player>(L"Static", L"Player_1",
+		//	Vector3{ 0.01f,0.01f,0.01f }, Vector3{ 0,0,0 }, Vector3{ 0,0,-5 });
 	}
 };
 
