@@ -35,8 +35,6 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	auto& Manager = RefManager();
 	auto& Proto = RefProto();
 
-	
-
 	// 텍스쳐 리소스 추가. 
 	{
 		IDirect3DTexture9* TexturePtr{ nullptr };
