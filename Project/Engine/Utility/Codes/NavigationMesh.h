@@ -11,13 +11,14 @@
 #include <tuple>
 #include "MathStruct.h"
 #include "Cell.h"
+#include <set>
 
 namespace Engine
 {
 	struct DLL_DECL Marker
 	{
 		Sphere _Sphere{};
-		std::vector<uint32> SharedCellKeys{}; 
+		std::set<uint32> SharedCellKeys{}; 
 	};
 
 	class DLL_DECL NavigationMesh    : public SingletonInterface<NavigationMesh>

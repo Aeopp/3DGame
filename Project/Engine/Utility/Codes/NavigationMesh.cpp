@@ -6,6 +6,7 @@
 #include "Vertexs.hpp"
 #include <ostream>
 #include <fstream>
+#include <set>
 
 static uint32 MarkerKey{ 1u };
 static uint32 CellKey{ 1u };
@@ -56,39 +57,54 @@ void Engine::NavigationMesh::DebugLog()&
 	if (auto iter = CellContainer.find(CurSelectCellKey);
 		iter != std::end( CellContainer ))
 	{
+		ImGui::Separator();
 		ImGui::Text("Select Cell Information"); 
 		ImGui::Text("Cell Index : %d ", CurSelectCellKey);
-		ImGui::Text("Marker Index...");
+		ImGui::Text("Marker Index..."); 
+
 		auto SelectCell = iter->second;
 		for (const uint32 MarkeyKey : SelectCell->MarkerKeys)
 		{
-			ImGui::Text(" %d ", MarkeyKey);
+			ImGui::Text("%d ", MarkeyKey);
 			ImGui::SameLine();
-
+		}
+		ImGui::Text("Neighbor Keys... :");
+		ImGui::SameLine();
+		std::set<uint32> FilterAfterNeighborKeys{};
+		for (const uint32 MarkeyKey : SelectCell->MarkerKeys)
+		{
 			if (auto MarkeyIter = CurrentMarkers.find(MarkeyKey);
 				MarkeyIter != std::end(CurrentMarkers))
 			{
-				ImGui::Text("Neighbor Keys.....");
 				for (const uint32 NeighborKey : MarkeyIter->second->SharedCellKeys)
 				{
-					ImGui::Text(" %d ", NeighborKey);
-					ImGui::SameLine();
+					FilterAfterNeighborKeys.insert(NeighborKey);
 				}
 			}
 		}
-
-		ImGui::Text("Select Marker Information");
-		if (auto iter = CurrentMarkers.find(MarkerKey);
-			iter != std::end(CurrentMarkers))
+		FilterAfterNeighborKeys.erase(CurSelectCellKey);
+		for (const uint32 FilterAfterNeighborKey : FilterAfterNeighborKeys)
 		{
-			auto SelectMarker=  iter->second;
-			ImGui::Text("Marker Point Shared Cell"); 
-			for (const uint32 MarkerPointSharedCell : SelectMarker->SharedCellKeys)
-			{
-				ImGui::Text(" %d ",MarkerPointSharedCell);
-				ImGui::SameLine();
-			}
+			ImGui::Text("%d ", FilterAfterNeighborKey);
+			ImGui::SameLine();
 		}
+		ImGui::Separator();
+	}
+
+	ImGui::Separator();
+	if (auto iter = CurrentMarkers.find(CurSelectMarkerKey);
+		iter != std::end(CurrentMarkers))
+	{
+		auto SelectMarker = iter->second;
+		ImGui::Text("Select Marker Information");
+		ImGui::Text("Marker Index : %d ", CurSelectMarkerKey);
+		ImGui::Text("Marker Point Shared Cell"); ImGui::SameLine();
+		for (const uint32 MarkerPointSharedCell : SelectMarker->SharedCellKeys)
+		{
+			ImGui::Text("%d ", MarkerPointSharedCell);
+			ImGui::SameLine();
+		}
+		ImGui::Separator();
 	}
 	ImGui::End();
 }
@@ -106,19 +122,25 @@ void Engine::NavigationMesh::EraseCellFromRay(const Ray WorldRay)&
 		if (FMath::IsTriangleToRay(CurPlane, WorldRay, t, IntersectPoint))
 		{
 			// 셀과 연결된 마커들에게 삭제를 전파.
-			auto DeleteCell = *CurCell;
-			iter = CellContainer.erase(iter); 
-			for (const uint32 DeleteCellKey : DeleteCell.MarkerKeys)
+			auto DeleteCell = CurCell;
+			for (const uint32 DeleteMarkeyKey : DeleteCell->MarkerKeys)
 			{
-				auto iter = CurrentMarkers.find(DeleteCellKey);
-				if (iter != std::end(CurrentMarkers))
+				auto MarkerIter = CurrentMarkers.find(DeleteMarkeyKey);
+				if (MarkerIter != std::end(CurrentMarkers))
 				{
-					if (iter->second->SharedCellKeys.size() <= 1u)
+					// 셀 삭제시 해당 셀만 참조하고있던 마커라면 마커를 삭제
+					// 그게 아니라면 마커에서 셀의 인덱스만 삭제.
+					if (MarkerIter->second->SharedCellKeys.size() <= 1u)
 					{
-						CurrentMarkers.erase(iter);
+						CurrentMarkers.erase(MarkerIter);
+					}
+					else
+					{
+						MarkerIter->second->SharedCellKeys.erase(CellKey);
 					}
 				}
 			}
+			iter = CellContainer.erase(iter);
 			continue;
 		}
 		else
@@ -149,7 +171,7 @@ void Engine::NavigationMesh::MarkerMove(const uint32 MarkerKey, const Vector3 Ve
 
 			for (auto& RefPoint : RefResetPoints)
 			{
-				if (FMath::Equal(RefPoint.get(), PrevPoint))
+				if (FMath::Length( RefPoint.get() -  PrevPoint) <0.1f)
 				{
 					RefPoint.get() = NewPoint;
 				}
@@ -195,13 +217,13 @@ uint32 Engine::NavigationMesh::InsertPointFromMarkers(const Ray WorldRay)&
 				CurrentPickPoints.clear();
 				const uint32 CurrentCellKey = CellKey++;  
 				CellContainer.insert({ CurrentCellKey ,std::move(_InsertCell) });
-				CurTargetMarker->SharedCellKeys.push_back(CurrentCellKey);
+				CurTargetMarker->SharedCellKeys.insert(CurrentCellKey);
 			}
 
 			return CurSelectMarkerKey=MarkerKey;
 		}
 	}
-	return CurSelectMarkerKey=0u;
+	return 0u;
 }
 
 uint32 Engine::NavigationMesh::SelectMarkerFromRay(const Ray WorldRay)&
@@ -215,7 +237,7 @@ uint32 Engine::NavigationMesh::SelectMarkerFromRay(const Ray WorldRay)&
 			return  CurSelectMarkerKey=MarkerKey;
 		}
 	}
-	return CurSelectMarkerKey=0u;
+	return 0u;
 }
 
 uint32 Engine::NavigationMesh::SelectCellFromRay(const Ray WorldRay)&
@@ -229,7 +251,7 @@ uint32 Engine::NavigationMesh::SelectCellFromRay(const Ray WorldRay)&
 			return CurSelectCellKey = CellKey; 
 		}
 	}
-	return CurSelectCellKey = 0u;
+	return  0u;
 }
 
 uint32 Engine::NavigationMesh::InsertPoint(const Vector3 Point)&
@@ -259,7 +281,7 @@ uint32 Engine::NavigationMesh::InsertPoint(const Vector3 Point)&
 		CellContainer.insert({ CurrentCellKey ,std::move(_InsertCell) });
 		for (const auto& [ PickKey, PickPoint] : CurrentPickPoints)
 		{
-			CurrentMarkers.find(PickKey)->second->SharedCellKeys.push_back(CurrentCellKey);
+			CurrentMarkers.find(PickKey)->second->SharedCellKeys.insert(CurrentCellKey);
 		}
 		CurrentPickPoints.clear();
 	}
@@ -301,12 +323,14 @@ void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 				if (i == 2)
 					VtxBufPtr[TargetBufferIdx].Location = _Cell->PointC;
 
-				VtxBufPtr[TargetBufferIdx].Diffuse = 0x7B7D7D7D;
+				VtxBufPtr[TargetBufferIdx].Diffuse = D3DCOLOR_ARGB(255, 165, 171, 255);
 			}
 			++Idx;
 		}
 
 		VertexBuffer->Unlock();
+		Device->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD);
+		Device->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_FLAT);
 		const Matrix Identity = FMath::Identity(); 
 		Device->SetTransform(D3DTS_WORLD, &Identity); 
 		Device->SetStreamSource(0, VertexBuffer, 0u, sizeof(Vertex::LocationColor));

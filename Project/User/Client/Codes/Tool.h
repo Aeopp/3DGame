@@ -24,7 +24,7 @@ private:
 	// 네비게이션 메쉬의 피킹시 편의를 위함.
 	std::vector<PlaneInfo> PickingPlanes{};
 	Engine::NavigationMesh* _NaviMesh{ nullptr };
-	uint32 NavigationMeshModeSelect{ 0u };
+	int32 NavigationMeshModeSelect{ 0u };
 	const uint32 MaxNavigationMeshMode{ 3u };
 };
 

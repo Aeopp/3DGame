@@ -51,7 +51,7 @@ void Engine::GraphicDevice::Initialize(
 void Engine::GraphicDevice::Begin() & noexcept
 {
 	_Device->Clear(0, nullptr, D3DCLEAR_STENCIL | D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-		0xff0000ff, 1.f, 0);
+		0xff000000, 1.f, 0);
 
 	_Device->BeginScene();
 

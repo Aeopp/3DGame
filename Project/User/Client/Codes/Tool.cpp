@@ -123,46 +123,37 @@ void Tool::NaviMeshTool()&
 
 	ImGui::Begin("Navigation Mesh");
 	{
-		if (ImGui::Button("Save"))
+		if (ImGui::Button("Save")) 
 		{
 			std::filesystem::path OpenPath = Engine::FileHelper::OpenDialogBox();
 			NaviMesh.Save(OpenPath);
-		}
+		}ImGui::SameLine(); 
 		if (ImGui::Button("Load"))
 		{
 			std::filesystem::path OpenPath = Engine::FileHelper::OpenDialogBox();
 			NaviMesh.Load(OpenPath);
-		}
-		if (ImGui::Button("LinkNeighborCells"))
+		}ImGui::Separator();
+		if (ImGui::Button("Connecting Neighbors of Cells"))
 		{
 			NaviMesh.CellNeighborLink();
-		}
+		}ImGui::Separator();
 		if (NaviMeshCurrentSelectMarkeyKey != 0u)
 		{
+			static float PrevValue = 0.0f;
 			float MarkerMoveForceYAxis = 0.0f;
-			ImGui::SliderFloat("Point Move Y Axis", &MarkerMoveForceYAxis, -0.1f, +0.1f);
+			ImVec2 Size{ 40,50 };
+			const char* Format = "None";
+			ImGui::VSliderFloat("Point Move Y Axis", Size, &MarkerMoveForceYAxis, -0.1f, +0.1f,
+				PrevValue == 0.0f ? "None" : PrevValue > 0.0f ? "Up" : "Down");
+			PrevValue = MarkerMoveForceYAxis;
 			NaviMesh.MarkerMove(NaviMeshCurrentSelectMarkeyKey, Vector3{ 0.f,MarkerMoveForceYAxis ,0.f });
 		}
 
 		NaviMesh.DebugLog();
-
-		ImGui::SliderInt("ModeSlider", reinterpret_cast<int32*>(&NavigationMeshModeSelect),
-			0, MaxNavigationMeshMode);
-
-		switch (NavigationMeshModeSelect)
-		{
-		case 0u:
-			ImGui::Text("Picking");
-			break;
-		case 1u:
-			ImGui::Text("Eraser");
-			break;
-		case 2u:
-			ImGui::Text("Modified");
-			break;
-		default:
-			break;
-		}
+		ImGui::Text("Option ?");
+		ImGui::RadioButton("Picking", &NavigationMeshModeSelect, 0); ImGui::SameLine(); 
+		ImGui::RadioButton("Deletion", &NavigationMeshModeSelect, 1); ImGui::SameLine();
+		ImGui::RadioButton("Observer", &NavigationMeshModeSelect, 2); 
 	}
 	ImGui::End();
 
@@ -201,10 +192,7 @@ void Tool::NaviMeshTool()&
 		else if (NavigationMeshModeSelect == 2u)
 		{
 			NaviMeshCurrentSelectMarkeyKey=NaviMesh.SelectMarkerFromRay(_Ray);
-			if (NaviMeshCurrentSelectMarkeyKey == 0u)
-			{
-				NaviMeshCurrentSelectCellKey = NaviMesh.SelectCellFromRay(_Ray);
-			}
+			NaviMeshCurrentSelectCellKey = NaviMesh.SelectCellFromRay(_Ray);
 		}
 	}
 };

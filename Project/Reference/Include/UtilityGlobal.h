@@ -10,6 +10,7 @@ namespace Engine
 	{
 		extern DLL_DECL bool bDebugMode;
 		extern DLL_DECL std::filesystem::path ResourcePath;
+		extern DLL_DECL std::filesystem::path ResourcePathA;
 		extern DLL_DECL Assimp::Importer AssimpImporter;
 	}
 }

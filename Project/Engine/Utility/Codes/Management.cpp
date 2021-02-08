@@ -1,4 +1,4 @@
-#include "Management.h"
+Ôªø#include "Management.h"
 #include "Timer.h"
 #include "NavigationMesh.h"
 
@@ -16,11 +16,69 @@
 #include "imgui.h"
 #include "Vertexs.hpp"
 #include "CollisionSystem.h"
+#include "UtilityGlobal.h"
 
 bool DebugMode{ false };
 
 void ImGuiInitialize(const HWND Hwnd, IDirect3DDevice9* const Device);
 void ImGuiFrameStart();
+
+static inline void  SetupImGuiStyle()
+{
+	ImGuiStyle* style = &ImGui::GetStyle();
+
+	style->WindowPadding = ImVec2(15, 15);
+	style->WindowRounding = 5.0f;
+	style->FramePadding = ImVec2(5, 5);
+	style->FrameRounding = 4.0f;
+	style->ItemSpacing = ImVec2(12, 8);
+	style->ItemInnerSpacing = ImVec2(8, 6);
+	style->IndentSpacing = 25.0f;
+	style->ScrollbarSize = 15.0f;
+	style->ScrollbarRounding = 9.0f;
+	style->GrabMinSize = 5.0f;
+	style->GrabRounding = 3.0f;
+	
+	style->Colors[ImGuiCol_Text] = ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
+	style->Colors[ImGuiCol_TextDisabled] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
+	style->Colors[ImGuiCol_WindowBg] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+	style->Colors[ImGuiCol_::ImGuiCol_ChildBg] = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
+	style->Colors[ImGuiCol_PopupBg] = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
+	style->Colors[ImGuiCol_Border] = ImVec4(0.80f, 0.80f, 0.83f, 0.88f);
+	style->Colors[ImGuiCol_BorderShadow] = ImVec4(0.92f, 0.91f, 0.88f, 0.00f);
+	style->Colors[ImGuiCol_FrameBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+	style->Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
+	style->Colors[ImGuiCol_FrameBgActive] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+	style->Colors[ImGuiCol_TitleBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+	style->Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.00f, 0.98f, 0.95f, 0.75f);
+	style->Colors[ImGuiCol_TitleBgActive] = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
+	style->Colors[ImGuiCol_MenuBarBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+	style->Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+	style->Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
+	style->Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+	style->Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+	style->Colors[ImGuiCol_CheckMark] = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
+	style->Colors[ImGuiCol_SliderGrab] = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
+	style->Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+	style->Colors[ImGuiCol_Button] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+	style->Colors[ImGuiCol_ButtonHovered] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
+	style->Colors[ImGuiCol_ButtonActive] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+	style->Colors[ImGuiCol_Header] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+	style->Colors[ImGuiCol_HeaderHovered] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+	style->Colors[ImGuiCol_HeaderActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+	style->Colors[ImGuiCol_ResizeGrip] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+	style->Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+	style->Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+	style->Colors[ImGuiCol_PlotLines] = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
+	style->Colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
+	style->Colors[ImGuiCol_PlotHistogram] = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
+	style->Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
+	style->Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.25f, 1.00f, 0.00f, 0.43f);
+	style->Colors[ImGuiCol_::ImGuiCol_ModalWindowDimBg] = ImVec4(1.00f, 0.98f, 0.95f, 0.73f);
+	
+
+}
+
 
 void Engine::Management::Initialize(
 	const HWND _Hwnd,
@@ -121,10 +179,10 @@ void Engine::Management::Render()&
 	_GraphicDevice->Begin();
 	_Renderer->Render();
 	_NaviMesh->Render(Device);
-	// ∆˘∆Æ µÂ∑ŒøÏƒ›
+	// Ìè∞Ìä∏ ÎìúÎ°úÏö∞ÏΩú
 	{
-		_FontManager->RenderFont(L"Font_Jinji", L"¡¯¡ˆ«‘", { 400,300 }, D3DXCOLOR{ 0.5f,1.f,0.5f,0.1f });
-		_FontManager->RenderFont(L"Font_Default", L"±‚∫ª", { 600,200 }, D3DXCOLOR{ 0.5f,0.f,0.5f,1.f });
+	/*	_FontManager->RenderFont(L"Font_Jinji", L"ÏßÑÏßÄÌï®", { 400,300 }, D3DXCOLOR{ 0.5f,1.f,0.5f,0.1f });
+		_FontManager->RenderFont(L"Font_Default", L"Í∏∞Î≥∏", { 600,200 }, D3DXCOLOR{ 0.5f,0.f,0.5f,1.f });*/
 	}
 
 	ImGui::EndFrame();
@@ -150,7 +208,14 @@ void ImGuiInitialize(const HWND Hwnd, IDirect3DDevice9* const Device)
 	ImGui::CreateContext();
 	ImGuiIO& ImGuiIoRef = ImGui::GetIO();
 	ImGuiIoRef.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+	ImGuiIoRef .Fonts->AddFontFromFileTTF("..\\..\\..\\Resource\\Font\\Ruda\\static\\Ruda-Bold.ttf", 12);
+	ImGuiIoRef .Fonts->AddFontFromFileTTF(("..\\..\\..\\Resource\\Font\\Ruda\\static\\Ruda-Bold.ttf"), 10);
+	ImGuiIoRef .Fonts->AddFontFromFileTTF(("..\\..\\..\\Resource\\Font\\Ruda\\static\\Ruda-Bold.ttf"), 14);
+	ImGuiIoRef .Fonts->AddFontFromFileTTF(("..\\..\\..\\Resource\\Font\\Ruda\\static\\Ruda-Bold.ttf"), 18);
+
 	ImGui::StyleColorsDark();
+	SetupImGuiStyle();
 	ImGui_ImplWin32_Init(Hwnd);
 	ImGui_ImplDX9_Init(Device);
 }
@@ -165,7 +230,7 @@ void ImGuiFrameStart()
 
 void Engine::Management::CreateStaticResource()&
 {
-	// ≈•∫ÍøÎ ¿Œµ¶Ω∫ πˆ∆€ ∑Œµ˘.
+	// ÌÅêÎ∏åÏö© Ïù∏Îç±Ïä§ Î≤ÑÌçº Î°úÎî©.
 	auto Device = _GraphicDevice->GetDevice();
 
 	IDirect3DIndexBuffer9* CubeIdxBuffer{ nullptr };
@@ -314,9 +379,9 @@ void Engine::Management::CreateStaticResource()&
 
 	
 	{
-		// ∆˘∆Æ ∑Œµ˘
-		_FontManager->AddFont(Device.get(), L"Font_Default", L"πŸ≈¡", 15, 20, FW_HEAVY);
-		_FontManager->AddFont(Device.get(), L"Font_Jinji", L"±√º≠", 15, 20, FW_THIN);
+		// Ìè∞Ìä∏ Î°úÎî©
+		_FontManager->AddFont(Device.get(), L"Font_Default", L"Î∞îÌÉï", 15, 20, FW_HEAVY);
+		_FontManager->AddFont(Device.get(), L"Font_Jinji", L"Í∂ÅÏÑú", 15, 20, FW_THIN);
 	}
 }
 void Engine::Management::CreateCollisionDebugResource()&
