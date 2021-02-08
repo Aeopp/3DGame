@@ -18,6 +18,7 @@ void Engine::Cell::Initialize(
 	this->PointA = PointA;
 	this->PointB = PointB;
 	this->PointC = PointC;
+	_Plane = PlaneInfo::Make({ PointA, PointB, PointC });
 	const Vector2 PointA_XZ{ PointA.x,PointA.z}; 
 	const Vector2 PointB_XZ{ PointB.x,PointB.z };
 	const Vector2 PointC_XZ{ PointC.x,PointC.z };
@@ -157,6 +158,17 @@ Engine::Cell::Compare(const Vector3& EndPosition) const&
 	}
 
 	return { Engine::Cell::CompareType::Moving,this};
+}
+
+void Engine::Cell::ReCalculateSegment2D()&
+{
+	const Vector2 PointA_XZ{ PointA.x,PointA.z };
+	const Vector2 PointB_XZ{ PointB.x,PointB.z };
+	const Vector2 PointC_XZ{ PointC.x,PointC.z };
+	Segment2DAB = Segment2DAndNormal::Make(PointA_XZ, PointB_XZ);
+	Segment2DBC = Segment2DAndNormal::Make(PointB_XZ, PointC_XZ);
+	Segment2DCA = Segment2DAndNormal::Make(PointC_XZ, PointA_XZ);
+	_Plane = PlaneInfo::Make({ PointA, PointB, PointC } );
 }
 
 

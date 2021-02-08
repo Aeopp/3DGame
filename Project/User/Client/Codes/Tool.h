@@ -17,6 +17,10 @@ public:
 	virtual void Event()& override;
 	virtual void Update(const float DeltaTime) & override;
 private:
+	void NaviMeshTool()&;
+private:
+	uint32 NaviMeshCurrentSelectMarkeyKey{ 0u };
+	uint32 NaviMeshCurrentSelectCellKey{ 0u };
 	// 네비게이션 메쉬의 피킹시 편의를 위함.
 	std::vector<PlaneInfo> PickingPlanes{};
 	Engine::NavigationMesh* _NaviMesh{ nullptr };

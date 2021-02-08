@@ -16,7 +16,7 @@ private:
 public : 
 	static const inline  std::filesystem::path ResourcePath{ L"..\\..\\..\\Resource\\" };
 	template<typename Type>
-	static constexpr inline std::pair<Type,Type> ClientSize{ 1920,1080};
+	static constexpr inline std::pair<Type,Type> ClientSize{ 1280,720};
 	static inline HWND Hwnd;
 	static inline HINSTANCE HInstance;
 	static inline IDirect3DDevice9* Device{ nullptr };

@@ -74,7 +74,7 @@ void Tool::Initialize(IDirect3DDevice9* const Device)&
 
 	{
 		auto TargetMap = RefManager().NewObject<StaticLayer, TombStone>(L"Static", L"TombStone_1",
-			Vector3{ 100,100,100 }, Vector3{ 0,0,0 }, Vector3{ 0,0,0 });
+			Vector3{ 100,100,100 }, Vector3{ FMath::ToRadian(90.f),0,0 }, Vector3{ 0,0,0 });
 
 		// 네비게이션 메쉬를 설치할 지형을 월드 좌표계로 변환한 이후 피킹할 준비를 합니다.
 		// TODO :: 때문에 네비메쉬를 저장할때에 네비메쉬의 정점 좌표들을
@@ -108,83 +108,105 @@ void Tool::Event() &
 
 	if (Engine::Global::bDebugMode)
 	{
-		auto& NaviMesh = RefNaviMesh();
+		NaviMeshTool();
 
-		ImGui::Begin("Navigation Mesh");
-		{
-			if (ImGui::Button("Save"))
-			{
-				std::filesystem::path OpenPath = Engine::FileHelper::OpenDialogBox();
-				NaviMesh.Save(OpenPath);
-			}
-			if (ImGui::Button("Load"))
-			{
-				std::filesystem::path OpenPath = Engine::FileHelper::OpenDialogBox();
-				NaviMesh.Load(OpenPath);
-			}
-			if (ImGui::Button("LinkNeighborCells"))
-			{
-				NaviMesh.CellNeighborLink();
-			}
-			NaviMesh.DebugLog();
-
-			ImGui::SliderInt("ModeSlider", reinterpret_cast<int32*>(&NavigationMeshModeSelect),
-				0, MaxNavigationMeshMode);
-
-			switch (NavigationMeshModeSelect)
-			{
-			case 0u:
-				ImGui::Text("Picking");
-				break;
-			case 1u:
-				ImGui::Text("Eraser");
-				break;
-			case 2u:
-				ImGui::Text("Preparing");
-				break;
-			default:
-				break;
-			}
-		}
-		ImGui::End();
-
-		POINT Pt;
-		GetCursorPos(&Pt);
-		ScreenToClient(App::Hwnd, &Pt);
-		Vector3 Dir = {(float)Pt.x,(float)Pt.y,1.f};
-		const Ray _Ray =
-			FMath::GetRayScreenProjection
-			(Dir, App::Device, App::ClientSize<float>.first, App::ClientSize<float>.second);
-
-		auto& Control  = RefControl();
-		
-		if (Control.IsDown(DIK_RIGHTCLICK))
-		{
-			if (NavigationMeshModeSelect == 0u)
-			{
-				if (false == NaviMesh.InsertPointFromMarkers(_Ray))
-				{
-					for (auto& CurTargetPlane : PickingPlanes)
-					{
-						float t = 0.0f;
-						Vector3 IntersectPt;
-						if (FMath::IsTriangleToRay(CurTargetPlane, _Ray, t, IntersectPt))
-						{
-							NaviMesh.InsertPoint(IntersectPt);
-						}
-					}
-				}
-			}
-			if (NavigationMeshModeSelect == 1u)
-			{
-				NaviMesh.EraseCellFromRay(_Ray);
-			}
-		}
 	}
 }
 void Tool::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
+}
+
+void Tool::NaviMeshTool()&
+{
+	auto& NaviMesh = RefNaviMesh();
+
+	ImGui::Begin("Navigation Mesh");
+	{
+		if (ImGui::Button("Save"))
+		{
+			std::filesystem::path OpenPath = Engine::FileHelper::OpenDialogBox();
+			NaviMesh.Save(OpenPath);
+		}
+		if (ImGui::Button("Load"))
+		{
+			std::filesystem::path OpenPath = Engine::FileHelper::OpenDialogBox();
+			NaviMesh.Load(OpenPath);
+		}
+		if (ImGui::Button("LinkNeighborCells"))
+		{
+			NaviMesh.CellNeighborLink();
+		}
+		if (NaviMeshCurrentSelectMarkeyKey != 0u)
+		{
+			float MarkerMoveForceYAxis = 0.0f;
+			ImGui::SliderFloat("Point Move Y Axis", &MarkerMoveForceYAxis, -0.1f, +0.1f);
+			NaviMesh.MarkerMove(NaviMeshCurrentSelectMarkeyKey, Vector3{ 0.f,MarkerMoveForceYAxis ,0.f });
+		}
+
+		NaviMesh.DebugLog();
+
+		ImGui::SliderInt("ModeSlider", reinterpret_cast<int32*>(&NavigationMeshModeSelect),
+			0, MaxNavigationMeshMode);
+
+		switch (NavigationMeshModeSelect)
+		{
+		case 0u:
+			ImGui::Text("Picking");
+			break;
+		case 1u:
+			ImGui::Text("Eraser");
+			break;
+		case 2u:
+			ImGui::Text("Modified");
+			break;
+		default:
+			break;
+		}
+	}
+	ImGui::End();
+
+	POINT Pt;
+	GetCursorPos(&Pt);
+	ScreenToClient(App::Hwnd, &Pt);
+	Vector3 Dir = { (float)Pt.x,(float)Pt.y,1.f };
+	const Ray _Ray =
+		FMath::GetRayScreenProjection
+		(Dir, App::Device, App::ClientSize<float>.first, App::ClientSize<float>.second);
+
+	auto& Control = RefControl();
+
+	if (Control.IsDown(DIK_RIGHTCLICK))
+	{
+		if (NavigationMeshModeSelect == 0u)
+		{
+			NaviMeshCurrentSelectMarkeyKey = NaviMesh.InsertPointFromMarkers(_Ray);
+			if (NaviMeshCurrentSelectMarkeyKey == 0u)
+			{
+				for (auto& CurTargetPlane : PickingPlanes)
+				{
+					float t = 0.0f;
+					Vector3 IntersectPt;
+					if (FMath::IsTriangleToRay(CurTargetPlane, _Ray, t, IntersectPt))
+					{
+						NaviMeshCurrentSelectMarkeyKey = NaviMesh.InsertPoint(IntersectPt);
+					}
+				}
+			}
+		}
+		else if (NavigationMeshModeSelect == 1u)
+		{
+			NaviMesh.EraseCellFromRay(_Ray);
+		}
+		else if (NavigationMeshModeSelect == 2u)
+		{
+			NaviMeshCurrentSelectMarkeyKey=NaviMesh.SelectMarkerFromRay(_Ray);
+			if (NaviMeshCurrentSelectMarkeyKey == 0u)
+			{
+				NaviMeshCurrentSelectCellKey = NaviMesh.SelectCellFromRay(_Ray);
+			}
+		}
+	}
 };
 
 

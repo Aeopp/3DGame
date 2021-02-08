@@ -50,6 +50,49 @@ void Engine::NavigationMesh::Load(const std::filesystem::path SavePath)&
 
 }
 
+void Engine::NavigationMesh::DebugLog()&
+{
+	ImGui::Begin("NavigationMesh Information");
+	if (auto iter = CellContainer.find(CurSelectCellKey);
+		iter != std::end( CellContainer ))
+	{
+		ImGui::Text("Select Cell Information"); 
+		ImGui::Text("Cell Index : %d ", CurSelectCellKey);
+		ImGui::Text("Marker Index...");
+		auto SelectCell = iter->second;
+		for (const uint32 MarkeyKey : SelectCell->MarkerKeys)
+		{
+			ImGui::Text(" %d ", MarkeyKey);
+			ImGui::SameLine();
+
+			if (auto MarkeyIter = CurrentMarkers.find(MarkeyKey);
+				MarkeyIter != std::end(CurrentMarkers))
+			{
+				ImGui::Text("Neighbor Keys.....");
+				for (const uint32 NeighborKey : MarkeyIter->second->SharedCellKeys)
+				{
+					ImGui::Text(" %d ", NeighborKey);
+					ImGui::SameLine();
+				}
+			}
+		}
+
+		ImGui::Text("Select Marker Information");
+		if (auto iter = CurrentMarkers.find(MarkerKey);
+			iter != std::end(CurrentMarkers))
+		{
+			auto SelectMarker=  iter->second;
+			ImGui::Text("Marker Point Shared Cell"); 
+			for (const uint32 MarkerPointSharedCell : SelectMarker->SharedCellKeys)
+			{
+				ImGui::Text(" %d ",MarkerPointSharedCell);
+				ImGui::SameLine();
+			}
+		}
+	}
+	ImGui::End();
+}
+
 void Engine::NavigationMesh::EraseCellFromRay(const Ray WorldRay)&
 {
 	for (auto iter = std::begin(CellContainer); 
@@ -67,7 +110,14 @@ void Engine::NavigationMesh::EraseCellFromRay(const Ray WorldRay)&
 			iter = CellContainer.erase(iter); 
 			for (const uint32 DeleteCellKey : DeleteCell.MarkerKeys)
 			{
-				CurrentMarkers.erase(DeleteCellKey);
+				auto iter = CurrentMarkers.find(DeleteCellKey);
+				if (iter != std::end(CurrentMarkers))
+				{
+					if (iter->second->SharedCellKeys.size() <= 1u)
+					{
+						CurrentMarkers.erase(iter);
+					}
+				}
 			}
 			continue;
 		}
@@ -78,7 +128,39 @@ void Engine::NavigationMesh::EraseCellFromRay(const Ray WorldRay)&
 	}
 }
 
-bool Engine::NavigationMesh::InsertPointFromMarkers(const Ray WorldRay)&
+void Engine::NavigationMesh::MarkerMove(const uint32 MarkerKey, const Vector3 Vec)&
+{
+	if (MarkerKey == 0u)return;
+	auto iter = CurrentMarkers.find(MarkerKey);
+	if (iter == std::end(CurrentMarkers))return;
+
+	auto TargetMarker  = iter->second;
+	const Vector3 PrevPoint = TargetMarker->_Sphere.Center;
+	const Vector3 NewPoint = TargetMarker->_Sphere.Center  += Vec;
+
+	for (const uint32 CellKey : TargetMarker->SharedCellKeys)
+	{
+		auto Celliter = CellContainer.find(CellKey);
+		if (Celliter != std::end(CellContainer))
+		{
+			auto   ResetPointCell  = Celliter->second;
+			std::array <std::reference_wrapper<Vector3>, 3u>
+				RefResetPoints{ ResetPointCell->PointA  ,  ResetPointCell->PointB ,ResetPointCell->PointC };
+
+			for (auto& RefPoint : RefResetPoints)
+			{
+				if (FMath::Equal(RefPoint.get(), PrevPoint))
+				{
+					RefPoint.get() = NewPoint;
+				}
+			}
+
+			ResetPointCell->ReCalculateSegment2D();
+		}
+	}
+}
+
+uint32 Engine::NavigationMesh::InsertPointFromMarkers(const Ray WorldRay)&
 {
 	for (auto& [MarkerKey, CurTargetMarker] : CurrentMarkers)
 	{
@@ -86,6 +168,15 @@ bool Engine::NavigationMesh::InsertPointFromMarkers(const Ray WorldRay)&
 		const Sphere TargetSphere = CurTargetMarker->_Sphere;
 		if (FMath::IsRayToSphere(WorldRay, TargetSphere, t0, t1, IntersectPt))
 		{
+			// 마커에 점을 피킹하고 삼각형을 이어야 하나 동일한 마커에 다시 피킹한 상황.
+			for(const auto& PickPoint : CurrentPickPoints) 
+			{
+				if (PickPoint.first==MarkerKey)
+				{
+					return CurSelectMarkerKey=MarkerKey;
+				}
+			}
+
 			CurrentPickPoints.push_back({ MarkerKey,TargetSphere.Center });
 
 			if (CurrentPickPoints.size() >= 3u)
@@ -107,15 +198,43 @@ bool Engine::NavigationMesh::InsertPointFromMarkers(const Ray WorldRay)&
 				CurTargetMarker->SharedCellKeys.push_back(CurrentCellKey);
 			}
 
-			return true; 
+			return CurSelectMarkerKey=MarkerKey;
 		}
 	}
-	return false;
+	return CurSelectMarkerKey=0u;
 }
 
-void Engine::NavigationMesh::InsertPoint(const Vector3 Point)&
+uint32 Engine::NavigationMesh::SelectMarkerFromRay(const Ray WorldRay)&
 {
-	auto _Marker = std::make_shared< Marker>();
+	for (auto& [MarkerKey, CurTargetMarker] : CurrentMarkers)
+	{
+		float t0, t1; Vector3 IntersectPt;
+		const Sphere TargetSphere = CurTargetMarker->_Sphere;
+		if (FMath::IsRayToSphere(WorldRay, TargetSphere, t0, t1, IntersectPt))
+		{
+			return  CurSelectMarkerKey=MarkerKey;
+		}
+	}
+	return CurSelectMarkerKey=0u;
+}
+
+uint32 Engine::NavigationMesh::SelectCellFromRay(const Ray WorldRay)&
+{
+	for (const auto& [CellKey,_Cell] : CellContainer)
+	{
+		float t;
+		Vector3 IntersectPoint; 
+		if (FMath::IsTriangleToRay(_Cell->_Plane, WorldRay, t, IntersectPoint))
+		{
+			return CurSelectCellKey = CellKey; 
+		}
+	}
+	return CurSelectCellKey = 0u;
+}
+
+uint32 Engine::NavigationMesh::InsertPoint(const Vector3 Point)&
+{
+	auto _Marker = std::make_shared<Marker>();
 	_Marker->_Sphere.Radius = 1.f;
 	_Marker->_Sphere.Center = Point;
 	const uint32 CurrentMarkeyKey = MarkerKey++;
@@ -144,6 +263,8 @@ void Engine::NavigationMesh::InsertPoint(const Vector3 Point)&
 		}
 		CurrentPickPoints.clear();
 	}
+
+	return CurrentMarkeyKey;
 }
 
 void Engine::NavigationMesh::Initialize(IDirect3DDevice9* Device)&
@@ -209,6 +330,8 @@ void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 	}
 }
+
+
 
 std::optional<std::pair<Vector3, const Engine::Cell*>> 
 	Engine::NavigationMesh::MoveOnNavigation(

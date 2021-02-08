@@ -20,6 +20,7 @@ namespace Engine
 	public:
 		enum class CompareType :uint8  {Moving,Stop,End};
 	public:
+		
 		void Initialize(
 			class NavigationMesh* const NaviMesh,
 			const Vector3& PointA,
@@ -33,6 +34,7 @@ namespace Engine
 		// 상태와 새로운 인덱스를 반환. 이동할수 없는 상태일경우 인덱스는 유효하지 않음.
 		std::pair<Engine::Cell::CompareType,const Engine::Cell*> 
 			Compare(const Vector3& EndPosition)const&;
+		void ReCalculateSegment2D()&;
 	public:
 		/*
 		A->B 
@@ -44,6 +46,7 @@ namespace Engine
 		Vector3 PointC{ 0,0,0 };
 		// Neighbor.
 		std::vector<Cell*> Neighbors;
+		PlaneInfo _Plane;
 		Segment2DAndNormal Segment2DAB{};
 		Segment2DAndNormal Segment2DBC{};
 		Segment2DAndNormal Segment2DCA{};
