@@ -4,16 +4,25 @@
 #include "SingletonInterface.h"
 #include <vector> 
 #include <filesystem>
+#include <list>
 #include <memory>
 #include <optional>
 #include <tuple>
 #include "MathStruct.h"
+#include "Cell.h"
 
 namespace Engine
 {
+	struct DLL_DECL Marker
+	{
+		Sphere _Sphere{};
+		std::list<Cell*> SharedCells{}; 
+	};
+
 	class DLL_DECL NavigationMesh    : public SingletonInterface<NavigationMesh>
 	{
 	public:
+		void CellNeighborLink()&;
 		void Save(const std::filesystem::path SavePath)const&;
 		void Load(const std::filesystem::path SavePath)&;
 		void EraseCellFromRay(const Ray WorldRay)&;
@@ -22,19 +31,20 @@ namespace Engine
 		void InsertPoint(const Vector3 Point, const bool bCreateMarker)&;
 		void Initialize(IDirect3DDevice9* Device)&;
 		void Render(IDirect3DDevice9* const Device)&; 
-		std::optional<std::pair<Vector3, uint32>>  
-			MoveOnNavigation(const Vector3 TargetLocation,
-								const Vector3 TargetDirection ,
-								const uint32 CellIndex)&;
+		std::optional<std::pair<Vector3,  const Cell*>>
+			MoveOnNavigation(
+				const Vector3 TargetDirection,
+				const Vector3 TargetLocation,
+				const Cell* CurrentPlacedCell)const&;
 		// 파일 로딩시 버텍스버퍼 정보 제대로 채우기.
 	public:
-		std::vector<Sphere>  CurrentMarkers{};
+		std::vector<std::shared_ptr<Marker>>    CurrentMarkers{};
 	private:
 		IDirect3DVertexBuffer9* VertexBuffer{ nullptr }; 
 		IDirect3DDevice9* Device{ nullptr }; 
 		std::vector<Vector3> CurrentPickPoints{};
-		std::vector<std::shared_ptr<class Cell>> CellContainer{ }; 
-		uint32 Index;
+
+		std::vector<std::shared_ptr<class Cell>> CellContainer{}; 
 	};
 };
 

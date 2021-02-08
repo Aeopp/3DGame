@@ -1,19 +1,23 @@
 #include "NavigationMesh.h"
 #include "imgui.h"
 #include "FMath.hpp"
-#include "Cell.h"
 #include "ResourceSystem.h"
 #include "UtilityGlobal.h"
 #include "Vertexs.hpp"
 #include <ostream>
 #include <fstream>
 
+void Engine::NavigationMesh::CellNeighborLink()&
+{
+
+}
+
 void Engine::NavigationMesh::Save(const std::filesystem::path SavePath) const&
 {
 	std::wofstream Os{ SavePath };
 	for (const auto& SaveCell : CellContainer)
 	{
-		Os << L"Cell [" << SaveCell->Index << "]"
+		Os << L"Cell : " 
 			<< L"Location A[" << SaveCell->PointA.x << L" " << SaveCell->PointA.y << L" " << SaveCell->PointA.z << "]"
 			<< L"  B[" << SaveCell->PointB.x << L" " << SaveCell->PointB.y << L" " << SaveCell->PointB.z << "]"
 			<< L"  C[" << SaveCell->PointC.x << L" " << SaveCell->PointC.y << L" " << SaveCell->PointC.z << "]" << std::endl;
@@ -40,16 +44,31 @@ void Engine::NavigationMesh::EraseCellFromRay(const Ray WorldRay)&
 			const Cell DeleteCell = *(*iter); 
 			iter = CellContainer.erase(iter); 
 
+			// 지운 셀의 포인트와 중심을 공유하던 마커를 탐색하며
+			// 마커의 중심이 다른 남아있는 셀과 공유중이라면 지우지 않고 그렇지 않다면 지운다.
+
 			CurrentMarkers.erase(
 				std::remove_if(std::begin(CurrentMarkers), std::end(CurrentMarkers) , 
-					[DeleteCell](const Sphere _Marker)
+					[DeleteCell,this](const Sphere _Marker)
 					{
-						return (FMath::Equal(DeleteCell.PointA, _Marker.Center)||
+						if   ( FMath::Equal(DeleteCell.PointA, _Marker.Center) ||
 								FMath::Equal(DeleteCell.PointB, _Marker.Center) ||
-								FMath::Equal(DeleteCell.PointC, _Marker.Center)
-							);
+								FMath::Equal(DeleteCell.PointC, _Marker.Center))
+						{
+							for (const auto& CheckRemainCell : CellContainer)
+							{
+								if (FMath::Equal(CheckRemainCell->PointA, _Marker.Center) ||
+									FMath::Equal(CheckRemainCell->PointA, _Marker.Center) || 
+									FMath::Equal(CheckRemainCell->PointA, _Marker.Center))
+									return false;
+							}
+
+							return true;
+						}
+						return false;
 					}),
 					std::end(CurrentMarkers) );
+
 			continue;
 		}
 		else
@@ -65,10 +84,10 @@ bool Engine::NavigationMesh::InsertPointFromMarkers(const Ray WorldRay)&
 	for (auto& CurTargetMarker : CurrentMarkers)
 	{
 		float t0, t1; Vector3 IntersectPt; 
-
-		if (FMath::IsRayToSphere(WorldRay, CurTargetMarker, t0, t1, IntersectPt))
+		const Sphere TargetSphere = CurTargetMarker->_Sphere; 
+		if (FMath::IsRayToSphere(WorldRay, TargetSphere, t0, t1, IntersectPt))
 		{
-			InsertPoint(CurTargetMarker.Center,false);
+			InsertPoint(TargetSphere.Center,false);
 			return true; 
 		}
 	}
@@ -83,21 +102,32 @@ void Engine::NavigationMesh::InsertPoint(const Vector3 Point,
 
 	if (bCreateMarker)
 	{
-		Sphere _Sphere;
-		_Sphere.Radius = 1.f;
-		_Sphere.Center = Point;
-		CurrentMarkers.push_back(_Sphere);
+		auto _Marker = CurrentMarkers.emplace_back(std::make_shared<Marker>());
+		_Marker->_Sphere.Radius = 1.f;
+		_Marker->_Sphere.Center = Point;
 	}
 
 	if (CurrentPickPoints.size() >= 3u)
 	{
 		const uint32 CellContainerIdx = CellContainer.size();
 		auto _InsertCell = std::make_shared<Cell>();
-		_InsertCell->Initialize(this,CellContainerIdx,
-								CurrentPickPoints[0],
-								CurrentPickPoints[1],
-								CurrentPickPoints[2] ,
-								Device);
+		_InsertCell->Initialize(this,
+					CurrentPickPoints[0],
+					CurrentPickPoints[1],
+					CurrentPickPoints[2],
+					Device);
+		for (auto& CurrenrMarker : CurrentMarkers)
+		{
+			const Vector3   MarkerPoint = CurrenrMarker->_Sphere.Center;
+
+			for (uint32 i = 0; i < CurrentPickPoints.size(); ++i)
+			{
+				if (FMath::Equal(MarkerPoint,CurrentPickPoints[i]))
+				{
+					CurrenrMarker->SharedCells.push_back(_InsertCell.get());
+				}
+			}
+		}
 		CellContainer.push_back(std::move(_InsertCell));
 		CurrentPickPoints.clear();
 	}
@@ -154,10 +184,10 @@ void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 		for (auto& DrawMarkerDebugSphere : CurrentMarkers)
 		{
-			const float Scale = DrawMarkerDebugSphere.Radius * 0.1f;
+			const float Scale = DrawMarkerDebugSphere->_Sphere.Radius * 0.1f;
 			const Matrix World = FMath::WorldMatrix({ Scale,Scale,Scale }, 
 													{ 0,0,0 }, 
-													{DrawMarkerDebugSphere.Center });
+													{DrawMarkerDebugSphere->_Sphere.Center });
 			Device->SetTransform(D3DTS_WORLD, &World);
 			DebugSphereMesh->DrawSubset(0);
 		}
@@ -165,24 +195,24 @@ void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 	}
 }
 
-std::optional<std::pair<Vector3,uint32>> 
-Engine::NavigationMesh::MoveOnNavigation(
-	const Vector3 TargetDirection,
-	const Vector3 TargetLocation, 
-	const uint32 CellIndex)&
+std::optional<std::pair<Vector3, const Engine::Cell*>> 
+	Engine::NavigationMesh::MoveOnNavigation(
+		const Vector3 TargetDirection, 
+		const Vector3 TargetLocation, 
+		const Cell* CurrentPlacedCell) const&
 {
 	const Vector3 EndLocation = TargetLocation + TargetDirection;
-	const auto  [_Result ,NewIndex ] = 
-		CellContainer[CellIndex]->Compare(EndLocation, CellIndex);
+	const auto [_Result, NewPlacedCell] =
+		CurrentPlacedCell->Compare(EndLocation);
 
 	switch (_Result)
 	{
 	case Engine::Cell::CompareType::Moving:
-		return { { TargetDirection,NewIndex }  };
-		break; 
+		return { { TargetDirection,NewPlacedCell } };
+		break;
 	case Engine::Cell::CompareType::Stop:
 		return std::nullopt;
-		break; 
+		break;
 	default:
 		return std::nullopt;
 		break;

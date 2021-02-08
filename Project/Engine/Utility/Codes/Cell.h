@@ -20,17 +20,16 @@ namespace Engine
 	public:
 		void Initialize(
 			class NavigationMesh* const NaviMesh,
-			const uint32 Index,
 			const Vector3& PointA,
 			const Vector3& PointB,
 			const Vector3& PointC ,
 			IDirect3DDevice9* const Device)&;
 		bool FindNeighbor(const Vector3& PointFirst,const Vector3& PointSecond,
-			Cell* _Cell)&;
+			Engine::Cell* _Cell)&;
 		void Render(IDirect3DDevice9* Device)&;
 		// 상태와 새로운 인덱스를 반환. 이동할수 없는 상태일경우 인덱스는 유효하지 않음.
-		std::pair<Engine::Cell::CompareType,uint32> 
-			Compare(const Vector3& EndPosition, const uint32 CellIndex)const&;
+		std::pair<Engine::Cell::CompareType,const Engine::Cell*> 
+			Compare(const Vector3& EndPosition)const&;
 	public:
 		/*
 		A->B 
@@ -49,7 +48,6 @@ namespace Engine
 		Segment2DAndNormal Segment2DCA{};
 		ID3DXMesh* DebugSphereMesh{ nullptr };
 		ID3DXLine* Line{ nullptr };
-		uint32 Index{ 0u };
 	};
 };
 

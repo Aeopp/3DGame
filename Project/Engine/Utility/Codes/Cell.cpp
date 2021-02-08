@@ -8,13 +8,11 @@
 
 void Engine::Cell::Initialize(
 	Engine::NavigationMesh* const NaviMesh,
-	const uint32 Index, 
 	const Vector3& PointA,
 	const Vector3& PointB, 
 	const Vector3& PointC,
 	IDirect3DDevice9*const Device)&
 {
-	this->Index = Index;
 	this->PointA = PointA;
 	this->PointB = PointB;
 	this->PointC = PointC;
@@ -25,10 +23,11 @@ void Engine::Cell::Initialize(
 	Segment2DBC = Segment2DAndNormal::Make(PointB_XZ, PointC_XZ);
 	Segment2DCA = Segment2DAndNormal::Make(PointC_XZ, PointA_XZ);
 
+	static uint32 LineResourceIdx = 0u; 
 	if (Engine::Global::bDebugMode)
 	{
 		D3DXCreateLine(Device, &Line);
-		ResourceSystem::Instance->Insert<ID3DXLine>(L"Line"+std::to_wstring(Index), Line);
+		ResourceSystem::Instance->Insert<ID3DXLine>(L"Line"+std::to_wstring(LineResourceIdx++), Line);
 		Line->SetWidth(2.5f);
 	}
 }
@@ -116,8 +115,8 @@ void Engine::Cell::Render(IDirect3DDevice9* Device)&
 	
 }
 
-std::pair<Engine::Cell::CompareType, uint32>
-Engine::Cell::Compare(const Vector3& EndPosition, const uint32 CellIndex) const&
+std::pair<Engine::Cell::CompareType,const Engine::Cell*>
+Engine::Cell::Compare(const Vector3& EndPosition) const&
 {
 	const Vector2 EndPosition2D = { EndPosition.x, EndPosition.z };
 
@@ -129,13 +128,13 @@ Engine::Cell::Compare(const Vector3& EndPosition, const uint32 CellIndex) const&
 	};
 
 	static auto CompareImplementation = 
-		[](const Cell* TargetNeighbor)
-				-> std::pair<Engine::Cell::CompareType, uint32>
+		[](Engine::Cell* TargetNeighbor)
+				-> std::pair<Engine::Cell::CompareType, const Engine::Cell*>
 	{
 			if (nullptr == TargetNeighbor)
 				return  { Cell::CompareType::Stop  , 0u };
 			else 
-				return  { Cell::CompareType::Moving ,TargetNeighbor->Index };
+				return  { Cell::CompareType::Moving ,TargetNeighbor };
 	};
 	// 방향과 노말 내적 해서 부호가 예각이면 바깥 라인 
 	// 둔각이면 아래 라인
@@ -155,7 +154,7 @@ Engine::Cell::Compare(const Vector3& EndPosition, const uint32 CellIndex) const&
 		}
 	}
 
-	return { Engine::Cell::CompareType::Moving,CellIndex};
+	return { Engine::Cell::CompareType::Moving,this};
 }
 
 
