@@ -1,7 +1,9 @@
 #pragma once
+#include <array>
 #include "TypeAlias.h"
 #include "MathStruct.h"
 #include "DllHelper.H"
+
 
 namespace Engine
 {
@@ -23,7 +25,8 @@ namespace Engine
 			const Vector3& PointA,
 			const Vector3& PointB,
 			const Vector3& PointC ,
-			IDirect3DDevice9* const Device)&;
+			IDirect3DDevice9* const Device,
+			const std::array<uint32, 3u>& MarkerKeys)&;
 		bool FindNeighbor(const Vector3& PointFirst,const Vector3& PointSecond,
 			Engine::Cell* _Cell)&;
 		void Render(IDirect3DDevice9* Device)&;
@@ -40,12 +43,11 @@ namespace Engine
 		Vector3 PointB{ 0,0,0 };
 		Vector3 PointC{ 0,0,0 };
 		// Neighbor.
-		Cell* NeighborAB{ nullptr };
-		Cell* NeighborBC{ nullptr };
-		Cell* NeighborCA{ nullptr };
+		std::vector<Cell*> Neighbors;
 		Segment2DAndNormal Segment2DAB{};
 		Segment2DAndNormal Segment2DBC{};
 		Segment2DAndNormal Segment2DCA{};
+		std::array<uint32, 3u> MarkerKeys{};
 		ID3DXMesh* DebugSphereMesh{ nullptr };
 		ID3DXLine* Line{ nullptr };
 	};

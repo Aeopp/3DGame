@@ -11,8 +11,10 @@ void Engine::Cell::Initialize(
 	const Vector3& PointA,
 	const Vector3& PointB, 
 	const Vector3& PointC,
-	IDirect3DDevice9*const Device)&
+	IDirect3DDevice9*const Device,
+	const std::array<uint32,3u>& MarkerKeys)&
 {
+	this->MarkerKeys = MarkerKeys; 
 	this->PointA = PointA;
 	this->PointB = PointB;
 	this->PointC = PointC;
@@ -35,50 +37,50 @@ void Engine::Cell::Initialize(
 bool Engine::Cell::FindNeighbor(
 	const Vector3& PointFirst, const Vector3& PointSecond, Cell* _Cell)&
 {
-	if (FMath::Equal(PointFirst, PointA))
-	{
-		if (FMath::Equal(PointSecond, PointB))
-		{
-			NeighborAB = _Cell;
-			return true;
-		}
+	//if (FMath::Equal(PointFirst, PointA))
+	//{
+	//	if (FMath::Equal(PointSecond, PointB))
+	//	{
+	//		NeighborAB = _Cell;
+	//		return true;
+	//	}
 
-		if (FMath::Equal(PointSecond, PointC))
-		{
-			NeighborCA = _Cell;
-			return true; 
-		}
-	}
+	//	if (FMath::Equal(PointSecond, PointC))
+	//	{
+	//		NeighborCA = _Cell;
+	//		return true; 
+	//	}
+	//}
 
-	if (FMath::Equal(PointFirst, PointB))
-	{
-		if (FMath::Equal(PointSecond, PointA))
-		{
-			NeighborAB = _Cell;
-			return true;
-		}
+	//if (FMath::Equal(PointFirst, PointB))
+	//{
+	//	if (FMath::Equal(PointSecond, PointA))
+	//	{
+	//		NeighborAB = _Cell;
+	//		return true;
+	//	}
 
-		if (FMath::Equal(PointSecond, PointC))
-		{
-			NeighborBC= _Cell;
-			return true;
-		}
-	}
+	//	if (FMath::Equal(PointSecond, PointC))
+	//	{
+	//		NeighborBC= _Cell;
+	//		return true;
+	//	}
+	//}
 
-	if (FMath::Equal(PointFirst, PointC))
-	{
-		if (FMath::Equal(PointSecond, PointB))
-		{
-			NeighborBC = _Cell;
-			return true;
-		}
+	//if (FMath::Equal(PointFirst, PointC))
+	//{
+	//	if (FMath::Equal(PointSecond, PointB))
+	//	{
+	//		NeighborBC = _Cell;
+	//		return true;
+	//	}
 
-		if (FMath::Equal(PointSecond, PointA))
-		{
-			NeighborCA = _Cell;
-			return true;
-		}
-	}
+	//	if (FMath::Equal(PointSecond, PointA))
+	//	{
+	//		NeighborCA = _Cell;
+	//		return true;
+	//	}
+	//}
 
 	return false;
 }
@@ -140,7 +142,7 @@ Engine::Cell::Compare(const Vector3& EndPosition) const&
 	// 둔각이면 아래 라인
 	for (uint32 i = 0; i < 4; ++i)
 	{
-		if (IsOutLine(Segment2DAB))
+		/*if (IsOutLine(Segment2DAB))
 		{
 			return CompareImplementation(NeighborAB);
 		}
@@ -151,7 +153,7 @@ Engine::Cell::Compare(const Vector3& EndPosition) const&
 		else if (IsOutLine(Segment2DCA))
 		{
 			return CompareImplementation(NeighborCA);
-		}
+		}*/
 	}
 
 	return { Engine::Cell::CompareType::Moving,this};

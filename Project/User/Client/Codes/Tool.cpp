@@ -109,34 +109,44 @@ void Tool::Event() &
 	if (Engine::Global::bDebugMode)
 	{
 		auto& NaviMesh = RefNaviMesh();
-		if (ImGui::Button("Save"))
-		{
-			std::filesystem::path OpenPath = Engine::FileHelper::OpenDialogBox();
-			NaviMesh.Save(OpenPath);
-		}
-		if (ImGui::Button("Load"))
-		{
-			std::filesystem::path OpenPath = Engine::FileHelper::OpenDialogBox();
-			NaviMesh.Load(OpenPath);
-		}
 
-		ImGui::SliderInt("ModeSlider", reinterpret_cast<int32*>(&NavigationMeshModeSelect),
-			0, MaxNavigationMeshMode);
-
-		switch (NavigationMeshModeSelect)
+		ImGui::Begin("Navigation Mesh");
 		{
-		case 0u:
-			ImGui::Text("Picking");
-			break;
-		case 1u:
-			ImGui::Text("Eraser");
-			break;
-		case 2u:
-			ImGui::Text("Preparing");
-			break;
-		default:
-			break;
+			if (ImGui::Button("Save"))
+			{
+				std::filesystem::path OpenPath = Engine::FileHelper::OpenDialogBox();
+				NaviMesh.Save(OpenPath);
+			}
+			if (ImGui::Button("Load"))
+			{
+				std::filesystem::path OpenPath = Engine::FileHelper::OpenDialogBox();
+				NaviMesh.Load(OpenPath);
+			}
+			if (ImGui::Button("LinkNeighborCells"))
+			{
+				NaviMesh.CellNeighborLink();
+			}
+			NaviMesh.DebugLog();
+
+			ImGui::SliderInt("ModeSlider", reinterpret_cast<int32*>(&NavigationMeshModeSelect),
+				0, MaxNavigationMeshMode);
+
+			switch (NavigationMeshModeSelect)
+			{
+			case 0u:
+				ImGui::Text("Picking");
+				break;
+			case 1u:
+				ImGui::Text("Eraser");
+				break;
+			case 2u:
+				ImGui::Text("Preparing");
+				break;
+			default:
+				break;
+			}
 		}
+		ImGui::End();
 
 		POINT Pt;
 		GetCursorPos(&Pt);
@@ -160,7 +170,7 @@ void Tool::Event() &
 						Vector3 IntersectPt;
 						if (FMath::IsTriangleToRay(CurTargetPlane, _Ray, t, IntersectPt))
 						{
-							NaviMesh.InsertPoint(IntersectPt, true);
+							NaviMesh.InsertPoint(IntersectPt);
 						}
 					}
 				}

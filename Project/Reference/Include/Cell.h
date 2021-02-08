@@ -1,7 +1,9 @@
 #pragma once
+#include <array>
 #include "TypeAlias.h"
 #include "MathStruct.h"
 #include "DllHelper.H"
+
 
 namespace Engine
 {
@@ -20,17 +22,17 @@ namespace Engine
 	public:
 		void Initialize(
 			class NavigationMesh* const NaviMesh,
-			const uint32 Index,
 			const Vector3& PointA,
 			const Vector3& PointB,
 			const Vector3& PointC ,
-			IDirect3DDevice9* const Device)&;
+			IDirect3DDevice9* const Device,
+			const std::array<uint32, 3u>& MarkerKeys)&;
 		bool FindNeighbor(const Vector3& PointFirst,const Vector3& PointSecond,
-			Cell* _Cell)&;
+			Engine::Cell* _Cell)&;
 		void Render(IDirect3DDevice9* Device)&;
 		// 상태와 새로운 인덱스를 반환. 이동할수 없는 상태일경우 인덱스는 유효하지 않음.
-		std::pair<Engine::Cell::CompareType,uint32> 
-			Compare(const Vector3& EndPosition, const uint32 CellIndex)const&;
+		std::pair<Engine::Cell::CompareType,const Engine::Cell*> 
+			Compare(const Vector3& EndPosition)const&;
 	public:
 		/*
 		A->B 
@@ -41,15 +43,13 @@ namespace Engine
 		Vector3 PointB{ 0,0,0 };
 		Vector3 PointC{ 0,0,0 };
 		// Neighbor.
-		Cell* NeighborAB{ nullptr };
-		Cell* NeighborBC{ nullptr };
-		Cell* NeighborCA{ nullptr };
+		std::vector<Cell*> Neighbors;
 		Segment2DAndNormal Segment2DAB{};
 		Segment2DAndNormal Segment2DBC{};
 		Segment2DAndNormal Segment2DCA{};
+		std::array<uint32, 3u> MarkerKeys{};
 		ID3DXMesh* DebugSphereMesh{ nullptr };
 		ID3DXLine* Line{ nullptr };
-		uint32 Index{ 0u };
 	};
 };
 
