@@ -2,6 +2,10 @@
 #include "Transform.h"
 #include "Controller.h"
 #include "imgui.h"
+#include "FMath.hpp"
+#include "UtilityGlobal.h"
+
+
 
 void Engine::DynamicCamera::Initialize(
 	const float FovY,
@@ -60,6 +64,19 @@ void Engine::DynamicCamera::Update(const float DeltaTime)&
 	if (_Control->IsPressing(DIK_X))
 	{
 		_Transform->MoveUp(DeltaTime, -Speed);
+	}
+	const float ZDelta = _Control->GetMouseMove(Engine::MouseMove::Z); 
+	if (false==FMath::AlmostEqual(ZDelta, 0.0f))
+	{
+		POINT Pt;
+		GetCursorPos(&Pt);
+		ScreenToClient(Engine::Global::Hwnd, &Pt);
+		Vector3 Dir = { (float)Pt.x,(float)Pt.y,1.f };
+		const Ray _Ray =
+			FMath::GetRayScreenProjection
+			(Dir, Device, Engine::Global::ClientSize.first, Engine::Global::ClientSize.second);
+
+		FovY += (-ZDelta/1080.f);
 	}
 };
 

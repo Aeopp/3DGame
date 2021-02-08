@@ -5,6 +5,7 @@
 #include <chrono>
 #include <algorithm>
 #include "TypeAlias.h"
+#include <string>
 
 namespace Engine
 {
@@ -38,6 +39,7 @@ namespace Engine
 		void SetT(const float GetT);
 	public:
 		std::chrono::time_point<std::chrono::high_resolution_clock> PrevTime{};
+		std::wstring Information{};
 	private:
 		std::chrono::duration<float, std::ratio<1, 1000>> SecCheck{};
 		std::chrono::time_point<std::chrono::high_resolution_clock> StartTime{};
@@ -49,6 +51,7 @@ namespace Engine
 		std::function<void()> ApplicationRender;
 		std::function<void()> ApplicationLastEvent;
 	private:
+		
 		bool bTimeInfoRender = true;
 		uint32 _FPSCount{ 0 };
 		float DeltaTime{ 0.f };
@@ -58,7 +61,7 @@ namespace Engine
 		// 이벤트 시작여부 , 시작 시간 , 반복 주기 , 종료 시간 , 현재 측정 시간
 		std::list<std::tuple<bool, float, float, float, float, float, NotifyEventType>> _NotifyEvents;
 	private:
-		void RenderFPS()const& noexcept;
+		void RenderFPS()& noexcept;
 	};
 };
 

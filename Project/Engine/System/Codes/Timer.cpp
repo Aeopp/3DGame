@@ -67,7 +67,7 @@ void Engine::Timer::Update()
 
 	if (ApplicationRender)
 		ApplicationRender();
-	RenderFPS();
+	 RenderFPS();
 	if (ApplicationLastEvent)
 		ApplicationLastEvent();
 }
@@ -119,7 +119,7 @@ void Engine::Timer::NotificationCheck()&
 	}
 };
 
-void Engine::Timer::RenderFPS() const& noexcept
+void Engine::Timer::RenderFPS() & noexcept
 {
 	if (!bTimeInfoRender)return;
 
@@ -137,7 +137,9 @@ void Engine::Timer::RenderFPS() const& noexcept
 		L" InGameTime : " << _T        << std::endl  <<
 		L" PlayTime : "   << PlayTime  << std::endl  ;
 
-		std::wcout<< StrInfo.str()<< std::endl;
+		Information = StrInfo.str(); 
+
+		//std::wcout<< Information << std::endl;
 }
 
 

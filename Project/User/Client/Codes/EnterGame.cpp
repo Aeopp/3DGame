@@ -77,7 +77,7 @@ void EnterGame::Event() &
 		{
 			Manager.ChangeScene<StartScene>(); 
 		}
-		if (ImGui::Button("Tool"))
+		if (ImGui::Button("Navigation mesh"))
 		{
 			Manager.ChangeScene<Tool>();
 		}

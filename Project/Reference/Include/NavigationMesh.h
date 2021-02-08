@@ -25,8 +25,8 @@ namespace Engine
 	{
 	public:
 		void CellNeighborLink()&;
-		void Save(const std::filesystem::path SavePath)const&;
-		void Load(const std::filesystem::path SavePath)&;
+		void Save(const std::filesystem::path SavePath)&;
+		void Load(const std::filesystem::path LoadPath)&;
 		void DebugLog()&;
 		void EraseCellFromRay(const Ray WorldRay)&;
 		void MarkerMove(const uint32 MarkerKey, const Vector3 Vec)&;
@@ -49,7 +49,7 @@ namespace Engine
 	private:
 		uint32 CurSelectCellKey{ 0u };
 		uint32 CurSelectMarkerKey{ 0u };
-
+		std::string LastSaveFileBuffer{};
 		IDirect3DVertexBuffer9* VertexBuffer{ nullptr }; 
 		IDirect3DDevice9* Device{ nullptr }; 
 						/* Marker Key , Position */

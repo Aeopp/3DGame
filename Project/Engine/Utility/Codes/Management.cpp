@@ -1,6 +1,7 @@
 ﻿#include "Management.h"
 #include "Timer.h"
 #include "NavigationMesh.h"
+#include "Timer.h"
 
 #include <chrono>
 #include "Controller.h"
@@ -119,7 +120,8 @@ void Engine::Management::Initialize(
 	_NaviMesh = Engine::NavigationMesh::Init(Device);
 
 	ImGuiInitialize(Hwnd, Device);
-
+	Engine::Global::Hwnd = Hwnd;
+	Engine::Global::ClientSize = ClientSize;
 	CreateStaticResource();
 	CreateCollisionDebugResource();
 }
@@ -185,6 +187,18 @@ void Engine::Management::Render()&
 		_FontManager->RenderFont(L"Font_Default", L"기본", { 600,200 }, D3DXCOLOR{ 0.5f,0.f,0.5f,1.f });*/
 	}
 
+	if (Engine::Global::bDebugMode)
+	{
+		std::wstring TimerInfoW = _Timer->Information;
+		std::string TimerInfoA;
+		TimerInfoA.assign(std::begin(TimerInfoW), std::end(TimerInfoW));
+		if (ImGui::CollapsingHeader("FrameRate"))
+		{
+			ImGui::Text(TimerInfoA.c_str());
+		}
+	}
+	
+
 	ImGui::EndFrame();
 	ImGui::Render();
 	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
@@ -225,7 +239,6 @@ void ImGuiFrameStart()
 	ImGui_ImplDX9_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	ImGui::ShowDemoWindow();
 }
 
 void Engine::Management::CreateStaticResource()&

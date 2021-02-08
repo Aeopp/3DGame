@@ -74,7 +74,7 @@ namespace Vertex
 
 	struct LocationColor
 	{
-		Vector3 Location{ 0,0,0 };
+		Vector3 Location { 0,0,0 };
 		D3DCOLOR Diffuse = D3DCOLOR_ARGB(255,165,171,255);
 		static const DWORD FVF = D3DFVF_XYZ | D3DFVF_DIFFUSE;
 	};

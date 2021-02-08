@@ -7,76 +7,128 @@
 #include <ostream>
 #include <fstream>
 #include <set>
+#include <sstream>
 
 static uint32 MarkerKey{ 1u };
 static uint32 CellKey{ 1u };
 
 void Engine::NavigationMesh::CellNeighborLink()&
 {
-	for (auto&[CellKey,_Cell] : CellContainer)
+	for (auto& [CellKey,_Cell] : CellContainer)
 	{
 		_Cell->Neighbors.clear();
+		// 필터링 작업. 마커를 여러개를 공유해서 하나의 인스턴스가 중복으로 이웃으로 삽입되는 것과
+		std::set<uint32> NeighborKeyset{};
 		for (const uint32 CurCellMarkerKey : _Cell->MarkerKeys)
 		{
 			for (const uint32 NeighborTargetCellKey :
 				CurrentMarkers.find(CurCellMarkerKey)->second->SharedCellKeys)
 			{
-				Cell* NeighborTargetPtr = CellContainer.find(NeighborTargetCellKey)->second.get();
-
-				// 마커키에는 마커를 공유하는 셀들이 전부 다 포함되므로
-				// 이웃과 해당 셀이 같지 않을때만 이웃으로 지정.
-				if (NeighborTargetPtr != _Cell.get())
-				{
-					_Cell->Neighbors.push_back(NeighborTargetPtr);
-				}
+				NeighborKeyset.insert(NeighborTargetCellKey);
+			}
+		}
+		// 자기자신이 이웃이 되는 경우를 방지.
+		NeighborKeyset.erase(CellKey);
+		for (const uint32 NeighborKey : NeighborKeyset)
+		{
+			Cell* NeighborTarget = CellContainer.find(NeighborKey)->second.get();
+			if (NeighborTarget != _Cell.get())
+			{
+				_Cell->Neighbors.push_back(NeighborTarget);
 			}
 		}
 	}
 }
 
-void Engine::NavigationMesh::Save(const std::filesystem::path SavePath) const&
+void Engine::NavigationMesh::Save(const std::filesystem::path SavePath) &
 {
-	std::wofstream Os{ SavePath };
+	std::ofstream Os{ SavePath };
+	std::stringstream Wss;
+
 	for (const auto&  [CellKey,SaveCell] : CellContainer)
 	{
-		Os << L"Cell : " 
-			<< L"Location A[" << SaveCell->PointA.x << L" " << SaveCell->PointA.y << L" " << SaveCell->PointA.z << "]"
-			<< L"  B[" << SaveCell->PointB.x << L" " << SaveCell->PointB.y << L" " << SaveCell->PointB.z << "]"
-			<< L"  C[" << SaveCell->PointC.x << L" " << SaveCell->PointC.y << L" " << SaveCell->PointC.z << "]" << std::endl;
+		Wss << "Cell [ " << CellKey << " ]" << std::endl
+			<< "Location A [ " << SaveCell->PointA.x << " " << SaveCell->PointA.y << " " << SaveCell->PointA.z << " ]"
+			<< "  B [ " << SaveCell->PointB.x << " " << SaveCell->PointB.y << " " << SaveCell->PointB.z << " ]"
+			<< "  C [ " << SaveCell->PointC.x << " " << SaveCell->PointC.y << " " << SaveCell->PointC.z << " ]" << std::endl
+			<< "Neighbor [ ";
+		
+		std::set<uint32> NeighborKeyset;
+		for (const uint32 SaveCellMarkerKey : SaveCell->MarkerKeys)
+		{
+			for (const auto& [MarkerKey, _Marker] : CurrentMarkers)
+			{
+				for (const auto& _MaybeNeighborKey : _Marker->SharedCellKeys)
+				{
+					NeighborKeyset.insert(_MaybeNeighborKey);
+				}
+			}
+		}
+		NeighborKeyset.erase(CellKey);
+		for (const uint32 NeighborKey : NeighborKeyset)
+		{
+			Wss << NeighborKey << " ";
+		}
+		Wss << " ]\n" << std::endl;
 	}
+	Wss << "---------------------------------------------------------------------------------------------------\n";
+	for (const auto& [MarkerKey, _Marker] : CurrentMarkers)
+	{
+		Wss << "Marker [ "  << MarkerKey << " ]\n";
+		Wss << "CellKey [ ";
+		for (const uint32 SharedCellKey : _Marker->SharedCellKeys)
+		{
+			Wss << SharedCellKey << " ";
+		}
+		Wss << "]\n\n";
+	}
+	Os << Wss.str();
+	LastSaveFileBuffer =Wss.str();
 }
 
-void Engine::NavigationMesh::Load(const std::filesystem::path SavePath)&
+void Engine::NavigationMesh::Load(const std::filesystem::path LoadPath)&
 {
-
+	std::ifstream Is{ LoadPath };
+	CellContainer.clear();
+	CurrentMarkers.clear();
+	constexpr std::streamsize BufferSize = 256u;
+	char Buffer[BufferSize];
+	Is.getline(Buffer, BufferSize,'[');
+	uint32 CellIndex;
+	Is >> CellIndex;
+	
+	CellContainer.insert({});
 }
 
 void Engine::NavigationMesh::DebugLog()&
 {
 	ImGui::Begin("NavigationMesh Information");
+	ImGui::Separator();
+	ImGui::Text("Cell Count : %d | Marker Count : %d", CellContainer.size(), CurrentMarkers.size());
+	ImGui::Separator();
 	if (auto iter = CellContainer.find(CurSelectCellKey);
 		iter != std::end( CellContainer ))
 	{
 		ImGui::Separator();
 		ImGui::Text("Select Cell Information"); 
 		ImGui::Text("Cell Index : %d ", CurSelectCellKey);
-		ImGui::Text("Marker Index..."); 
-
+		ImGui::Text("Marker Index..."); 	ImGui::SameLine();
+	
 		auto SelectCell = iter->second;
-		for (const uint32 MarkeyKey : SelectCell->MarkerKeys)
+		for (const uint32 MarkerKey : SelectCell->MarkerKeys)
 		{
-			ImGui::Text("%d ", MarkeyKey);
 			ImGui::SameLine();
+			ImGui::Text("%d ", MarkerKey);
 		}
 		ImGui::Text("Neighbor Keys... :");
 		ImGui::SameLine();
 		std::set<uint32> FilterAfterNeighborKeys{};
-		for (const uint32 MarkeyKey : SelectCell->MarkerKeys)
+		for (const uint32 MarkerKey : SelectCell->MarkerKeys)
 		{
-			if (auto MarkeyIter = CurrentMarkers.find(MarkeyKey);
-				MarkeyIter != std::end(CurrentMarkers))
+			if (auto MarkerIter = CurrentMarkers.find(MarkerKey);
+				MarkerIter != std::end(CurrentMarkers))
 			{
-				for (const uint32 NeighborKey : MarkeyIter->second->SharedCellKeys)
+				for (const uint32 NeighborKey : MarkerIter->second->SharedCellKeys)
 				{
 					FilterAfterNeighborKeys.insert(NeighborKey);
 				}
@@ -85,10 +137,9 @@ void Engine::NavigationMesh::DebugLog()&
 		FilterAfterNeighborKeys.erase(CurSelectCellKey);
 		for (const uint32 FilterAfterNeighborKey : FilterAfterNeighborKeys)
 		{
-			ImGui::Text("%d ", FilterAfterNeighborKey);
 			ImGui::SameLine();
+			ImGui::Text("%d ", FilterAfterNeighborKey);
 		}
-		ImGui::Separator();
 	}
 
 	ImGui::Separator();
@@ -98,13 +149,21 @@ void Engine::NavigationMesh::DebugLog()&
 		auto SelectMarker = iter->second;
 		ImGui::Text("Select Marker Information");
 		ImGui::Text("Marker Index : %d ", CurSelectMarkerKey);
-		ImGui::Text("Marker Point Shared Cell"); ImGui::SameLine();
+		ImGui::Text("Marker Point Shared Cell"); 
 		for (const uint32 MarkerPointSharedCell : SelectMarker->SharedCellKeys)
 		{
-			ImGui::Text("%d ", MarkerPointSharedCell);
 			ImGui::SameLine();
+			ImGui::Text("%d ", MarkerPointSharedCell);
+			
 		}
 		ImGui::Separator();
+	}
+	if (false == LastSaveFileBuffer.empty())
+	{
+		if (ImGui::CollapsingHeader("Saved data content"))
+		{
+			ImGui::Text(LastSaveFileBuffer.c_str());
+		}
 	}
 	ImGui::End();
 }
@@ -123,9 +182,9 @@ void Engine::NavigationMesh::EraseCellFromRay(const Ray WorldRay)&
 		{
 			// 셀과 연결된 마커들에게 삭제를 전파.
 			auto DeleteCell = CurCell;
-			for (const uint32 DeleteMarkeyKey : DeleteCell->MarkerKeys)
+			for (const uint32 DeleteMarkerKey : DeleteCell->MarkerKeys)
 			{
-				auto MarkerIter = CurrentMarkers.find(DeleteMarkeyKey);
+				auto MarkerIter = CurrentMarkers.find(DeleteMarkerKey);
 				if (MarkerIter != std::end(CurrentMarkers))
 				{
 					// 셀 삭제시 해당 셀만 참조하고있던 마커라면 마커를 삭제
@@ -214,10 +273,14 @@ uint32 Engine::NavigationMesh::InsertPointFromMarkers(const Ray WorldRay)&
 						CurrentPickPoints[1].first,
 						CurrentPickPoints[2].first }
 				);
-				CurrentPickPoints.clear();
 				const uint32 CurrentCellKey = CellKey++;  
 				CellContainer.insert({ CurrentCellKey ,std::move(_InsertCell) });
-				CurTargetMarker->SharedCellKeys.insert(CurrentCellKey);
+				// 셀을 푸시하면서 셀에 해당하는 마커에 셀 인덱스 푸시.
+				for (uint32 i = 0; i < CurrentPickPoints.size();++i)
+				{
+					CurrentMarkers.find(CurrentPickPoints[i].first)->second->SharedCellKeys.insert(CurrentCellKey);
+				}
+				CurrentPickPoints.clear();
 			}
 
 			return CurSelectMarkerKey=MarkerKey;
@@ -259,9 +322,9 @@ uint32 Engine::NavigationMesh::InsertPoint(const Vector3 Point)&
 	auto _Marker = std::make_shared<Marker>();
 	_Marker->_Sphere.Radius = 1.f;
 	_Marker->_Sphere.Center = Point;
-	const uint32 CurrentMarkeyKey = MarkerKey++;
-	CurrentMarkers.insert({ CurrentMarkeyKey,_Marker});
-	CurrentPickPoints.push_back({ CurrentMarkeyKey, Point });
+	const uint32 CurrentMarkerKey = MarkerKey++;
+	CurrentMarkers.insert({ CurrentMarkerKey,_Marker});
+	CurrentPickPoints.push_back({ CurrentMarkerKey, Point });
 
 	if (CurrentPickPoints.size() >= 3u)
 	{
@@ -286,7 +349,7 @@ uint32 Engine::NavigationMesh::InsertPoint(const Vector3 Point)&
 		CurrentPickPoints.clear();
 	}
 
-	return CurrentMarkeyKey;
+	return CurrentMarkerKey;
 }
 
 void Engine::NavigationMesh::Initialize(IDirect3DDevice9* Device)&
@@ -306,6 +369,27 @@ void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 		{
 			CurCell->Render(Device);
 		}
+
+		std::set<uint32> FilterAfterNeighborKeys{};
+
+		if (auto iter = CellContainer.find(CurSelectCellKey);
+			iter != std::end(CellContainer))
+		{
+			auto SelectCell = iter->second;
+			for (const uint32 MarkerKey : SelectCell->MarkerKeys)
+			{
+				if (auto MarkerIter = CurrentMarkers.find(MarkerKey);
+					MarkerIter != std::end(CurrentMarkers))
+				{
+					for (const uint32 NeighborKey : MarkerIter->second->SharedCellKeys)
+					{
+						FilterAfterNeighborKeys.insert(NeighborKey);
+					}
+				}
+			}
+			FilterAfterNeighborKeys.erase(CurSelectCellKey);
+		}
+
 		Vertex::LocationColor* VtxBufPtr{ nullptr };
 		VertexBuffer->Lock(0u,
 		sizeof(Vertex::LocationColor) * 3u * CellContainer.size(), reinterpret_cast<void**>			(&VtxBufPtr),NULL);
@@ -313,6 +397,10 @@ void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 		uint32 Idx = 0u;
 		for (const auto& [CellKey, _Cell] : CellContainer)
 		{
+			 D3DCOLOR Diffuse= FilterAfterNeighborKeys.contains(CellKey) ? 
+				 D3DCOLOR_COLORVALUE(1.f,0.f,0.f,1.f) : D3DCOLOR_COLORVALUE(0.f,1.f,0.f,1.f) ;
+			 Diffuse =  ( (CurSelectCellKey!=0u) &&(Idx== CurSelectCellKey) )? 
+				 D3DCOLOR_COLORVALUE(0.f, 0.f, 1.f, 1.f) : Diffuse;
 			for (uint32 i = 0; i < 3; ++i)
 			{
 				const uint32 TargetBufferIdx =Idx * 3u + i;
@@ -323,14 +411,13 @@ void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 				if (i == 2)
 					VtxBufPtr[TargetBufferIdx].Location = _Cell->PointC;
 
-				VtxBufPtr[TargetBufferIdx].Diffuse = D3DCOLOR_ARGB(255, 165, 171, 255);
+				VtxBufPtr[TargetBufferIdx].Diffuse = Diffuse;
 			}
 			++Idx;
 		}
-
 		VertexBuffer->Unlock();
-		Device->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD);
-		Device->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_FLAT);
+		Device->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_PHONG);
+		//Device->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_FLAT);
 		const Matrix Identity = FMath::Identity(); 
 		Device->SetTransform(D3DTS_WORLD, &Identity); 
 		Device->SetStreamSource(0, VertexBuffer, 0u, sizeof(Vertex::LocationColor));
@@ -342,7 +429,7 @@ void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 		auto DebugSphereMesh = ResourceSystem::Instance->Get<ID3DXMesh>(L"SphereMesh");
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-		for (auto& [MarkeyKey,DrawMarkerDebugSphere]: CurrentMarkers)
+		for (auto& [MarkerKey,DrawMarkerDebugSphere]: CurrentMarkers)
 		{
 			const float Scale = DrawMarkerDebugSphere->_Sphere.Radius * 0.1f;
 			const Matrix World = FMath::WorldMatrix({ Scale,Scale,Scale }, 
