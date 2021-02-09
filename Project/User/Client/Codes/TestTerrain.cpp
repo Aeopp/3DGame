@@ -43,7 +43,7 @@ void TestTerrain::PrototypeInitialize(IDirect3DDevice9* const Device,
 
 	auto _StaticMeshProto = std::make_shared<Engine::StaticMesh>();
 
-	_StaticMeshProto->Load<Vertex::LocationNormal>(Device,
+	_StaticMeshProto->Load<Vertex::LocationNormalUV2D>(Device,
 		App::ResourcePath / L"Mesh" / L"StaticMesh" / L"Map" / L"",
 		L"terrain2.fbx", L"TestTerrain");
 

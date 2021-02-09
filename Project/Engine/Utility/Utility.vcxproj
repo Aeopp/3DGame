@@ -209,6 +209,7 @@
     <ClCompile Include="Codes\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="Codes\ImGui\imgui_tables.cpp" />
     <ClCompile Include="Codes\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="Codes\jsoncpp.cpp" />
     <ClCompile Include="Codes\Mesh.cpp" />
     <ClCompile Include="Codes\NavigationMesh.cpp" />
     <ClCompile Include="Codes\RenderObject.cpp" />

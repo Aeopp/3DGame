@@ -290,6 +290,7 @@
     <ClCompile Include="Codes\ShaderFx.cpp">
       <Filter>Shader\Fx</Filter>
     </ClCompile>
+    <ClCompile Include="Codes\jsoncpp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\..\..\Resource\Shader\SkeletonPS.hlsl">

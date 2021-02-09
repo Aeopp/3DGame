@@ -8,6 +8,8 @@
 #include <fstream>
 #include <set>
 #include <sstream>
+#include "json/json.h"
+
 
 static uint32 MarkerKey{ 1u };
 static uint32 CellKey{ 1u };
@@ -40,19 +42,19 @@ void Engine::NavigationMesh::CellNeighborLink()&
 	}
 }
 
-void Engine::NavigationMesh::Save(const std::filesystem::path SavePath) &
+void Engine::NavigationMesh::SaveFile(const std::filesystem::path SavePath)&
 {
 	std::ofstream Os{ SavePath };
 	std::stringstream Wss;
 
-	for (const auto&  [CellKey,SaveCell] : CellContainer)
+	for (const auto& [CellKey, SaveCell] : CellContainer)
 	{
 		Wss << "Cell [ " << CellKey << " ]" << std::endl
 			<< "Location A [ " << SaveCell->PointA.x << " " << SaveCell->PointA.y << " " << SaveCell->PointA.z << " ]"
 			<< "  B [ " << SaveCell->PointB.x << " " << SaveCell->PointB.y << " " << SaveCell->PointB.z << " ]"
 			<< "  C [ " << SaveCell->PointC.x << " " << SaveCell->PointC.y << " " << SaveCell->PointC.z << " ]" << std::endl
 			<< "Neighbor [ ";
-		
+
 		std::set<uint32> NeighborKeyset;
 		for (const uint32 SaveCellMarkerKey : SaveCell->MarkerKeys)
 		{
@@ -74,7 +76,7 @@ void Engine::NavigationMesh::Save(const std::filesystem::path SavePath) &
 	Wss << "---------------------------------------------------------------------------------------------------\n";
 	for (const auto& [MarkerKey, _Marker] : CurrentMarkers)
 	{
-		Wss << "Marker [ "  << MarkerKey << " ]\n";
+		Wss << "Marker [ " << MarkerKey << " ]\n";
 		Wss << "CellKey [ ";
 		for (const uint32 SharedCellKey : _Marker->SharedCellKeys)
 		{
@@ -83,7 +85,74 @@ void Engine::NavigationMesh::Save(const std::filesystem::path SavePath) &
 		Wss << "]\n\n";
 	}
 	Os << Wss.str();
-	LastSaveFileBuffer =Wss.str();
+
+}
+
+void Engine::NavigationMesh::Save(const std::filesystem::path SavePath) &
+{
+	std::ofstream Os{ SavePath };
+	std::stringstream Wss{}; 
+	Json::Value Root{}; 
+	Json::StreamWriterBuilder Builder{};
+	const std::unique_ptr<Json::StreamWriter> Writer(Builder.newStreamWriter());
+
+	for (const auto& [CellKey, _Cell] : CellContainer)
+	{
+		Json::Value Location, CellInfo, NeighborList;
+
+		Location["A"].append(_Cell->PointA.x);
+		Location["A"].append(_Cell->PointA.y);
+		Location["A"].append(_Cell->PointA.z);
+
+		Location["B"].append(_Cell->PointB.x);
+		Location["B"].append(_Cell->PointB.y);
+		Location["B"].append(_Cell->PointB.z);
+
+		Location["C"].append(_Cell->PointC.x);
+		Location["C"].append(_Cell->PointC.y);
+		Location["C"].append(_Cell->PointC.z);
+
+	
+
+		std::set<uint32> NeighborKeyset;
+		for (const uint32 SaveCellMarkerKey : _Cell->MarkerKeys)
+		{
+			for (const auto& [MarkerKey, _Marker] : CurrentMarkers)
+			{
+				for (const auto& _MaybeNeighborKey : _Marker->SharedCellKeys)
+				{
+					NeighborKeyset.insert(_MaybeNeighborKey);
+				}
+			}
+		}
+		NeighborKeyset.erase(CellKey);
+		for (const uint32 NeighborKey : NeighborKeyset)
+		{
+			NeighborList.append(NeighborKey);
+		}
+		CellInfo["NeighborList"] = NeighborList;
+		CellInfo["Key"] = CellKey;
+		CellInfo["Location"] = Location;
+
+		Root["Cell"].append(CellInfo);
+	}
+
+	for (const auto& [MarkerKey, _Marker] : CurrentMarkers)
+	{
+		Json::Value MarkerInfo{};
+
+		MarkerInfo["Key"] = MarkerKey;
+
+		for (const uint32 SharedCellKey : _Marker->SharedCellKeys)
+		{
+			MarkerInfo["CellKeyList"].append(SharedCellKey);
+		}
+
+		Root["Marker"].append(MarkerInfo);
+	}
+
+	Writer->write(Root, &Os);
+	Writer->write(Root, &LastSaveFileBuffer);
 }
 
 void Engine::NavigationMesh::Load(const std::filesystem::path LoadPath)&
@@ -158,11 +227,11 @@ void Engine::NavigationMesh::DebugLog()&
 		}
 		ImGui::Separator();
 	}
-	if (false == LastSaveFileBuffer.empty())
+	if (false == LastSaveFileBuffer.str().empty())
 	{
 		if (ImGui::CollapsingHeader("Saved data content"))
 		{
-			ImGui::Text(LastSaveFileBuffer.c_str());
+			ImGui::Text(LastSaveFileBuffer.str().c_str());
 		}
 	}
 	ImGui::End();

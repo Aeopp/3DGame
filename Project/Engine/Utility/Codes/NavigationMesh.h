@@ -12,6 +12,7 @@
 #include "MathStruct.h"
 #include "Cell.h"
 #include <set>
+#include <sstream>
 
 namespace Engine
 {
@@ -25,6 +26,7 @@ namespace Engine
 	{
 	public:
 		void CellNeighborLink()&;
+		void SaveFile(const std::filesystem::path SavePath)&;
 		void Save(const std::filesystem::path SavePath)&;
 		void Load(const std::filesystem::path LoadPath)&;
 		void DebugLog()&;
@@ -49,7 +51,7 @@ namespace Engine
 	private:
 		uint32 CurSelectCellKey{ 0u };
 		uint32 CurSelectMarkerKey{ 0u };
-		std::string LastSaveFileBuffer{};
+		std::stringstream LastSaveFileBuffer{};
 		IDirect3DVertexBuffer9* VertexBuffer{ nullptr }; 
 		IDirect3DDevice9* Device{ nullptr }; 
 						/* Marker Key , Position */
