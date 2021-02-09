@@ -94,6 +94,9 @@
     <Filter Include="Shader\Fx">
       <UniqueIdentifier>{8606ae93-df5e-4852-ab72-088f10aea3d3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Object\RenderObject\Map">
+      <UniqueIdentifier>{b98fb7eb-f50f-4ec8-91ae-db54153d3db8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">

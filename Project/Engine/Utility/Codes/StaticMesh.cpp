@@ -28,9 +28,6 @@ void Engine::StaticMesh::Render()&
 {
 	Super::Render();
 
-	Device->SetVertexShader(nullptr);
-	Device->SetPixelShader(nullptr);
-
 	for (auto& CurrentRenderMesh : MeshContainer)
 	{
 		Device->SetFVF(CurrentRenderMesh.FVF);

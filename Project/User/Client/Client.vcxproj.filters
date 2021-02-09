@@ -91,6 +91,7 @@
     <ClInclude Include="..\..\..\Resource\Shader\Sample.hlsl">
       <Filter>HLSL</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\TestTerrain.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -126,6 +127,7 @@
     <ClCompile Include="Codes\Player.cpp">
       <Filter>Object\Player</Filter>
     </ClCompile>
+    <ClCompile Include="Codes\TestTerrain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Client.rc">
@@ -142,5 +144,10 @@
     <Image Include="KurtzPel.ico">
       <Filter>Default\리소스 파일</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\..\Resource\Shader\TestTerrain.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

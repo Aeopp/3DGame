@@ -22,6 +22,7 @@ namespace Engine
 		void RenderDebugCollision()&;
 		void RenderNoAlpha()&;
 		void RenderEnviroment()&;
+		void RenderUI()&;
 	private:
 		std::map<RenderInterface::Group, std::vector<std::reference_wrapper<RenderInterface>>>RenderObjects;
 		DX::SharedPtr<IDirect3DDevice9> Device{ nullptr };

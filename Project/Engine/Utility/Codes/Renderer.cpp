@@ -25,6 +25,7 @@ void Engine::Renderer::Render()&
 		RenderDebugCollision();
 	}
 	_Frustum.Render(Device.get());
+	RenderUI();
 	RenderObjects.clear();
 };
 
@@ -195,6 +196,47 @@ void Engine::Renderer::RenderEnviroment()&
 			{
 				_RefRender.Render();
 			}
+		}
+	}
+#endif
+}
+
+void Engine::Renderer::RenderUI()&
+{
+	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	Device->SetRenderState(D3DRS_ZENABLE, FALSE);
+	Device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+	Device->SetRenderState(D3DRS_LIGHTING, FALSE);
+	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+#ifdef PARALLEL
+	if (auto iter = RenderObjects.find(RenderInterface::Group::UI);
+		iter != std::end(RenderObjects))
+	{
+		std::vector<std::future<void>> Futures;
+		for (auto& _RenderEntity : iter->second)
+		{
+			Futures.push_back(std::async(std::launch::async,
+				[_RenderEntity]() {
+					RenderInterface& _RefRender = _RenderEntity.get();
+					_RefRender.Render();
+				}));
+		}));
+	}
+	for (auto& Future : Futures)
+	{
+		Future.get();
+	}
+	Futures.clear();
+}
+#else
+	if (auto iter = RenderObjects.find(RenderInterface::Group::UI);
+		iter != std::end(RenderObjects))
+	{
+		for (auto& _RenderEntity : iter->second)
+		{
+			RenderInterface& _RefRender = _RenderEntity.get();
+			_RefRender.Render();
 		}
 	}
 #endif
