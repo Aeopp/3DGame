@@ -139,14 +139,44 @@ void Tool::NaviMeshTool()&
 		}ImGui::Separator();
 		if (NaviMeshCurrentSelectMarkeyKey != 0u)
 		{
-			static float PrevValue = 0.0f;
-			float MarkerMoveForceYAxis = 0.0f;
-			ImVec2 Size{ 40,50 };
-			const char* Format = "None";
-			ImGui::VSliderFloat("Point Move Y Axis", Size, &MarkerMoveForceYAxis, -0.1f, +0.1f,
-				PrevValue == 0.0f ? "None" : PrevValue > 0.0f ? "Up" : "Down");
-			PrevValue = MarkerMoveForceYAxis;
-			NaviMesh.MarkerMove(NaviMeshCurrentSelectMarkeyKey, Vector3{ 0.f,MarkerMoveForceYAxis ,0.f });
+			static const ImVec2 Size{ 40,50 };
+			static Vector3 PrevValue{ 0,0,0 };
+			float x{ 0 }, y{ 0 }, z{ 0 };
+			ImGui::BulletText("Location Control");
+
+			{
+				const char* Format = "None";
+				ImGui::VSliderFloat("1",Size, &y, -0.01f, +0.01f,
+					PrevValue.y == 0.0f ? "None" : PrevValue.y > 0.0f ? "Positive" : "Negative");
+				PrevValue.y = y;
+				const ImVec4 Color{ 0.f,1.f,0.f,1.f };
+				ImGui::SameLine();
+				ImGui::TextColoredV(Color, "Y", {});
+			}
+			{
+				ImGui::SameLine();
+				const char* Format = "None";
+				ImGui::VSliderFloat("2", Size, &x, -0.01f, +0.01f,
+					PrevValue.x == 0.0f ? "None" : PrevValue.x > 0.0f ? "Positive" : "Negative");
+				PrevValue.x = x ;
+				const ImVec4 Color{1.f,0.f,0.f,1.f  };
+				ImGui::SameLine();
+				ImGui::TextColoredV(Color, "X", {});
+			}
+			
+			{
+				ImGui::SameLine();
+				const char* Format = "None";
+				ImGui::VSliderFloat("3", Size, &z, -0.01f, +0.01f,
+					PrevValue.z == 0.0f ? "None" : PrevValue.z > 0.0f ? "Positive" : "Negative");
+				PrevValue.z = z;
+				const ImVec4 Color{ 0.f,0.f,1.f,1.f };
+				ImGui::SameLine();
+				ImGui::TextColoredV(Color, "Z", {});
+			}
+			
+
+			NaviMesh.MarkerMove(NaviMeshCurrentSelectMarkeyKey, Vector3{ x,y,z });
 		}
 
 		NaviMesh.DebugLog();

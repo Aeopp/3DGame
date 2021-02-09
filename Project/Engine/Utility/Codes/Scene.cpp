@@ -29,6 +29,11 @@ void Engine::Scene::Update(const float DeltaTime)&
 	}
 };
 
+void Engine::Scene::Render()&
+{
+
+};
+
 void Engine::Scene::PendingKill() & noexcept
 {
 	for (auto& [TypeKey,CurrentLayer] : LayerMap)

@@ -38,6 +38,12 @@
     <Filter Include="Scene\Enter">
       <UniqueIdentifier>{d82fc86d-dc43-41c6-bc43-7afb342c9813}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Object\Logo">
+      <UniqueIdentifier>{2510fb1f-b567-4acf-9cc4-cffb3bc6b5aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Player">
+      <UniqueIdentifier>{cdf652ac-5e5d-4d93-9caf-eae551d4888c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -70,14 +76,17 @@
     <ClInclude Include="Codes\TombStone.h">
       <Filter>Object</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\Player.h">
-      <Filter>Object</Filter>
-    </ClInclude>
     <ClInclude Include="Codes\Tool.h">
       <Filter>Scene\Tool</Filter>
     </ClInclude>
     <ClInclude Include="Codes\EnterGame.h">
       <Filter>Scene\Enter</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\Logo.h">
+      <Filter>Object\Logo</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\Player.h">
+      <Filter>Object\Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -102,14 +111,17 @@
     <ClCompile Include="Codes\TombStone.cpp">
       <Filter>Object</Filter>
     </ClCompile>
-    <ClCompile Include="Codes\Player.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
     <ClCompile Include="Codes\Tool.cpp">
       <Filter>Scene\Tool</Filter>
     </ClCompile>
     <ClCompile Include="Codes\EnterGame.cpp">
       <Filter>Scene\Enter</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Logo.cpp">
+      <Filter>Object\Logo</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Player.cpp">
+      <Filter>Object\Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

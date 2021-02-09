@@ -2,6 +2,8 @@
 #include "Mesh.h"
 #include "Vertexs.hpp"
 #include <string>
+#include "ExportUtility.hpp"
+
 #include "UtilityGlobal.h"
 #include "ResourceSystem.h"
 #include <vector>
@@ -69,6 +71,7 @@ inline void Engine::StaticMesh::Load(
 		aiProcess_SplitLargeMeshes
 	);
 	static uint32 StaticMeshResourceID = 0u;
+
 	auto& ResourceSys = RefResourceSys();
 	LocalVertexLocations = std::make_shared<std::vector<Vector3>>();
 

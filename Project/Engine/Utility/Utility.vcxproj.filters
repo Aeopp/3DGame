@@ -79,9 +79,6 @@
     <Filter Include="UtilityGlobal">
       <UniqueIdentifier>{46257d73-f11e-448e-b974-6f608d81a512}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Component\Render\Mesh\Dynamic">
-      <UniqueIdentifier>{4e427c5d-389e-4e96-99cc-8d4b46cdfee3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Component\Render\Mesh\Skeleton">
       <UniqueIdentifier>{e3b73fb3-9314-4b11-8f56-46a85637f292}</UniqueIdentifier>
     </Filter>
@@ -93,6 +90,9 @@
     </Filter>
     <Filter Include="Utility\FileHelper">
       <UniqueIdentifier>{d10f06b3-4163-4fb6-bcdd-680d44d851b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\Fx">
+      <UniqueIdentifier>{8606ae93-df5e-4852-ab72-088f10aea3d3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -165,12 +165,6 @@
     <ClInclude Include="Codes\UtilityGlobal.h">
       <Filter>UtilityGlobal</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\DynamicMesh.h">
-      <Filter>Component\Render\Mesh\Dynamic</Filter>
-    </ClInclude>
-    <ClInclude Include="Codes\Animation.h">
-      <Filter>Component\Render\Mesh\Dynamic</Filter>
-    </ClInclude>
     <ClInclude Include="Codes\SkeletonMesh.h">
       <Filter>Component\Render\Mesh\Skeleton</Filter>
     </ClInclude>
@@ -185,6 +179,9 @@
     </ClInclude>
     <ClInclude Include="Codes\FileHelper.h">
       <Filter>Utility\FileHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\ShaderFx.h">
+      <Filter>Shader\Fx</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -272,12 +269,6 @@
     <ClCompile Include="Codes\UtilityGlobal.cpp">
       <Filter>UtilityGlobal</Filter>
     </ClCompile>
-    <ClCompile Include="Codes\DynamicMesh.cpp">
-      <Filter>Component\Render\Mesh\Dynamic</Filter>
-    </ClCompile>
-    <ClCompile Include="Codes\Animation.cpp">
-      <Filter>Component\Render\Mesh\Dynamic</Filter>
-    </ClCompile>
     <ClCompile Include="Codes\SkeletonMesh.cpp">
       <Filter>Component\Render\Mesh\Skeleton</Filter>
     </ClCompile>
@@ -292,6 +283,9 @@
     </ClCompile>
     <ClCompile Include="Codes\FileHelper.cpp">
       <Filter>Utility\FileHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\ShaderFx.cpp">
+      <Filter>Shader\Fx</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

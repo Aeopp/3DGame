@@ -19,6 +19,7 @@ namespace Engine
 		virtual void Initialize(IDirect3DDevice9* const Device)& abstract;
 		virtual void Event()&;
 		virtual void Update(const float DeltaTime)&;
+		virtual void Render()&;
 		void PendingKill() & noexcept;
 	public:
 		template<typename LayerSubType,typename...Params>
@@ -33,7 +34,7 @@ namespace Engine
 		template<typename LayerSubType,typename ObjectSubType>
 		auto NewObject(std::shared_ptr<ObjectSubType> PassClone)&;
 							
-	private:
+	protected:
 		std::unordered_map<std::string,std::unique_ptr<Layer>> LayerMap;
 		IDirect3DDevice9* Device{ nullptr };
 	};

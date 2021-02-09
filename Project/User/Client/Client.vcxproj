@@ -200,6 +200,7 @@
     <ClInclude Include="Codes\App.h" />
     <ClInclude Include="Codes\EnemyLayer.h" />
     <ClInclude Include="Codes\EnterGame.h" />
+    <ClInclude Include="Codes\Logo.h" />
     <ClInclude Include="Codes\Player.h" />
     <ClInclude Include="Codes\StartScene.h" />
     <ClInclude Include="Codes\StaticLayer.h" />
@@ -215,6 +216,7 @@
     <ClCompile Include="Codes\App.cpp" />
     <ClCompile Include="Codes\EnemyLayer.cpp" />
     <ClCompile Include="Codes\EnterGame.cpp" />
+    <ClCompile Include="Codes\Logo.cpp" />
     <ClCompile Include="Codes\Player.cpp" />
     <ClCompile Include="Codes\StartScene.cpp" />
     <ClCompile Include="Codes\StaticLayer.cpp" />

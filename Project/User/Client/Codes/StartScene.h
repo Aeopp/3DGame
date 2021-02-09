@@ -16,7 +16,8 @@ public:
 	virtual void Initialize(IDirect3DDevice9* const Device)&;
 	virtual void Event()& override;
 	virtual void Update(const float DeltaTime) & override;
+	virtual void Render() & override;
 private:
-
+	IDirect3DTexture9* LogoTexture{ nullptr };
 };
 

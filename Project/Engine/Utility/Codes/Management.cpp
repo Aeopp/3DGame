@@ -181,6 +181,7 @@ void Engine::Management::Render()&
 	_GraphicDevice->Begin();
 	_Renderer->Render();
 	_NaviMesh->Render(Device);
+	_CurrentScene->Render();
 	// 폰트 드로우콜
 	{
 	/*	_FontManager->RenderFont(L"Font_Jinji", L"진지함", { 400,300 }, D3DXCOLOR{ 0.5f,1.f,0.5f,0.1f });

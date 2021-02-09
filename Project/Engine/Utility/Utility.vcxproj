@@ -193,11 +193,9 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Codes\Animation.cpp" />
     <ClCompile Include="Codes\Bone.cpp" />
     <ClCompile Include="Codes\Camera.cpp" />
     <ClCompile Include="Codes\Cell.cpp" />
-    <ClCompile Include="Codes\DynamicMesh.cpp" />
     <ClCompile Include="Codes\FileHelper.cpp" />
     <ClCompile Include="Codes\Geometric.cpp" />
     <ClCompile Include="Codes\Collision.cpp" />
@@ -222,6 +220,7 @@
     <ClCompile Include="Codes\RenderInterface.cpp" />
     <ClCompile Include="Codes\Scene.cpp" />
     <ClCompile Include="Codes\Shader.cpp" />
+    <ClCompile Include="Codes\ShaderFx.cpp" />
     <ClCompile Include="Codes\ShaderManager.cpp" />
     <ClCompile Include="Codes\SkeletonMesh.cpp" />
     <ClCompile Include="Codes\StaticMesh.cpp" />
@@ -230,12 +229,10 @@
     <ClCompile Include="Codes\UtilityGlobal.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Codes\Animation.h" />
     <ClInclude Include="Codes\AssimpHelper.h" />
     <ClInclude Include="Codes\Bone.h" />
     <ClInclude Include="Codes\Camera.h" />
     <ClInclude Include="Codes\Cell.h" />
-    <ClInclude Include="Codes\DynamicMesh.h" />
     <ClInclude Include="Codes\FileHelper.h" />
     <ClInclude Include="Codes\Geometric.h" />
     <ClInclude Include="Codes\Collision.h" />
@@ -254,6 +251,7 @@
     <ClInclude Include="Codes\RenderInterface.h" />
     <ClInclude Include="Codes\Scene.h" />
     <ClInclude Include="Codes\Shader.h" />
+    <ClInclude Include="Codes\ShaderFx.h" />
     <ClInclude Include="Codes\ShaderManager.h" />
     <ClInclude Include="Codes\SkeletonMesh.h" />
     <ClInclude Include="Codes\StaticMesh.h" />

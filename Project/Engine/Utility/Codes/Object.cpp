@@ -66,7 +66,7 @@ void Engine::Object::HitBegin(Object* const Target, const Vector3 PushDir, const
 
 void Engine::Object::HitEnd(Object* const Target)&
 {
-	std::wcout << Target->GetName() << L" 과 충돌 끝" << std::endl;
+	ImGui::Text("%s Overlapped end", Target->GetName().c_str());
 }
 
 void Engine::Object::HitNotify( Object* const Target,
