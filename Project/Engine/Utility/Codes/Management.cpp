@@ -391,6 +391,28 @@ void Engine::Management::CreateStaticResource()&
 	_ResourceSys->Insert<ID3DXMesh>(L"SphereMesh", SphereMesh);
 	_ResourceSys->Insert<ID3DXBuffer>(L"SphereMeshAdjacency", SphereMeshAdjacency);
 
+	// UI 용 사각형
+	{
+		IDirect3DVertexBuffer9* VertexBuffer{ nullptr }; 
+		Device->CreateVertexBuffer(sizeof(Vertex::LocationUV2D) * 6u, D3DUSAGE_WRITEONLY,
+			Vertex::LocationUV2D::FVF, D3DPOOL_MANAGED, &VertexBuffer, nullptr);
+		Vertex::LocationUV2D* VtxBufPtr{};
+		VertexBuffer->Lock(0, 0, reinterpret_cast<void**>(&VtxBufPtr), NULL);
+		VtxBufPtr[0].Location = { -0.5f,0.5f,0.f };
+		VtxBufPtr[0].UV = { 0.0f,0.0f };
+		VtxBufPtr[1].Location = { 0.5f,0.5f,0.f };
+		VtxBufPtr[1].UV = { 1.f,0.f };
+		VtxBufPtr[2].Location = { -0.5f,-0.5f,0.f };
+		VtxBufPtr[2].UV = { 0.f,1.f };
+		VtxBufPtr[3].Location = { -0.5f,-0.5f,0.f };
+		VtxBufPtr[3].UV = { 0.f,1.f };
+		VtxBufPtr[4].Location = { 0.5f,0.5f,0.f };
+		VtxBufPtr[4].UV = { 1.f,0.f };
+		VtxBufPtr[5].Location = { 0.5f,-0.5f,0.f };
+		VtxBufPtr[5].UV = { 1.f,1.f };
+		VertexBuffer->Unlock();
+		_ResourceSys->Insert<IDirect3DVertexBuffer9>(L"VertexBuffer_Plane", VertexBuffer);
+	}
 	
 	{
 		// 폰트 로딩

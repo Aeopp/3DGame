@@ -196,6 +196,9 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Resource\Shader\Sample.hlsl">
+      <FileType>CppHeader</FileType>
+    </ClInclude>
     <ClInclude Include="Client.h" />
     <ClInclude Include="Codes\App.h" />
     <ClInclude Include="Codes\EnemyLayer.h" />

@@ -41,6 +41,11 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 			(App::ResourcePath / L"Texture" / L"Logo.jpg").c_str(), &LogoTexture);
 	}
 
+	// Shader...
+	{
+		Sample = Engine::ShaderFx::Load(Device, App::ResourcePath / L"Shader" / "Sample.hlsl", L"ShaderFx_Sample");
+	}
+
 	// 현재 씬 레이어 추가.
 	{
 		Manager.NewLayer<EnemyLayer>();
@@ -69,8 +74,9 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 			Vector3{ 0.01,0.01,0.01 },Vector3{ 0,0,0 }, Vector3{ 0,0,0 });
 		RefManager().NewObject<StaticLayer,Player>(L"Static", L"Player",
 			Vector3{ 0.01f,0.01f,0.01f }, Vector3{ 0,0,0}, Vector3{ 0,0,5 });
-
 	}
+
+	LogoVtxBuf = ResourceSys.Get<IDirect3DVertexBuffer9>(L"VertexBuffer_Plane");
 };
 
 void StartScene::Event() & 
@@ -81,6 +87,7 @@ void StartScene::Event() &
 	{
 		ImGui::Begin("Help");
 		{
+			ImGui::Checkbox("Logo ?", &bLogo);
 			if (ImGui::Button("Object KILL"))
 			{
 				for (auto& [TypeKey, TargetObjects] :RefManager().FindLayer<EnemyLayer>()->RefObjects())
@@ -130,8 +137,30 @@ void StartScene::Update(const float DeltaTime)&
 	}
 };
 
-void StartScene::Render() &
+void StartScene::Render()&
 {
+	
+	if (bLogo)
+	{
+		Matrix Projection;
+		D3DXMatrixOrthoLH(&Projection, App::ClientSize<float>.first, App::ClientSize<float>.second,
+			0.f, 1.f);
+		ID3DXEffect* Fx = Sample->GetHandle();
+		const Matrix Identity = FMath::WorldMatrix({ App::ClientSize<float>.first,App::ClientSize<float>.second,0.f }, { 0,0,0 }, { 0,0,0 });
+		const Matrix View = FMath::Identity();
+		Fx->SetMatrix("World", &Identity);
+		Fx->SetMatrix("View", &View);
+		Fx->SetMatrix("Projection", &Projection);
+		Fx->SetTexture("Diffuse", LogoTexture);
+		uint32 iPassMax = 0;
+		Fx->Begin(&iPassMax, 0);	// 1인자 : 현재 쉐이더 파일이 지닌 최대 pass개수, 2인자 : 시작하는 방식에  플래그
+		Fx->BeginPass(0);
+		Device->SetStreamSource(0, LogoVtxBuf, 0, sizeof(Vertex::LocationUV2D));
+		Device->SetFVF(Vertex::LocationUV2D::FVF);
+		Device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 2u);
+		Fx->EndPass();
+		Fx->End();
+	}
 
 }
 

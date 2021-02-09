@@ -5,6 +5,7 @@
 #include <numeric>
 #include <filesystem>
 #include "Vertexs.hpp"
+#include "ShaderFx.h"
 
 
 
@@ -18,6 +19,9 @@ public:
 	virtual void Update(const float DeltaTime) & override;
 	virtual void Render() & override;
 private:
+	bool bLogo{ true };
+	IDirect3DVertexBuffer9* LogoVtxBuf{ nullptr };
 	IDirect3DTexture9* LogoTexture{ nullptr };
+	Engine::ShaderFx* Sample{nullptr};
 };
 
