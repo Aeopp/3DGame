@@ -124,5 +124,8 @@
     <Image Include="Client.ico">
       <Filter>Default\리소스 파일</Filter>
     </Image>
+    <Image Include="KurtzPel.ico">
+      <Filter>Default\리소스 파일</Filter>
+    </Image>
   </ItemGroup>
 </Project>

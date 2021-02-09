@@ -24,6 +24,7 @@
     <ProjectGuid>{e86d84ef-7c70-4a42-a93d-1ed9200fdf2d}</ProjectGuid>
     <RootNamespace>Client</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>KurtzPel</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -231,6 +232,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico" />
+    <Image Include="KurtzPel.ico" />
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
