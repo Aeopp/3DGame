@@ -75,8 +75,20 @@ namespace Vertex
 	struct LocationColor
 	{
 		Vector3 Location { 0,0,0 };
-		D3DCOLOR Diffuse = D3DCOLOR_ARGB(255,165,171,255);
-		static const DWORD FVF = D3DFVF_XYZ | D3DFVF_DIFFUSE;
+		Vector4 Diffuse{ 1,1,1,1 };
+		static const DWORD FVF = D3DFVF_XYZ | D3DFVF_TEX1 | D3DFVF_TEXCOORDSIZE1(D3DFVF_TEXTUREFORMAT4);
+		static IDirect3DVertexDeclaration9* GetVertexDecl(IDirect3DDevice9* const Device) 
+		{
+			D3DVERTEXELEMENT9 Decl[] =
+			{
+				{ 0, 0,  D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
+				{ 0, 12, D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD,  0 },
+				D3DDECL_END()
+			};
+			IDirect3DVertexDeclaration9* VertexDeclaration{ nullptr };
+			Device->CreateVertexDeclaration(Decl, &VertexDeclaration);
+			return VertexDeclaration;
+		};
 	};
 
 

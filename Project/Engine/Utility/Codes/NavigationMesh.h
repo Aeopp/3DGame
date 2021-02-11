@@ -13,7 +13,7 @@
 #include "Cell.h"
 #include <set>
 #include <sstream>
-
+#include "ShaderFx.h"
 namespace Engine
 {
 	struct DLL_DECL Marker
@@ -25,6 +25,7 @@ namespace Engine
 	class DLL_DECL NavigationMesh    : public SingletonInterface<NavigationMesh>
 	{
 	public:
+		void Clear();
 		void CellNeighborLink()&;
 		void SaveFile(const std::filesystem::path SavePath)&;
 		void Save(const std::filesystem::path SavePath)&;
@@ -48,11 +49,17 @@ namespace Engine
 		// 파일 로딩시 버텍스버퍼 정보 제대로 채우기.
 	public:
 		std::unordered_map<uint32,std::shared_ptr<Marker>> CurrentMarkers{};
+		Vector4 SelectColor{ 1.0f,0.352f,0.307f,1.0f };
+		Vector4 NeighborColor{ 0.784f,0.693f,0.784f,0.5f };
+		Vector4 DefaultColor{ 0.307f,0.648f,0.920f,0.309f };
 	private:
+		Matrix World = FMath::Identity();
+		Engine::ShaderFx* _ShaderFx { nullptr };
 		uint32 CurSelectCellKey{ 0u };
 		uint32 CurSelectMarkerKey{ 0u };
-		std::stringstream LastSaveFileBuffer{};
+		std::string NaviMeshInfoString{};
 		IDirect3DVertexBuffer9* VertexBuffer{ nullptr }; 
+		IDirect3DVertexDeclaration9* VtxDecl{ nullptr };
 		IDirect3DDevice9* Device{ nullptr }; 
 						/* Marker Key , Position */
 		std::vector<std::pair<uint32,Vector3>>           CurrentPickPoints{};

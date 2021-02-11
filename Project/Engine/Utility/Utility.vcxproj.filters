@@ -186,6 +186,7 @@
     <ClInclude Include="Codes\ShaderFx.h">
       <Filter>Shader\Fx</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Resource\Shader\NaviMeshFx.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">
@@ -290,7 +291,6 @@
     <ClCompile Include="Codes\ShaderFx.cpp">
       <Filter>Shader\Fx</Filter>
     </ClCompile>
-    <ClCompile Include="Codes\jsoncpp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\..\..\Resource\Shader\SkeletonPS.hlsl">

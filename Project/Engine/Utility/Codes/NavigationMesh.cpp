@@ -8,11 +8,24 @@
 #include <fstream>
 #include <set>
 #include <sstream>
-#include "json/json.h"
+#include <rapidjson/prettywriter.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/reader.h> 
+#include <rapidjson/document.h>
+#include <rapidjson/ostreamwrapper.h>
+#include <rapidjson/istreamwrapper.h>
+
 
 
 static uint32 MarkerKey{ 1u };
 static uint32 CellKey{ 1u };
+
+void Engine::NavigationMesh::Clear()
+{
+	CellContainer.clear();
+	CurrentMarkers.clear();
+}
 
 void Engine::NavigationMesh::CellNeighborLink()&
 {
@@ -46,7 +59,7 @@ void Engine::NavigationMesh::SaveFile(const std::filesystem::path SavePath)&
 {
 	std::ofstream Os{ SavePath };
 	std::stringstream Wss;
-
+	
 	for (const auto& [CellKey, SaveCell] : CellContainer)
 	{
 		Wss << "Cell [ " << CellKey << " ]" << std::endl
@@ -85,88 +98,206 @@ void Engine::NavigationMesh::SaveFile(const std::filesystem::path SavePath)&
 		Wss << "]\n\n";
 	}
 	Os << Wss.str();
-
 }
 
 void Engine::NavigationMesh::Save(const std::filesystem::path SavePath) &
 {
-	std::ofstream Os{ SavePath };
-	std::stringstream Wss{}; 
-	Json::Value Root{}; 
-	Json::StreamWriterBuilder Builder{};
-	const std::unique_ptr<Json::StreamWriter> Writer(Builder.newStreamWriter());
+	using namespace rapidjson;
 
+	StringBuffer StrBuf;
+
+	PrettyWriter<StringBuffer> Writer(StrBuf);
+
+	// Cell Information Write...
+	Writer.StartObject();
+	Writer.Key("CellList");
+	Writer.StartArray();
 	for (const auto& [CellKey, _Cell] : CellContainer)
 	{
-		Json::Value Location, CellInfo, NeighborList;
-
-		Location["A"].append(_Cell->PointA.x);
-		Location["A"].append(_Cell->PointA.y);
-		Location["A"].append(_Cell->PointA.z);
-
-		Location["B"].append(_Cell->PointB.x);
-		Location["B"].append(_Cell->PointB.y);
-		Location["B"].append(_Cell->PointB.z);
-
-		Location["C"].append(_Cell->PointC.x);
-		Location["C"].append(_Cell->PointC.y);
-		Location["C"].append(_Cell->PointC.z);
-
-	
-
-		std::set<uint32> NeighborKeyset;
-		for (const uint32 SaveCellMarkerKey : _Cell->MarkerKeys)
+		Writer.StartObject();
 		{
-			for (const auto& [MarkerKey, _Marker] : CurrentMarkers)
 			{
-				for (const auto& _MaybeNeighborKey : _Marker->SharedCellKeys)
 				{
-					NeighborKeyset.insert(_MaybeNeighborKey);
+					Writer.Key("Index");
+					Writer.Uint(CellKey);
 				}
 			}
+			{
+				Writer.Key("Point A");
+				Writer.StartArray();
+				{
+					Writer.Double(_Cell->PointA.x);
+					Writer.Double(_Cell->PointA.y);
+					Writer.Double(_Cell->PointA.z);
+				}
+				Writer.EndArray();
+			}
+			{
+				Writer.Key("Point B");
+				Writer.StartArray();
+				{
+					Writer.Double(_Cell->PointB.x);
+					Writer.Double(_Cell->PointB.y);
+					Writer.Double(_Cell->PointB.z);
+				}
+				Writer.EndArray();
+			}
+			{
+				Writer.Key("Point C");
+				Writer.StartArray();
+				{
+					Writer.Double(_Cell->PointC.x);
+					Writer.Double(_Cell->PointC.y);
+					Writer.Double(_Cell->PointC.z);
+				}
+				Writer.EndArray();
+			}
+			Writer.Key("NeighborList");
+			Writer.StartArray();
+			{
+				std::set<uint32> NeighborKeyset;
+				for (const uint32 SaveCellMarkerKey : _Cell->MarkerKeys)
+				{
+					for (const auto& [MarkerKey, _Marker] : CurrentMarkers)
+					{
+						for (const auto& _MaybeNeighborKey : _Marker->SharedCellKeys)
+						{
+							NeighborKeyset.insert(_MaybeNeighborKey);
+						}
+					}
+				}
+				NeighborKeyset.erase(CellKey);
+				for (const uint32 NeighborKey : NeighborKeyset)
+				{
+					Writer.Uint(NeighborKey);
+				}
+			}
+			Writer.EndArray();
+			
+			Writer.Key("MarkerSet");
+			Writer.StartArray();
+			{
+				for (const uint32 MarkerKey : _Cell->MarkerKeys)
+				{
+					Writer.Uint(MarkerKey);
+				}
+			}
+			Writer.EndArray();
 		}
-		NeighborKeyset.erase(CellKey);
-		for (const uint32 NeighborKey : NeighborKeyset)
-		{
-			NeighborList.append(NeighborKey);
-		}
-		CellInfo["NeighborList"] = NeighborList;
-		CellInfo["Key"] = CellKey;
-		CellInfo["Location"] = Location;
-
-		Root["Cell"].append(CellInfo);
+		Writer.EndObject();
 	}
+	Writer.EndArray();
 
-	for (const auto& [MarkerKey, _Marker] : CurrentMarkers)
+	// Marker Parser..
+	Writer.Key("MarkerList");
 	{
-		Json::Value MarkerInfo{};
-
-		MarkerInfo["Key"] = MarkerKey;
-
-		for (const uint32 SharedCellKey : _Marker->SharedCellKeys)
+		Writer.StartArray();
+		for (const auto& [MarkerKey, _Marker] : CurrentMarkers)
 		{
-			MarkerInfo["CellKeyList"].append(SharedCellKey);
+			Writer.StartObject();
+			{
+				{
+					Writer.Key("Index");
+					Writer.Uint(MarkerKey);
+				}
+				{
+					Writer.Key("Location");
+					Writer.StartArray();
+					const Vector3 MarkerLocation = _Marker->_Sphere.Center;
+					Writer.Double(MarkerLocation.x);
+					Writer.Double(MarkerLocation.y);
+					Writer.Double(MarkerLocation.z);
+					Writer.EndArray();
+				}
+				{
+					Writer.Key("SharedCellIndexList");
+					Writer.StartArray();
+					for (const uint32 SharedCellKey : _Marker->SharedCellKeys)
+					{
+						Writer.Uint(SharedCellKey);
+					}
+					Writer.EndArray();
+				}
+			}
+			Writer.EndObject();
 		}
-
-		Root["Marker"].append(MarkerInfo);
+		Writer.EndArray();
 	}
 
-	Writer->write(Root, &Os);
-	Writer->write(Root, &LastSaveFileBuffer);
+	Writer.EndObject();
+	std::ofstream Of{ SavePath };
+	NaviMeshInfoString = StrBuf.GetString();
+	Of << NaviMeshInfoString;
 }
 
 void Engine::NavigationMesh::Load(const std::filesystem::path LoadPath)&
 {
 	std::ifstream Is{ LoadPath };
+	using namespace rapidjson;
+	if (!Is.is_open()) return;
+
+	IStreamWrapper Isw(Is);
+	Document _Document;
+	_Document.ParseStream(Isw);
+
+	if (_Document.HasParseError())
+	{
+		MessageBox(Engine::Global::Hwnd, L"Json Parse Error", L"Json Parse Error", MB_OK);
+		return;
+	}
+
 	CellContainer.clear();
 	CurrentMarkers.clear();
-	constexpr std::streamsize BufferSize = 256u;
-	char Buffer[BufferSize];
-	Is.getline(Buffer, BufferSize,'[');
-	uint32 CellIndex;
-	Is >> CellIndex;
-	
-	CellContainer.insert({});
+
+	const Value& CellList = _Document["CellList"];
+	for (auto CellIterator = CellList.Begin();
+		CellIterator != CellList.End(); ++CellIterator)
+	{
+		std::shared_ptr<Cell> PushCell = std::make_shared<Cell>();
+
+		const uint32 CellIndex = CellIterator->FindMember("Index")->value.GetUint();
+		const auto PointAxyz =CellIterator->FindMember("Point A")->value.GetArray();
+		const auto PointBxyz = CellIterator->FindMember("Point B")->value.GetArray();
+		const auto PointCxyz = CellIterator->FindMember("Point C")->value.GetArray();
+
+		const Vector3 PointA  { PointAxyz[0].GetFloat(),PointAxyz[1].GetFloat(), PointAxyz[2].GetFloat() };
+		const Vector3 PointB{ PointBxyz[0].GetFloat(),PointBxyz[1].GetFloat(), PointBxyz[2].GetFloat() };
+		const Vector3 PointC{ PointCxyz[0].GetFloat(),PointCxyz[1].GetFloat(), PointCxyz[2].GetFloat() };
+
+		std::array<uint32,3u> MarkerKeySet{};
+		const auto MarkerSet = CellIterator->FindMember("MarkerSet")->value.GetArray();
+		for (uint32 i = 0; i < MarkerKeySet.size(); ++i)
+		{
+			MarkerKeySet[i] = MarkerSet[i].GetUint();
+		}
+		PushCell->Initialize(this, PointA, PointB, PointC, Device,MarkerKeySet);
+		CellContainer.insert({ CellIndex ,std::move(PushCell) });
+	}
+	const Value& MarkerList = _Document["MarkerList"];
+	for (auto MarkerIter = MarkerList.Begin();
+		MarkerIter != MarkerList.End(); ++MarkerIter)
+	{
+		std::shared_ptr<Marker> PushMarker = std::make_shared<Marker >();
+		const uint32 MarkerIndex = MarkerIter->FindMember("Index")->value.GetUint();
+		const auto MarkerLocation = MarkerIter->FindMember("Location")->value.GetArray();
+		
+		PushMarker->_Sphere.Center = { MarkerLocation[0].GetFloat()  ,
+									   MarkerLocation[1].GetFloat()  , 
+			                           MarkerLocation[2].GetFloat()  };
+
+		const auto SharedCellIndexArray = MarkerIter->FindMember("SharedCellIndexList")->value.GetArray();
+		for (auto SharedCellIter = SharedCellIndexArray.begin();
+			SharedCellIter != SharedCellIndexArray.end(); ++SharedCellIter)
+		{
+			PushMarker->SharedCellKeys.insert(SharedCellIter->GetUint());
+		};
+		PushMarker->_Sphere.Radius = 1.f;
+		CurrentMarkers.insert({ MarkerIndex , std::move (PushMarker)  });
+	}
+	std::stringstream StringStream;
+	StringStream<<Is.rdbuf();
+	NaviMeshInfoString = StringStream.str();
+	CellNeighborLink();
 }
 
 void Engine::NavigationMesh::DebugLog()&
@@ -227,11 +358,11 @@ void Engine::NavigationMesh::DebugLog()&
 		}
 		ImGui::Separator();
 	}
-	if (false == LastSaveFileBuffer.str().empty())
+	if (false == NaviMeshInfoString.empty())
 	{
-		if (ImGui::CollapsingHeader("Saved data content"))
+		if (ImGui::CollapsingHeader("Data content Json Format"))
 		{
-			ImGui::Text(LastSaveFileBuffer.str().c_str());
+			ImGui::Text(NaviMeshInfoString.c_str());
 		}
 	}
 	ImGui::End();
@@ -425,6 +556,10 @@ void Engine::NavigationMesh::Initialize(IDirect3DDevice9* Device)&
 {
 	this->Device = Device;
 
+	_ShaderFx=Engine::ShaderFx::Load(Device, Engine::Global::ResourcePath / L"Shader" / L"NaviMeshFx.hlsl", L"NaviMeshFx");
+	VtxDecl = Engine::ResourceSystem::Instance->Insert <IDirect3DVertexDeclaration9>(L"VertexDecl_LocationColor",
+		Vertex::LocationColor::GetVertexDecl(Device));
+
 	Device->CreateVertexBuffer(sizeof(Vertex::LocationColor) * 3u*3000u, D3DUSAGE_DYNAMIC, Vertex::LocationColor::FVF,D3DPOOL_DEFAULT, &VertexBuffer, nullptr);
 	ResourceSystem::Instance->Insert<IDirect3DVertexBuffer9>(L"NaviMeshDebugVertexBuffer", VertexBuffer);
 	// 여기서 파일 로딩...
@@ -434,10 +569,7 @@ void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 {
 	if (Engine::Global::bDebugMode)
 	{
-		for (auto& [CellKey , CurCell ] : CellContainer)
-		{
-			CurCell->Render(Device);
-		}
+		
 
 		std::set<uint32> FilterAfterNeighborKeys{};
 
@@ -461,15 +593,19 @@ void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 
 		Vertex::LocationColor* VtxBufPtr{ nullptr };
 		VertexBuffer->Lock(0u,
-		sizeof(Vertex::LocationColor) * 3u * CellContainer.size(), reinterpret_cast<void**>			(&VtxBufPtr),NULL);
+		sizeof(Vertex::LocationColor) * 3u * CellContainer.size(), reinterpret_cast<void**>(&VtxBufPtr),NULL);
 		
 		uint32 Idx = 0u;
 		for (const auto& [CellKey, _Cell] : CellContainer)
 		{
-			 D3DCOLOR Diffuse= FilterAfterNeighborKeys.contains(CellKey) ? 
-				 D3DCOLOR_COLORVALUE(1.f,0.f,0.f,1.f) : D3DCOLOR_COLORVALUE(0.f,1.f,0.f,1.f) ;
-			 Diffuse =  ( (CurSelectCellKey!=0u) &&(Idx== CurSelectCellKey) )? 
-				 D3DCOLOR_COLORVALUE(0.f, 0.f, 1.f, 1.f) : Diffuse;
+			Vector4 Diffuse = FilterAfterNeighborKeys.contains(CellKey) ?
+				NeighborColor : DefaultColor;
+
+			if (CellKey == CurSelectCellKey)
+			{
+				Diffuse = SelectColor;
+			}
+
 			for (uint32 i = 0; i < 3; ++i)
 			{
 				const uint32 TargetBufferIdx =Idx * 3u + i;
@@ -485,17 +621,29 @@ void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 			++Idx;
 		}
 		VertexBuffer->Unlock();
-		Device->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_PHONG);
-		//Device->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_FLAT);
-		const Matrix Identity = FMath::Identity(); 
-		Device->SetTransform(D3DTS_WORLD, &Identity); 
-		Device->SetStreamSource(0, VertexBuffer, 0u, sizeof(Vertex::LocationColor));
-		Device->SetFVF(Vertex::LocationColor::FVF);
-		Device->SetVertexShader(nullptr);
-		Device->SetPixelShader(nullptr);
-		Device->SetRenderState(D3DRS_LIGHTING, FALSE);
-		Device->DrawPrimitive(D3DPT_TRIANGLELIST, 0u, CellContainer.size());
+
+		Matrix Projection, View;
+		Device->GetTransform(D3DTS_PROJECTION, &Projection);
+		Device->GetTransform(D3DTS_VIEW, &View);
+		ID3DXEffect* Fx = _ShaderFx->GetHandle();
+		Fx->SetMatrix("World", &World);
+		Fx->SetMatrix("View", &View);
+		Fx->SetMatrix("Projection", &Projection);
+		uint32 PassNum = 0;
+		Fx->Begin(&PassNum, 0);
+		for (uint32 PassIdx = 0u; PassIdx < PassNum; ++PassIdx)
+		{
+			Fx->BeginPass(PassIdx);
+			Device->SetVertexDeclaration(VtxDecl);
+			/*Device->SetFVF(Vertex::LocationColor::FVF);*/
+			Device->SetStreamSource(0, VertexBuffer, 0u, sizeof(Vertex::LocationColor));
+			Device->DrawPrimitive(D3DPT_TRIANGLELIST, 0u, CellContainer.size());
+			Fx->EndPass();
+		};
+		Fx->End();
+		
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+
 		auto DebugSphereMesh = ResourceSystem::Instance->Get<ID3DXMesh>(L"SphereMesh");
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 		for (auto& [MarkerKey,DrawMarkerDebugSphere]: CurrentMarkers)
@@ -508,6 +656,11 @@ void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 			DebugSphereMesh->DrawSubset(0);
 		}
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+
+		for (auto& [CellKey, CurCell] : CellContainer)
+		{
+			CurCell->Render(Device);
+		}
 	}
 }
 

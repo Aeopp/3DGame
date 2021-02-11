@@ -132,6 +132,10 @@ void Tool::NaviMeshTool()&
 		{
 			std::filesystem::path OpenPath = Engine::FileHelper::OpenDialogBox();
 			NaviMesh.Load(OpenPath);
+		}
+		if (ImGui::Button("Clear"))
+		{
+			NaviMesh.Clear();
 		}ImGui::Separator();
 		if (ImGui::Button("Connecting Neighbors of Cells"))
 		{
@@ -184,8 +188,15 @@ void Tool::NaviMeshTool()&
 		ImGui::RadioButton("Picking", &NavigationMeshModeSelect, 0); ImGui::SameLine(); 
 		ImGui::RadioButton("Deletion", &NavigationMeshModeSelect, 1); ImGui::SameLine();
 		ImGui::RadioButton("Observer", &NavigationMeshModeSelect, 2); 
+
+		ImGui::BulletText("Debug Color");
+		ImGui::ColorEdit4("Cell", NaviMesh.DefaultColor);
+		ImGui::ColorEdit4("Select", NaviMesh.SelectColor);
+		ImGui::ColorEdit4("Neighbor", NaviMesh.NeighborColor);
 	}
 	ImGui::End();
+
+
 
 	POINT Pt;
 	GetCursorPos(&Pt);

@@ -220,7 +220,6 @@
     <ClCompile Include="Codes\App.cpp" />
     <ClCompile Include="Codes\EnemyLayer.cpp" />
     <ClCompile Include="Codes\EnterGame.cpp" />
-    <ClCompile Include="Codes\jsoncpp.cpp" />
     <ClCompile Include="Codes\Logo.cpp" />
     <ClCompile Include="Codes\Player.cpp" />
     <ClCompile Include="Codes\StartScene.cpp" />
