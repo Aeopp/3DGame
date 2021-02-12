@@ -88,45 +88,32 @@ void Engine::SkeletonMesh::Render()&
 {
 	Super::Render();
 
-	Device->SetVertexShader(nullptr);
-	Device->SetPixelShader(nullptr);
-
-	std::vector<std::future<void>> ParallelSkinnings{};
-
 	for (auto& CurrentRenderMesh : MeshContainer)
 	{
-		ParallelSkinnings.push_back(std::async(std::launch::async, [this, CurrentRenderMesh]()
+		byte* VertexBufferPtr{ nullptr };
+
+		CurrentRenderMesh.VertexBuffer->Lock(0, 0, reinterpret_cast<void**>(&VertexBufferPtr), NULL);
+
+		std::memcpy(VertexBufferPtr, CurrentRenderMesh.VerticiesPtr,
+			CurrentRenderMesh.VtxBufSize);
+
+		for (uint32 i = 0; i < CurrentRenderMesh.VtxCount; ++i)
+		{
+			Vector3       AnimLocation{ 0,0,0 };
+			// 버텍스의 첫번째 메모리 주소가 반드시 Vector3 이라고 가정하고 있음. 유의해야함.
+			void* CurrentMemory = (VertexBufferPtr + (i * CurrentRenderMesh.Stride));
+			Vector3* CurrentLocationPtr = reinterpret_cast<Vector3*>(CurrentMemory);
+			for (uint32 j = 0; j < CurrentRenderMesh.Finals[i].size(); ++j)
 			{
-				byte* VertexBufferPtr{ nullptr };
-
-				CurrentRenderMesh.VertexBuffer->Lock(0, 0, reinterpret_cast<void**>(&VertexBufferPtr), NULL);
-
-				std::memcpy(VertexBufferPtr, CurrentRenderMesh.VerticiesPtr,
-					CurrentRenderMesh.VtxBufSize);
-
-				for (uint32 i = 0; i < CurrentRenderMesh.VtxCount; ++i)
-				{
-					Vector3       AnimLocation{ 0,0,0 };
-					// 버텍스의 첫번째 메모리 주소가 반드시 Vector3 이라고 가정하고 있음. 유의해야함.
-					void* CurrentMemory = (VertexBufferPtr + (i * CurrentRenderMesh.Stride));
-					Vector3* CurrentLocationPtr = reinterpret_cast<Vector3*>(CurrentMemory);
-					const Vector3 OriginLocation = *CurrentLocationPtr;
-					for (uint32 j = 0; j < CurrentRenderMesh.Finals[i].size(); ++j)
-					{
-						Vector3 _Location{ 0,0,0 };
-						D3DXVec3TransformCoord(&_Location, &OriginLocation, CurrentRenderMesh.Finals[i][j]);
-						AnimLocation += (_Location *= CurrentRenderMesh.Weights[i][j]);
-					}
-					static constexpr uint32 _float3Size = sizeof(Vector3);
-					std::memcpy(CurrentMemory, &AnimLocation, _float3Size);
-				}
-				CurrentRenderMesh.VertexBuffer->Unlock();
-			}));
-	}
-
-	for (auto& Joinable : ParallelSkinnings)
-	{
-		Joinable.get();
+				Vector3 _Location{ 0,0,0 };
+				D3DXVec3TransformCoord(&_Location, CurrentLocationPtr, CurrentRenderMesh.Finals[i][j]);
+				AnimLocation += (_Location *= CurrentRenderMesh.Weights[i][j]);
+			}
+			static constexpr uint32 _float3Size = sizeof(Vector3);
+			std::memcpy(CurrentMemory, &AnimLocation, _float3Size);
+		}
+		CurrentRenderMesh.VertexBuffer->Unlock();
+	
 	}
 
 	for (auto& CurrentRenderMesh : MeshContainer)
