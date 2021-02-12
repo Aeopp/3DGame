@@ -57,18 +57,6 @@ void Engine::NavigationMesh::Save(const std::filesystem::path SavePath ,const Ma
 {
 	const Matrix ToMapLocal = FMath::Inverse(MapWorld);
 
-	auto LocalCellContainer = CellContainer;
-
-	for (auto& [CellKey, WorldToLocalCell] : LocalCellContainer)
-	{
-		WorldToLocalCell->Initialize(this,
-			FMath::Mul(WorldToLocalCell->PointA, ToMapLocal),
-			FMath::Mul(WorldToLocalCell->PointB, ToMapLocal),
-			FMath::Mul(WorldToLocalCell->PointC, ToMapLocal),
-			Device, WorldToLocalCell->MarkerKeys);
-	}
-
-
 	using namespace rapidjson;
 
 	StringBuffer StrBuf;
@@ -93,9 +81,10 @@ void Engine::NavigationMesh::Save(const std::filesystem::path SavePath ,const Ma
 				Writer.Key("Point A");
 				Writer.StartArray();
 				{
-					Writer.Double(_Cell->PointA.x);
-					Writer.Double(_Cell->PointA.y);
-					Writer.Double(_Cell->PointA.z);
+					const Vector3 LocalPointA = FMath::Mul(_Cell->PointA, ToMapLocal);
+					Writer.Double(LocalPointA.x);
+					Writer.Double(LocalPointA.y);
+					Writer.Double(LocalPointA.z);
 				}
 				Writer.EndArray();
 			}
@@ -103,9 +92,10 @@ void Engine::NavigationMesh::Save(const std::filesystem::path SavePath ,const Ma
 				Writer.Key("Point B");
 				Writer.StartArray();
 				{
-					Writer.Double(_Cell->PointB.x);
-					Writer.Double(_Cell->PointB.y);
-					Writer.Double(_Cell->PointB.z);
+					const Vector3 LocalPointB = FMath::Mul(_Cell->PointB, ToMapLocal);
+					Writer.Double(LocalPointB.x);
+					Writer.Double(LocalPointB.y);
+					Writer.Double(LocalPointB.z);
 				}
 				Writer.EndArray();
 			}
@@ -113,9 +103,10 @@ void Engine::NavigationMesh::Save(const std::filesystem::path SavePath ,const Ma
 				Writer.Key("Point C");
 				Writer.StartArray();
 				{
-					Writer.Double(_Cell->PointC.x);
-					Writer.Double(_Cell->PointC.y);
-					Writer.Double(_Cell->PointC.z);
+					const Vector3 LocalPointC = FMath::Mul(_Cell->PointC, ToMapLocal);
+					Writer.Double(LocalPointC.x);
+					Writer.Double(LocalPointC.y);
+					Writer.Double(LocalPointC.z);
 				}
 				Writer.EndArray();
 			}
@@ -170,10 +161,11 @@ void Engine::NavigationMesh::Save(const std::filesystem::path SavePath ,const Ma
 				{
 					Writer.Key("Location");
 					Writer.StartArray();
-					const Vector3 MarkerLocation = _Marker->_Sphere.Center;
-					Writer.Double(MarkerLocation.x);
-					Writer.Double(MarkerLocation.y);
-					Writer.Double(MarkerLocation.z);
+					const Vector3 MarkerWorldLocation = _Marker->_Sphere.Center;
+					const Vector3 MarkerLocalLocation = FMath::Mul(MarkerWorldLocation, ToMapLocal); 
+					Writer.Double(MarkerLocalLocation.x);
+					Writer.Double(MarkerLocalLocation.y);
+					Writer.Double(MarkerLocalLocation.z);
 					Writer.EndArray();
 				}
 				{
@@ -197,7 +189,7 @@ void Engine::NavigationMesh::Save(const std::filesystem::path SavePath ,const Ma
 	Of << NaviMeshInfoString;
 }
 
-void Engine::NavigationMesh::Load(const std::filesystem::path LoadPath)&
+void Engine::NavigationMesh::Load(const std::filesystem::path LoadPath,const Matrix& MapWorld)&
 {
 	std::ifstream Is{ LoadPath };
 	using namespace rapidjson;
@@ -223,13 +215,17 @@ void Engine::NavigationMesh::Load(const std::filesystem::path LoadPath)&
 		std::shared_ptr<Cell> PushCell = std::make_shared<Cell>();
 
 		const uint32 CellIndex = CellIterator->FindMember("Index")->value.GetUint();
-		const auto PointAxyz =CellIterator->FindMember("Point A")->value.GetArray();
-		const auto PointBxyz = CellIterator->FindMember("Point B")->value.GetArray();
-		const auto PointCxyz = CellIterator->FindMember("Point C")->value.GetArray();
+		const auto PointAxyz   = CellIterator->FindMember ("Point A")->value.GetArray();
+		const auto PointBxyz =   CellIterator->FindMember("Point B")->value.GetArray();
+		const auto PointCxyz =   CellIterator->FindMember("Point C")->value.GetArray();
 
-		const Vector3 PointA  { PointAxyz[0].GetFloat(),PointAxyz[1].GetFloat(), PointAxyz[2].GetFloat() };
-		const Vector3 PointB{ PointBxyz[0].GetFloat(),PointBxyz[1].GetFloat(), PointBxyz[2].GetFloat() };
-		const Vector3 PointC{ PointCxyz[0].GetFloat(),PointCxyz[1].GetFloat(), PointCxyz[2].GetFloat() };
+		const Vector3 LocalPointA  { PointAxyz[0].GetFloat(),PointAxyz[1].GetFloat(), PointAxyz[2].GetFloat() };
+		const Vector3 LocalPointB  { PointBxyz[0].GetFloat(),PointBxyz[1].GetFloat(), PointBxyz[2].GetFloat() };
+		const Vector3 LocalPointC  { PointCxyz[0].GetFloat(),PointCxyz[1].GetFloat(), PointCxyz[2].GetFloat() };
+
+		const Vector3 WorldPointA =FMath::Mul(LocalPointA,MapWorld); 
+		const Vector3 WorldPointB =FMath::Mul(LocalPointB,MapWorld); 
+		const Vector3 WorldPointC =FMath::Mul(LocalPointC,MapWorld) ; 
 
 		std::array<uint32,3u> MarkerKeySet{};
 		const auto MarkerSet = CellIterator->FindMember("MarkerSet")->value.GetArray();
@@ -237,7 +233,7 @@ void Engine::NavigationMesh::Load(const std::filesystem::path LoadPath)&
 		{
 			MarkerKeySet[i] = MarkerSet[i].GetUint();
 		}
-		PushCell->Initialize(this, PointA, PointB, PointC, Device,MarkerKeySet);
+		PushCell->Initialize(this, WorldPointA, WorldPointB, WorldPointC, Device,MarkerKeySet);
 		CellContainer.insert({ CellIndex ,std::move(PushCell) });
 	}
 	const Value& MarkerList = _Document["MarkerList"];
@@ -246,11 +242,16 @@ void Engine::NavigationMesh::Load(const std::filesystem::path LoadPath)&
 	{
 		std::shared_ptr<Marker> PushMarker = std::make_shared<Marker >();
 		const uint32 MarkerIndex = MarkerIter->FindMember("Index")->value.GetUint();
-		const auto MarkerLocation = MarkerIter->FindMember("Location")->value.GetArray();
-		
-		PushMarker->_Sphere.Center = { MarkerLocation[0].GetFloat()  ,
-									   MarkerLocation[1].GetFloat()  , 
-			                           MarkerLocation[2].GetFloat()  };
+		const auto MarkerLocalArray = MarkerIter->FindMember("Location")->value.GetArray();
+
+		const Vector3 MarkerLocalLocation{
+			MarkerLocalArray[0].GetFloat()  ,
+			MarkerLocalArray[1].GetFloat()  ,
+			MarkerLocalArray[2].GetFloat()}; 
+
+		const Vector3 MarkerWorldLocation{ FMath::Mul(MarkerLocalLocation,MapWorld) }; 
+
+		PushMarker->_Sphere.Center = MarkerWorldLocation;
 
 		const auto SharedCellIndexArray = MarkerIter->FindMember("SharedCellIndexList")->value.GetArray();
 		for (auto SharedCellIter = SharedCellIndexArray.begin();
@@ -261,6 +262,28 @@ void Engine::NavigationMesh::Load(const std::filesystem::path LoadPath)&
 		PushMarker->_Sphere.Radius = 1.f;
 		CurrentMarkers.insert({ MarkerIndex , std::move (PushMarker)  });
 	}
+
+	if (auto MaxIter = std::max_element(
+		std::begin(CurrentMarkers),
+		std::end(CurrentMarkers), [](const auto& Lhs, const auto& Rhs)
+		{
+			return Lhs.first < Rhs.first;
+		}); MaxIter != std::end(CurrentMarkers))
+	{
+		MarkerKey = (MaxIter->first + 1u);
+	}
+
+	if (auto MaxIter = std::max_element(
+		std::begin(CellContainer),
+		std::end(CellContainer), [](const auto& Lhs, const auto& Rhs)
+		{
+			return Lhs.first < Rhs.first;
+		}); MaxIter != std::end(CellContainer))
+	{
+		CellKey = (MaxIter->first + 1u);
+	}
+
+
 	std::stringstream StringStream;
 	StringStream<<Is.rdbuf();
 	NaviMeshInfoString = StringStream.str();
@@ -435,7 +458,7 @@ uint32 Engine::NavigationMesh::InsertPointFromMarkers(const Ray WorldRay)&
 					CurrentPickPoints[0].second,
 					CurrentPickPoints[1].second,
 					CurrentPickPoints[2].second,
-					Device,
+					          Device,
 					{   CurrentPickPoints[0].first ,
 						CurrentPickPoints[1].first,
 						CurrentPickPoints[2].first }
@@ -536,8 +559,6 @@ void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 {
 	if (Engine::Global::bDebugMode)
 	{
-		
-
 		std::set<uint32> FilterAfterNeighborKeys{};
 
 		if (auto iter = CellContainer.find(CurSelectCellKey);

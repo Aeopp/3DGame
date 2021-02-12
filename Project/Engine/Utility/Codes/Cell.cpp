@@ -27,6 +27,7 @@ void Engine::Cell::Initialize(
 	Segment2DCA = Segment2DAndNormal::Make(PointC_XZ, PointA_XZ);
 
 	static uint32 LineResourceIdx = 0u; 
+
 	if (Engine::Global::bDebugMode)
 	{
 		D3DXCreateLine(Device, &Line);

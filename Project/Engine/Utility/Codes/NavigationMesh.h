@@ -30,7 +30,7 @@ namespace Engine
 		void Clear();
 		void CellNeighborLink()&;
 		void Save(const std::filesystem::path SavePath,const Matrix& MapWorld)&;
-		void Load(const std::filesystem::path LoadPath)&;
+		void Load(const std::filesystem::path LoadPath , const Matrix& MapWorld)&;
 		void DebugLog()&;
 		void EraseCellFromRay(const Ray WorldRay)&;
 		void MarkerMove(const uint32 MarkerKey, const Vector3 Vec)&;

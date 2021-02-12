@@ -60,7 +60,6 @@ void Tool::Initialize(IDirect3DDevice9* const Device)&
 	// 프로토타입 로딩.
 	{
 		Proto.LoadPrototype<TombStone>(L"Static", Device, Engine::RenderInterface::Group::NoAlpha);
-
 	}
 
 	// 카메라 오브젝트 추가.
@@ -73,22 +72,20 @@ void Tool::Initialize(IDirect3DDevice9* const Device)&
 	}
 
 	{
-		auto TargetMap = RefManager().NewObject<StaticLayer, TombStone>(L"Static", L"TombStone_1",
-			Vector3{ 100,100,100 }, Vector3{ FMath::ToRadian(90.f),0,0 }, Vector3{ 0,0,0 });
+		auto TargetMap = RefManager().NewObject<StaticLayer, TombStone>(L"Static", L"TombStone_1", MapScale, MapRotation, MapLocation);
 
 		// 네비게이션 메쉬를 설치할 지형을 월드 좌표계로 변환한 이후 피킹할 준비를 합니다.
 		// TODO :: 때문에 네비메쉬를 저장할때에 네비메쉬의 정점 좌표들을
 		// 지형 월드의 역변환을 수행해 지형의 로컬 좌표계와 맞추어 주는 작업을 하길 바람. 
 		// 로딩 할시에는 항상 지형의 월드행렬을 받아서 곱해서 로딩.....
-		auto TargetMesh = TargetMap->GetComponent<Engine::StaticMesh>();
+		auto TargetMesh      = TargetMap->GetComponent<Engine::StaticMesh>();
 		auto TargetTransform = TargetMap->GetComponent<Engine::Transform>();
-		const Matrix TargetWorld = TargetTransform->UpdateWorld(); 
 
 		std::vector<Vector3> Locations;		
 		for (uint32 i = 0; i < TargetMesh->LocalVertexLocations->size(); ++i)
 		{
 			const Vector3 WorldVertexLocation = 
-				FMath::Mul((*TargetMesh->LocalVertexLocations)[i], TargetWorld);
+				FMath::Mul((*TargetMesh->LocalVertexLocations)[i], MapWorld);
 
 			Locations.push_back(WorldVertexLocation);
 			if (Locations.size() == 3u)
@@ -126,12 +123,12 @@ void Tool::NaviMeshTool()&
 		if (ImGui::Button("Save")) 
 		{
 			std::filesystem::path OpenPath = Engine::FileHelper::OpenDialogBox();
-			NaviMesh.Save(OpenPath);
+			NaviMesh.Save(OpenPath,MapWorld);
 		}ImGui::SameLine(); 
 		if (ImGui::Button("Load"))
 		{
 			std::filesystem::path OpenPath = Engine::FileHelper::OpenDialogBox();
-			NaviMesh.Load(OpenPath);
+			NaviMesh.Load(OpenPath,MapWorld);
 		}ImGui::SameLine();
 		if (ImGui::Button("Clear"))
 		{
@@ -195,8 +192,6 @@ void Tool::NaviMeshTool()&
 		ImGui::ColorEdit4("Neighbor", NaviMesh.NeighborColor);
 	}
 	ImGui::End();
-
-
 
 	POINT Pt;
 	GetCursorPos(&Pt);

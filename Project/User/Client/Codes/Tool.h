@@ -19,6 +19,11 @@ public:
 private:
 	void NaviMeshTool()&;
 private:
+	const Vector3 MapScale{33,77,44};
+	const Vector3 MapRotation{FMath::ToRadian(90.f) , FMath::ToRadian(45.f),44.f};
+	const Vector3 MapLocation{7,4,100}; 
+	const Matrix MapWorld = FMath::WorldMatrix(MapScale, MapRotation, MapLocation);
+
 	uint32 NaviMeshCurrentSelectMarkeyKey{ 0u };
 	uint32 NaviMeshCurrentSelectCellKey{ 0u };
 	// 네비게이션 메쉬의 피킹시 편의를 위함.
