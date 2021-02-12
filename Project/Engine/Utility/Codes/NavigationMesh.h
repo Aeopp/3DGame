@@ -14,6 +14,8 @@
 #include <set>
 #include <sstream>
 #include "ShaderFx.h"
+#include "FMath.hpp"
+
 namespace Engine
 {
 	struct DLL_DECL Marker
@@ -27,8 +29,7 @@ namespace Engine
 	public:
 		void Clear();
 		void CellNeighborLink()&;
-		void SaveFile(const std::filesystem::path SavePath)&;
-		void Save(const std::filesystem::path SavePath)&;
+		void Save(const std::filesystem::path SavePath,const Matrix& MapWorld)&;
 		void Load(const std::filesystem::path LoadPath)&;
 		void DebugLog()&;
 		void EraseCellFromRay(const Ray WorldRay)&;

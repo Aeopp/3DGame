@@ -14,6 +14,8 @@
 #include <set>
 #include <sstream>
 #include "ShaderFx.h"
+#include "FMath.hpp"
+
 namespace Engine
 {
 	struct DLL_DECL Marker

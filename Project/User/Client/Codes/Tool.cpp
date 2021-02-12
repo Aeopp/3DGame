@@ -132,7 +132,7 @@ void Tool::NaviMeshTool()&
 		{
 			std::filesystem::path OpenPath = Engine::FileHelper::OpenDialogBox();
 			NaviMesh.Load(OpenPath);
-		}
+		}ImGui::SameLine();
 		if (ImGui::Button("Clear"))
 		{
 			NaviMesh.Clear();

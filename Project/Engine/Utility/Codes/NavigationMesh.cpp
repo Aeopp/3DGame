@@ -3,6 +3,7 @@
 #include "FMath.hpp"
 #include "ResourceSystem.h"
 #include "UtilityGlobal.h"
+#include <algorithm>
 #include "Vertexs.hpp"
 #include <ostream>
 #include <fstream>
@@ -15,8 +16,6 @@
 #include <rapidjson/document.h>
 #include <rapidjson/ostreamwrapper.h>
 #include <rapidjson/istreamwrapper.h>
-
-
 
 static uint32 MarkerKey{ 1u };
 static uint32 CellKey{ 1u };
@@ -54,54 +53,22 @@ void Engine::NavigationMesh::CellNeighborLink()&
 		}
 	}
 }
-
-void Engine::NavigationMesh::SaveFile(const std::filesystem::path SavePath)&
+void Engine::NavigationMesh::Save(const std::filesystem::path SavePath ,const Matrix& MapWorld) &
 {
-	std::ofstream Os{ SavePath };
-	std::stringstream Wss;
-	
-	for (const auto& [CellKey, SaveCell] : CellContainer)
-	{
-		Wss << "Cell [ " << CellKey << " ]" << std::endl
-			<< "Location A [ " << SaveCell->PointA.x << " " << SaveCell->PointA.y << " " << SaveCell->PointA.z << " ]"
-			<< "  B [ " << SaveCell->PointB.x << " " << SaveCell->PointB.y << " " << SaveCell->PointB.z << " ]"
-			<< "  C [ " << SaveCell->PointC.x << " " << SaveCell->PointC.y << " " << SaveCell->PointC.z << " ]" << std::endl
-			<< "Neighbor [ ";
+	const Matrix ToMapLocal = FMath::Inverse(MapWorld);
 
-		std::set<uint32> NeighborKeyset;
-		for (const uint32 SaveCellMarkerKey : SaveCell->MarkerKeys)
-		{
-			for (const auto& [MarkerKey, _Marker] : CurrentMarkers)
-			{
-				for (const auto& _MaybeNeighborKey : _Marker->SharedCellKeys)
-				{
-					NeighborKeyset.insert(_MaybeNeighborKey);
-				}
-			}
-		}
-		NeighborKeyset.erase(CellKey);
-		for (const uint32 NeighborKey : NeighborKeyset)
-		{
-			Wss << NeighborKey << " ";
-		}
-		Wss << " ]\n" << std::endl;
-	}
-	Wss << "---------------------------------------------------------------------------------------------------\n";
-	for (const auto& [MarkerKey, _Marker] : CurrentMarkers)
-	{
-		Wss << "Marker [ " << MarkerKey << " ]\n";
-		Wss << "CellKey [ ";
-		for (const uint32 SharedCellKey : _Marker->SharedCellKeys)
-		{
-			Wss << SharedCellKey << " ";
-		}
-		Wss << "]\n\n";
-	}
-	Os << Wss.str();
-}
+	auto LocalCellContainer = CellContainer;
 
-void Engine::NavigationMesh::Save(const std::filesystem::path SavePath) &
-{
+	for (auto& [CellKey, WorldToLocalCell] : LocalCellContainer)
+	{
+		WorldToLocalCell->Initialize(this,
+			FMath::Mul(WorldToLocalCell->PointA, ToMapLocal),
+			FMath::Mul(WorldToLocalCell->PointB, ToMapLocal),
+			FMath::Mul(WorldToLocalCell->PointC, ToMapLocal),
+			Device, WorldToLocalCell->MarkerKeys);
+	}
+
+
 	using namespace rapidjson;
 
 	StringBuffer StrBuf;
