@@ -18,7 +18,7 @@ void Engine::Renderer::Render()&
 	CameraWorld = FMath::Inverse(View);
 	const Vector3 CameraLocation = { CameraWorld._41,CameraWorld._42,CameraWorld._43 };
 	_Frustum.Make(CameraWorld, Projection);
-	RenderLandscape(_Frustum);
+	RenderLandscape(_Frustum, View  , Projection);
 	RenderEnviroment();
 	RenderNoAlpha();
 	if (Engine::Global::bDebugMode)
@@ -40,9 +40,14 @@ Engine::Landscape& Engine::Renderer::RefLandscape()&
 	return   CurrentLandscape;
 };
 
-void Engine::Renderer::RenderLandscape(Frustum& RefFrustum)&
+void Engine::Renderer::RenderLandscape(Frustum& RefFrustum,const Matrix& View,const Matrix& Projection)&
 {
-	CurrentLandscape.Render(RefFrustum);
+	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	Device->SetRenderState(D3DRS_ZENABLE, TRUE);
+	Device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	CurrentLandscape.Render(RefFrustum , View, Projection);
 }
 
 void Engine::Renderer::RenderDebugCollision()&

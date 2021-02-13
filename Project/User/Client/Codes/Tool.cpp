@@ -33,17 +33,19 @@
 #include <commdlg.h>
 #include <Windows.h>
 #include <stdio.h>
+#include "Renderer.h"
 
 void Tool::Initialize(IDirect3DDevice9* const Device)&
 {
     Super::Initialize(Device);
 	
-	auto& FontMgr = RefFontManager();
-	auto& Control = RefControl();
+	auto& FontMgr =     RefFontManager();
+	auto& Control =     RefControl();
 	auto& ResourceSys = RefResourceSys();
-	auto& Manager = RefManager();
-	auto& Proto = RefProto();
-	
+	auto& Manager =     RefManager();
+	auto& Proto =       RefProto();
+	auto& Renderer =    RefRenderer(); 
+
 	_NaviMesh = &RefNaviMesh();
 	// 텍스쳐 리소스 추가. 
 	{
@@ -55,10 +57,9 @@ void Tool::Initialize(IDirect3DDevice9* const Device)&
 		Manager.NewLayer<StaticLayer>();
 	}
 
-
 	// 프로토타입 로딩.
 	{
-		Proto.LoadPrototype<TombStone>(L"Static", Device, Engine::RenderInterface::Group::NoAlpha);
+
 	}
 
 	// 카메라 오브젝트 추가.
@@ -71,30 +72,9 @@ void Tool::Initialize(IDirect3DDevice9* const Device)&
 	}
 
 	{
-		auto TargetMap = RefManager().NewObject<StaticLayer, TombStone>(L"Static", L"TombStone_1", MapScale, MapRotation, MapLocation);
-
-		// 네비게이션 메쉬를 설치할 지형을 월드 좌표계로 변환한 이후 피킹할 준비를 합니다.
-		// TODO :: 때문에 네비메쉬를 저장할때에 네비메쉬의 정점 좌표들을
-		// 지형 월드의 역변환을 수행해 지형의 로컬 좌표계와 맞추어 주는 작업을 하길 바람. 
-		// 로딩 할시에는 항상 지형의 월드행렬을 받아서 곱해서 로딩.....
-		auto TargetMesh      = TargetMap->GetComponent<Engine::StaticMesh>();
-		auto TargetTransform = TargetMap->GetComponent<Engine::Transform>();
-
-		std::vector<Vector3> Locations;		
-		for (uint32 i = 0; i < TargetMesh->LocalVertexLocations->size(); ++i)
-		{
-			const Vector3 WorldVertexLocation = 
-				FMath::Mul((*TargetMesh->LocalVertexLocations)[i], MapWorld);
-
-			Locations.push_back(WorldVertexLocation);
-			if (Locations.size() == 3u)
-			{
-				PickingPlanes.push_back(PlaneInfo::Make({ Locations[0],
-														  Locations[1],
-														  Locations[2] }));
-				Locations.clear();
-			}
-		}
+		Renderer.RefLandscape().Initialize(Device, MapWorld, App::ResourcePath /
+			L"Mesh" / L"StaticMesh" / L"Landscape", L"Mountain.fbx");
+		PickingPlanes = Renderer.RefLandscape().GetMapWorldCoordPlanes();
 	}
 };
 
@@ -102,11 +82,31 @@ void Tool::Event() &
 {
 	Super::Event();
 
-	if (Engine::Global::bDebugMode)
+	if (ImGui::CollapsingHeader("Select"))
 	{
-		NaviMeshTool();
-
+		if (ImGui::Button("Navigation Mesh", ImVec2{ 70,40}) )
+		{
+			CurrentMode = Mode::NaviMesh;
+		}ImGui::SameLine();
+		if (ImGui::Button("Landscape", ImVec2{ 70,40}))
+		{
+			CurrentMode = Mode::Landscape;
+		}
 	}
+	
+
+	switch (CurrentMode)
+	{
+	case Tool::Mode::NaviMesh:
+		NaviMeshTool();
+		break;
+	case Tool::Mode::Landscape:
+		Landscape();
+		break;
+	default:
+		break;
+	}
+	
 }
 void Tool::Update(const float DeltaTime)&
 {
@@ -230,6 +230,11 @@ void Tool::NaviMeshTool()&
 			NaviMeshCurrentSelectCellKey = NaviMesh.SelectCellFromRay(_Ray);
 		}
 	}
+};
+
+void Tool::Landscape()&
+{
+
 };
 
 

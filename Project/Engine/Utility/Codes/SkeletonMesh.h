@@ -107,7 +107,7 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 	{
 		RootBone->Childrens.push_back(MakeHierarchy(RootBone, AiScene->mRootNode->mChildren[i]));
 	}
-	std::cout << "프로토타입 파싱 끝\n";
+	
 	LocalVertexLocations = std::make_shared<std::vector<Vector3>>();
 	for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
 	{

@@ -6,6 +6,7 @@
 #include "UtilityGlobal.h"
 #include "ResourceSystem.h"
 #include "Vertexs.hpp"
+#include "ShaderManager.h"
 
 // TODO :: 노말매핑 사용시 버텍스 타입 변경해야 하며. FVF 변경도 고려 해야함 . 
 // 또한 템플릿 코드로 변경시 리소스 시스템 접근 방식 변경 해야할 수도 있음 . 
@@ -15,6 +16,7 @@ void Engine::Landscape::Initialize(
 	const std::filesystem::path FilePath,
 	const std::filesystem::path FileName)&
 {
+
 	 //               TODO ::  노말 매핑 사용할시 변경 바람 . 
 	using VertexType = Vertex::LocationNormalUV2D;
 	this->Device = Device;
@@ -37,10 +39,12 @@ void Engine::Landscape::Initialize(
 		aiProcess_OptimizeMeshes |
 		aiProcess_SplitLargeMeshes
 	);
-
+	
 	static uint32 StaticMeshResourceID = 0u;
 	auto& ResourceSys = ResourceSystem::Instance;
+
 	Meshes.resize(AiScene->mNumMeshes);
+
 	for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
 	{
 		std::vector<VertexType> Vertexs;
@@ -52,12 +56,13 @@ void Engine::Landscape::Initialize(
 		for (uint32 VerticesIdx = 0u; VerticesIdx < Meshes[MeshIdx].VtxCount; ++VerticesIdx)
 		{
 			Vertexs.emplace_back(VertexType::MakeFromAssimpMesh(AiMesh, VerticesIdx));
-			LocalVertexLocations.push_back(FromAssimp(AiMesh->mVertices[VerticesIdx])); 
+			WorldVertexLocation.push_back(
+				FMath::Mul(FromAssimp(AiMesh->mVertices[VerticesIdx]),World) );
 		};
 
 		
 		const uint32 VtxBufsize = Meshes[MeshIdx].VtxCount * Meshes[MeshIdx].Stride;
-		Device->CreateVertexBuffer(VtxBufsize, D3DUSAGE_WRITEONLY, VertexType::FVF,
+		Device->CreateVertexBuffer(VtxBufsize, D3DUSAGE_WRITEONLY, 0u,
 			D3DPOOL_MANAGED, &Meshes[MeshIdx].VtxBuf, nullptr);
 
 		ResourceSys->Insert<IDirect3DVertexBuffer9>(L"VertexBuffer_Landscape_" + ResourceIDStr, Meshes[MeshIdx].VtxBuf);
@@ -66,7 +71,7 @@ void Engine::Landscape::Initialize(
 		Meshes[MeshIdx].VtxBuf->Lock(0u, 0u, reinterpret_cast<void**>( &VtxBufPtr), NULL);
 		std::memcpy(VtxBufPtr, Vertexs.data(), VtxBufsize);
 		Meshes[MeshIdx].VtxBuf->Unlock();
-		Meshes[MeshIdx].FVF = VertexType::FVF;
+		Meshes[MeshIdx].FVF = 0u;
 		
 		
 		// 인덱스 버퍼 파싱. 
@@ -109,11 +114,10 @@ void Engine::Landscape::Initialize(
 				if (Meshes[MeshIdx].DiffuseMap == nullptr)
 				{
 					const std::filesystem::path TexFileFullPath = FilePath / AiFileName.C_Str();
+					D3DXCreateTextureFromFile(Device, TexFileFullPath.c_str(), &Meshes[MeshIdx].DiffuseMap);
 
-					Meshes[MeshIdx].DiffuseMap = ResourceSys->Emplace<IDirect3DTexture9>
-						(TextureNameW,
-							D3DXCreateTextureFromFile, Device, TexFileFullPath.c_str(), 
-							&Meshes[MeshIdx].DiffuseMap);
+					Meshes[MeshIdx].DiffuseMap=
+						ResourceSys->Insert<IDirect3DTexture9>(TextureNameW,Meshes[MeshIdx].DiffuseMap);
 				}
 			}
 		}
@@ -136,11 +140,9 @@ void Engine::Landscape::Initialize(
 				if (Meshes[MeshIdx].SpecularMap == nullptr)
 				{
 					const std::filesystem::path TexFileFullPath = FilePath / AiFileName.C_Str();
-
-					Meshes[MeshIdx].SpecularMap = ResourceSys->Emplace<IDirect3DTexture9>
-						(TextureNameW,
-							D3DXCreateTextureFromFile, Device, TexFileFullPath.c_str(),
-							&Meshes[MeshIdx].SpecularMap);
+					D3DXCreateTextureFromFile(Device, TexFileFullPath.c_str(), &Meshes[MeshIdx].SpecularMap);
+					Meshes[MeshIdx].SpecularMap=
+						ResourceSys->Insert<IDirect3DTexture9>(TextureNameW, Meshes[MeshIdx].SpecularMap);
 				}
 			}
 		}
@@ -163,33 +165,95 @@ void Engine::Landscape::Initialize(
 				if (Meshes[MeshIdx].NormalMap == nullptr)
 				{
 					const std::filesystem::path TexFileFullPath = FilePath / AiFileName.C_Str();
+					D3DXCreateTextureFromFile(Device, TexFileFullPath.c_str(), &Meshes[MeshIdx].NormalMap);
+					Meshes[MeshIdx].NormalMap=	
+						ResourceSys->Insert<IDirect3DTexture9>(TextureNameW, Meshes[MeshIdx].NormalMap);
+				}
+			}
+		}
 
-					Meshes[MeshIdx].NormalMap = ResourceSys->Emplace<IDirect3DTexture9>
-						(TextureNameW,
-							D3DXCreateTextureFromFile, Device, TexFileFullPath.c_str(),
-							&Meshes[MeshIdx].NormalMap);
+		if (AiMaterial->GetTextureCount(aiTextureType::aiTextureType_EMISSIVE) > 0)
+		{
+			aiString AiFileName;
+
+			const aiReturn AiReturn = AiMaterial->
+				GetTexture(aiTextureType::aiTextureType_EMISSIVE, 0, &AiFileName, NULL, NULL, NULL, NULL, NULL);
+
+			if (AiReturn == aiReturn::aiReturn_SUCCESS)
+			{
+				const std::string TextureName = AiFileName.C_Str();
+				std::wstring TextureNameW;
+				TextureNameW.assign(std::begin(TextureName), std::end(TextureName));
+				Meshes[MeshIdx].EmissiveMap=
+					ResourceSys->Get<IDirect3DTexture9>(TextureNameW);
+
+				if (Meshes[MeshIdx].EmissiveMap == nullptr)
+				{
+					const std::filesystem::path TexFileFullPath = FilePath / AiFileName.C_Str();
+					D3DXCreateTextureFromFile(Device, TexFileFullPath.c_str(), &Meshes[MeshIdx].EmissiveMap);
+					Meshes[MeshIdx].EmissiveMap=ResourceSys->Insert<IDirect3DTexture9>(TextureNameW, Meshes[MeshIdx].EmissiveMap);
 				}
 			}
 		}
 	};
+
+	for (uint32 i = 0; i < WorldVertexLocation.size(); i += 3u)
+	{
+		WorldPlanes.push_back(
+			PlaneInfo::Make({ WorldVertexLocation[i]  ,
+				WorldVertexLocation[i + 1]  , 
+				WorldVertexLocation[i + 2] })
+		); 
+	}
+
+	std::string  VtxTypeName = typeid(VertexType).name();
+	std::wstring VtxTypeWName;
+	VtxTypeWName.assign(std::begin(VtxTypeName), std::end(VtxTypeName));
+	VtxDecl  = ResourceSys->Get<IDirect3DVertexDeclaration9>(VtxTypeWName);
+
+	if (!VtxDecl)
+	{
+		VtxDecl = VertexType::GetVertexDecl(Device);
+		ResourceSys->Insert<IDirect3DVertexDeclaration9>(VtxTypeWName , VtxDecl);
+	}
+
+
+	_ShaderFx.Initialize(L"LandscapeFx");
 }
 
-void Engine::Landscape::Render(Engine::Frustum& RefFrustum)&
+
+void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
+	const Matrix& View, const Matrix& Projection)&
 {
 	if (nullptr == Device)
 		return;
 
-	Device->SetTransform(D3DTS_WORLD, &World); 
-
-	for (auto& CurMesh : Meshes)
+	auto Fx =_ShaderFx.GetHandle();
+	uint32 PassNum = 0u;
+	Fx->Begin(&PassNum, 0);
+	Fx->SetMatrix("World", &World);
+	Fx->SetMatrix("View", &View);
+	Fx->SetMatrix("Projection", &Projection);
+	for (uint32 i = 0; i < PassNum; ++i)
 	{
-		Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
-		Device->SetFVF(CurMesh.FVF);
-		Device->SetTexture(0, CurMesh.DiffuseMap);
-		Device->SetIndices(CurMesh.IdxBuf);
-		Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0u, CurMesh.VtxCount,
-			0u, CurMesh.PrimitiveCount);
+		Fx->BeginPass(i);
+	
+		for (auto& CurMesh : Meshes)
+		{
+			Device->SetVertexDeclaration(VtxDecl);
+			Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
+			Device->SetIndices(CurMesh.IdxBuf);
+			Fx->SetTexture("Diffuse", CurMesh.DiffuseMap);
+			Fx->CommitChanges();
+			Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
+				0u, CurMesh.PrimitiveCount);
+		}
+		Fx->EndPass();
 	}
+	Fx->End();
+
+
+
 
 	// RefFrustum.IsIn()
 }

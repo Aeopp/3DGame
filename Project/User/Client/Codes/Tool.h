@@ -17,17 +17,25 @@ public:
 	virtual void Event()& override;
 	virtual void Update(const float DeltaTime) & override;
 private:
-	void NaviMeshTool()&;
+	enum class Mode : uint8 
+	{
+		NaviMesh=0u,
+		Landscape
+	};
 private:
-	const Vector3 MapScale{33,77,44};
-	const Vector3 MapRotation{FMath::ToRadian(90.f) , FMath::ToRadian(45.f),44.f};
-	const Vector3 MapLocation{7,4,100}; 
+	void NaviMeshTool()&;
+	void Landscape()&;
+private:
+	Mode CurrentMode{ Mode::Landscape }; 
+	const Vector3 MapScale{0.01f,0.01f,0.01f };
+	const Vector3 MapRotation{0,0,0};
+	const Vector3 MapLocation{0,0,0}; 
 	const Matrix MapWorld = FMath::WorldMatrix(MapScale, MapRotation, MapLocation);
 
 	uint32 NaviMeshCurrentSelectMarkeyKey{ 0u };
 	uint32 NaviMeshCurrentSelectCellKey{ 0u };
 	// 네비게이션 메쉬의 피킹시 편의를 위함.
-	std::vector<PlaneInfo> PickingPlanes{};
+	std::vector<PlaneInfo>  PickingPlanes{};
 	Engine::NavigationMesh* _NaviMesh{ nullptr };
 	int32 NavigationMeshModeSelect{ 0u };
 	const uint32 MaxNavigationMeshMode{ 3u };

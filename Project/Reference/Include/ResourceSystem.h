@@ -74,9 +74,9 @@ inline auto Engine::ResourceSystem::Insert(
 	const std::wstring& ResourceName,
 	IUnknown* const ResourcePtr)
 {
-	return static_cast<ResourceType* const> (
-		Container[typeid(ResourceType).hash_code()].emplace
-	(ResourceName, DX::MakeShared(ResourcePtr)).first->second.get());
+	Container[typeid(ResourceType).hash_code()][ResourceName] = DX::MakeShared(ResourcePtr);
+
+	return static_cast<ResourceType*const>(ResourcePtr);
 }
 template<typename AnyType>
 inline auto Engine::ResourceSystem::InsertAny(const std::wstring ResourceName,

@@ -419,6 +419,14 @@ void Engine::Management::CreateStaticResource()&
 		_FontManager->AddFont(Device.get(), L"Font_Default", L"바탕", 15, 20, FW_HEAVY);
 		_FontManager->AddFont(Device.get(), L"Font_Jinji", L"궁서", 15, 20, FW_THIN);
 	}
+
+
+
+	
+	{
+		// 상위 쉐이더 로딩
+		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"LandscapeFx.hlsl", L"LandscapeFx");
+	}
 }
 void Engine::Management::CreateCollisionDebugResource()&
 {

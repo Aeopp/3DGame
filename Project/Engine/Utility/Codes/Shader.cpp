@@ -41,8 +41,9 @@ Engine::Shader::CompileAndCreate(
 
 		if (ErrorBuffer)
 		{
+			::MessageBoxA(0, (char*)ErrorBuffer->GetBufferPointer(), 0, 0);
 			throw std::exception(__FUNCTION__);
-			//::MessageBoxA(0, (char*)errorBuffer->GetBufferPointer(), 0, 0);
+			
 			ErrorBuffer->Release();
 		}
 

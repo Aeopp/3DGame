@@ -245,6 +245,9 @@
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Engine\System\Project.vcxproj">
+      <Project>{7c4f9dfe-83f0-4233-9121-4ad5108b523e}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\Engine\Utility\Utility.vcxproj">
       <Project>{ae7afafc-8a2e-4634-968f-836bd7fd880b}</Project>
     </ProjectReference>

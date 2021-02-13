@@ -193,6 +193,9 @@
     <ClInclude Include="Codes\Landscape.h">
       <Filter>Map</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Resource\Shader\LandscapeFx.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">
@@ -306,6 +309,12 @@
       <Filter>Shader\HLSL</Filter>
     </FxCompile>
     <FxCompile Include="..\..\..\Resource\Shader\SkeletonVS.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\..\Resource\Shader\LandscapePS.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\..\Resource\Shader\LandscapeVS.hlsl">
       <Filter>Shader\HLSL</Filter>
     </FxCompile>
   </ItemGroup>
