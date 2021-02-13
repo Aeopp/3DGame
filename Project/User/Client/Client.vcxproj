@@ -201,6 +201,7 @@
     </ClInclude>
     <ClInclude Include="Client.h" />
     <ClInclude Include="Codes\App.h" />
+    <ClInclude Include="Codes\Decorator.h" />
     <ClInclude Include="Codes\EnemyLayer.h" />
     <ClInclude Include="Codes\EnterGame.h" />
     <ClInclude Include="Codes\Logo.h" />
@@ -218,6 +219,7 @@
   <ItemGroup>
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="Codes\App.cpp" />
+    <ClCompile Include="Codes\Decorator.cpp" />
     <ClCompile Include="Codes\EnemyLayer.cpp" />
     <ClCompile Include="Codes\EnterGame.cpp" />
     <ClCompile Include="Codes\Logo.cpp" />

@@ -8,6 +8,7 @@
 #include <d3d9.h>
 #include "DxHelper.h"
 #include "Frustum.h"
+#include "Landscape.h"
 
 namespace Engine
 {
@@ -18,12 +19,15 @@ namespace Engine
 			const DX::SharedPtr<IDirect3DDevice9>& Device)&;
 		void Render()&; 
 		void Regist(RenderInterface* const Target);
+		Landscape& RefLandscape()&;
 	private:
+		void RenderLandscape(Frustum& RefFrustum)&;
 		void RenderDebugCollision()&;
 		void RenderNoAlpha()&;
 		void RenderEnviroment()&;
 		void RenderUI()&;
 	private:
+		Landscape CurrentLandscape{};
 		std::map<RenderInterface::Group, std::vector<std::reference_wrapper<RenderInterface>>>RenderObjects;
 		DX::SharedPtr<IDirect3DDevice9> Device{ nullptr };
 		Frustum _Frustum;

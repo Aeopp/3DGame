@@ -138,7 +138,7 @@ inline void Engine::StaticMesh::Load(
 			const aiReturn AiReturn = AiMaterial->
 				GetTexture(aiTextureType_DIFFUSE, 0, &AiFileName, NULL, NULL, NULL, NULL, NULL);
 
-			if (AiReturn == AI_SUCCESS)
+			if (AiReturn == aiReturn::aiReturn_SUCCESS)
 			{
 				const std::filesystem::path TexFileFullPath = FilePath / AiFileName.C_Str();
 				const std::wstring TexResourceName = L"StaticMesh_DiffuseTexture_" + CurrentResourceName;
@@ -155,7 +155,7 @@ inline void Engine::StaticMesh::Load(
 			const aiReturn AiReturn = AiMaterial->
 				GetTexture(aiTextureType::aiTextureType_NORMALS, 0, &AiFileName, NULL, NULL, NULL, NULL, NULL);
 
-			if (AiReturn == AI_SUCCESS)
+			if (AiReturn == aiReturn::aiReturn_SUCCESS)
 			{
 				const std::filesystem::path TexFileFullPath = FilePath / AiFileName.C_Str();
 				const std::wstring TexResourceName = L"StaticMesh_NormalTexture_" + CurrentResourceName;
@@ -172,7 +172,7 @@ inline void Engine::StaticMesh::Load(
 			const aiReturn AiReturn = AiMaterial->
 				GetTexture(aiTextureType::aiTextureType_SPECULAR, 0, &AiFileName, NULL, NULL, NULL, NULL, NULL);
 
-			if (AiReturn == AI_SUCCESS)
+			if (AiReturn == aiReturn::aiReturn_SUCCESS)
 			{
 				const std::filesystem::path TexFileFullPath = FilePath / AiFileName.C_Str();
 				const std::wstring TexResourceName = L"StaticMesh_SpecularTexture_" + CurrentResourceName;

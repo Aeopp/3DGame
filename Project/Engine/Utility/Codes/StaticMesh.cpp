@@ -34,7 +34,6 @@ void Engine::StaticMesh::Render()&
 		Device->SetTexture(0, CurrentRenderMesh.DiffuseTexture);
 		Device->SetStreamSource(0, CurrentRenderMesh.VertexBuffer, 0, CurrentRenderMesh.Stride);
 		Device->SetIndices(CurrentRenderMesh.IndexBuffer);
-
 		Device->DrawIndexedPrimitive(
 			D3DPT_TRIANGLELIST, 0u, 0u, CurrentRenderMesh.VtxCount, 0u, CurrentRenderMesh.PrimitiveCount);
 	}

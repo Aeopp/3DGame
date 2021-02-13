@@ -18,6 +18,7 @@ void Engine::Renderer::Render()&
 	CameraWorld = FMath::Inverse(View);
 	const Vector3 CameraLocation = { CameraWorld._41,CameraWorld._42,CameraWorld._43 };
 	_Frustum.Make(CameraWorld, Projection);
+	RenderLandscape(_Frustum);
 	RenderEnviroment();
 	RenderNoAlpha();
 	if (Engine::Global::bDebugMode)
@@ -33,6 +34,16 @@ void Engine::Renderer::Regist(RenderInterface* const Target)
 {
 	RenderObjects[Target->GetGroup()].push_back(*Target);
 };
+
+Engine::Landscape& Engine::Renderer::RefLandscape()&
+{
+	return   CurrentLandscape;
+};
+
+void Engine::Renderer::RenderLandscape(Frustum& RefFrustum)&
+{
+	CurrentLandscape.Render(RefFrustum);
+}
 
 void Engine::Renderer::RenderDebugCollision()&
 {

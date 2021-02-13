@@ -97,6 +97,9 @@
     <Filter Include="Object\RenderObject\Map">
       <UniqueIdentifier>{b98fb7eb-f50f-4ec8-91ae-db54153d3db8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Map">
+      <UniqueIdentifier>{62095112-da35-4feb-9107-d6dbd844b3e3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
@@ -187,6 +190,9 @@
       <Filter>Shader\Fx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Resource\Shader\NaviMeshFx.hlsl" />
+    <ClInclude Include="Codes\Landscape.h">
+      <Filter>Map</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">
@@ -290,6 +296,9 @@
     </ClCompile>
     <ClCompile Include="Codes\ShaderFx.cpp">
       <Filter>Shader\Fx</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Landscape.cpp">
+      <Filter>Map</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -167,6 +167,7 @@ namespace Vertex
 		Vector2 TexCoord;
 		static IDirect3DVertexDeclaration9* const
 			GetVertexDecl(IDirect3DDevice9* const Device);
+		static const DWORD FVF = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1;
 	};
 };
 

@@ -173,7 +173,7 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 			const aiReturn AiReturn = AiMaterial->
 				GetTexture(aiTextureType_DIFFUSE, 0, &AiFileName, NULL, NULL, NULL, NULL, NULL);
 
-			if (AiReturn == AI_SUCCESS)
+			if (AiReturn == aiReturn::aiReturn_SUCCESS)
 			{
 				const std::filesystem::path TexFileFullPath = FilePath / AiFileName.C_Str();
 				const std::wstring TexResourceName = L"SkeletonMesh_DiffuseTexture_" + CurrentResourceName;
@@ -190,7 +190,7 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 			const aiReturn AiReturn = AiMaterial->
 				GetTexture(aiTextureType::aiTextureType_NORMALS, 0, &AiFileName, NULL, NULL, NULL, NULL, NULL);
 
-			if (AiReturn == AI_SUCCESS)
+			if (AiReturn == aiReturn::aiReturn_SUCCESS)
 			{
 				const std::filesystem::path TexFileFullPath = FilePath / AiFileName.C_Str();
 				const std::wstring TexResourceName = L"SkeletonMesh_NormalTexture_" + CurrentResourceName;
@@ -207,7 +207,7 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 			const aiReturn AiReturn = AiMaterial->
 				GetTexture(aiTextureType::aiTextureType_SPECULAR, 0, &AiFileName, NULL, NULL, NULL, NULL, NULL);
 
-			if (AiReturn == AI_SUCCESS)
+			if (AiReturn == aiReturn::aiReturn_SUCCESS)
 			{
 				const std::filesystem::path TexFileFullPath = FilePath / AiFileName.C_Str();
 				const std::wstring TexResourceName = L"SkeletonMesh_SpecularTexture_" + CurrentResourceName;

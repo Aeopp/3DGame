@@ -44,6 +44,9 @@
     <Filter Include="Object\Player">
       <UniqueIdentifier>{cdf652ac-5e5d-4d93-9caf-eae551d4888c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scene\Tool\Decorator">
+      <UniqueIdentifier>{f5255573-7972-4e22-99ee-efe48605fff6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -93,6 +96,9 @@
     </ClInclude>
     <ClInclude Include="Codes\TestTerrain.h" />
     <ClInclude Include="..\..\..\Resource\Shader\TestTerrain.hlsl" />
+    <ClInclude Include="Codes\Decorator.h">
+      <Filter>Scene\Tool\Decorator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -129,6 +135,9 @@
       <Filter>Object\Player</Filter>
     </ClCompile>
     <ClCompile Include="Codes\TestTerrain.cpp" />
+    <ClCompile Include="Codes\Decorator.cpp">
+      <Filter>Scene\Tool\Decorator</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Client.rc">

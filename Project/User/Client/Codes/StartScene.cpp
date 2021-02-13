@@ -25,6 +25,7 @@
 #include "UtilityGlobal.h"
 #include "ShaderManager.h"
 #include "TestTerrain.h"
+#include "Decorator.h"
 
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
 {
@@ -57,6 +58,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	// 프로토타입 로딩.
 	{
 		Proto.LoadPrototype<TestTerrain>(L"Static", Device, Engine::RenderInterface::Group::Enviroment);
+		Proto.LoadPrototype<Decorator>(L"Static", Device, Engine::RenderInterface::Group::NoAlpha);
 		Proto.LoadPrototype<TombStone>(L"Static", Device ,Engine::RenderInterface::Group::NoAlpha);
 		Proto.LoadPrototype<Player>(L"Static", Device,Engine::RenderInterface::Group::NoAlpha);
 	}
@@ -78,12 +80,14 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 			Vector3{ 0.01f,0.01f,0.01f }, Vector3{ 0,0,0}, Vector3{ 0,0,5 });
 		RefManager().NewObject<StaticLayer, TestTerrain>(L"Static", L"TestTerrain",
 			Vector3{ 1.f,1.f,1.f }, Vector3{ FMath::ToRadian(90.f),0,0 }, Vector3{ 0,0,5 });
+		RefManager().NewObject<StaticLayer, Decorator>(L"Static", L"Decorator_CenterDoor",
+			Vector3{ 0.01f,0.01f,0.01f }, Vector3{ 0,0,0 }, Vector3{ 0,0,10 });
 	}
 
 	LogoVtxBuf = ResourceSys.Get<IDirect3DVertexBuffer9>(L"VertexBuffer_Plane");
 };
 
-void StartScene::Event() & 
+void StartScene::Event()&
 {
 	Super::Event();
 

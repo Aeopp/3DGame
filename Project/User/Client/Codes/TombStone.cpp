@@ -101,7 +101,18 @@ void TombStone::Render()&
 	Device->SetTransform(D3DTS_WORLD, &World);
 	auto _StaticMesh = GetComponent<Engine::StaticMesh>();
 	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-	_StaticMesh->Render();
+
+	for (auto& CurrentRenderMesh : _StaticMesh->MeshContainer)
+	{
+		Device->SetFVF(CurrentRenderMesh.FVF);
+		Device->SetTexture(0, CurrentRenderMesh.DiffuseTexture);
+		Device->SetStreamSource(0, CurrentRenderMesh.VertexBuffer, 0, CurrentRenderMesh.Stride);
+		Device->SetIndices(CurrentRenderMesh.IndexBuffer);
+
+		Device->DrawIndexedPrimitive(
+			D3DPT_TRIANGLELIST, 0u, 0u, CurrentRenderMesh.VtxCount, 0u, CurrentRenderMesh.PrimitiveCount);
+	}
+
 	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 }
 
