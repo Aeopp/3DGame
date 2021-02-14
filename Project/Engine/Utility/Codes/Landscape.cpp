@@ -38,13 +38,16 @@ void Engine::Landscape::DecoratorLoad(
 	);
 
 
+	const Matrix MapWorld = FMath::WorldMatrix(Scale, Rotation, Location);
+
 	Decorator LoadDecorator{};
 
 	auto& ResourceSys = ResourceSystem::Instance;
 
 	LoadDecorator.Meshes.resize(AiScene->mNumMeshes);
-
+	
 	std::vector<Vector3> DecoWorldVertexLocation;
+	std::vector<Vector3> DecoLocalVertexLocations;
 
 	for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
 	{
@@ -52,13 +55,8 @@ void Engine::Landscape::DecoratorLoad(
 		const std::wstring ResourceIDStr = std::to_wstring(StaticMeshResourceID++);
 		aiMesh* AiMesh = AiScene->mMeshes[MeshIdx];
 
-		aiAABB AABB = AiMesh->mAABB;
 
-		const Vector3 LocalCenter = FromAssimp((AABB.mMax + AABB.mMin) / 2.f);
-		const float Radius = (AABB.mMax - ((AABB.mMax + AABB.mMin) / 2.f)).Length();
 
-		LoadDecorator.Meshes[MeshIdx].BoundingSphere.Radius = Radius;
-		LoadDecorator.Meshes[MeshIdx].BoundingSphere.Center = LocalCenter;
 		LoadDecorator.Meshes[MeshIdx].Name = AiMesh->mName.C_Str();
 
 		LoadDecorator.Meshes[MeshIdx].VtxCount = AiMesh->mNumVertices;
@@ -66,9 +64,17 @@ void Engine::Landscape::DecoratorLoad(
 		for (uint32 VerticesIdx = 0u; VerticesIdx < LoadDecorator.Meshes[MeshIdx].VtxCount; ++VerticesIdx)
 		{
 			Vertexs.emplace_back(VertexType::MakeFromAssimpMesh(AiMesh, VerticesIdx));
-			DecoWorldVertexLocation.push_back(
-				FMath::Mul(FromAssimp(AiMesh->mVertices[VerticesIdx]), World));
+			const Vector3 LocalVertexLocation = FromAssimp(AiMesh->mVertices[VerticesIdx]); 
+
+			DecoLocalVertexLocations.push_back(LocalVertexLocation);
+			DecoWorldVertexLocation.push_back(FMath::Mul(LocalVertexLocation, MapWorld));
 		};
+
+		D3DXComputeBoundingSphere(reinterpret_cast<const Vector3*>(Vertexs.data()),
+			Vertexs.size(), sizeof(VertexType),
+			&LoadDecorator.Meshes[MeshIdx].BoundingSphere.Center,
+			&LoadDecorator.Meshes[MeshIdx].BoundingSphere.Radius
+		);
 
 
 		const uint32 VtxBufsize = LoadDecorator.Meshes[MeshIdx].VtxCount * LoadDecorator.Meshes[MeshIdx].Stride;
@@ -216,6 +222,12 @@ void Engine::Landscape::DecoratorLoad(
 							DecoWorldVertexLocation[i + 2] })
 		);
 	}
+	/*
+	D3DXComputeBoundingSphere(reinterpret_cast<const Vector3*>(DecoLocalVertexLocations.data()),
+		DecoLocalVertexLocations.size(), sizeof(Vector3),
+		&LoadDecorator.BoundingSphere.Center,
+		&LoadDecorator.BoundingSphere.Radius
+	);*/
 
 	DecoratorContainer.insert({ LoadFileName,LoadDecorator } );
 }
@@ -253,14 +265,19 @@ typename Engine::Landscape::Decorator* Engine::Landscape::GetDecorator(const std
 // 또한 템플릿 코드로 변경시 리소스 시스템 접근 방식 변경 해야할 수도 있음 . 
 void Engine::Landscape::Initialize(
 	IDirect3DDevice9* const Device,
-	const Matrix& MapWorld,
+	const float Scale,
+	const Vector3 Rotation,
+	const Vector3 Location,
 	const std::filesystem::path FilePath,
 	const std::filesystem::path FileName)&
 {
 	 //               TODO ::  노말 매핑 사용할시 변경 바람 . 
 	using VertexType = Vertex::LocationTangentUV2D;
 	this->Device = Device;
-	
+	this->Scale = { Scale ,Scale ,Scale };
+	this->Rotation = Rotation;
+	this->Location = Location;
+
 	auto AiScene = Engine::Global::AssimpImporter.ReadFile(
 		(FilePath / FileName).string(),
 		aiProcess_MakeLeftHanded |
@@ -280,7 +297,8 @@ void Engine::Landscape::Initialize(
 		aiProcess_SplitLargeMeshes
 	);
 
-	World =  MapWorld;
+	const Matrix MapWorld = FMath::WorldMatrix(this->Scale, Rotation, Location);
+
 	auto& ResourceSys = ResourceSystem::Instance;
 
 	Meshes.resize(AiScene->mNumMeshes);
@@ -297,7 +315,7 @@ void Engine::Landscape::Initialize(
 		{
 			Vertexs.emplace_back(VertexType::MakeFromAssimpMesh(AiMesh, VerticesIdx));
 			WorldVertexLocation.push_back(
-				FMath::Mul(FromAssimp(AiMesh->mVertices[VerticesIdx]),World) );
+				FMath::Mul(FromAssimp(AiMesh->mVertices[VerticesIdx]), MapWorld) );
 		};
 
 		
@@ -470,11 +488,12 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 		return;
 
 	auto& Renderer = *Engine::Renderer::Instance;
+	const Matrix MapWorld = FMath::WorldMatrix(Scale, Rotation, Location);
 
 	auto Fx = _ShaderFx.GetHandle();
 	uint32 PassNum = 0u;
 	Fx->Begin(&PassNum, 0);
-	Fx->SetMatrix("World", &World);
+	Fx->SetMatrix("World", &MapWorld);
 	Fx->SetMatrix("View", &View);
 	Fx->SetMatrix("Projection", &Projection);
 	Fx->SetVector("LightDirection", &Renderer.LightDirection);
@@ -487,10 +506,11 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 		for (auto& CurMesh : Meshes)
 		{
 			Fx->SetVector("RimAmtColor", &CurMesh.RimAmtColor);
-			Fx->SetFloat("RimWidth", CurMesh.RimWidth);
+			
+			Fx->SetFloat("RimOuterWidth", CurMesh.RimOuterWidth);
+			Fx->SetFloat("RimInnerWidth", CurMesh.RimInnerWidth);
 			Fx->SetVector("AmbientColor", &CurMesh.AmbientColor);
 			Fx->SetFloat("Power", CurMesh.Power);
-			Fx->SetFloat("RimOuter", CurMesh.RimOuter);
 			Device->SetVertexDeclaration(VtxDecl);
 			Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
 			Device->SetIndices(CurMesh.IdxBuf);
@@ -506,17 +526,20 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 	}
 	Fx->End();
 
-
+	if(Engine::Global::bDebugMode)
+		ImGui::Begin("Frustum Culling Log");
 
 	for (const auto& [DecoKey, CurDeco] : DecoratorContainer)
 	{
 		for (const auto& CurDecoTransform : CurDeco.Transforms)
 		{
-			const auto& [Scale, Rotation, Location] = *CurDecoTransform;
+			const auto& [DecoTfmScale, DecoTfmRotation, DecoTfmLocation] = *CurDecoTransform;
 
-			const Matrix DecoWorld = FMath::Rotation({ 0.f,0.f,0.f }) * 
+			const Matrix DecoWorld = 
 				FMath::WorldMatrix(
-				{ Scale , Scale , Scale , }, Rotation, Location) * World;
+					{ DecoTfmScale , DecoTfmScale , DecoTfmScale , }, 
+					DecoTfmRotation, DecoTfmLocation) * MapWorld;
+
 			uint32 PassNum = 0u;
 			Fx->Begin(&PassNum, 0);
 			Fx->SetMatrix("World", &DecoWorld);
@@ -530,16 +553,30 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 				{
 					Sphere CurDecoMeshBoundingSphere;
 					CurDecoMeshBoundingSphere.Center = FMath::Mul(CurMesh.BoundingSphere.Center, DecoWorld);
-					CurDecoMeshBoundingSphere.Radius = CurMesh.BoundingSphere.Radius * Scale;
-					if (RefFrustum.IsIn(CurDecoMeshBoundingSphere))
+					CurDecoMeshBoundingSphere.Radius = (CurMesh.BoundingSphere.Radius * DecoTfmScale *Scale.x);
+					const bool bRender = RefFrustum.IsIn(CurDecoMeshBoundingSphere);
+
+					if (Engine::Global::bDebugMode)
+					{
+						if (bRender)
+						{
+							ImGui::TextColored(ImVec4{ 1.f,107.f / 255.f,181.f / 255.f,0.5f }, "Draw : %s", CurMesh.Name.c_str());
+						}
+						else
+						{
+							ImGui::TextColored(ImVec4{ 158.f / 255.f,158.f/ 255.f,255.f,0.5f }, "Culling : %s", CurMesh.Name.c_str());
+						}
+					}
+					
+					if (bRender)
 					{
 						Device->SetVertexDeclaration(VtxDecl);
 						Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
 						Device->SetIndices(CurMesh.IdxBuf);
 						const Vector4 RimAmtColor{ 1.f,1.f,1.f, 1.f };
 						Fx->SetVector("RimAmtColor", &CurMesh.RimAmtColor);
-						Fx->SetFloat("RimOuter", CurMesh.RimOuter);
-						Fx->SetFloat("RimWidth", CurMesh.RimWidth);
+						Fx->SetFloat("RimOuterWidth", CurMesh.RimOuterWidth);
+						Fx->SetFloat("RimInnerWidth", CurMesh.RimInnerWidth);
 						Fx->SetFloat("Power", CurMesh.Power);
 						Fx->SetVector("AmbientColor", &CurMesh.AmbientColor);
 						Fx->SetTexture("DiffuseMap", CurMesh.DiffuseMap);
@@ -557,6 +594,9 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 		}
 	}
 
+	if (Engine::Global::bDebugMode)
+		ImGui::End();
+	
 	if (Engine::Global::bDebugMode && bDecoratorSphereMeshRender)
 	{
 		auto& _ResourceSys = *ResourceSystem::Instance;
@@ -567,18 +607,29 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 		{
 			for (const auto& CurDecoTransform : CurDeco.Transforms)
 			{
-				const auto& [Scale, Rotation, Location] = *CurDecoTransform;
+				const auto&[DecoTfmScale, DecoTfmRotation, DecoTfmLocation] = *CurDecoTransform;
 
-				const Matrix DecoWorld = FMath::WorldMatrix(
-					{ Scale , Scale , Scale , }, Rotation, Location) * World;
-
-				for (auto& CurMesh : CurDeco.Meshes)
+				for (const auto& _Mesh :CurDeco.Meshes)
 				{
+					const Matrix SphereLocalMatrix = FMath::WorldMatrix(
+						{ _Mesh.BoundingSphere.Radius , _Mesh.BoundingSphere.Radius,_Mesh.BoundingSphere.Radius }
+						, { 0,0,0 },
+						_Mesh.BoundingSphere.Center);
+
+					const Matrix DecoWorld=SphereLocalMatrix* FMath::WorldMatrix(
+						{ DecoTfmScale , DecoTfmScale,DecoTfmScale },
+						DecoTfmRotation, DecoTfmLocation)* MapWorld;
+
+					// const float SphereScale = DecoTfmScale * (_Mesh.BoundingSphere.Radius);
+
+					/*const Matrix DecoWorld = FMath::WorldMatrix(
+						{ SphereScale , SphereScale , SphereScale , },
+						DecoTfmRotation,
+						DecoTfmLocation +
+						_Mesh.BoundingSphere.Center) * MapWorld;*/
+
 					Device->SetTransform(D3DTS_WORLD, &DecoWorld);
 					DebugSphere->DrawSubset(0u);
-					Sphere CurDecoMeshBoundingSphere;
-					CurDecoMeshBoundingSphere.Center = FMath::Mul(CurMesh.BoundingSphere.Center, DecoWorld);
-					CurDecoMeshBoundingSphere.Radius = CurMesh.BoundingSphere.Radius * Scale;
 				}
 			}
 		}

@@ -40,10 +40,9 @@ private:
 	std::weak_ptr<typename Engine::Landscape::DecoInformation > CurEditTransform{};
 
 	Mode CurrentMode{ Mode::Landscape }; 
-	const Vector3 MapScale{0.01f,0.01f,0.01f };
+	const float  MapScale = 0.01f;  
 	const Vector3 MapRotation{3.14f/2.f,0.f,0.f };
 	const Vector3 MapLocation{0,0,0}; 
-	const Matrix MapWorld = FMath::WorldMatrix(MapScale, MapRotation, MapLocation);
 
 	ID3DXLine* LinearSpace{};
 	uint32 NaviMeshCurrentSelectMarkeyKey{ 0u };

@@ -6,14 +6,13 @@ float4 LightColor;
 float4 CameraLocation;
 float4 LightDirection;
 float4 RimAmtColor;
-float  RimWidth;
-// 1이 기본값이며 (외곽 림라이트) 0으로 갈수록 메쉬의 중심부로 림라이트가 이동.
-float RimOuter;
+float RimOuterWidth;
+float RimInnerWidth;
 float  Power;
 float4 AmbientColor;
 
 texture DiffuseMap;
-texture TangentMap;
+texture NormalMap;
 texture CavityMap;
 texture EmissiveMap;
 
@@ -36,9 +35,9 @@ sampler CavitySampler = sampler_state
     mipfilter = linear;
 };
 
-sampler TangentSampler = sampler_state
+sampler NormalSampler = sampler_state
 {
-    texture = TangentMap;
+    texture = NormalMap;
 
     minfilter = linear;
     magfilter = linear;
@@ -121,7 +120,7 @@ PS_OUT PS_MAIN(PS_IN In)
     float3 Tangent = normalize(In.Tangent);
     float3 BiNormal = normalize(In.BiNormal);
     
-    float3 TangentNormal = tex2D(TangentSampler, In.UV).xyz;
+    float3 TangentNormal = tex2D(NormalSampler, In.UV).xyz;
     TangentNormal = normalize(TangentNormal * 2 - 1);
     
     float3x3 TBN = float3x3(normalize(In.Tangent),
@@ -135,9 +134,23 @@ PS_OUT PS_MAIN(PS_IN In)
     
     float3 ToCamera = normalize(CameraLocation.xyz - In.WorldLocation.xyz);
     
-    float RimAmt = abs(RimOuter - max(0.0, dot(Normal, ToCamera)));
-    RimAmt = smoothstep(1.0f - saturate(RimWidth), 1.f, RimAmt);
-   
+    float Rim = max(0.0, dot(Normal, ToCamera));
+    
+    float RimAmtOuter = abs(1.f - Rim);
+    float RimAmtInner = abs(0.f - Rim);
+    
+    float RimAmt = 0;
+    
+    if (RimAmtOuter > RimAmtInner)
+    {
+        RimAmt = RimAmtOuter;
+        RimAmt = smoothstep(1.0f - saturate(RimOuterWidth), 1.f, RimAmt);
+    }
+    else
+    {
+        RimAmt = RimAmtInner;
+        RimAmt = smoothstep(1.0f - saturate(RimInnerWidth), 1.f, RimAmt);
+    }
    
     
     float3 LightDirectionNormal = normalize(LightDirection.xyz);
@@ -145,6 +158,10 @@ PS_OUT PS_MAIN(PS_IN In)
     float Specular = 0;
     
     float Diffuse = saturate(dot(-LightDirectionNormal, WorldNormal));
+    // 하프 람버트.
+    Diffuse = (Diffuse * 0.5) + 0.5;
+    // 셀 쉐이딩
+    Diffuse = ceil(Diffuse * 5) / 5.0f;
     
     float4 DiffuseColor = tex2D(DiffuseSampler, In.UV);
     float4 CavityColor = tex2D(CavitySampler, In.UV);
@@ -154,7 +171,7 @@ PS_OUT PS_MAIN(PS_IN In)
     
     if (Diffuse.x > 0)
     {
-        float3 HalfVec = normalize(LightDirectionNormal +In.ViewDirection);
+        float3 HalfVec = normalize((-LightDirectionNormal) + (-In.ViewDirection));
         Specular = saturate(dot(HalfVec, WorldNormal));
         Specular = pow(abs(Specular),abs(Power));
     }

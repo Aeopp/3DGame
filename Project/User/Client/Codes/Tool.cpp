@@ -75,7 +75,7 @@ void Tool::Initialize(IDirect3DDevice9* const Device)&
 
 	{
 		auto& RefLandscape = Renderer.RefLandscape();
-		RefLandscape.Initialize(Device, MapWorld, App::ResourcePath /
+		RefLandscape.Initialize(Device, MapScale, MapRotation,MapLocation, App::ResourcePath /
 			L"Mesh" / L"StaticMesh" / L"Landscape", L"Mountain.fbx");
 		PickingPlanes = RefLandscape.GetMapWorldCoordPlanes();
 
@@ -184,6 +184,7 @@ void Tool::NaviMeshTool()&
 {
 	auto& NaviMesh = RefNaviMesh();
 
+	const Matrix MapWorld = FMath::WorldMatrix({MapScale,MapScale ,MapScale }, MapRotation, MapLocation);
 	ImGui::Begin("Navigation Mesh");
 	{
 		if (ImGui::Button("Save")) 
@@ -333,9 +334,8 @@ void Tool::Landscape()&
 							ImGui::ColorEdit4( (std::to_string(DummyLableID)+"_AmbientColor").c_str(), CurMesh.AmbientColor);
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_Power").c_str(), &CurMesh.Power, 1.f, 100.f);
 							ImGui::ColorEdit4((std::to_string(DummyLableID) + "_RimAmtColor").c_str(), CurMesh.RimAmtColor);
-							ImGui::SliderFloat((std::to_string(DummyLableID) + "_RimWidth").c_str(),&CurMesh.RimWidth,0.f,1.f);
-							++DummyLableID;
-							ImGui::SliderFloat((std::to_string(DummyLableID) + "_RimOuter").c_str(), &CurMesh.RimOuter, -1.f, 1.f);
+							ImGui::SliderFloat((std::to_string(DummyLableID) + "_RimOuterWidth").c_str(),&CurMesh.RimOuterWidth,0.f,1.f);
+							ImGui::SliderFloat((std::to_string(DummyLableID) + "_RimInnerWidth").c_str(), &CurMesh.RimInnerWidth, 0.f, 1.f);
 							++DummyLableID;
 							ImGui::Separator();
 						}
@@ -364,6 +364,8 @@ void Tool::Landscape()&
 			}
 		}
 		ImGui::End();
+
+		ImGui::Checkbox("DebugSphereMesh ?", &RefLandscape.bDecoratorSphereMeshRender);
 	}
 	
 	ImGui::End();

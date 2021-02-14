@@ -387,7 +387,7 @@ void Engine::Management::CreateStaticResource()&
 		Device.get(), &_DxLine);*/
 	ID3DXMesh* SphereMesh{ nullptr };
 	ID3DXBuffer* SphereMeshAdjacency{ nullptr };
-	D3DXCreateSphere(Device.get(), 5.f, 10, 10, &SphereMesh, &SphereMeshAdjacency);
+	D3DXCreateSphere(Device.get(), 1.f, 10, 10, &SphereMesh, &SphereMeshAdjacency);
 	_ResourceSys->Insert<ID3DXMesh>(L"SphereMesh", SphereMesh);
 	_ResourceSys->Insert<ID3DXBuffer>(L"SphereMeshAdjacency", SphereMeshAdjacency);
 

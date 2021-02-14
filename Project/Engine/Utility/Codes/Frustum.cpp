@@ -13,7 +13,6 @@ void Engine::Frustum::Initialize()&
 	auto& ResourceSys = ResourceSystem::Instance;
 	VertexBuffer = ResourceSys->Get<IDirect3DVertexBuffer9>(L"VertexBuffer_Frustum");
 	IndexBuffer = ResourceSys->Get<IDirect3DIndexBuffer9>(L"IndexBuffer_Frustum");
-
 }
 
 Engine::Frustum::~Frustum() noexcept
@@ -49,8 +48,7 @@ void Engine::Frustum::Make(const Matrix& CameraWorld, const Matrix& Projection)&
 	const Matrix InvProjection = FMath::Inverse(Projection);
 	World = InvProjection * CameraWorld;
 
-	std::transform(std::execution::par,
-		std::begin(Points), std::end(Points), std::begin(Points),
+	std::transform(std::begin(Points), std::end(Points), std::begin(Points),
 		[_World = World](const Vector3& Point)
 		{
 			return FMath::Mul(Point, _World);
@@ -72,7 +70,7 @@ void Engine::Frustum::Make(const Matrix& CameraWorld, const Matrix& Projection)&
 
 bool Engine::Frustum::IsIn(const Vector3& Point)&
 {
-	return std::all_of(std::execution::seq, std::begin(Planes), std::end(Planes),
+	return std::all_of( std::begin(Planes), std::end(Planes),
 		[Point](const D3DXPLANE& Plane)
 		{
 			return D3DXPlaneDotCoord(&Plane, &Point) > 0.f;
@@ -81,11 +79,11 @@ bool Engine::Frustum::IsIn(const Vector3& Point)&
 
 bool Engine::Frustum::IsIn(const Sphere& _Sphere)&
 {
-	return std::all_of(std::execution::seq, std::begin(Planes), std::end(Planes),
+	return std::all_of( std::begin(Planes), std::end(Planes),
 		[_Sphere](const D3DXPLANE& Plane)
 		{
 			const float Distance = D3DXPlaneDotCoord(&Plane, &_Sphere.Center);
-			return (Distance > 0.f) || (std::fabsf(Distance) < _Sphere.Radius);
+			return  (Distance >= _Sphere.Radius) || (std::fabsf(Distance) <= _Sphere.Radius);
 		});
 }
 

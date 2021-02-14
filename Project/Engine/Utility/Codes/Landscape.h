@@ -27,14 +27,13 @@ namespace Engine
 			IDirect3DTexture9* CavityMap{ nullptr };
 			IDirect3DTexture9* NormalMap{ nullptr };
 			IDirect3DTexture9* EmissiveMap{ nullptr };
-			Sphere BoundingSphere{};
-			float RimWidth = 0.8f; 
-			float Power = 64.f;
-			float RimOuter  = 1.f;
+			float RimInnerWidth = 0.003f; 
+			float RimOuterWidth = 0.300f;
+			float Power = 1.f;
 			Vector4 RimAmtColor { 1,1,1,1 }; 
 			Vector4 AmbientColor{ 0.10f,0.10f,0.10f,1.f };
+			Sphere BoundingSphere{};
 		};
-
 		struct DecoInformation
 		{
 			float Scale = 1.f;
@@ -48,7 +47,9 @@ namespace Engine
 		};
 	public :
 		void Initialize(IDirect3DDevice9* const Device,
-			const Matrix& MapWorld,
+			const float Scale,
+			const Vector3 Rotation,
+			const Vector3 Location,
 			const std::filesystem::path FilePath,
 			const std::filesystem::path FileName
 		)&;
@@ -69,7 +70,9 @@ namespace Engine
 	private:
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr };
 		Engine::ShaderFx _ShaderFx{};
-		Matrix World = FMath::Identity();
+		Vector3 Scale{1,1,1};
+		Vector3 Rotation{0,0,0};
+		Vector3 Location{0,0,0}; 
 		IDirect3DDevice9*      Device{ nullptr };
 		std::vector<Vector3>   WorldVertexLocation{};
 		std::vector<PlaneInfo> WorldPlanes{};
