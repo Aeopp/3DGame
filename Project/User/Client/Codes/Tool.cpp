@@ -34,6 +34,8 @@
 #include <Windows.h>
 #include <stdio.h>
 #include "Renderer.h"
+#include "Landscape.h"
+
 
 void Tool::Initialize(IDirect3DDevice9* const Device)&
 {
@@ -42,7 +44,7 @@ void Tool::Initialize(IDirect3DDevice9* const Device)&
 	auto& FontMgr =     RefFontManager();
 	auto& Control =     RefControl();
 	auto& ResourceSys = RefResourceSys();
-	auto& Manager =     RefManager();
+	auto& Manager = RefManager();
 	auto& Proto =       RefProto();
 	auto& Renderer =    RefRenderer(); 
 
@@ -68,19 +70,59 @@ void Tool::Initialize(IDirect3DDevice9* const Device)&
 
 		Manager.NewObject<StaticLayer, Engine::DynamicCamera>(
 			L"Static", L"Camera",
-			FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 10.f, &Control);
+			FMath::PI / 3.f, 0.1f, 10000.f, Aspect, 1000.f, &Control);
 	}
 
 	{
-		Renderer.RefLandscape().Initialize(Device, MapWorld, App::ResourcePath /
+		auto RefLandscape = Renderer.RefLandscape();
+		RefLandscape.Initialize(Device, MapWorld, App::ResourcePath /
 			L"Mesh" / L"StaticMesh" / L"Landscape", L"Mountain.fbx");
-		PickingPlanes = Renderer.RefLandscape().GetMapWorldCoordPlanes();
+		PickingPlanes = RefLandscape.GetMapWorldCoordPlanes();
+
+		const std::filesystem::path DecoratorPath
+		{ Engine::Global::ResourcePath / L"Mesh" / L"StaticMesh" / L"Decorator" / L""};
+
+		for (auto& TargetFileCurPath : std::filesystem::directory_iterator{ DecoratorPath })
+		{
+			const auto& FileName = TargetFileCurPath.path().filename();
+			if (FileName != L"tex")
+			{
+				RefLandscape.DecoratorLoad(DecoratorPath, FileName);
+				const auto PicturePath = TargetFileCurPath.path().stem().wstring() + L"png";
+				DecoratorOption LoadDecoOpt;
+
+				LoadDecoOpt.Picture = ResourceSys.Get<IDirect3DTexture9>(PicturePath);
+
+				if (LoadDecoOpt.Picture)
+				{
+					LoadDecoOpt.Width = ResourceSys.GetAny<float>(PicturePath + L"Width");
+					LoadDecoOpt.Height = ResourceSys.GetAny<float>(PicturePath + L"Height");
+				}
+				else 
+				{
+					D3DXCreateTextureFromFile(Device, PicturePath.c_str(), &LoadDecoOpt.Picture);
+					ResourceSys.Insert<IDirect3DTexture9>(PicturePath , LoadDecoOpt.Picture);
+					D3DSURFACE_DESC ImageDesc;
+					LoadDecoOpt.Picture->GetLevelDesc(0, &ImageDesc);
+					LoadDecoOpt.Width = static_cast<float> (ImageDesc.Width); 
+					LoadDecoOpt.Height = static_cast<float> (ImageDesc.Height);
+					ResourceSys.InsertAny<float>(PicturePath + L"Width" , LoadDecoOpt.Width );
+					ResourceSys.InsertAny<float>(PicturePath + L"Height" , LoadDecoOpt.Height);
+				}
+
+				DecoratorOpts.insert({ FileName  ,LoadDecoOpt } );
+			}
+		}
 	}
+
+
 };
 
 void Tool::Event() & 
 {
 	Super::Event();
+	auto& Manager = RefManager();
+
 
 	if (ImGui::CollapsingHeader("Select"))
 	{
@@ -232,9 +274,23 @@ void Tool::NaviMeshTool()&
 	}
 };
 
+
 void Tool::Landscape()&
 {
-
+	ImGui::Begin("Map Edit");
+	if (ImGui::CollapsingHeader("FileList"))
+	{
+		ImGui::Separator();
+		for (auto&   [ DecoKey , DecoOpt ]: DecoratorOpts)
+		{
+			std::string KeyA;
+			KeyA.assign(std::begin(DecoKey), std::end(DecoKey));
+			ImGui::ImageButton(reinterpret_cast<void**>(DecoOpt.Picture), 
+				ImVec2{ DecoOpt.Width,DecoOpt.Height });
+		}
+	}
+	
+	ImGui::End();
 };
 
 

@@ -26,6 +26,14 @@ private:
 	void NaviMeshTool()&;
 	void Landscape()&;
 private:
+	struct DecoratorOption
+	{
+		IDirect3DTexture9* Picture{};
+		float Width;
+		float Height;
+	};
+	std::map<std::wstring,DecoratorOption> DecoratorOpts{};
+
 	Mode CurrentMode{ Mode::Landscape }; 
 	const Vector3 MapScale{0.01f,0.01f,0.01f };
 	const Vector3 MapRotation{0,0,0};

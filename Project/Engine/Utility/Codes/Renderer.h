@@ -21,7 +21,8 @@ namespace Engine
 		void Regist(RenderInterface* const Target);
 		Landscape& RefLandscape()&;
 	private:
-		void RenderLandscape(Frustum& RefFrustum, const Matrix& View, const Matrix& Projection)&;
+		void RenderLandscape(Frustum& RefFrustum, const Matrix& View, const Matrix& Projection ,
+			const Vector3& CameraLocation)&;
 		void RenderDebugCollision()&;
 		void RenderNoAlpha()&;
 		void RenderEnviroment()&;

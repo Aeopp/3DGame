@@ -93,6 +93,19 @@ void Engine::DynamicCamera::Event()&
 	{
 		MouseFixToggle();
 	}
+	if (Engine::Global::bDebugMode)
+	{
+		if (ImGui::CollapsingHeader("Camera"))
+		{
+			ImGui::SliderFloat("Fov", &FovY,20.f,90.f);
+			ImGui::SliderFloat("Speed", &Speed, 1.f, 1000.f);
+			ImGui::SliderFloat("Far", &Far, 1.f, 10000.f);
+
+			ImGui::InputFloat("Fov.", &FovY);
+			ImGui::InputFloat("Speed.", &Speed);
+			ImGui::InputFloat("Far.", &Far);
+		}
+	}
 };
 
 void Engine::DynamicCamera::PrototypeInitialize(

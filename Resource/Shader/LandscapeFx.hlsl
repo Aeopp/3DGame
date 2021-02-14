@@ -1,29 +1,82 @@
+
+
 matrix  World;
 matrix  View;
 matrix  Projection;
 
-texture Diffuse;
+float4 LightColor;
+float4 CameraLocation;
+float4 LightDirection;
+float4 RimAmtColor;
+float RimWidth;
 
-sampler BaseSampler = sampler_state
+float  Power;
+// 림 라이트 가 약화 하는 정도.
+float  RimAmtPower;
+
+float4 AmbientColor;
+
+texture DiffuseMap;
+texture TangentMap;
+texture SpecularMap;
+texture EmissiveMap;
+
+
+sampler DiffuseSampler  = sampler_state
 {
-    texture = Diffuse;
+    texture = DiffuseMap;
 
     minfilter = linear;
     magfilter = linear;
+    mipfilter = linear;
 };
+
+sampler SpecularSampler = sampler_state
+{
+    texture = SpecularMap;
+
+    minfilter = linear;
+    magfilter = linear;
+    mipfilter = linear;
+};
+
+sampler TangentSampler = sampler_state
+{
+    texture = TangentMap;
+
+    minfilter = linear;
+    magfilter = linear;
+    mipfilter = linear;
+};
+
+sampler EmissiveSampler = sampler_state
+{
+    texture = EmissiveMap;
+
+    minfilter = linear;
+    magfilter = linear;
+    mipfilter = linear;
+};
+
 
 struct VS_IN
 {
 	vector			Position : POSITION;
-    vector          Normal : NORMAL;
+    float3          Normal : NORMAL;
+    float3          Tangent : TANGENT;
+    float3          BiNormal : BINORMAL;
 	float2          UV : TEXCOORD0;
 };
 
 struct VS_OUT
 {
 	vector Position : POSITION;
-    float2 UV : TEXCOORD0;
-    float3 Normal : TEXCOORD1;
+    float3 Normal : TEXCOORD0;
+    float3 Tangent : TEXCOORD1;
+    float3 BiNormal : TEXCOORD2;
+    float2 UV : TEXCOORD3;    
+    float3 ViewDirection : TEXCOORD4;
+    float3 WorldLocation : TEXCOORD5;
 };
 
 // 정점 쉐이더
@@ -39,6 +92,11 @@ VS_OUT VS_MAIN(VS_IN In)
 	Out.Position = mul(vector(In.Position.xyz, 1.f), WorldViewProjection);
     Out.UV = In.UV;
     Out.Normal = mul( float4(In.Normal.xyz, 0.f), World);
+    Out.Tangent = mul(float4(In.Tangent.xyz, 0.f), World);
+    Out.BiNormal = mul(float4(In.BiNormal.xyz, 0.f), World);
+    
+    Out.WorldLocation = mul(vector(In.Position.xyz, 1.f), World).xyz;
+    Out.ViewDirection = normalize(Out.WorldLocation.xyz - CameraLocation.xyz);
     
 	return Out;
 }
@@ -46,8 +104,12 @@ VS_OUT VS_MAIN(VS_IN In)
 
 struct PS_IN
 {
-    float2 UV : TEXCOORD0;
-    float3 Normal : TEXCOORD1;
+    float3 Normal : TEXCOORD0;
+    float3 Tangent : TEXCOORD1;
+    float3 BiNormal : TEXCOORD2;
+    float2 UV : TEXCOORD3;
+    float3 ViewDirection : TEXCOORD4;
+    float3 WorldLocation : TEXCOORD5;
 };
 
 struct PS_OUT
@@ -60,13 +122,51 @@ PS_OUT PS_MAIN(PS_IN In)
 	PS_OUT		Out = (PS_OUT)0;
 	
     float3 Normal  = normalize(In.Normal);
+    float3 Tangent = normalize(In.Tangent);
+    float3 BiNormal = normalize(In.BiNormal);
     
-    Out.Color = tex2D(BaseSampler, In.UV);
+    float3 TangentNormal = tex2D(TangentSampler, In.UV).xyz;
+    TangentNormal = normalize(TangentNormal * 2 - 1);
     
-    Out.Color.rgb *= saturate(dot(float3(0, 1, 0), Normal));
+    float3x3 TBN = float3x3(normalize(In.Tangent),
+                            normalize(In.BiNormal),
+                            normalize(In.Normal));
+    
+    TBN = transpose(TBN);
+    float3 WorldNormal = normalize(mul(TBN, TangentNormal));
+    
+    In.ViewDirection = normalize(In.ViewDirection);
+    
+    float3 ToCamera = normalize(CameraLocation.xyz - In.WorldLocation.xyz);
+    
+    float RimAmt = 1.0 - max(0.0, dot(Normal, ToCamera));
+    RimAmt = smoothstep(1.0f - saturate(RimWidth), 1.f, RimAmt);
+   
+   
+    
+    float3 LightDirectionNormal = normalize(LightDirection.xyz);
+    
+    float Specular = 0;
+    
+    float Diffuse = saturate(dot(-LightDirectionNormal, WorldNormal));
+    
+    float4 DiffuseColor = tex2D(DiffuseSampler, In.UV);
+    float4 SpecularColor = tex2D(SpecularSampler, In.UV);
     
     
-    //Out.Color = float4(1.f, 0, 0, 1.f);
+    if (Diffuse.x > 0)
+    {
+        float3 HalfVec = normalize(LightDirectionNormal = In.ViewDirection);
+        Specular = saturate(dot(HalfVec, WorldNormal));
+        Specular = pow(abs(Specular),abs(Power));
+    }
+    
+    float3 Ambient = AmbientColor.xyz;
+    
+    Out.Color = float4(LightColor.xyz* DiffuseColor.xyz * Diffuse + 
+                    LightColor.xyz * SpecularColor.xyz * Specular, DiffuseColor.a);
+    Out.Color.rgb += Ambient;
+    Out.Color.rgba += RimAmt * RimAmtColor.rgba;
     
 	return Out;
 }

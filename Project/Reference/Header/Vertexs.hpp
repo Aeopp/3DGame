@@ -171,7 +171,7 @@ namespace Vertex
 			GetVertexDecl(IDirect3DDevice9* const Device);
 	};
 
-	struct Location2DUVTangent
+	struct LocationTangentUV2D
 	{
 		Vector3 Location;
 		Vector3 Normal;
@@ -179,8 +179,33 @@ namespace Vertex
 		Vector3 BiNormal;
 		Vector2 TexCoord;
 		static IDirect3DVertexDeclaration9* const
-			GetVertexDecl(IDirect3DDevice9* const Device);
-		static const DWORD FVF = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1;
+			GetVertexDecl(IDirect3DDevice9* const Device)
+		{
+			D3DVERTEXELEMENT9 Decl[] =
+			{
+				{ 0, 0,  D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
+				{ 0, 12, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL,  0 },
+				{ 0, 24, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TANGENT,  0 },
+				{ 0, 36, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BINORMAL,  0 },
+				{ 0, 48, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD,  0 },
+				D3DDECL_END()
+			};
+			IDirect3DVertexDeclaration9* VertexDeclaration{ nullptr };
+			Device->CreateVertexDeclaration(Decl, &VertexDeclaration);
+			return VertexDeclaration;
+		};
+		static inline LocationTangentUV2D MakeFromAssimpMesh(const aiMesh* const AiMesh,
+			const uint32 CurrentIdx)
+		{
+			return LocationTangentUV2D
+			{
+				FromAssimp(AiMesh->mVertices[CurrentIdx]),
+				FromAssimp(AiMesh->mNormals[CurrentIdx]),
+				FromAssimp(AiMesh->mTangents[CurrentIdx]),
+				FromAssimp(AiMesh->mBitangents[CurrentIdx]),
+				FMath::ToVec2(FromAssimp(AiMesh->mTextureCoords[0u][CurrentIdx]))
+			};
+		};
 	};
 };
 
@@ -238,11 +263,6 @@ inline IDirect3DVertexDeclaration9* const Vertex::OnlyLocationTangent::GetVertex
 }
 
 inline IDirect3DVertexDeclaration9* const Vertex::Location3DUVTangent::GetVertexDecl(IDirect3DDevice9* const Device)
-{
-	return nullptr;
-}
-
-inline IDirect3DVertexDeclaration9* const Vertex::Location2DUVTangent::GetVertexDecl(IDirect3DDevice9* const Device)
 {
 	return nullptr;
 }

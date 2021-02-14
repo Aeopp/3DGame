@@ -21,12 +21,13 @@ namespace Engine
 						class Controller*const _Control)&;
 		void PrototypeInitialize(IDirect3DDevice9* const Device ,
 								  const HWND Hwnd)&;
+	public:
+		float Speed = 100.f;
 	private:
 		void MouseFix()&;
 		void MouseFixToggle()&;
 	private:
 		bool bMouseFix{ false };
-		float Speed = 100.f;
 		HWND Hwnd{ NULL };
 		Controller* _Control{ nullptr };
 	};
