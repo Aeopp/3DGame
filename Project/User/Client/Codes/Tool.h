@@ -2,6 +2,7 @@
 
 #include "Scene.h"
 #include <type_traits>
+#include <array>
 #include <memory>
 #include <numeric>
 #include <filesystem>
@@ -34,10 +35,23 @@ private:
 		float Width;
 		float Height;
 	};
+	enum class SpawnTransformItem :int32
+	{
+		CustomTransform=0,
+		PickOvertheLandscape,
+		InFrontOf,
+	};
 	std::map<std::wstring,DecoratorOption> DecoratorOpts{};
+	float   SpawnEditScale = 1.f; 
+	Vector3 SpawnEditLocation{ 0,0,0 };
+	Vector3 SpawnEditRotation{ FMath::ToRadian(90.f),0,0 };
+	SpawnTransformItem SpawnTransformComboSelectItem{ SpawnTransformItem::CustomTransform };
+	std::array<const char*, 3u> SpawnTransformComboNames{
+		"Custom Transform","Pick Over the Landscape","In front of"};
 
-	
-	std::weak_ptr<typename Engine::Landscape::DecoInformation > CurEditTransform{};
+	float InfrontOfScale = 100.f;
+
+	std::weak_ptr<typename Engine::Landscape::DecoInformation > CurEditDecoInstance{};
 
 	Mode CurrentMode{ Mode::Landscape }; 
 	const float  MapScale = 0.01f;  

@@ -36,13 +36,14 @@ namespace Engine
 		};
 		struct DecoInformation
 		{
-			float Scale = 1.f;
+			bool bPendingKill = false;
+			float   Scale = 1.f;
 			Vector3 Rotation{ 0,0,0 };
 			Vector3 Location{ 0,0,0 };
 		};
 		struct Decorator
 		{
-			std::vector<std::shared_ptr<DecoInformation>> Transforms{};
+			std::vector<std::shared_ptr<DecoInformation>> Instances{};
 			std::vector<Mesh> Meshes{};
 		};
 	public :
@@ -58,13 +59,16 @@ namespace Engine
 			const Matrix& View, const Matrix& Projection ,const Vector3& CameraLocation)&;
 		inline std::vector<PlaneInfo> GetMapWorldCoordPlanes()const&;
 
-		void  DecoratorLoad(const std::filesystem::path& LoadPath,
+		void DecoratorLoad(const std::filesystem::path& LoadPath,
 							const std::filesystem::path& LoadFileName)&;
 		std::weak_ptr<typename Engine::Landscape::DecoInformation>
 			PushDecorator(const std::wstring DecoratorKey , 
 						    const float Scale , const Vector3& Rotation, const Vector3& Location)&; 
 		typename Engine::Landscape::Decorator*
 			GetDecorator(const std::wstring DecoratorKey)&;
+
+		std::weak_ptr<DecoInformation> 
+			PickDecoInstance(const Ray WorldRay)&;
 
 		bool bDecoratorSphereMeshRender{ true }; 
 	private:

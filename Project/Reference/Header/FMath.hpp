@@ -80,6 +80,8 @@ public:
 		const Vector3& Up,
 		const Vector3& Location);
 
+	static inline Matrix WorldMatrix(const float Scale, const Vector3& Rotation,
+		const Vector3& Location);
 	static inline Matrix WorldMatrix(const Vector3& Scale, const Vector3& Rotation,
 		const Vector3& Location);
 
@@ -419,6 +421,12 @@ inline Matrix FMath::WorldMatrix(
 	memcpy(&BasisMatrix._31, &Forward, Vec3Size);
 	return 	FMath::Scale(Scale) * BasisMatrix * FMath::Translation(Location);
 };
+
+Matrix FMath::WorldMatrix(
+	const float Scale, const Vector3& Rotation, const Vector3& Location)
+{
+	return FMath::Scale({ Scale,Scale,Scale }) * FMath::Rotation(Rotation) * FMath::Translation(Location);
+}
 
 Matrix FMath::WorldMatrix(
 	const Vector3& Scale, const Vector3& Rotation, const Vector3& Location)

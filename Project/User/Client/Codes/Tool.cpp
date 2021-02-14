@@ -242,7 +242,6 @@ void Tool::NaviMeshTool()&
 				ImGui::SameLine();
 				ImGui::TextColoredV(Color, "Z", {});
 			}
-			
 
 			NaviMesh.MarkerMove(NaviMeshCurrentSelectMarkeyKey, Vector3{ x,y,z });
 		}
@@ -305,7 +304,33 @@ void Tool::Landscape()&
 {
 	auto& Renderer = RefRenderer();
 	auto& RefLandscape = Renderer.RefLandscape();
+	auto& RefMgr = RefManager();
 
+	auto _Camera = RefMgr.FindObject<StaticLayer, Engine::DynamicCamera>(L"Camera");
+	auto CameraTransform =_Camera->GetComponent<Engine::Transform>();
+	const Vector3 CameraLocation =CameraTransform->GetLocation();
+	const Vector3 CameraLook = CameraTransform->GetForward();
+
+	auto& Control = RefControl();
+
+	if (Control.IsDown(DIK_RIGHTCLICK))
+	{
+		POINT Pt;
+		GetCursorPos(&Pt);
+		ScreenToClient(App::Hwnd, &Pt);
+		Vector3 Dir = { (float)Pt.x,(float)Pt.y,1.f };
+		const Ray _Ray =
+			FMath::GetRayScreenProjection
+			(Dir, App::Device, App::ClientSize<float>.first, App::ClientSize<float>.second);
+
+		if (auto PickSuccess = RefLandscape.PickDecoInstance(_Ray);
+			!PickSuccess.expired())
+		{
+			CurEditDecoInstance = PickSuccess;
+		}
+	}
+	
+	
 	uint32 DummyLableID = 0u;
 
 	ImGui::Begin("Map Edit");
@@ -321,8 +346,23 @@ void Tool::Landscape()&
 
 				if (ImGui::ImageButton(reinterpret_cast<void**>(DecoOpt.Picture), ImVec2{ 100,100 }))
 				{
-					CurEditTransform = RefLandscape.PushDecorator(DecoKey, 1.f, { 0,0,0 }, { 0,0,0 });
-					
+					switch (SpawnTransformComboSelectItem)
+					{
+					case Tool::SpawnTransformItem::CustomTransform:
+						CurEditDecoInstance = RefLandscape.PushDecorator(DecoKey,
+							SpawnEditScale, SpawnEditRotation, SpawnEditLocation);
+						break;
+					case Tool::SpawnTransformItem::PickOvertheLandscape:
+						break;
+					case Tool::SpawnTransformItem::InFrontOf:
+						CurEditDecoInstance = RefLandscape.PushDecorator(DecoKey,
+							SpawnEditScale, SpawnEditRotation,
+							CameraLocation + CameraLook * InfrontOfScale
+						);
+						break;
+					default:
+						break;
+					}
 				}
 				if (ImGui::CollapsingHeader(KeyA.c_str()))
 				{
@@ -345,22 +385,57 @@ void Tool::Landscape()&
 				ImGui::Separator();
 			}
 		}
+		if (ImGui::CollapsingHeader("Spawn Information Edit"))
+		{
+			ImGui::Combo("Select", 
+				(int32*)&SpawnTransformComboSelectItem,
+				SpawnTransformComboNames.data(), SpawnTransformComboNames.size());
+
+			switch (SpawnTransformComboSelectItem)
+			{
+			case Tool::SpawnTransformItem::CustomTransform:
+				ImGui::VSliderFloat("Scale", { 40,50 }, &(SpawnEditScale), 0.1f, 10.f);
+				if (ImGui::CollapsingHeader("Rotation"))
+				{
+					ImGui::SliderAngle("Yaw", &(SpawnEditRotation.y));
+					ImGui::SliderAngle("Pitch", &(SpawnEditRotation.x));
+					ImGui::SliderAngle("Roll", &(SpawnEditRotation.z));
+				}
+				if (ImGui::CollapsingHeader("Location"))
+				{
+					ImGui::SliderFloat3("Location", (float*)&(SpawnEditLocation), -10000.f, +10000.f);
+				}
+				break;
+			case Tool::SpawnTransformItem::InFrontOf:
+				ImGui::VSliderFloat("In front Of Scale", { 30,100 }, &InfrontOfScale, 1.f, 10000.f);
+			default:
+				break;
+			}
+		}
 
 		ImGui::Begin("SelectObject");
-		if (auto CurEditTransformShared = CurEditTransform.lock();
-			CurEditTransformShared)
+		if (auto CurEditDecoSharedInstance = CurEditDecoInstance.lock();
+			CurEditDecoSharedInstance)
 		{
-			ImGui::VSliderFloat("Scale", { 37,50}, &(CurEditTransformShared->Scale), 0.1f, 10.f);
-
+			ImGui::VSliderFloat("Scale", { 40,50}, &(CurEditDecoSharedInstance->Scale), 0.1f, 10.f);
+			ImGui::InputFloat("_Scale", &(CurEditDecoSharedInstance->Scale));
 			if (ImGui::CollapsingHeader("Rotation"))
 			{
-				ImGui::SliderAngle("Yaw", &(CurEditTransformShared->Rotation.y));
-				ImGui::SliderAngle("Pitch", &(CurEditTransformShared->Rotation.x));
-				ImGui::SliderAngle("Roll", &(CurEditTransformShared->Rotation.z));
+				ImGui::SliderAngle("Yaw", &(CurEditDecoSharedInstance->Rotation.y));
+				ImGui::SliderAngle("Pitch", &(CurEditDecoSharedInstance->Rotation.x));
+				ImGui::SliderAngle("Roll", &(CurEditDecoSharedInstance->Rotation.z));
+				ImGui::InputFloat3("Rotation", (float*)&(CurEditDecoSharedInstance->Rotation),
+					"%.0f Rad");
 			}
 			if (ImGui::CollapsingHeader("Location"))
 			{
-				ImGui::SliderFloat3("Location", (float*)&(CurEditTransformShared->Location), -10000.f, +10000.f);
+				ImGui::SliderFloat3("Location", (float*)&(CurEditDecoSharedInstance->Location), -10000.f, +10000.f);
+				ImGui::InputFloat3("_Location", (float*)&(CurEditDecoSharedInstance->Location));
+			}
+			
+			if (ImGui::Button("Cleaning!"))
+			{
+				CurEditDecoSharedInstance->bPendingKill = true;
 			}
 		}
 		ImGui::End();

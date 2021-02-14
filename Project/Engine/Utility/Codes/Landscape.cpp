@@ -37,16 +37,13 @@ void Engine::Landscape::DecoratorLoad(
 		aiProcess_SplitLargeMeshes
 	);
 
-
-	const Matrix MapWorld = FMath::WorldMatrix(Scale, Rotation, Location);
-
 	Decorator LoadDecorator{};
 
 	auto& ResourceSys = ResourceSystem::Instance;
 
 	LoadDecorator.Meshes.resize(AiScene->mNumMeshes);
 	
-	std::vector<Vector3> DecoWorldVertexLocation;
+	
 	std::vector<Vector3> DecoLocalVertexLocations;
 
 	for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
@@ -65,9 +62,7 @@ void Engine::Landscape::DecoratorLoad(
 		{
 			Vertexs.emplace_back(VertexType::MakeFromAssimpMesh(AiMesh, VerticesIdx));
 			const Vector3 LocalVertexLocation = FromAssimp(AiMesh->mVertices[VerticesIdx]); 
-
 			DecoLocalVertexLocations.push_back(LocalVertexLocation);
-			DecoWorldVertexLocation.push_back(FMath::Mul(LocalVertexLocation, MapWorld));
 		};
 
 		D3DXComputeBoundingSphere(reinterpret_cast<const Vector3*>(Vertexs.data()),
@@ -213,22 +208,6 @@ void Engine::Landscape::DecoratorLoad(
 		}
 	};
 
-	for (uint32 i = 0; i < DecoWorldVertexLocation.size(); i += 3u)
-	{
-		WorldPlanes.push_back
-		(
-			PlaneInfo::Make({ DecoWorldVertexLocation[i]  ,
-							DecoWorldVertexLocation[i + 1]  ,
-							DecoWorldVertexLocation[i + 2] })
-		);
-	}
-	/*
-	D3DXComputeBoundingSphere(reinterpret_cast<const Vector3*>(DecoLocalVertexLocations.data()),
-		DecoLocalVertexLocations.size(), sizeof(Vector3),
-		&LoadDecorator.BoundingSphere.Center,
-		&LoadDecorator.BoundingSphere.Radius
-	);*/
-
 	DecoratorContainer.insert({ LoadFileName,LoadDecorator } );
 }
 
@@ -243,8 +222,12 @@ std::weak_ptr<typename Engine::Landscape::DecoInformation>  Engine::Landscape::P
 	if (iter != std::end(DecoratorContainer))
 	{
 		auto& [Key, Deco] = *iter;
-		return Deco.Transforms.emplace_back(
-			std::make_shared<Engine::Landscape::DecoInformation>(Scale,Rotation,Location));
+		Engine::Landscape::DecoInformation DecoInfoInstance{};
+		DecoInfoInstance.Scale = Scale;
+		DecoInfoInstance.Rotation = Rotation;
+		DecoInfoInstance.Location = Location;
+		return Deco.Instances.emplace_back(
+			std::make_shared<Engine::Landscape::DecoInformation>(DecoInfoInstance));
 	}
 
 	return {};
@@ -258,6 +241,39 @@ typename Engine::Landscape::Decorator* Engine::Landscape::GetDecorator(const std
 		return &(iter->second); 
 	}
 
+	return {};
+}
+
+std::weak_ptr<typename Engine::Landscape::DecoInformation> 
+	Engine::Landscape::PickDecoInstance(const Ray WorldRay)&
+{
+	for (auto& [Key , CurDeco ] : DecoratorContainer)
+	{
+		for (const auto& CurDecoMesh : CurDeco.Meshes)
+		{
+			const Sphere CurMeshLocalSphere = CurDecoMesh.BoundingSphere;
+
+			for (auto& CurInstance : CurDeco.Instances)
+			{
+				Sphere CurMeshInstanceWorldSphere{}; 
+
+				CurMeshInstanceWorldSphere.Center = FMath::Mul(CurMeshLocalSphere.Center,
+					FMath::WorldMatrix(CurInstance->Scale, CurInstance->Rotation, CurInstance->Location));
+
+				CurMeshInstanceWorldSphere.Radius =
+					CurMeshLocalSphere.Radius * CurInstance->Scale;
+
+				float t0, t1;
+				Vector3 IntersectPt{}; 
+
+				if (FMath::IsRayToSphere(WorldRay, CurMeshInstanceWorldSphere, t0, t1, IntersectPt))
+				{
+					return CurInstance; 
+				}
+			}
+		}
+	}
+	
 	return {};
 }
 
@@ -297,7 +313,7 @@ void Engine::Landscape::Initialize(
 		aiProcess_SplitLargeMeshes
 	);
 
-	const Matrix MapWorld = FMath::WorldMatrix(this->Scale, Rotation, Location);
+	const Matrix MapWorld = FMath::WorldMatrix(this->Scale,Rotation, Location);
 
 	auto& ResourceSys = ResourceSystem::Instance;
 
@@ -484,6 +500,14 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 	const Matrix& View, const Matrix& Projection,
 	const Vector3& CameraLocation)&
 {
+	for (auto& [DecoKey, CurDeco] : DecoratorContainer)
+	{
+		CurDeco.Instances.erase(std::remove_if(std::begin(CurDeco.Instances), std::end(CurDeco.Instances),
+			[](auto& TargetInstance) {
+				return TargetInstance->bPendingKill;
+			}) ,std::end(CurDeco.Instances) );
+		
+	}
 	if (nullptr == Device)
 		return;
 
@@ -531,14 +555,16 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 
 	for (const auto& [DecoKey, CurDeco] : DecoratorContainer)
 	{
-		for (const auto& CurDecoTransform : CurDeco.Transforms)
+		for (const auto& CurDecoTransform : CurDeco.Instances)
 		{
-			const auto& [DecoTfmScale, DecoTfmRotation, DecoTfmLocation] = *CurDecoTransform;
+			const float DecoTfmScale = CurDecoTransform->Scale;
+			const Vector3 DecoTfmLocation = CurDecoTransform->Location;
+			const Vector3  DecoTfmRotation = CurDecoTransform->Rotation;
 
 			const Matrix DecoWorld = 
 				FMath::WorldMatrix(
 					{ DecoTfmScale , DecoTfmScale , DecoTfmScale , }, 
-					DecoTfmRotation, DecoTfmLocation) * MapWorld;
+					DecoTfmRotation, DecoTfmLocation);
 
 			uint32 PassNum = 0u;
 			Fx->Begin(&PassNum, 0);
@@ -605,10 +631,11 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 
 		for (const auto& [DecoKey, CurDeco] : DecoratorContainer)
 		{
-			for (const auto& CurDecoTransform : CurDeco.Transforms)
+			for (const auto& CurDecoTransform : CurDeco.Instances)
 			{
-				const auto&[DecoTfmScale, DecoTfmRotation, DecoTfmLocation] = *CurDecoTransform;
-
+				const float DecoTfmScale= CurDecoTransform->Scale;
+				const Vector3 DecoTfmLocation = CurDecoTransform->Location;
+				const Vector3  DecoTfmRotation = CurDecoTransform->Rotation;
 				for (const auto& _Mesh :CurDeco.Meshes)
 				{
 					const Matrix SphereLocalMatrix = FMath::WorldMatrix(
@@ -618,15 +645,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 
 					const Matrix DecoWorld=SphereLocalMatrix* FMath::WorldMatrix(
 						{ DecoTfmScale , DecoTfmScale,DecoTfmScale },
-						DecoTfmRotation, DecoTfmLocation)* MapWorld;
-
-					// const float SphereScale = DecoTfmScale * (_Mesh.BoundingSphere.Radius);
-
-					/*const Matrix DecoWorld = FMath::WorldMatrix(
-						{ SphereScale , SphereScale , SphereScale , },
-						DecoTfmRotation,
-						DecoTfmLocation +
-						_Mesh.BoundingSphere.Center) * MapWorld;*/
+						DecoTfmRotation, DecoTfmLocation);
 
 					Device->SetTransform(D3DTS_WORLD, &DecoWorld);
 					DebugSphere->DrawSubset(0u);
