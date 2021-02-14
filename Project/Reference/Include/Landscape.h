@@ -50,8 +50,8 @@ namespace Engine
 
 		void  DecoratorLoad(const std::filesystem::path& LoadPath,
 							const std::filesystem::path& LoadFileName)&;
-		void PushDecorator(const std::wstring DecoratorKey , 
-						const float Scale , const Vector3& Rotation, const Vector3& Location)&; 
+		void  PushDecorator(const std::wstring DecoratorKey , 
+						    const float Scale , const Vector3& Rotation, const Vector3& Location)&; 
 
 		bool bDecoratorSphereMeshRender{ true }; 
 	private:

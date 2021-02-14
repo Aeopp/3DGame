@@ -10,8 +10,7 @@
 
 static uint32 StaticMeshResourceID = 0u;
 
-void
-Engine::Landscape::DecoratorLoad(
+void Engine::Landscape::DecoratorLoad(
 	const std::filesystem::path& LoadPath,
 	const std::filesystem::path& LoadFileName)&
 {
@@ -239,7 +238,7 @@ void Engine::Landscape::Initialize(
 	 //               TODO ::  노말 매핑 사용할시 변경 바람 . 
 	using VertexType = Vertex::LocationTangentUV2D;
 	this->Device = Device;
-	World = MapWorld;
+	
 	auto AiScene = Engine::Global::AssimpImporter.ReadFile(
 		(FilePath / FileName).string(),
 		aiProcess_MakeLeftHanded |
@@ -258,8 +257,8 @@ void Engine::Landscape::Initialize(
 		aiProcess_OptimizeMeshes |
 		aiProcess_SplitLargeMeshes
 	);
-	
-	
+
+	World = FromAssimp(AiScene->mRootNode->mTransformation)* MapWorld;
 	auto& ResourceSys = ResourceSystem::Instance;
 
 	Meshes.resize(AiScene->mNumMeshes);

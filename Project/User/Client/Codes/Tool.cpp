@@ -74,7 +74,7 @@ void Tool::Initialize(IDirect3DDevice9* const Device)&
 	}
 
 	{
-		auto RefLandscape = Renderer.RefLandscape();
+		auto& RefLandscape = Renderer.RefLandscape();
 		RefLandscape.Initialize(Device, MapWorld, App::ResourcePath /
 			L"Mesh" / L"StaticMesh" / L"Landscape", L"Mountain.fbx");
 		PickingPlanes = RefLandscape.GetMapWorldCoordPlanes();
@@ -85,10 +85,12 @@ void Tool::Initialize(IDirect3DDevice9* const Device)&
 		for (auto& TargetFileCurPath : std::filesystem::directory_iterator{ DecoratorPath })
 		{
 			const auto& FileName = TargetFileCurPath.path().filename();
-			if (FileName != L"tex")
+			
+			if (FileName.has_extension())
 			{
 				RefLandscape.DecoratorLoad(DecoratorPath, FileName);
-				const auto PicturePath = TargetFileCurPath.path().stem().wstring() + L"png";
+				
+				const auto PicturePath = (DecoratorPath / L"Converted"/FileName.stem()).wstring()+ L".png";
 				DecoratorOption LoadDecoOpt;
 
 				LoadDecoOpt.Picture = ResourceSys.Get<IDirect3DTexture9>(PicturePath);
@@ -126,11 +128,11 @@ void Tool::Event() &
 
 	if (ImGui::CollapsingHeader("Select"))
 	{
-		if (ImGui::Button("Navigation Mesh", ImVec2{ 70,40}) )
+		if (ImGui::Button("Navigation Mesh", ImVec2{ 100,35}) )
 		{
 			CurrentMode = Mode::NaviMesh;
 		}ImGui::SameLine();
-		if (ImGui::Button("Landscape", ImVec2{ 70,40}))
+		if (ImGui::Button("Landscape", ImVec2{ 70,35}))
 		{
 			CurrentMode = Mode::Landscape;
 		}
@@ -277,17 +279,29 @@ void Tool::NaviMeshTool()&
 
 void Tool::Landscape()&
 {
+	auto& Renderer = RefRenderer();
+	auto& RefLandscape = Renderer.RefLandscape();
+
 	ImGui::Begin("Map Edit");
-	if (ImGui::CollapsingHeader("FileList"))
+	if (ImGui::CollapsingHeader("ObjectList"))
 	{
-		ImGui::Separator();
-		for (auto&   [ DecoKey , DecoOpt ]: DecoratorOpts)
+		if (ImGui::CollapsingHeader("StaticMeshs"))
 		{
-			std::string KeyA;
-			KeyA.assign(std::begin(DecoKey), std::end(DecoKey));
-			ImGui::ImageButton(reinterpret_cast<void**>(DecoOpt.Picture), 
-				ImVec2{ DecoOpt.Width,DecoOpt.Height });
+			for (auto& [DecoKey, DecoOpt] : DecoratorOpts)
+			{
+				std::string KeyA;
+				KeyA.assign(std::begin(DecoKey), std::end(DecoKey));
+				if (ImGui::ImageButton(reinterpret_cast<void**>(DecoOpt.Picture), ImVec2{ 100,100 }))
+				{
+					RefLandscape.PushDecorator(DecoKey, 1.f, { 0,0,0 }, { 0,0,0 });
+				}
+				ImGui::BulletText("StaticMesh : File : %s", KeyA.c_str());
+			}
 		}
+
+		ImGui::Begin("SelectObject");
+
+		ImGui::End();
 	}
 	
 	ImGui::End();
