@@ -22,6 +22,7 @@ namespace Engine
 			uint32 Stride{ 0u };
 			uint32 PrimitiveCount{ 0u };
 			DWORD FVF{ 0u };
+			std::string Name{}; 
 			IDirect3DTexture9* DiffuseMap{ nullptr };
 			IDirect3DTexture9* SpecularMap{ nullptr };
 			IDirect3DTexture9* NormalMap{ nullptr };
@@ -29,12 +30,20 @@ namespace Engine
 			Sphere BoundingSphere{};
 			float RimWidth = 0.8f; 
 			float Power = 64.f;
+			float RimOuter  = 1.f;
 			Vector4 RimAmtColor { 1,1,1,1 }; 
-			Vector4 AmbientColor{ 0.15f,0.15f,0.15f,1.f };
+			Vector4 AmbientColor{ 0.10f,0.10f,0.10f,1.f };
+		};
+
+		struct DecoInformation
+		{
+			float Scale = 1.f;
+			Vector3 Rotation{ 0,0,0 };
+			Vector3 Location{ 0,0,0 };
 		};
 		struct Decorator
 		{
-			std::vector<std::tuple<float, Vector3, Vector3>> Transforms{}; 
+			std::vector<std::shared_ptr<DecoInformation>> Transforms{};
 			std::vector<Mesh> Meshes{};
 		};
 	public :
@@ -50,8 +59,11 @@ namespace Engine
 
 		void  DecoratorLoad(const std::filesystem::path& LoadPath,
 							const std::filesystem::path& LoadFileName)&;
-		void  PushDecorator(const std::wstring DecoratorKey , 
+		std::weak_ptr<typename Engine::Landscape::DecoInformation>
+			PushDecorator(const std::wstring DecoratorKey , 
 						    const float Scale , const Vector3& Rotation, const Vector3& Location)&; 
+		typename Engine::Landscape::Decorator*
+			GetDecorator(const std::wstring DecoratorKey)&;
 
 		bool bDecoratorSphereMeshRender{ true }; 
 	private:

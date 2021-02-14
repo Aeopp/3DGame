@@ -7,6 +7,8 @@
 #include "ResourceSystem.h"
 #include "Vertexs.hpp"
 #include "ShaderManager.h"
+#include "Renderer.h"
+
 
 static uint32 StaticMeshResourceID = 0u;
 
@@ -57,6 +59,7 @@ void Engine::Landscape::DecoratorLoad(
 
 		LoadDecorator.Meshes[MeshIdx].BoundingSphere.Radius = Radius;
 		LoadDecorator.Meshes[MeshIdx].BoundingSphere.Center = LocalCenter;
+		LoadDecorator.Meshes[MeshIdx].Name = AiMesh->mName.C_Str();
 
 		LoadDecorator.Meshes[MeshIdx].VtxCount = AiMesh->mNumVertices;
 		LoadDecorator.Meshes[MeshIdx].Stride = sizeof(VertexType);
@@ -209,22 +212,41 @@ void Engine::Landscape::DecoratorLoad(
 		WorldPlanes.push_back
 		(
 			PlaneInfo::Make({ DecoWorldVertexLocation[i]  ,
-				DecoWorldVertexLocation[i + 1]  ,
-				DecoWorldVertexLocation[i + 2] })
+							DecoWorldVertexLocation[i + 1]  ,
+							DecoWorldVertexLocation[i + 2] })
 		);
 	}
 
 	DecoratorContainer.insert({ LoadFileName,LoadDecorator } );
 }
 
-void Engine::Landscape::PushDecorator(const std::wstring DecoratorKey, const float Scale, const Vector3& Rotation, const Vector3& Location)&
+std::weak_ptr<typename Engine::Landscape::DecoInformation>  Engine::Landscape::PushDecorator(
+	const std::wstring DecoratorKey, 
+	const float Scale, 
+	const Vector3& Rotation, 
+	const Vector3& Location)&
 {
 	auto iter = DecoratorContainer.find(DecoratorKey);
+
 	if (iter != std::end(DecoratorContainer))
 	{
 		auto& [Key, Deco] = *iter;
-		Deco.Transforms.push_back({Scale , Rotation ,Location});
+		return Deco.Transforms.emplace_back(
+			std::make_shared<Engine::Landscape::DecoInformation>(Scale,Rotation,Location));
 	}
+
+	return {};
+}
+
+typename Engine::Landscape::Decorator* Engine::Landscape::GetDecorator(const std::wstring DecoratorKey)&
+{
+	if (auto iter = DecoratorContainer.find(DecoratorKey);
+		iter != std::end(DecoratorContainer))
+	{
+		return &(iter->second); 
+	}
+
+	return {};
 }
 
 // TODO :: 노말매핑 사용시 버텍스 타입 변경해야 하며. FVF 변경도 고려 해야함 . 
@@ -258,7 +280,7 @@ void Engine::Landscape::Initialize(
 		aiProcess_SplitLargeMeshes
 	);
 
-	World = FromAssimp(AiScene->mRootNode->mTransformation)* MapWorld;
+	World =  MapWorld;
 	auto& ResourceSys = ResourceSystem::Instance;
 
 	Meshes.resize(AiScene->mNumMeshes);
@@ -447,16 +469,16 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 	if (nullptr == Device)
 		return;
 
+	auto& Renderer = *Engine::Renderer::Instance;
+
 	auto Fx = _ShaderFx.GetHandle();
 	uint32 PassNum = 0u;
 	Fx->Begin(&PassNum, 0);
 	Fx->SetMatrix("World", &World);
 	Fx->SetMatrix("View", &View);
 	Fx->SetMatrix("Projection", &Projection);
-	const Vector4 LightDirection{ 0.707f,-0.707f,0.f,   0 };
-	const Vector4 LightColor{ 1,1,1,1 };
-	Fx->SetVector("LightDirection", &LightDirection);
-	Fx->SetVector("LightColor", &LightColor);
+	Fx->SetVector("LightDirection", &Renderer.LightDirection);
+	Fx->SetVector("LightColor", &Renderer.LightColor);
 	const Vector4 CameraLocation4D = Vector4{ CameraLocation.x,CameraLocation.y,CameraLocation.z ,1.f };
 	Fx->SetVector("CameraLocation", &CameraLocation4D);
 	for (uint32 i = 0; i < PassNum; ++i)
@@ -468,6 +490,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 			Fx->SetFloat("RimWidth", CurMesh.RimWidth);
 			Fx->SetVector("AmbientColor", &CurMesh.AmbientColor);
 			Fx->SetFloat("Power", CurMesh.Power);
+			Fx->SetFloat("RimOuter", CurMesh.RimOuter);
 			Device->SetVertexDeclaration(VtxDecl);
 			Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
 			Device->SetIndices(CurMesh.IdxBuf);
@@ -489,9 +512,10 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 	{
 		for (const auto& CurDecoTransform : CurDeco.Transforms)
 		{
-			const auto& [Scale, Rotation, Location] = CurDecoTransform;
+			const auto& [Scale, Rotation, Location] = *CurDecoTransform;
 
-			const Matrix DecoWorld = FMath::WorldMatrix(
+			const Matrix DecoWorld = FMath::Rotation({ 0.f,0.f,0.f }) * 
+				FMath::WorldMatrix(
 				{ Scale , Scale , Scale , }, Rotation, Location) * World;
 			uint32 PassNum = 0u;
 			Fx->Begin(&PassNum, 0);
@@ -514,6 +538,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 						Device->SetIndices(CurMesh.IdxBuf);
 						const Vector4 RimAmtColor{ 1.f,1.f,1.f, 1.f };
 						Fx->SetVector("RimAmtColor", &CurMesh.RimAmtColor);
+						Fx->SetFloat("RimOuter", CurMesh.RimOuter);
 						Fx->SetFloat("RimWidth", CurMesh.RimWidth);
 						Fx->SetFloat("Power", CurMesh.Power);
 						Fx->SetVector("AmbientColor", &CurMesh.AmbientColor);
@@ -542,7 +567,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 		{
 			for (const auto& CurDecoTransform : CurDeco.Transforms)
 			{
-				const auto& [Scale, Rotation, Location] = CurDecoTransform;
+				const auto& [Scale, Rotation, Location] = *CurDecoTransform;
 
 				const Matrix DecoWorld = FMath::WorldMatrix(
 					{ Scale , Scale , Scale , }, Rotation, Location) * World;

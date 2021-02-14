@@ -20,6 +20,8 @@ namespace Engine
 		void Render()&; 
 		void Regist(RenderInterface* const Target);
 		Landscape& RefLandscape()&;
+		Vector4 LightDirection{ 0.707f, -0.707f  ,0.f  ,0.f};
+		Vector4 LightColor{ 1,1,1,1 }; 
 	private:
 		void RenderLandscape(Frustum& RefFrustum, const Matrix& View, const Matrix& Projection ,
 			const Vector3& CameraLocation)&;

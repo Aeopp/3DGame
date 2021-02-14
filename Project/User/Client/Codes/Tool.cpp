@@ -117,7 +117,8 @@ void Tool::Initialize(IDirect3DDevice9* const Device)&
 		}
 	}
 
-
+	D3DXCreateLine(Device, &LinearSpace);
+	ResourceSys.Insert<ID3DXLine>(L"DebugLinearSpace", LinearSpace);
 };
 
 void Tool::Event() & 
@@ -155,6 +156,28 @@ void Tool::Event() &
 void Tool::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
+}
+
+void Tool::Render()&
+{
+	Matrix View, Projection;
+	Device->GetTransform(D3DTS_VIEW, &View);
+	Device->GetTransform(D3DTS_PROJECTION, &Projection);
+	Matrix ViewProjection = View * Projection;
+
+	std::array<Vector3, 2u> XAxis{ Vector3{0,0,0},Vector3{ (std::numeric_limits<float>::max)() ,0,0} };
+	std::array<Vector3, 2u> YAxis{ Vector3{0,0,0},Vector3{ 0.f,(std::numeric_limits<float>::max)()/2.f,0} };
+	std::array<Vector3, 2u> ZAxis{ Vector3{0,0,0},Vector3{ 0 ,0,(std::numeric_limits<float>::max)()} };
+	LinearSpace->SetWidth(3.f);
+	LinearSpace->Begin();
+	
+	LinearSpace->DrawTransform(XAxis.data(), XAxis.size(), &ViewProjection,
+		D3DCOLOR_ARGB(100,255,0,0));
+	LinearSpace->DrawTransform(YAxis.data(), YAxis.size(), &ViewProjection,
+		D3DCOLOR_ARGB(100, 0, 255, 0));
+	LinearSpace->DrawTransform(ZAxis.data(), ZAxis.size(), &ViewProjection,
+		D3DCOLOR_ARGB(100, 0, 0, 255));
+	LinearSpace->End();
 }
 
 void Tool::NaviMeshTool()&
@@ -282,8 +305,11 @@ void Tool::Landscape()&
 	auto& Renderer = RefRenderer();
 	auto& RefLandscape = Renderer.RefLandscape();
 
+	uint32 DummyLableID = 0u;
+
 	ImGui::Begin("Map Edit");
-	if (ImGui::CollapsingHeader("ObjectList"))
+
+	if (ImGui::CollapsingHeader("Object Edit"))
 	{
 		if (ImGui::CollapsingHeader("StaticMeshs"))
 		{
@@ -291,20 +317,63 @@ void Tool::Landscape()&
 			{
 				std::string KeyA;
 				KeyA.assign(std::begin(DecoKey), std::end(DecoKey));
+
 				if (ImGui::ImageButton(reinterpret_cast<void**>(DecoOpt.Picture), ImVec2{ 100,100 }))
 				{
-					RefLandscape.PushDecorator(DecoKey, 1.f, { 0,0,0 }, { 0,0,0 });
+					CurEditTransform = RefLandscape.PushDecorator(DecoKey, 1.f, { 0,0,0 }, { 0,0,0 });
+					
+				}
+				if (ImGui::CollapsingHeader(KeyA.c_str()))
+				{
+					if (auto DecoPtr = RefLandscape.GetDecorator(DecoKey);
+						DecoPtr)
+					{
+						for (auto& CurMesh : DecoPtr->Meshes)
+						{
+							ImGui::ColorEdit4( (std::to_string(DummyLableID)+"_AmbientColor").c_str(), CurMesh.AmbientColor);
+							ImGui::SliderFloat((std::to_string(DummyLableID) + "_Power").c_str(), &CurMesh.Power, 1.f, 100.f);
+							ImGui::ColorEdit4((std::to_string(DummyLableID) + "_RimAmtColor").c_str(), CurMesh.RimAmtColor);
+							ImGui::SliderFloat((std::to_string(DummyLableID) + "_RimWidth").c_str(),&CurMesh.RimWidth,0.f,1.f);
+							++DummyLableID;
+							ImGui::SliderFloat((std::to_string(DummyLableID) + "_RimOuter").c_str(), &CurMesh.RimOuter, -1.f, 1.f);
+							++DummyLableID;
+							ImGui::Separator();
+						}
+					}
 				}
 				ImGui::BulletText("StaticMesh : File : %s", KeyA.c_str());
+				ImGui::Separator();
 			}
 		}
 
 		ImGui::Begin("SelectObject");
+		if (auto CurEditTransformShared = CurEditTransform.lock();
+			CurEditTransformShared)
+		{
+			ImGui::VSliderFloat("Scale", { 37,50}, &(CurEditTransformShared->Scale), 0.1f, 10.f);
 
+			if (ImGui::CollapsingHeader("Rotation"))
+			{
+				ImGui::SliderAngle("Yaw", &(CurEditTransformShared->Rotation.y));
+				ImGui::SliderAngle("Pitch", &(CurEditTransformShared->Rotation.x));
+				ImGui::SliderAngle("Roll", &(CurEditTransformShared->Rotation.z));
+			}
+			if (ImGui::CollapsingHeader("Location"))
+			{
+				ImGui::SliderFloat3("Location", (float*)&(CurEditTransformShared->Location), -10000.f, +10000.f);
+			}
+		}
 		ImGui::End();
 	}
 	
 	ImGui::End();
+
+	ImGui::Begin("DirectionalLight");
+	ImGui::DragFloat3("Direction", (float*)&Renderer.LightDirection, 0.1f, -1.f, 1.f);
+	D3DXVec4Normalize(&Renderer.LightDirection, &Renderer.LightDirection);
+	ImGui::ColorEdit4("Color", (float*)&Renderer.LightColor);
+	ImGui::End();
 };
+
 
 

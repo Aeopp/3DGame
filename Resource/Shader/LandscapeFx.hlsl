@@ -1,5 +1,3 @@
-
-
 matrix  World;
 matrix  View;
 matrix  Projection;
@@ -8,12 +6,10 @@ float4 LightColor;
 float4 CameraLocation;
 float4 LightDirection;
 float4 RimAmtColor;
-float RimWidth;
-
+float  RimWidth;
+// 1이 기본값이며 (외곽 림라이트) 0으로 갈수록 메쉬의 중심부로 림라이트가 이동.
+float RimOuter;
 float  Power;
-// 림 라이트 가 약화 하는 정도.
-float  RimAmtPower;
-
 float4 AmbientColor;
 
 texture DiffuseMap;
@@ -139,7 +135,7 @@ PS_OUT PS_MAIN(PS_IN In)
     
     float3 ToCamera = normalize(CameraLocation.xyz - In.WorldLocation.xyz);
     
-    float RimAmt = 1.0 - max(0.0, dot(Normal, ToCamera));
+    float RimAmt = abs(RimOuter - max(0.0, dot(Normal, ToCamera)));
     RimAmt = smoothstep(1.0f - saturate(RimWidth), 1.f, RimAmt);
    
    
@@ -156,7 +152,7 @@ PS_OUT PS_MAIN(PS_IN In)
     
     if (Diffuse.x > 0)
     {
-        float3 HalfVec = normalize(LightDirectionNormal = In.ViewDirection);
+        float3 HalfVec = normalize(LightDirectionNormal +In.ViewDirection);
         Specular = saturate(dot(HalfVec, WorldNormal));
         Specular = pow(abs(Specular),abs(Power));
     }
