@@ -144,15 +144,15 @@ void Engine::Landscape::DecoratorLoad(
 				const std::string TextureName = AiFileName.C_Str();
 				std::wstring TextureNameW;
 				TextureNameW.assign(std::begin(TextureName), std::end(TextureName));
-				LoadDecorator.Meshes[MeshIdx].SpecularMap =
+				LoadDecorator.Meshes[MeshIdx].CavityMap =
 					ResourceSys->Get<IDirect3DTexture9>(TextureNameW);
 
-				if (LoadDecorator.Meshes[MeshIdx].SpecularMap == nullptr)
+				if (LoadDecorator.Meshes[MeshIdx].CavityMap == nullptr)
 				{
 					const std::filesystem::path TexFileFullPath = LoadPath / AiFileName.C_Str();
-					D3DXCreateTextureFromFile(Device, TexFileFullPath.c_str(), &LoadDecorator.Meshes[MeshIdx].SpecularMap);
-					LoadDecorator.Meshes[MeshIdx].SpecularMap =
-						ResourceSys->Insert<IDirect3DTexture9>(TextureNameW, LoadDecorator.Meshes[MeshIdx].SpecularMap);
+					D3DXCreateTextureFromFile(Device, TexFileFullPath.c_str(), &LoadDecorator.Meshes[MeshIdx].CavityMap);
+					LoadDecorator.Meshes[MeshIdx].CavityMap =
+						ResourceSys->Insert<IDirect3DTexture9>(TextureNameW, LoadDecorator.Meshes[MeshIdx].CavityMap);
 				}
 			}
 		}
@@ -374,15 +374,15 @@ void Engine::Landscape::Initialize(
 				const std::string TextureName = AiFileName.C_Str();
 				std::wstring TextureNameW;
 				TextureNameW.assign(std::begin(TextureName), std::end(TextureName));
-				Meshes[MeshIdx].SpecularMap =
+				Meshes[MeshIdx].CavityMap =
 					ResourceSys->Get<IDirect3DTexture9>(TextureNameW);
 
-				if (Meshes[MeshIdx].SpecularMap == nullptr)
+				if (Meshes[MeshIdx].CavityMap == nullptr)
 				{
 					const std::filesystem::path TexFileFullPath = FilePath / AiFileName.C_Str();
-					D3DXCreateTextureFromFile(Device, TexFileFullPath.c_str(), &Meshes[MeshIdx].SpecularMap);
-					Meshes[MeshIdx].SpecularMap=
-						ResourceSys->Insert<IDirect3DTexture9>(TextureNameW, Meshes[MeshIdx].SpecularMap);
+					D3DXCreateTextureFromFile(Device, TexFileFullPath.c_str(), &Meshes[MeshIdx].CavityMap);
+					Meshes[MeshIdx].CavityMap=
+						ResourceSys->Insert<IDirect3DTexture9>(TextureNameW, Meshes[MeshIdx].CavityMap);
 				}
 			}
 		}
@@ -496,7 +496,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 			Device->SetIndices(CurMesh.IdxBuf);
 			Fx->SetTexture("DiffuseMap", CurMesh.DiffuseMap);
 			Fx->SetTexture("NormalMap", CurMesh.NormalMap);
-			Fx->SetTexture("SpecularMap", CurMesh.SpecularMap);
+			Fx->SetTexture("CavityMap", CurMesh.CavityMap);
 			Fx->SetTexture("EmissiveMap", CurMesh.EmissiveMap);
 			Fx->CommitChanges();
 			Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
@@ -544,7 +544,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 						Fx->SetVector("AmbientColor", &CurMesh.AmbientColor);
 						Fx->SetTexture("DiffuseMap", CurMesh.DiffuseMap);
 						Fx->SetTexture("NormalMap", CurMesh.NormalMap);
-						Fx->SetTexture("SpecularMap", CurMesh.SpecularMap);
+						Fx->SetTexture("CavityMap", CurMesh.CavityMap);
 						Fx->SetTexture("EmissiveMap", CurMesh.EmissiveMap);
 						Fx->CommitChanges();
 						Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,

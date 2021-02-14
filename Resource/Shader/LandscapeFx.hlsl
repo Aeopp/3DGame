@@ -14,7 +14,7 @@ float4 AmbientColor;
 
 texture DiffuseMap;
 texture TangentMap;
-texture SpecularMap;
+texture CavityMap;
 texture EmissiveMap;
 
 
@@ -27,9 +27,9 @@ sampler DiffuseSampler  = sampler_state
     mipfilter = linear;
 };
 
-sampler SpecularSampler = sampler_state
+sampler CavitySampler = sampler_state
 {
-    texture = SpecularMap;
+    texture = CavityMap;
 
     minfilter = linear;
     magfilter = linear;
@@ -147,8 +147,10 @@ PS_OUT PS_MAIN(PS_IN In)
     float Diffuse = saturate(dot(-LightDirectionNormal, WorldNormal));
     
     float4 DiffuseColor = tex2D(DiffuseSampler, In.UV);
-    float4 SpecularColor = tex2D(SpecularSampler, In.UV);
+    float4 CavityColor = tex2D(CavitySampler, In.UV);
     
+    float4 SpecularColor = CavityColor * 0.5;
+    float4 CavityDiffuseColor = DiffuseColor * CavityColor;
     
     if (Diffuse.x > 0)
     {
@@ -159,7 +161,7 @@ PS_OUT PS_MAIN(PS_IN In)
     
     float3 Ambient = AmbientColor.xyz;
     
-    Out.Color = float4(LightColor.xyz* DiffuseColor.xyz * Diffuse + 
+    Out.Color = float4(LightColor.xyz * CavityDiffuseColor.xyz * Diffuse +
                     LightColor.xyz * SpecularColor.xyz * Specular, DiffuseColor.a);
     Out.Color.rgb += Ambient;
     Out.Color.rgba += RimAmt * RimAmtColor.rgba;

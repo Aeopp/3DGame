@@ -24,7 +24,7 @@ namespace Engine
 			DWORD FVF{ 0u };
 			std::string Name{}; 
 			IDirect3DTexture9* DiffuseMap{ nullptr };
-			IDirect3DTexture9* SpecularMap{ nullptr };
+			IDirect3DTexture9* CavityMap{ nullptr };
 			IDirect3DTexture9* NormalMap{ nullptr };
 			IDirect3DTexture9* EmissiveMap{ nullptr };
 			Sphere BoundingSphere{};
