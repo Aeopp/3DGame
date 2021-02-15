@@ -1,92 +1,57 @@
 {
     "Decorators": [
-        [
-            "FileName",
-            "CenterDoor.fbx",
-            {
-                "Scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ],
-                "Rotation": [
-                    1.5707963705062867,
-                    0.0,
-                    0.0
-                ],
-                "Location": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "bLandscapeInclude": false
-            }
-        ],
-        [
-            "FileName",
-            "GreatAscension_Vase_A.fbx",
-            {
-                "Scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ],
-                "Rotation": [
-                    1.5707963705062867,
-                    0.0,
-                    0.0
-                ],
-                "Location": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "bLandscapeInclude": false
-            }
-        ],
-        [
-            "FileName",
-            "GreatAscension_Zone_A_Block_A.fbx",
-            {
-                "Scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ],
-                "Rotation": [
-                    1.5707963705062867,
-                    0.0,
-                    0.0
-                ],
-                "Location": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "bLandscapeInclude": false
-            }
-        ],
-        [
-            "FileName",
-            "Regenier_Pillar_Center_Sub_1.fbx",
-            {
-                "Scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ],
-                "Rotation": [
-                    1.5707963705062867,
-                    0.0,
-                    0.0
-                ],
-                "Location": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "bLandscapeInclude": false
-            }
-        ]
+        {
+            "FileName": "CenterDoor.fbx",
+            "InstanceList": []
+        },
+        {
+            "FileName": "GreatAscension_Vase_A.fbx",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        20.0,
+                        25.0,
+                        33.333335876464847
+                    ],
+                    "Rotation": [
+                        1.0646508932113648,
+                        0.3490658700466156,
+                        0.2967059910297394
+                    ],
+                    "Location": [
+                        3269.0146484375,
+                        -12084.228515625,
+                        -15143.9541015625
+                    ],
+                    "bLandscapeInclude": false
+                },
+                {
+                    "Scale": [
+                        20.0,
+                        25.0,
+                        33.333335876464847
+                    ],
+                    "Rotation": [
+                        2.4260077476501467,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        -15013.712890625,
+                        -19498.3046875,
+                        -15658.734375
+                    ],
+                    "bLandscapeInclude": false
+                }
+            ]
+        },
+        {
+            "FileName": "GreatAscension_Zone_A_Block_A.fbx",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Regenier_Pillar_Center_Sub_1.fbx",
+            "InstanceList": []
+        }
     ]
 }

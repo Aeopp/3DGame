@@ -274,6 +274,9 @@
     <ClInclude Include="..\..\..\Resource\Shader\LandscapeFx.hlsl">
       <FileType>Document</FileType>
     </ClInclude>
+    <ClInclude Include="..\..\..\Resource\Shader\LandscapeFxNonCavity.hlsl">
+      <FileType>Document</FileType>
+    </ClInclude>
     <FxCompile Include="..\..\..\Resource\Shader\LandscapePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">3.0</ShaderModel>

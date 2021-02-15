@@ -92,7 +92,9 @@
       <Filter>HLSL</Filter>
     </ClInclude>
     <ClInclude Include="Codes\TestTerrain.h" />
-    <ClInclude Include="..\..\..\Resource\Shader\TestTerrain.hlsl" />
+    <ClInclude Include="..\..\..\Resource\Shader\TestTerrain.hlsl">
+      <Filter>HLSL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

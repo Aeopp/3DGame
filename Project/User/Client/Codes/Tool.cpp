@@ -378,6 +378,7 @@ void Tool::Landscape()&
 						{
 							ImGui::ColorEdit4( (std::to_string(DummyLableID)+"_AmbientColor").c_str(), CurMesh.AmbientColor);
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_Power").c_str(), &CurMesh.Power, 1.f, 100.f);
+							ImGui::SliderFloat((std::to_string(DummyLableID) + "_SpecularIntencity").c_str(), &CurMesh.SpecularIntencity, 0.f, 1.f);
 							ImGui::ColorEdit4((std::to_string(DummyLableID) + "_RimAmtColor").c_str(), CurMesh.RimAmtColor);
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_RimOuterWidth").c_str(),&CurMesh.RimOuterWidth,0.f,1.f);
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_RimInnerWidth").c_str(), &CurMesh.RimInnerWidth, 0.f, 1.f);
@@ -429,23 +430,51 @@ void Tool::Landscape()&
 		{
 			if (ImGui::CollapsingHeader("Scale"))
 			{
-				ImGui::SliderFloat3("Scale", (float*)&(CurEditDecoSharedInstance->Scale), 0.01f, +100.f);
+				static float Width = 10.f;
+				ImGui::InputFloat("Width", &Width);
+				ImGui::SliderFloat3("Scale", (float*)(&CurEditDecoSharedInstance->Scale), -Width, +Width);
 				ImGui::InputFloat3("_Scale", (float*)&(CurEditDecoSharedInstance->Scale));
+				float Allof = 0.f;
+				ImGui::SliderFloat("AllOf",&Allof, -Width / 1000.f, +Width / 1000.f);
+				if (false == FMath::AlmostEqual(Allof, 0.f))
+				{
+					CurEditDecoSharedInstance->Scale.x += Allof;
+					CurEditDecoSharedInstance->Scale.y += Allof;
+					CurEditDecoSharedInstance->Scale.z += Allof;
+				}
 			}
+			ImGui::Separator();
 			if (ImGui::CollapsingHeader("Rotation"))
 			{
 				ImGui::SliderAngle("Yaw", &(CurEditDecoSharedInstance->Rotation.y));
 				ImGui::SliderAngle("Pitch", &(CurEditDecoSharedInstance->Rotation.x));
 				ImGui::SliderAngle("Roll", &(CurEditDecoSharedInstance->Rotation.z));
-				ImGui::InputFloat3("Rotation", (float*)&(CurEditDecoSharedInstance->Rotation),
-					"%.0f Rad");
+
+				Vector3 Degree = CurEditDecoSharedInstance->Rotation;
+				Degree.x = FMath::ToDegree(Degree.x);
+				Degree.y = FMath::ToDegree(Degree.y);
+				Degree.z = FMath::ToDegree(Degree.z);
+
+				if (ImGui::InputFloat3("Rotation", (float*)&(Degree),
+					"%.0f Deg"))
+				{
+					CurEditDecoSharedInstance->Rotation =
+						{ FMath::ToRadian(Degree.x),
+						FMath::ToRadian(Degree.y),
+						FMath::ToRadian(Degree.z) };
+				}
 			}
 			if (ImGui::CollapsingHeader("Location"))
 			{
-				ImGui::SliderFloat3("Location", (float*)&(CurEditDecoSharedInstance->Location), -10000.f, +10000.f);
+				Vector3 SliderLocation{ 0,0,0 };
+				static float LocationResponsiveness = 1.f;
+				ImGui::InputFloat("LocationResponsiveness", &LocationResponsiveness);
+				ImGui::SliderFloat3("Location", (float*)&(SliderLocation), 
+					-LocationResponsiveness, +LocationResponsiveness);
 				ImGui::InputFloat3("_Location", (float*)&(CurEditDecoSharedInstance->Location));
+				CurEditDecoSharedInstance->Location += SliderLocation;
 			}
-			
+			ImGui::Separator();
 			if (ImGui::Button("Cleaning!"))
 			{
 				CurEditDecoSharedInstance->bPendingKill = true;
@@ -490,14 +519,14 @@ void Tool::DecoratorSave(Engine::Landscape& Landscape)const&
 {
 	const auto& SelectPath = Engine::FileHelper::OpenDialogBox();
 	const Matrix MapWorld = FMath::WorldMatrix(MapScale, MapRotation, MapLocation);
-	Landscape.Save(SelectPath, MapWorld);
+	Landscape.Save(SelectPath);
 };
 
 void Tool::DecoratorLoad(Engine::Landscape& Landscape)&
 {
 	const auto& SelectPath = Engine::FileHelper::OpenDialogBox();
 	const Matrix MapWorld = FMath::WorldMatrix(MapScale, MapRotation, MapLocation);
-	Landscape.Load(SelectPath, MapWorld);
+	Landscape.Load(SelectPath);
 };
 
 

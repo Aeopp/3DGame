@@ -28,9 +28,11 @@ namespace Engine
 			IDirect3DTexture9* CavityMap{ nullptr };
 			IDirect3DTexture9* NormalMap{ nullptr };
 			IDirect3DTexture9* EmissiveMap{ nullptr };
+			int32 bCavity = 0;
 			float RimInnerWidth = 0.003f; 
 			float RimOuterWidth = 0.300f;
-			float Power = 1.f;
+			float Power = 16.f;
+			float SpecularIntencity = 0.5f;
 			Vector4 RimAmtColor { 1,1,1,1 }; 
 			Vector4 AmbientColor{ 0.10f,0.10f,0.10f,1.f };
 			Sphere BoundingSphere{};
@@ -77,14 +79,15 @@ namespace Engine
 
 		bool bDecoratorSphereMeshRender{ false }; 
 
-		void Save(const std::filesystem::path& SavePath, const Matrix& MapWorld)&; 
-		void Load(const std::filesystem::path& LoadPath, const Matrix& MapWorld)&;
+		void Save(const std::filesystem::path& SavePath)&; 
+		void Load(const std::filesystem::path& LoadPath)&;
 
 		inline const std::string& GetDecoratorSaveInfo()& { return DecoratorSaveInfo; };
 	private:
 		std::string DecoratorSaveInfo{}; 
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr };
 		Engine::ShaderFx _ShaderFx{};
+		Engine::ShaderFx _ShaderFxNonCavity{};
 		Vector3 Scale{1,1,1};
 		Vector3 Rotation{0,0,0};
 		Vector3 Location{0,0,0}; 

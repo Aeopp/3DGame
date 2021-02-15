@@ -424,8 +424,12 @@ void Engine::Management::CreateStaticResource()&
 
 	
 	{
-		// 상위 쉐이더 로딩
+		// 상위 셰이더 로딩
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"LandscapeFx.hlsl", L"LandscapeFx");
+
+		Engine::ShaderFx::Load(Device.get(), 
+			Engine::Global::ResourcePath / L"Shader" / L"LandscapeFxNonCavity.hlsl", 
+			L"LandscapeFxNonCavity");
 	}
 }
 void Engine::Management::CreateCollisionDebugResource()&

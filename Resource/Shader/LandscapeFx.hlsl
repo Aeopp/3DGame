@@ -9,7 +9,10 @@ float4 RimAmtColor;
 float RimOuterWidth;
 float RimInnerWidth;
 float  Power;
+float SpecularIntencity;
 float4 AmbientColor;
+
+int bCavity;
 
 texture DiffuseMap;
 texture NormalMap;
@@ -91,7 +94,7 @@ VS_OUT VS_MAIN(VS_IN In)
     Out.BiNormal = mul(float4(In.BiNormal.xyz, 0.f), World);
     
     Out.WorldLocation = mul(vector(In.Position.xyz, 1.f), World).xyz;
-    Out.ViewDirection = normalize(Out.WorldLocation.xyz - CameraLocation.xyz);
+    Out.ViewDirection = normalize(CameraLocation.xyz - Out.WorldLocation.xyz);
     
 	return Out;
 }
@@ -164,24 +167,29 @@ PS_OUT PS_MAIN(PS_IN In)
     Diffuse = ceil(Diffuse * 5) / 5.0f;
     
     float4 DiffuseColor = tex2D(DiffuseSampler, In.UV);
-    float4 CavityColor = tex2D(CavitySampler, In.UV);
+    float3 SpecularColor = float3(1.f,1.f,1.f) * SpecularIntencity;
     
-    float4 SpecularColor = CavityColor * 0.5;
-    // float4 CavityDiffuseColor = DiffuseColor * CavityColor;
-    float4 CavityDiffuseColor = DiffuseColor;
+    if (bCavity == 1)
+    {
+        float4 CavityColor = tex2D(CavitySampler, In.UV);
+        SpecularColor = CavityColor.rgb * SpecularIntencity;
+        DiffuseColor  = DiffuseColor * CavityColor;
+    }
+    
 
     if (Diffuse.x > 0)
     {
-        float3 HalfVec = normalize((-LightDirectionNormal) + (-In.ViewDirection));
+        float3 HalfVec = normalize((-LightDirectionNormal) + (In.ViewDirection));
         Specular = saturate(dot(HalfVec, WorldNormal));
         Specular = pow(abs(Specular),abs(Power));
     }
     
     float3 Ambient = AmbientColor.xyz;
     
-    Out.Color = float4(LightColor.xyz * CavityDiffuseColor.xyz * Diffuse +
-                    LightColor.xyz * SpecularColor.xyz * Specular, DiffuseColor.a);
-    Out.Color.rgb += Ambient;
+    Out.Color = float4(LightColor.xyz * DiffuseColor.rgb * Diffuse +
+                    LightColor.xyz * SpecularColor.rgb * Specular, DiffuseColor.a);
+    
+    Out.Color.rgb  += Ambient;
     Out.Color.rgba += RimAmt * RimAmtColor.rgba;
     
 	return Out;

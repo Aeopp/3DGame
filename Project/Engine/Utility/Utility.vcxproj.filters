@@ -189,7 +189,6 @@
     <ClInclude Include="Codes\ShaderFx.h">
       <Filter>Shader\Fx</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Resource\Shader\NaviMeshFx.hlsl" />
     <ClInclude Include="Codes\Landscape.h">
       <Filter>Map</Filter>
     </ClInclude>
@@ -197,6 +196,12 @@
       <Filter>Shader\HLSL</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Reference\Header\StringHelper.h" />
+    <ClInclude Include="..\..\..\Resource\Shader\NaviMeshFx.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Resource\Shader\LandscapeFxNonCavity.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">

@@ -53,8 +53,8 @@ void Engine::Landscape::DecoratorLoad(
 	auto& ResourceSys = ResourceSystem::Instance;
 
 	LoadDecorator.Meshes.resize(AiScene->mNumMeshes);
-	
-	
+
+
 	std::vector<Vector3> DecoLocalVertexLocations;
 
 	for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
@@ -153,6 +153,8 @@ void Engine::Landscape::DecoratorLoad(
 
 			if (AiReturn == aiReturn::aiReturn_SUCCESS)
 			{
+				LoadDecorator.Meshes[MeshIdx].bCavity = 1;
+
 				const std::string TextureName = AiFileName.C_Str();
 				std::wstring TextureNameW;
 				TextureNameW.assign(std::begin(TextureName), std::end(TextureName));
@@ -481,6 +483,8 @@ void Engine::Landscape::Initialize(
 
 			if (AiReturn == aiReturn::aiReturn_SUCCESS)
 			{
+				Meshes[MeshIdx].bCavity = 1;
+
 				const std::string TextureName = AiFileName.C_Str();
 				std::wstring TextureNameW;
 				TextureNameW.assign(std::begin(TextureName), std::end(TextureName));
@@ -568,7 +572,7 @@ void Engine::Landscape::Initialize(
 	}
 
 	_ShaderFx.Initialize(L"LandscapeFx");
-
+	_ShaderFxNonCavity.Initialize(L"LandscapeFxNonCavity");
 }
 
 
@@ -611,12 +615,18 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 			Fx->SetFloat("RimInnerWidth", CurMesh.RimInnerWidth);
 			Fx->SetVector("AmbientColor", &CurMesh.AmbientColor);
 			Fx->SetFloat("Power", CurMesh.Power);
+			Fx->SetFloat("SpecularIntencity", CurMesh.SpecularIntencity);
 			Device->SetVertexDeclaration(VtxDecl);
 			Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
 			Device->SetIndices(CurMesh.IdxBuf);
+
 			Fx->SetTexture("DiffuseMap", CurMesh.DiffuseMap);
 			Fx->SetTexture("NormalMap", CurMesh.NormalMap);
-			Fx->SetTexture("CavityMap", CurMesh.CavityMap);
+			Fx->SetInt("bCavity", CurMesh.bCavity);
+
+			if(CurMesh.bCavity==1)
+				Fx->SetTexture("CavityMap", CurMesh.CavityMap);
+
 			Fx->SetTexture("EmissiveMap", CurMesh.EmissiveMap);
 			Fx->CommitChanges();
 			Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
@@ -683,7 +693,8 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 						Fx->SetFloat("RimOuterWidth", CurMesh.RimOuterWidth);
 						Fx->SetFloat("RimInnerWidth", CurMesh.RimInnerWidth);
 						Fx->SetFloat("Power", CurMesh.Power);
-
+						Fx->SetFloat("SpecularIntencity", CurMesh.SpecularIntencity);
+						 
 						if (Engine::Global::bDebugMode 
 							&& (PickDecoInstancePtr == CurDecoInstance.get()))
 						{
@@ -696,7 +707,11 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 						}
 						Fx->SetTexture("DiffuseMap", CurMesh.DiffuseMap);
 						Fx->SetTexture("NormalMap", CurMesh.NormalMap);
-						Fx->SetTexture("CavityMap", CurMesh.CavityMap);
+						Fx->SetInt("bCavity", CurMesh.bCavity);
+						
+						if(CurMesh.bCavity==1)
+							Fx->SetTexture("CavityMap", CurMesh.CavityMap);
+
 						Fx->SetTexture("EmissiveMap", CurMesh.EmissiveMap);
 						Fx->CommitChanges();
 						Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
@@ -748,67 +763,84 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 }
 
 
-void Engine::Landscape::Save(const std::filesystem::path& SavePath, 
+void Engine::Landscape::Save(const std::filesystem::path& SavePath
 	/*맵 위에 배치한 오브젝트들은 맵의 로컬 좌표계로 변환한 이후에 저장*/
-	const Matrix& MapWorld)&
+	)&
 {
-	const Matrix ToMapLocal = FMath::Inverse(MapWorld);
+	const Matrix ToMapLocal = FMath::Inverse(FMath::WorldMatrix(Scale, Rotation, Location));
 
 	using namespace rapidjson;
 	StringBuffer StrBuf;
 	PrettyWriter<StringBuffer> Writer(StrBuf);
 	// Cell Information Write...
 	Writer.StartObject();
+
 	Writer.Key("Decorators");
 	Writer.StartArray();
-
-	for (auto& [DecoKey, CurDeco] : DecoratorContainer)
 	{
-		Writer.StartArray();
-		Writer.Key("FileName");
-		Writer.String(ToA(DecoKey).c_str());
-		for (auto& CurDecoInstance : CurDeco.Instances)
+		for (auto& [DecoKey, CurDeco] : DecoratorContainer)
 		{
 			Writer.StartObject();
+			{
+				Writer.Key("FileName");
+				Writer.String(ToA(DecoKey).c_str());
 
-			Writer.Key("Scale");
-			Writer.StartArray();
-			Writer.Double(CurDecoInstance->Scale.x);
-			Writer.Double(CurDecoInstance->Scale.y);
-			Writer.Double(CurDecoInstance->Scale.z);
-			Writer.EndArray();
+				Writer.Key("InstanceList");
+				Writer.StartArray();
+				for (auto& CurDecoInstance : CurDeco.Instances)
+				{
+					Writer.StartObject();
 
-			Writer.Key("Rotation");
-			Writer.StartArray();
-			Writer.Double(CurDecoInstance->Rotation.x);
-			Writer.Double(CurDecoInstance->Rotation.y);
-			Writer.Double(CurDecoInstance->Rotation.z);
-			Writer.EndArray();
+					Writer.Key("Scale");
+					Writer.StartArray();
 
-			Writer.Key("Location");
-			Writer.StartArray();
-			const Vector3 SaveLocation = FMath::Mul(CurDecoInstance->Location, ToMapLocal);
-			Writer.Double(SaveLocation.x);
-			Writer.Double(SaveLocation.y);
-			Writer.Double(SaveLocation.z);
-			Writer.EndArray();
+					Vector3 SaveScale = CurDecoInstance->Scale;
+					SaveScale.x /= Scale.x;
+					SaveScale.y /= Scale.y;
+					SaveScale.z /= Scale.z;
 
-			Writer.Key("bLandscapeInclude");
-			Writer.Bool(CurDecoInstance->bLandscapeInclude);
+					Writer.Double(SaveScale.x);
+					Writer.Double(SaveScale.y);
+					Writer.Double(SaveScale.z);
+					Writer.EndArray();
 
+					Writer.Key("Rotation");
+					Writer.StartArray();
+					const Vector3 SaveRotation = CurDecoInstance->Rotation;
+					Writer.Double(SaveRotation.x);
+					Writer.Double(SaveRotation.y);
+					Writer.Double(SaveRotation.z);
+					Writer.EndArray();
+
+					Writer.Key("Location");
+					Writer.StartArray();
+					const Vector3 SaveLocation = FMath::Mul( CurDecoInstance->Location  , ToMapLocal );
+					Writer.Double(SaveLocation.x);
+					Writer.Double(SaveLocation.y);
+					Writer.Double(SaveLocation.z);
+					Writer.EndArray();
+
+					Writer.Key("bLandscapeInclude");
+					Writer.Bool(CurDecoInstance->bLandscapeInclude);
+
+					Writer.EndObject();
+				}
+				Writer.EndArray();
+			}
 			Writer.EndObject();
 		}
-		Writer.EndArray();
 	}
-
 	Writer.EndArray();
+	
+
 	Writer.EndObject();
+
 	std::ofstream Of{ SavePath };
 	DecoratorSaveInfo = StrBuf.GetString();
 	Of << DecoratorSaveInfo;
 }
 
-void Engine::Landscape::Load(const std::filesystem::path& LoadPath, const Matrix& MapWorld)&
+void Engine::Landscape::Load(const std::filesystem::path& LoadPath)&
 {
 	std::ifstream Is{ LoadPath };
 
@@ -826,25 +858,44 @@ void Engine::Landscape::Load(const std::filesystem::path& LoadPath, const Matrix
 		return;
 	}
 
+	const Matrix MapWorld = FMath::WorldMatrix(Scale, Rotation, Location);
 	const Value& DecoratorValue  = _Document["Decorators"];
 	const auto& DecoArray  =  DecoratorValue.GetArray();
 
-	for (auto CellIterator = DecoArray.begin();
-		CellIterator != DecoArray.begin(); ++CellIterator)
+	for (auto DecoIterator = DecoArray.begin();
+		DecoIterator != DecoArray.end(); ++DecoIterator)
 	{
-		const std::string FileName = CellIterator->FindMember("FileName")->value.GetString();
-		const auto& ScaleArr = CellIterator->FindMember("Scale")->value.GetArray(); 
-		const auto& RotationArr = CellIterator->FindMember("Rotation")->value.GetArray();
-		const auto& LocationArr = CellIterator->FindMember("Location")->value.GetArray();
-		const bool _bLandscapeInclude = CellIterator->FindMember("CellIterator")->value.GetBool();
+		const std::string FileName = DecoIterator->FindMember("FileName")->value.GetString();
+		const auto& InstanceList = DecoIterator->FindMember("InstanceList")->value.GetArray();
 
-		const Vector3 Scale{ ScaleArr[0].GetFloat(), ScaleArr[1].GetFloat(), ScaleArr[2].GetFloat() };
-		const Vector3 Rotation{ RotationArr[0].GetFloat(), RotationArr[1].GetFloat(), RotationArr[2].GetFloat() };
-		const Vector3 Location{ LocationArr[0].GetFloat(), LocationArr[1].GetFloat(), LocationArr[2].GetFloat() };
+		for (auto InstanceIter = InstanceList.begin();
+			InstanceIter != InstanceList.end(); ++InstanceIter)
+		{
+			const auto& ScaleArr = InstanceIter->FindMember("Scale")->value.GetArray();
+			const auto& RotationArr = InstanceIter->FindMember("Rotation")->value.GetArray();
+			const auto& LocationArr = InstanceIter->FindMember("Location")->value.GetArray();
+			const bool bLoadLandscapeInclude = InstanceIter->FindMember("bLandscapeInclude")->value.GetBool();
 
-		const Vector3 MapSpaceLocation = FMath::Mul(Location, MapWorld);
+			Vector3 LoadScale { ScaleArr[0].GetFloat(), 
+									  ScaleArr[1].GetFloat(),
+									  ScaleArr[2].GetFloat() };
 
-		PushDecorator(ToW(FileName), Scale, Rotation, MapSpaceLocation, _bLandscapeInclude);
+			const Vector3 LoadRotation{  RotationArr[0].GetFloat(),
+									  RotationArr[1].GetFloat(),
+									  RotationArr[2].GetFloat() };
+
+			Vector3 LoadLocation{  LocationArr[0].GetFloat(),
+									  LocationArr[1].GetFloat(),
+									  LocationArr[2].GetFloat() };
+
+			LoadScale.x *= Scale.x;
+			LoadScale.y *= Scale.y;
+			LoadScale.z *= Scale.z;
+
+			LoadLocation = FMath::Mul(LoadLocation, MapWorld); 
+
+			PushDecorator(ToW(FileName), LoadScale, LoadRotation, LoadLocation, bLoadLandscapeInclude);
+		}
 	};
 
 }
