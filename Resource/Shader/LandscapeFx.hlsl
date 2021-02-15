@@ -19,8 +19,12 @@ texture NormalMap;
 texture CavityMap;
 texture EmissiveMap;
 
-// normal blend 
-// float3 r = normalize(float3(n1.xy + n2.xy, n1.z));
+// UDN
+//vec3 NormalBlend_UDN(vec3 n1, vec3 n2)
+//{
+
+//    return normalize(vec3(n1.xy + n2.xy, n1.z));
+//}
 
 // diffuse blend 
 // basediffuse * detail diffuse 
@@ -128,7 +132,7 @@ PS_OUT PS_MAIN(PS_IN In)
     float3 BiNormal = normalize(In.BiNormal);
     
     float3 TangentNormal = tex2D(NormalSampler, In.UV).xyz;
-    TangentNormal = normalize(TangentNormal * 2 - 1);
+    TangentNormal = normalize((TangentNormal * 2.0) - 1.0);
     
     float3x3 TBN = float3x3(normalize(In.Tangent),
                             normalize(In.BiNormal),

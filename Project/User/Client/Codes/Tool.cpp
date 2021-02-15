@@ -42,7 +42,7 @@
 void Tool::Initialize(IDirect3DDevice9* const Device)&
 {
 	auto AiScene = Engine::Global::AssimpImporter.ReadFile(
-		"..\\..\\..\\Resource\\Mesh\\StaticMesh\\Decorator\\Regenier_Pillar_Center_Sub_1.fbx",
+		"..\\..\\..\\Resource\\Mesh\\StaticMesh\\Decorator\\GreatAscension_Vase_A.fbx",
 		aiProcess_MakeLeftHanded |
 		aiProcess_FlipUVs |
 		aiProcess_FlipWindingOrder |
@@ -61,19 +61,21 @@ void Tool::Initialize(IDirect3DDevice9* const Device)&
 	);
 	std::ofstream of { "..\\..\\..\\Log.txt" };
 
+	
 	for (int32 i = 0; i < AiScene->mNumMeshes; ++i)
 	{
+		int qqqqq =AiScene->mMeshes[i]->GetNumUVChannels();
+
 		auto d = AiScene->mMeshes[i]->mNumUVComponents[0];
 		auto d1 = AiScene->mMeshes[i]->mNumUVComponents[1];
-		auto d2 = AiScene->mMeshes[i]->mNumUVComponents[2];
 
 		for (int32 a = 0; a < AiScene->mMeshes[i]->mNumVertices; ++a)
 		{
 			
 				auto __1 = AiScene->mMeshes[i]->mTextureCoords[0][a];
 				auto __2 = AiScene->mMeshes[i]->mTextureCoords[1][a];
-				auto __3 = AiScene->mMeshes[i]->mTextureCoords[2][a];
-				of << __1.x << " " << __1.y << " , " << __2.x << " " << __2.y << " , " << __3.x << " "<< __3.y << std::endl; 
+				
+				of << __1.x << " " << __1.y << " , " << __2.x << " " << __2.y << std::endl; 
 		}
 	}
 
