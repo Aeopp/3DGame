@@ -30,6 +30,7 @@ private:
 	void Landscape()&;
 
 	void DecoratorSave(Engine::Landscape& Landscape)const&;
+	void DecoratorLoad(Engine::Landscape& Landscape)&;
 private:
 	struct DecoratorOption
 	{
@@ -44,7 +45,7 @@ private:
 		InFrontOf,
 	};
 	std::map<std::wstring,DecoratorOption> DecoratorOpts{};
-	float   SpawnEditScale = 1.f; 
+	Vector3 SpawnEditScale{ 1,1,1 };
 	Vector3 SpawnEditLocation{ 0,0,0 };
 	Vector3 SpawnEditRotation{ FMath::ToRadian(90.f),0,0 };
 	SpawnTransformItem SpawnTransformComboSelectItem{ SpawnTransformItem::CustomTransform };
@@ -52,19 +53,18 @@ private:
 		"Custom Transform","Pick Over the Landscape","In front of"};
 
 	float InfrontOfScale = 100.f;
+	bool bLandscapeInclude = false;
 
 	std::weak_ptr<typename Engine::Landscape::DecoInformation > CurEditDecoInstance{};
 
 	Mode CurrentMode{ Mode::Landscape }; 
-	const float  MapScale = 0.01f;  
+	const Vector3  MapScale { 0.01f , 0.01f , 0.01f }; 
 	const Vector3 MapRotation{3.14f/2.f,0.f,0.f };
 	const Vector3 MapLocation{0,0,0}; 
 
 	ID3DXLine* LinearSpace{};
 	uint32 NaviMeshCurrentSelectMarkeyKey{ 0u };
 	uint32 NaviMeshCurrentSelectCellKey{ 0u };
-	// 네비게이션 메쉬의 피킹시 편의를 위함.
-	std::vector<PlaneInfo>  PickingPlanes{};
 	Engine::NavigationMesh* _NaviMesh{ nullptr };
 	int32 NavigationMeshModeSelect{ 0u };
 	const uint32 MaxNavigationMeshMode{ 3u };

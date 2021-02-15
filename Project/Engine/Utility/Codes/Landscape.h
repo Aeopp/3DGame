@@ -37,8 +37,9 @@ namespace Engine
 		};
 		struct DecoInformation
 		{
+			bool bLandscapeInclude = false;
 			bool bPendingKill = false;
-			float   Scale = 1.f;
+			Vector3 Scale{ 1,1,1 };
 			Vector3 Rotation{ 0,0,0 };
 			Vector3 Location{ 0,0,0 };
 		};
@@ -49,7 +50,7 @@ namespace Engine
 		};
 	public :
 		void Initialize(IDirect3DDevice9* const Device,
-			const float Scale,
+			const Vector3 Scale,
 			const Vector3 Rotation,
 			const Vector3 Location,
 			const std::filesystem::path FilePath,
@@ -58,22 +59,28 @@ namespace Engine
 
 		void Render(Engine::Frustum& RefFrustum,
 			const Matrix& View, const Matrix& Projection ,const Vector3& CameraLocation)&;
-		inline std::vector<PlaneInfo> GetMapWorldCoordPlanes()const&;
+		inline const std::vector<PlaneInfo>& GetMapWorldCoordPlanes()const&;
 
 		void DecoratorLoad(const std::filesystem::path& LoadPath,
 							const std::filesystem::path& LoadFileName)&;
+
 		std::weak_ptr<typename Engine::Landscape::DecoInformation>
 			PushDecorator(const std::wstring DecoratorKey , 
-						    const float Scale , const Vector3& Rotation, const Vector3& Location)&; 
+						    const Vector3& Scale , const Vector3& Rotation, const Vector3& Location,
+							const bool bLandscapePolygonInclude)&; 
+
 		typename Engine::Landscape::Decorator*
 			GetDecorator(const std::wstring DecoratorKey)&;
 
 		std::weak_ptr<DecoInformation> 
 			PickDecoInstance(const Ray WorldRay)&;
 
-		bool bDecoratorSphereMeshRender{ true }; 
+		bool bDecoratorSphereMeshRender{ false }; 
 
 		void Save(const std::filesystem::path& SavePath, const Matrix& MapWorld)&; 
+		void Load(const std::filesystem::path& LoadPath, const Matrix& MapWorld)&;
+
+		inline const std::string& GetDecoratorSaveInfo()& { return DecoratorSaveInfo; };
 	private:
 		std::string DecoratorSaveInfo{}; 
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr };
@@ -82,14 +89,13 @@ namespace Engine
 		Vector3 Rotation{0,0,0};
 		Vector3 Location{0,0,0}; 
 		IDirect3DDevice9*      Device{ nullptr };
-		std::vector<Vector3>   WorldVertexLocation{};
 		std::vector<PlaneInfo> WorldPlanes{};
 		std::vector<Mesh>      Meshes{};
 		std::unordered_map<std::wstring,Decorator> DecoratorContainer{};
 	};
 };
 
-inline std::vector<PlaneInfo> Engine::Landscape::GetMapWorldCoordPlanes()const&
+inline const std::vector<PlaneInfo>& Engine::Landscape::GetMapWorldCoordPlanes()const&
 {
 	return WorldPlanes;
 }

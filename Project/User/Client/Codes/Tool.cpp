@@ -77,8 +77,7 @@ void Tool::Initialize(IDirect3DDevice9* const Device)&
 		auto& RefLandscape = Renderer.RefLandscape();
 		RefLandscape.Initialize(Device, MapScale, MapRotation,MapLocation, App::ResourcePath /
 			L"Mesh" / L"StaticMesh" / L"Landscape", L"Mountain.fbx");
-		PickingPlanes = RefLandscape.GetMapWorldCoordPlanes();
-
+		
 		const std::filesystem::path DecoratorPath
 		{ Engine::Global::ResourcePath / L"Mesh" / L"StaticMesh" / L"Decorator" / L""};
 
@@ -184,7 +183,7 @@ void Tool::NaviMeshTool()&
 {
 	auto& NaviMesh = RefNaviMesh();
 
-	const Matrix MapWorld = FMath::WorldMatrix({MapScale,MapScale ,MapScale }, MapRotation, MapLocation);
+	const Matrix MapWorld = FMath::WorldMatrix(MapScale, MapRotation, MapLocation);
 	ImGui::Begin("Navigation Mesh");
 	{
 		if (ImGui::Button("Save")) 
@@ -267,7 +266,9 @@ void Tool::NaviMeshTool()&
 		FMath::GetRayScreenProjection
 		(Dir, App::Device, App::ClientSize<float>.first, App::ClientSize<float>.second);
 
-	auto& Control = RefControl();
+	auto& Control = RefControl();	
+	auto& Renderer = RefRenderer();
+	auto& RefLandscape = Renderer.RefLandscape();
 
 	if (Control.IsDown(DIK_RIGHTCLICK))
 	{
@@ -276,7 +277,7 @@ void Tool::NaviMeshTool()&
 			NaviMeshCurrentSelectMarkeyKey = NaviMesh.InsertPointFromMarkers(_Ray);
 			if (NaviMeshCurrentSelectMarkeyKey == 0u)
 			{
-				for (auto& CurTargetPlane : PickingPlanes)
+				for (const auto& CurTargetPlane : RefLandscape.GetMapWorldCoordPlanes())
 				{
 					float t = 0.0f;
 					Vector3 IntersectPt;
@@ -339,6 +340,8 @@ void Tool::Landscape()&
 	{
 		if (ImGui::CollapsingHeader("StaticMeshs"))
 		{
+			ImGui::Checkbox("bLandscapeInclude", &bLandscapeInclude);
+
 			for (auto& [DecoKey, DecoOpt] : DecoratorOpts)
 			{
 				std::string KeyA;
@@ -350,14 +353,16 @@ void Tool::Landscape()&
 					{
 					case Tool::SpawnTransformItem::CustomTransform:
 						CurEditDecoInstance = RefLandscape.PushDecorator(DecoKey,
-							SpawnEditScale, SpawnEditRotation, SpawnEditLocation);
+							SpawnEditScale, SpawnEditRotation, SpawnEditLocation ,
+							bLandscapeInclude);
 						break;
 					case Tool::SpawnTransformItem::PickOvertheLandscape:
 						break;
 					case Tool::SpawnTransformItem::InFrontOf:
 						CurEditDecoInstance = RefLandscape.PushDecorator(DecoKey,
 							SpawnEditScale, SpawnEditRotation,
-							CameraLocation + CameraLook * InfrontOfScale
+							CameraLocation + CameraLook * InfrontOfScale,
+							bLandscapeInclude
 						);
 						break;
 					default:
@@ -385,6 +390,7 @@ void Tool::Landscape()&
 				ImGui::Separator();
 			}
 		}
+		ImGui::Separator();
 		if (ImGui::CollapsingHeader("Spawn Information Edit"))
 		{
 			ImGui::Combo("Select", 
@@ -394,7 +400,10 @@ void Tool::Landscape()&
 			switch (SpawnTransformComboSelectItem)
 			{
 			case Tool::SpawnTransformItem::CustomTransform:
-				ImGui::VSliderFloat("Scale", { 40,50 }, &(SpawnEditScale), 0.1f, 10.f);
+				if (ImGui::CollapsingHeader("Scale"))
+				{
+					ImGui::SliderFloat3("Scale", (float*)&(SpawnEditScale),0.01f, +100.f);
+				}
 				if (ImGui::CollapsingHeader("Rotation"))
 				{
 					ImGui::SliderAngle("Yaw", &(SpawnEditRotation.y));
@@ -412,13 +421,17 @@ void Tool::Landscape()&
 				break;
 			}
 		}
+		ImGui::Separator();
 
 		ImGui::Begin("SelectObject");
 		if (auto CurEditDecoSharedInstance = CurEditDecoInstance.lock();
 			CurEditDecoSharedInstance)
 		{
-			ImGui::VSliderFloat("Scale", { 40,50}, &(CurEditDecoSharedInstance->Scale), 0.1f, 10.f);
-			ImGui::InputFloat("_Scale", &(CurEditDecoSharedInstance->Scale));
+			if (ImGui::CollapsingHeader("Scale"))
+			{
+				ImGui::SliderFloat3("Scale", (float*)&(CurEditDecoSharedInstance->Scale), 0.01f, +100.f);
+				ImGui::InputFloat3("_Scale", (float*)&(CurEditDecoSharedInstance->Scale));
+			}
 			if (ImGui::CollapsingHeader("Rotation"))
 			{
 				ImGui::SliderAngle("Yaw", &(CurEditDecoSharedInstance->Rotation.y));
@@ -440,13 +453,29 @@ void Tool::Landscape()&
 		}
 		ImGui::End();
 
-		if (ImGui::Button("DecoratorSave"))
+		ImGui::Separator();
+		if (ImGui::CollapsingHeader("File"))
 		{
-			DecoratorSave(RefLandscape);
+			if (ImGui::Button("DecoratorSave"))
+			{
+				DecoratorSave(RefLandscape);
+			}ImGui::SameLine(); 
+			if (ImGui::Button("DecoratorLoad"))
+			{
+				DecoratorLoad(RefLandscape); 
+			} 
 		}
+
 		ImGui::Checkbox("DebugSphereMesh ?", &RefLandscape.bDecoratorSphereMeshRender);
+
+		const auto& DecoSaveInfoStr = RefLandscape.GetDecoratorSaveInfo();
+
+		if (DecoSaveInfoStr.empty() == false)
+		{
+			ImGui::LogText("%s", DecoSaveInfoStr.c_str()); 
+		};
 	}
-	
+
 	ImGui::End();
 
 	ImGui::Begin("DirectionalLight");
@@ -462,6 +491,13 @@ void Tool::DecoratorSave(Engine::Landscape& Landscape)const&
 	const auto& SelectPath = Engine::FileHelper::OpenDialogBox();
 	const Matrix MapWorld = FMath::WorldMatrix(MapScale, MapRotation, MapLocation);
 	Landscape.Save(SelectPath, MapWorld);
+};
+
+void Tool::DecoratorLoad(Engine::Landscape& Landscape)&
+{
+	const auto& SelectPath = Engine::FileHelper::OpenDialogBox();
+	const Matrix MapWorld = FMath::WorldMatrix(MapScale, MapRotation, MapLocation);
+	Landscape.Load(SelectPath, MapWorld);
 };
 
 

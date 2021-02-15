@@ -21,6 +21,7 @@
 #include "StringHelper.h"
 
 static uint32 StaticMeshResourceID = 0u;
+static Engine::Landscape::DecoInformation* PickDecoInstancePtr{ nullptr };
 
 void Engine::Landscape::DecoratorLoad(
 	const std::filesystem::path& LoadPath,
@@ -223,9 +224,10 @@ void Engine::Landscape::DecoratorLoad(
 
 std::weak_ptr<typename Engine::Landscape::DecoInformation>  Engine::Landscape::PushDecorator(
 	const std::wstring DecoratorKey, 
-	const float Scale, 
+	const Vector3& Scale,
 	const Vector3& Rotation, 
-	const Vector3& Location)&
+	const Vector3& Location,
+	const bool bLandscapePolygonInclude)&
 {
 	auto iter = DecoratorContainer.find(DecoratorKey);
 
@@ -233,9 +235,41 @@ std::weak_ptr<typename Engine::Landscape::DecoInformation>  Engine::Landscape::P
 	{
 		auto& [Key, Deco] = *iter;
 		Engine::Landscape::DecoInformation DecoInfoInstance{};
+
 		DecoInfoInstance.Scale = Scale;
 		DecoInfoInstance.Rotation = Rotation;
 		DecoInfoInstance.Location = Location;
+
+		if (bLandscapePolygonInclude)
+		{
+			const Matrix InstanceWorld = FMath::WorldMatrix(
+				DecoInfoInstance.Scale,
+				DecoInfoInstance.Rotation,
+				DecoInfoInstance.Location
+			);  
+
+			for (const auto& CurDecoMesh : iter->second.Meshes)
+			{
+				byte* VtxBufPtr{ nullptr }; 
+				CurDecoMesh.VtxBuf->Lock(0u, 0u, reinterpret_cast<void**>(&VtxBufPtr), NULL);
+				for (uint32 i = 0; i < CurDecoMesh.VtxCount; i+=3)
+				{
+					std::array<Vector3, 3u> WorldPoints{}; 
+
+					for (uint32 j = 0; j < WorldPoints.size(); ++j)
+					{
+						WorldPoints[j]  =
+							*reinterpret_cast<Vector3*>(VtxBufPtr + ((i + j) * CurDecoMesh.Stride)); 
+						WorldPoints[j] = FMath::Mul(WorldPoints[j], InstanceWorld);
+
+					};
+
+					WorldPlanes.push_back(PlaneInfo::Make(WorldPoints));
+				}
+				CurDecoMesh.VtxBuf->Unlock();
+			}
+		}
+
 		return Deco.Instances.emplace_back(
 			std::make_shared<Engine::Landscape::DecoInformation>(DecoInfoInstance));
 	}
@@ -267,18 +301,48 @@ std::weak_ptr<typename Engine::Landscape::DecoInformation>
 			{
 				Sphere CurMeshInstanceWorldSphere{}; 
 
-				CurMeshInstanceWorldSphere.Center = FMath::Mul(CurMeshLocalSphere.Center,
-					FMath::WorldMatrix(CurInstance->Scale, CurInstance->Rotation, CurInstance->Location));
+				const Matrix CurInstanceWorld = 
+					FMath::WorldMatrix(CurInstance->Scale, CurInstance->Rotation, CurInstance->Location);
+
+				CurMeshInstanceWorldSphere.Center = FMath::Mul(CurMeshLocalSphere.Center, CurInstanceWorld);
 
 				CurMeshInstanceWorldSphere.Radius =
-					CurMeshLocalSphere.Radius * CurInstance->Scale;
+					CurMeshLocalSphere.Radius * FMath::MaxScala(CurInstance->Scale); 
 
 				float t0, t1;
 				Vector3 IntersectPt{}; 
 
 				if (FMath::IsRayToSphere(WorldRay, CurMeshInstanceWorldSphere, t0, t1, IntersectPt))
 				{
-					return CurInstance; 
+					// 구체피킹 성공하였으니 다음 스텝은 폴리곤과의 오버랩 검사.
+					std::vector<PlaneInfo> Polygons; 
+					byte* VtxBufPtr{ nullptr }; 
+					CurDecoMesh.VtxBuf->Lock(0u, 0u, reinterpret_cast<void**>(&VtxBufPtr), NULL);
+					for (uint32 i = 0; i < CurDecoMesh.VtxCount; i+=3)
+					{
+						std::array<Vector3, 3u> Points{};
+						for (uint32 j = 0; j < Points.size(); ++j)
+						{
+							Points[j] =
+								*reinterpret_cast<const Vector3*>((VtxBufPtr + ((i + j) * CurDecoMesh.Stride)));
+
+							Points[j] = FMath::Mul(Points[j] , CurInstanceWorld);
+						}
+
+						Polygons.push_back(PlaneInfo::Make(Points));
+					}
+					CurDecoMesh.VtxBuf->Unlock(); 
+
+					for (const auto& TargetPolygon : Polygons)
+					{
+						float t;
+						Vector3 IntersectPt{}; 
+						if (FMath::IsTriangleToRay(TargetPolygon, WorldRay, t, IntersectPt))
+						{
+							PickDecoInstancePtr = CurInstance.get();
+							return CurInstance;
+						}
+					}
 				}
 			}
 		}
@@ -293,7 +357,7 @@ std::weak_ptr<typename Engine::Landscape::DecoInformation>
 // 또한 템플릿 코드로 변경시 리소스 시스템 접근 방식 변경 해야할 수도 있음 . 
 void Engine::Landscape::Initialize(
 	IDirect3DDevice9* const Device,
-	const float Scale,
+	const Vector3 Scale,
 	const Vector3 Rotation,
 	const Vector3 Location,
 	const std::filesystem::path FilePath,
@@ -302,7 +366,7 @@ void Engine::Landscape::Initialize(
 	 //               TODO ::  노말 매핑 사용할시 변경 바람 . 
 	using VertexType = Vertex::LocationTangentUV2D;
 	this->Device = Device;
-	this->Scale = { Scale ,Scale ,Scale };
+	this->Scale = Scale;
 	this->Rotation = Rotation;
 	this->Location = Location;
 
@@ -330,7 +394,7 @@ void Engine::Landscape::Initialize(
 	auto& ResourceSys = ResourceSystem::Instance;
 
 	Meshes.resize(AiScene->mNumMeshes);
-
+	std::vector<Vector3>   WorldVertexLocation{};
 	for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
 	{
 		std::vector<VertexType> Vertexs;
@@ -567,15 +631,15 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 
 	for (const auto& [DecoKey, CurDeco] : DecoratorContainer)
 	{
-		for (const auto& CurDecoTransform : CurDeco.Instances)
+		for (const auto& CurDecoInstance : CurDeco.Instances)
 		{
-			const float DecoTfmScale = CurDecoTransform->Scale;
-			const Vector3 DecoTfmLocation = CurDecoTransform->Location;
-			const Vector3  DecoTfmRotation = CurDecoTransform->Rotation;
+			const Vector3 DecoTfmScale = CurDecoInstance->Scale;
+			const Vector3 DecoTfmLocation = CurDecoInstance->Location;
+			const Vector3  DecoTfmRotation = CurDecoInstance->Rotation;
 
 			const Matrix DecoWorld = 
 				FMath::WorldMatrix(
-					{ DecoTfmScale , DecoTfmScale , DecoTfmScale , }, 
+					DecoTfmScale, 
 					DecoTfmRotation, DecoTfmLocation);
 
 			uint32 PassNum = 0u;
@@ -584,6 +648,9 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 			Fx->SetMatrix("View", &View);
 			Fx->SetMatrix("Projection", &Projection);
 			Fx->SetVector("CameraLocation", &CameraLocation4D);
+
+		
+
 			for (uint32 i = 0; i < PassNum; ++i)
 			{
 				Fx->BeginPass(i);
@@ -591,7 +658,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 				{
 					Sphere CurDecoMeshBoundingSphere;
 					CurDecoMeshBoundingSphere.Center = FMath::Mul(CurMesh.BoundingSphere.Center, DecoWorld);
-					CurDecoMeshBoundingSphere.Radius = (CurMesh.BoundingSphere.Radius * DecoTfmScale);
+					CurDecoMeshBoundingSphere.Radius = (CurMesh.BoundingSphere.Radius * FMath::MaxScala(DecoTfmScale));
 					const bool bRender = RefFrustum.IsIn(CurDecoMeshBoundingSphere);
 
 					if (Engine::Global::bDebugMode)
@@ -616,7 +683,17 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 						Fx->SetFloat("RimOuterWidth", CurMesh.RimOuterWidth);
 						Fx->SetFloat("RimInnerWidth", CurMesh.RimInnerWidth);
 						Fx->SetFloat("Power", CurMesh.Power);
-						Fx->SetVector("AmbientColor", &CurMesh.AmbientColor);
+
+						if (Engine::Global::bDebugMode 
+							&& (PickDecoInstancePtr == CurDecoInstance.get()))
+						{
+							const Vector4 PickAccentAmbient{25.f,0.f,255.f,1.f};
+							Fx->SetVector("AmbientColor", &PickAccentAmbient);
+						}
+						else
+						{
+							Fx->SetVector("AmbientColor", &CurMesh.AmbientColor);
+						}
 						Fx->SetTexture("DiffuseMap", CurMesh.DiffuseMap);
 						Fx->SetTexture("NormalMap", CurMesh.NormalMap);
 						Fx->SetTexture("CavityMap", CurMesh.CavityMap);
@@ -645,18 +722,19 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 		{
 			for (const auto& CurDecoTransform : CurDeco.Instances)
 			{
-				const float DecoTfmScale= CurDecoTransform->Scale;
+				const Vector3 DecoTfmScale    = CurDecoTransform->Scale;
 				const Vector3 DecoTfmLocation = CurDecoTransform->Location;
 				const Vector3  DecoTfmRotation = CurDecoTransform->Rotation;
+
 				for (const auto& _Mesh :CurDeco.Meshes)
 				{
 					const Matrix SphereLocalMatrix = FMath::WorldMatrix(
-						{ _Mesh.BoundingSphere.Radius , _Mesh.BoundingSphere.Radius,_Mesh.BoundingSphere.Radius }
+						_Mesh.BoundingSphere.Radius 
 						, { 0,0,0 },
 						_Mesh.BoundingSphere.Center);
 
 					const Matrix DecoWorld=SphereLocalMatrix* FMath::WorldMatrix(
-						{ DecoTfmScale , DecoTfmScale,DecoTfmScale },
+						FMath::MaxScala( DecoTfmScale )  ,
 						DecoTfmRotation, DecoTfmLocation);
 
 					Device->SetTransform(D3DTS_WORLD, &DecoWorld);
@@ -670,7 +748,9 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 }
 
 
-void Engine::Landscape::Save(const std::filesystem::path& SavePath, const Matrix& MapWorld)&
+void Engine::Landscape::Save(const std::filesystem::path& SavePath, 
+	/*맵 위에 배치한 오브젝트들은 맵의 로컬 좌표계로 변환한 이후에 저장*/
+	const Matrix& MapWorld)&
 {
 	const Matrix ToMapLocal = FMath::Inverse(MapWorld);
 
@@ -684,15 +764,19 @@ void Engine::Landscape::Save(const std::filesystem::path& SavePath, const Matrix
 
 	for (auto& [DecoKey, CurDeco] : DecoratorContainer)
 	{
-		Writer.Key(ToA(DecoKey).c_str());
 		Writer.StartArray();
-
+		Writer.Key("FileName");
+		Writer.String(ToA(DecoKey).c_str());
 		for (auto& CurDecoInstance : CurDeco.Instances)
 		{
 			Writer.StartObject();
 
 			Writer.Key("Scale");
-			Writer.Double(CurDecoInstance->Scale);
+			Writer.StartArray();
+			Writer.Double(CurDecoInstance->Scale.x);
+			Writer.Double(CurDecoInstance->Scale.y);
+			Writer.Double(CurDecoInstance->Scale.z);
+			Writer.EndArray();
 
 			Writer.Key("Rotation");
 			Writer.StartArray();
@@ -703,10 +787,14 @@ void Engine::Landscape::Save(const std::filesystem::path& SavePath, const Matrix
 
 			Writer.Key("Location");
 			Writer.StartArray();
-			Writer.Double(CurDecoInstance->Location.x);
-			Writer.Double(CurDecoInstance->Location.y);
-			Writer.Double(CurDecoInstance->Location.z);
+			const Vector3 SaveLocation = FMath::Mul(CurDecoInstance->Location, ToMapLocal);
+			Writer.Double(SaveLocation.x);
+			Writer.Double(SaveLocation.y);
+			Writer.Double(SaveLocation.z);
 			Writer.EndArray();
+
+			Writer.Key("bLandscapeInclude");
+			Writer.Bool(CurDecoInstance->bLandscapeInclude);
 
 			Writer.EndObject();
 		}
@@ -719,3 +807,47 @@ void Engine::Landscape::Save(const std::filesystem::path& SavePath, const Matrix
 	DecoratorSaveInfo = StrBuf.GetString();
 	Of << DecoratorSaveInfo;
 }
+
+void Engine::Landscape::Load(const std::filesystem::path& LoadPath, const Matrix& MapWorld)&
+{
+	std::ifstream Is{ LoadPath };
+
+	using namespace rapidjson;
+
+	if (!Is.is_open()) return;
+
+	IStreamWrapper Isw(Is);
+	Document _Document;
+	_Document.ParseStream(Isw);
+
+	if (_Document.HasParseError())
+	{
+		MessageBox(Engine::Global::Hwnd, L"Json Parse Error", L"Json Parse Error", MB_OK);
+		return;
+	}
+
+	const Value& DecoratorValue  = _Document["Decorators"];
+	const auto& DecoArray  =  DecoratorValue.GetArray();
+
+	for (auto CellIterator = DecoArray.begin();
+		CellIterator != DecoArray.begin(); ++CellIterator)
+	{
+		const std::string FileName = CellIterator->FindMember("FileName")->value.GetString();
+		const auto& ScaleArr = CellIterator->FindMember("Scale")->value.GetArray(); 
+		const auto& RotationArr = CellIterator->FindMember("Rotation")->value.GetArray();
+		const auto& LocationArr = CellIterator->FindMember("Location")->value.GetArray();
+		const bool _bLandscapeInclude = CellIterator->FindMember("CellIterator")->value.GetBool();
+
+		const Vector3 Scale{ ScaleArr[0].GetFloat(), ScaleArr[1].GetFloat(), ScaleArr[2].GetFloat() };
+		const Vector3 Rotation{ RotationArr[0].GetFloat(), RotationArr[1].GetFloat(), RotationArr[2].GetFloat() };
+		const Vector3 Location{ LocationArr[0].GetFloat(), LocationArr[1].GetFloat(), LocationArr[2].GetFloat() };
+
+		const Vector3 MapSpaceLocation = FMath::Mul(Location, MapWorld);
+
+		PushDecorator(ToW(FileName), Scale, Rotation, MapSpaceLocation, _bLandscapeInclude);
+	};
+
+}
+
+
+// 랜드스케이프 인클루드 해결 해야함.

@@ -24,6 +24,8 @@ public:
 	typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
 		static	inline AlmostEqual(T x, T y);
 
+	static inline float MaxScala(const Vector3& Lhs);
+
 	static inline float Dot(const Vector3& Lhs, const Vector3& Rhs);
 	static inline Vector3 Cross(const Vector3& Lhs, const Vector3& Rhs);
 	static inline Vector3 Normalize(const Vector3& Lhs);
@@ -139,6 +141,10 @@ private:
 #pragma endregion RANDOM
 };
 
+inline float FMath::MaxScala(const Vector3& Lhs)
+{
+	return (std::max)({Lhs.x,Lhs.y,Lhs.z});
+}
 inline void FMath::DebugPrintMatrix(const Matrix& _Matrix)
 {
 	for (uint32 Row = 0u; Row < 4u; ++Row)
