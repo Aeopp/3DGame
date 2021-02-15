@@ -41,8 +41,8 @@
 
 void Tool::Initialize(IDirect3DDevice9* const Device)&
 {
-	auto AiScene = Engine::Global::AssimpImporter.ReadFile(
-		"..\\..\\..\\Resource\\Mesh\\StaticMesh\\Decorator\\GreatAscension_Vase_A.fbx",
+	/*auto AiScene = Engine::Global::AssimpImporter.ReadFile(
+		"..\\..\\..\\Resource\\Mesh\\StaticMesh\\Decorator\\GreatAscension_Zone_A_Block_A.fbx",
 		aiProcess_MakeLeftHanded |
 		aiProcess_FlipUVs |
 		aiProcess_FlipWindingOrder |
@@ -69,15 +69,21 @@ void Tool::Initialize(IDirect3DDevice9* const Device)&
 		auto d = AiScene->mMeshes[i]->mNumUVComponents[0];
 		auto d1 = AiScene->mMeshes[i]->mNumUVComponents[1];
 
+
+		auto ddddd =AiScene->mMaterials[AiScene->mMeshes[i]->mMaterialIndex]->GetName().C_Str();
+
+
 		for (int32 a = 0; a < AiScene->mMeshes[i]->mNumVertices; ++a)
 		{
+			;
 			
-				auto __1 = AiScene->mMeshes[i]->mTextureCoords[0][a];
-				auto __2 = AiScene->mMeshes[i]->mTextureCoords[1][a];
-				
-				of << __1.x << " " << __1.y << " , " << __2.x << " " << __2.y << std::endl; 
+
+			auto __1 = AiScene->mMeshes[i]->mTextureCoords[0][a];
+			auto __2 = AiScene->mMeshes[i]->mTextureCoords[1][a];
+			
+			of << __1.x << " " << __1.y << " , " << __2.x << " " << __2.y << std::endl; 
 		}
-	}
+	}*/
 
     Super::Initialize(Device);
 	
