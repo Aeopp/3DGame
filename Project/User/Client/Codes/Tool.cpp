@@ -35,10 +35,48 @@
 #include <stdio.h>
 #include "Renderer.h"
 #include "Landscape.h"
+#include <ostream>
+#include <fstream>
 
 
 void Tool::Initialize(IDirect3DDevice9* const Device)&
 {
+	auto AiScene = Engine::Global::AssimpImporter.ReadFile(
+		"..\\..\\..\\Resource\\Mesh\\StaticMesh\\Decorator\\Regenier_Pillar_Center_Sub_1.fbx",
+		aiProcess_MakeLeftHanded |
+		aiProcess_FlipUVs |
+		aiProcess_FlipWindingOrder |
+		aiProcess_Triangulate |
+		aiProcess_CalcTangentSpace |
+		aiProcess_ValidateDataStructure |
+		aiProcess_ImproveCacheLocality |
+		aiProcess_RemoveRedundantMaterials |
+		aiProcess_GenUVCoords |
+		aiProcess_TransformUVCoords |
+		aiProcess_FindInstances |
+		aiProcess_GenSmoothNormals |
+		aiProcess_SortByPType |
+		aiProcess_OptimizeMeshes |
+		aiProcess_SplitLargeMeshes
+	);
+	std::ofstream of { "..\\..\\..\\Log.txt" };
+
+	for (int32 i = 0; i < AiScene->mNumMeshes; ++i)
+	{
+		auto d = AiScene->mMeshes[i]->mNumUVComponents[0];
+		auto d1 = AiScene->mMeshes[i]->mNumUVComponents[1];
+		auto d2 = AiScene->mMeshes[i]->mNumUVComponents[2];
+
+		for (int32 a = 0; a < AiScene->mMeshes[i]->mNumVertices; ++a)
+		{
+			
+				auto __1 = AiScene->mMeshes[i]->mTextureCoords[0][a];
+				auto __2 = AiScene->mMeshes[i]->mTextureCoords[1][a];
+				auto __3 = AiScene->mMeshes[i]->mTextureCoords[2][a];
+				of << __1.x << " " << __1.y << " , " << __2.x << " " << __2.y << " , " << __3.x << " "<< __3.y << std::endl; 
+		}
+	}
+
     Super::Initialize(Device);
 	
 	auto& FontMgr =     RefFontManager();

@@ -19,7 +19,11 @@ texture NormalMap;
 texture CavityMap;
 texture EmissiveMap;
 
+// normal blend 
+// float3 r = normalize(float3(n1.xy + n2.xy, n1.z));
 
+// diffuse blend 
+// basediffuse * detail diffuse 
 sampler DiffuseSampler  = sampler_state
 {
     texture = DiffuseMap;
