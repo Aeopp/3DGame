@@ -57,7 +57,7 @@ public:
 	static inline _Ty Lerp(const _Ty& Lhs, const _Ty& Rhs, const double t);
 	static inline Quaternion SLerp(
 		const Quaternion& Lhs,
-		const  Quaternion& Rhs,
+		const Quaternion& Rhs,
 		const double t);
 
 	static inline float Length(const Vector3& Lhs);

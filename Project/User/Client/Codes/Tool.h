@@ -28,6 +28,8 @@ private:
 private:
 	void NaviMeshTool()&;
 	void Landscape()&;
+
+	void DecoratorSave(Engine::Landscape& Landscape)const&;
 private:
 	struct DecoratorOption
 	{

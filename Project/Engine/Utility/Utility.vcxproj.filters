@@ -196,6 +196,7 @@
     <ClInclude Include="..\..\..\Resource\Shader\LandscapeFx.hlsl">
       <Filter>Shader\HLSL</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Reference\Header\StringHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">

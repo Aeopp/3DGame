@@ -230,6 +230,7 @@
     <ClCompile Include="Codes\UtilityGlobal.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Reference\Header\StringHelper.h" />
     <ClInclude Include="Codes\AssimpHelper.h" />
     <ClInclude Include="Codes\Bone.h" />
     <ClInclude Include="Codes\Camera.h" />

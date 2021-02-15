@@ -440,6 +440,10 @@ void Tool::Landscape()&
 		}
 		ImGui::End();
 
+		if (ImGui::Button("DecoratorSave"))
+		{
+			DecoratorSave(RefLandscape);
+		}
 		ImGui::Checkbox("DebugSphereMesh ?", &RefLandscape.bDecoratorSphereMeshRender);
 	}
 	
@@ -450,6 +454,14 @@ void Tool::Landscape()&
 	D3DXVec4Normalize(&Renderer.LightDirection, &Renderer.LightDirection);
 	ImGui::ColorEdit4("Color", (float*)&Renderer.LightColor);
 	ImGui::End();
+}
+
+
+void Tool::DecoratorSave(Engine::Landscape& Landscape)const&
+{
+	const auto& SelectPath = Engine::FileHelper::OpenDialogBox();
+	const Matrix MapWorld = FMath::WorldMatrix(MapScale, MapRotation, MapLocation);
+	Landscape.Save(SelectPath, MapWorld);
 };
 
 

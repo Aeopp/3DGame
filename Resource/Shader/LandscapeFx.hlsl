@@ -167,8 +167,9 @@ PS_OUT PS_MAIN(PS_IN In)
     float4 CavityColor = tex2D(CavitySampler, In.UV);
     
     float4 SpecularColor = CavityColor * 0.5;
-    float4 CavityDiffuseColor = DiffuseColor * CavityColor;
-    
+    // float4 CavityDiffuseColor = DiffuseColor * CavityColor;
+    float4 CavityDiffuseColor = DiffuseColor;
+
     if (Diffuse.x > 0)
     {
         float3 HalfVec = normalize((-LightDirectionNormal) + (-In.ViewDirection));

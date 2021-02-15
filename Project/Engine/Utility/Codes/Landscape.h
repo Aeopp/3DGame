@@ -3,6 +3,7 @@
 #include "DllHelper.H"
 #include "Object.h"
 #include <filesystem>
+#include <string>
 #include "Frustum.h"
 #include "FMath.hpp"
 #include "ShaderFx.h"
@@ -71,7 +72,10 @@ namespace Engine
 			PickDecoInstance(const Ray WorldRay)&;
 
 		bool bDecoratorSphereMeshRender{ true }; 
+
+		void Save(const std::filesystem::path& SavePath, const Matrix& MapWorld)&; 
 	private:
+		std::string DecoratorSaveInfo{}; 
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr };
 		Engine::ShaderFx _ShaderFx{};
 		Vector3 Scale{1,1,1};

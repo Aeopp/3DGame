@@ -9,6 +9,16 @@
 #include "ShaderManager.h"
 #include "Renderer.h"
 
+#include <rapidjson/prettywriter.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/reader.h> 
+#include <rapidjson/document.h>
+#include <rapidjson/ostreamwrapper.h>
+#include <rapidjson/istreamwrapper.h>
+#include <fstream>
+#include <ostream>
+#include "StringHelper.h"
 
 static uint32 StaticMeshResourceID = 0u;
 
@@ -276,6 +286,8 @@ std::weak_ptr<typename Engine::Landscape::DecoInformation>
 	
 	return {};
 }
+
+
 
 // TODO :: 노말매핑 사용시 버텍스 타입 변경해야 하며. FVF 변경도 고려 해야함 . 
 // 또한 템플릿 코드로 변경시 리소스 시스템 접근 방식 변경 해야할 수도 있음 . 
@@ -579,7 +591,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 				{
 					Sphere CurDecoMeshBoundingSphere;
 					CurDecoMeshBoundingSphere.Center = FMath::Mul(CurMesh.BoundingSphere.Center, DecoWorld);
-					CurDecoMeshBoundingSphere.Radius = (CurMesh.BoundingSphere.Radius * DecoTfmScale *Scale.x);
+					CurDecoMeshBoundingSphere.Radius = (CurMesh.BoundingSphere.Radius * DecoTfmScale);
 					const bool bRender = RefFrustum.IsIn(CurDecoMeshBoundingSphere);
 
 					if (Engine::Global::bDebugMode)
@@ -655,4 +667,55 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 	}
+}
+
+
+void Engine::Landscape::Save(const std::filesystem::path& SavePath, const Matrix& MapWorld)&
+{
+	const Matrix ToMapLocal = FMath::Inverse(MapWorld);
+
+	using namespace rapidjson;
+	StringBuffer StrBuf;
+	PrettyWriter<StringBuffer> Writer(StrBuf);
+	// Cell Information Write...
+	Writer.StartObject();
+	Writer.Key("Decorators");
+	Writer.StartArray();
+
+	for (auto& [DecoKey, CurDeco] : DecoratorContainer)
+	{
+		Writer.Key(ToA(DecoKey).c_str());
+		Writer.StartArray();
+
+		for (auto& CurDecoInstance : CurDeco.Instances)
+		{
+			Writer.StartObject();
+
+			Writer.Key("Scale");
+			Writer.Double(CurDecoInstance->Scale);
+
+			Writer.Key("Rotation");
+			Writer.StartArray();
+			Writer.Double(CurDecoInstance->Rotation.x);
+			Writer.Double(CurDecoInstance->Rotation.y);
+			Writer.Double(CurDecoInstance->Rotation.z);
+			Writer.EndArray();
+
+			Writer.Key("Location");
+			Writer.StartArray();
+			Writer.Double(CurDecoInstance->Location.x);
+			Writer.Double(CurDecoInstance->Location.y);
+			Writer.Double(CurDecoInstance->Location.z);
+			Writer.EndArray();
+
+			Writer.EndObject();
+		}
+		Writer.EndArray();
+	}
+
+	Writer.EndArray();
+	Writer.EndObject();
+	std::ofstream Of{ SavePath };
+	DecoratorSaveInfo = StrBuf.GetString();
+	Of << DecoratorSaveInfo;
 }
