@@ -100,6 +100,9 @@
     <Filter Include="Map">
       <UniqueIdentifier>{62095112-da35-4feb-9107-d6dbd844b3e3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Material">
+      <UniqueIdentifier>{1d1437a2-173c-4653-a2ec-0cce9bf1b6d5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
@@ -201,6 +204,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Resource\Shader\LandscapeFxNonCavity.hlsl">
       <Filter>Shader\HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\MaterialInformation.h">
+      <Filter>Material</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -308,6 +314,9 @@
     </ClCompile>
     <ClCompile Include="Codes\Landscape.cpp">
       <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\MaterialInformation.cpp">
+      <Filter>Material</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

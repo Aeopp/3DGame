@@ -29,7 +29,7 @@ void Engine::MaterialInformation::Load
 
 		if (_Texture == nullptr)
 		{
-			D3DXCreateTextureFromFile(Device, (MatFilePath / TexFileName).c_str(), &_Texture);
+			D3DXCreateTextureFromFile(Device, (MatFilePath /L"Texture" /TexFileName).c_str(), &_Texture);
 			_Texture = ResourceSys->Insert<IDirect3DTexture9>(TexFileName, _Texture);
 		}
 
@@ -39,4 +39,14 @@ void Engine::MaterialInformation::Load
 		MatKey.clear();
 		TexFileName.clear();
 	}
+
+	if (TextureMap.contains(L"Cavity"))
+	{
+		bCavity = true; 
+	}
+}
+
+IDirect3DTexture9* Engine::MaterialInformation::GetTexture(const std::wstring& TexKey) const&
+{
+	return TextureMap.find(TexKey)->second;
 }

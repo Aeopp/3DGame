@@ -8,6 +8,7 @@
 #include "FMath.hpp"
 #include "ShaderFx.h"
 #include <unordered_map>
+#include "MaterialInformation.h"
 
 
 namespace Engine
@@ -22,20 +23,9 @@ namespace Engine
 			uint32 VtxCount{ 0u };
 			uint32 Stride{ 0u };
 			uint32 PrimitiveCount{ 0u };
-			DWORD FVF{ 0u };
-			std::string Name{}; 
-			IDirect3DTexture9* DiffuseMap{ nullptr };
-			IDirect3DTexture9* CavityMap{ nullptr };
-			IDirect3DTexture9* NormalMap{ nullptr };
-			IDirect3DTexture9* EmissiveMap{ nullptr };
-			int32 bCavity = 0;
-			int32 Contract = 4;
-			float RimInnerWidth = 0.003f; 
-			float RimOuterWidth = 0.300f;
-			float Power = 16.f;
-			float SpecularIntencity = 0.5f;
-			Vector4 RimAmtColor { 1,1,1,1 }; 
-			Vector4 AmbientColor{ 0.10f,0.10f,0.10f,1.f };
+			DWORD  FVF{ 0u };
+			std::string Name{};
+			Engine::MaterialInformation MaterialInfo{};
 			Sphere BoundingSphere{};
 		};
 		struct DecoInformation

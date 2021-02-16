@@ -118,107 +118,8 @@ void Engine::Landscape::DecoratorLoad(
 		// 머테리얼 파싱 . 
 		aiMaterial* AiMaterial = AiScene->mMaterials[AiMesh->mMaterialIndex];
 
-		if (AiMaterial->GetTextureCount(aiTextureType::aiTextureType_DIFFUSE) > 0)
-		{
-			aiString AiFileName;
-
-			const aiReturn AiReturn = AiMaterial->
-				GetTexture(aiTextureType_DIFFUSE, 0, &AiFileName, NULL, NULL, NULL, NULL, NULL);
-
-			if (AiReturn == aiReturn::aiReturn_SUCCESS)
-			{
-				const std::string TextureName = AiFileName.C_Str();
-				std::wstring TextureNameW;
-				TextureNameW.assign(std::begin(TextureName), std::end(TextureName));
-				LoadDecorator.Meshes[MeshIdx].DiffuseMap =
-					ResourceSys->Get<IDirect3DTexture9>(TextureNameW);
-
-				if (LoadDecorator.Meshes[MeshIdx].DiffuseMap == nullptr)
-				{
-					const std::filesystem::path TexFileFullPath = LoadPath / AiFileName.C_Str();
-					D3DXCreateTextureFromFile(Device, TexFileFullPath.c_str(), &LoadDecorator.Meshes[MeshIdx].DiffuseMap);
-
-					LoadDecorator.Meshes[MeshIdx].DiffuseMap =
-						ResourceSys->Insert<IDirect3DTexture9>(TextureNameW, LoadDecorator.Meshes[MeshIdx].DiffuseMap);
-				}
-			}
-		}
-
-		if (AiMaterial->GetTextureCount(aiTextureType::aiTextureType_SPECULAR) > 0)
-		{
-			aiString AiFileName;
-
-			const aiReturn AiReturn = AiMaterial->
-				GetTexture(aiTextureType::aiTextureType_SPECULAR, 0, &AiFileName, NULL, NULL, NULL, NULL, NULL);
-
-			if (AiReturn == aiReturn::aiReturn_SUCCESS)
-			{
-				LoadDecorator.Meshes[MeshIdx].bCavity = 1;
-
-				const std::string TextureName = AiFileName.C_Str();
-				std::wstring TextureNameW;
-				TextureNameW.assign(std::begin(TextureName), std::end(TextureName));
-				LoadDecorator.Meshes[MeshIdx].CavityMap =
-					ResourceSys->Get<IDirect3DTexture9>(TextureNameW);
-
-				if (LoadDecorator.Meshes[MeshIdx].CavityMap == nullptr)
-				{
-					const std::filesystem::path TexFileFullPath = LoadPath / AiFileName.C_Str();
-					D3DXCreateTextureFromFile(Device, TexFileFullPath.c_str(), &LoadDecorator.Meshes[MeshIdx].CavityMap);
-					LoadDecorator.Meshes[MeshIdx].CavityMap =
-						ResourceSys->Insert<IDirect3DTexture9>(TextureNameW, LoadDecorator.Meshes[MeshIdx].CavityMap);
-				}
-			}
-		}
-
-		if (AiMaterial->GetTextureCount(aiTextureType::aiTextureType_NORMALS) > 0)
-		{
-			aiString AiFileName;
-
-			const aiReturn AiReturn = AiMaterial->
-				GetTexture(aiTextureType::aiTextureType_NORMALS, 0, &AiFileName, NULL, NULL, NULL, NULL, NULL);
-
-			if (AiReturn == aiReturn::aiReturn_SUCCESS)
-			{
-				const std::string TextureName = AiFileName.C_Str();
-				std::wstring TextureNameW;
-				TextureNameW.assign(std::begin(TextureName), std::end(TextureName));
-				LoadDecorator.Meshes[MeshIdx].NormalMap =
-					ResourceSys->Get<IDirect3DTexture9>(TextureNameW);
-
-				if (LoadDecorator.Meshes[MeshIdx].NormalMap == nullptr)
-				{
-					const std::filesystem::path TexFileFullPath = LoadPath / AiFileName.C_Str();
-					D3DXCreateTextureFromFile(Device, TexFileFullPath.c_str(), &LoadDecorator.Meshes[MeshIdx].NormalMap);
-					LoadDecorator.Meshes[MeshIdx].NormalMap =
-						ResourceSys->Insert<IDirect3DTexture9>(TextureNameW, LoadDecorator.Meshes[MeshIdx].NormalMap);
-				}
-			}
-		}
-
-		if (AiMaterial->GetTextureCount(aiTextureType::aiTextureType_EMISSIVE) > 0)
-		{
-			aiString AiFileName;
-
-			const aiReturn AiReturn = AiMaterial->
-				GetTexture(aiTextureType::aiTextureType_EMISSIVE, 0, &AiFileName, NULL, NULL, NULL, NULL, NULL);
-
-			if (AiReturn == aiReturn::aiReturn_SUCCESS)
-			{
-				const std::string TextureName = AiFileName.C_Str();
-				std::wstring TextureNameW;
-				TextureNameW.assign(std::begin(TextureName), std::end(TextureName));
-				LoadDecorator.Meshes[MeshIdx].EmissiveMap =
-					ResourceSys->Get<IDirect3DTexture9>(TextureNameW);
-
-				if (LoadDecorator.Meshes[MeshIdx].EmissiveMap == nullptr)
-				{
-					const std::filesystem::path TexFileFullPath = LoadPath / AiFileName.C_Str();
-					D3DXCreateTextureFromFile(Device, TexFileFullPath.c_str(), &LoadDecorator.Meshes[MeshIdx].EmissiveMap);
-					LoadDecorator.Meshes[MeshIdx].EmissiveMap = ResourceSys->Insert<IDirect3DTexture9>(TextureNameW, LoadDecorator.Meshes[MeshIdx].EmissiveMap);
-				}
-			}
-		}
+		LoadDecorator.Meshes[MeshIdx].MaterialInfo.Load(Device,
+			LoadPath / L"Material", L".tga");
 	};
 
 	DecoratorContainer.insert({ LoadFileName,LoadDecorator } );
@@ -448,107 +349,7 @@ void Engine::Landscape::Initialize(
 		// 머테리얼 파싱 . 
 		aiMaterial* AiMaterial = AiScene->mMaterials[AiMesh->mMaterialIndex];
 
-		if (AiMaterial->GetTextureCount(aiTextureType::aiTextureType_DIFFUSE) > 0)
-		{
-			aiString AiFileName;
-
-			const aiReturn AiReturn = AiMaterial->
-				GetTexture(aiTextureType_DIFFUSE, 0, &AiFileName, NULL, NULL, NULL, NULL, NULL);
-
-			if (AiReturn == aiReturn::aiReturn_SUCCESS)
-			{
-				const std::string TextureName = AiFileName.C_Str();
-				std::wstring TextureNameW;
-				TextureNameW.assign(std::begin(TextureName), std::end(TextureName)); 
-				Meshes[MeshIdx].DiffuseMap = 
-					ResourceSys->Get<IDirect3DTexture9>(TextureNameW);
-
-				if (Meshes[MeshIdx].DiffuseMap == nullptr)
-				{
-					const std::filesystem::path TexFileFullPath = FilePath / AiFileName.C_Str();
-					D3DXCreateTextureFromFile(Device, TexFileFullPath.c_str(), &Meshes[MeshIdx].DiffuseMap);
-
-					Meshes[MeshIdx].DiffuseMap=
-						ResourceSys->Insert<IDirect3DTexture9>(TextureNameW,Meshes[MeshIdx].DiffuseMap);
-				}
-			}
-		}
-		
-		if (AiMaterial->GetTextureCount(aiTextureType::aiTextureType_SPECULAR) > 0)
-		{
-			aiString AiFileName;
-
-			const aiReturn AiReturn = AiMaterial->
-				GetTexture(aiTextureType::aiTextureType_SPECULAR, 0, &AiFileName, NULL, NULL, NULL, NULL, NULL);
-
-			if (AiReturn == aiReturn::aiReturn_SUCCESS)
-			{
-				Meshes[MeshIdx].bCavity = 1;
-
-				const std::string TextureName = AiFileName.C_Str();
-				std::wstring TextureNameW;
-				TextureNameW.assign(std::begin(TextureName), std::end(TextureName));
-				Meshes[MeshIdx].CavityMap =
-					ResourceSys->Get<IDirect3DTexture9>(TextureNameW);
-
-				if (Meshes[MeshIdx].CavityMap == nullptr)
-				{
-					const std::filesystem::path TexFileFullPath = FilePath / AiFileName.C_Str();
-					D3DXCreateTextureFromFile(Device, TexFileFullPath.c_str(), &Meshes[MeshIdx].CavityMap);
-					Meshes[MeshIdx].CavityMap=
-						ResourceSys->Insert<IDirect3DTexture9>(TextureNameW, Meshes[MeshIdx].CavityMap);
-				}
-			}
-		}
-
-		if (AiMaterial->GetTextureCount(aiTextureType::aiTextureType_NORMALS) > 0)
-		{
-			aiString AiFileName;
-
-			const aiReturn AiReturn = AiMaterial->
-				GetTexture(aiTextureType::aiTextureType_NORMALS, 0, &AiFileName, NULL, NULL, NULL, NULL, NULL);
-
-			if (AiReturn == aiReturn::aiReturn_SUCCESS)
-			{
-				const std::string TextureName = AiFileName.C_Str();
-				std::wstring TextureNameW;
-				TextureNameW.assign(std::begin(TextureName), std::end(TextureName));
-				Meshes[MeshIdx].NormalMap =
-					ResourceSys->Get<IDirect3DTexture9>(TextureNameW);
-
-				if (Meshes[MeshIdx].NormalMap == nullptr)
-				{
-					const std::filesystem::path TexFileFullPath = FilePath / AiFileName.C_Str();
-					D3DXCreateTextureFromFile(Device, TexFileFullPath.c_str(), &Meshes[MeshIdx].NormalMap);
-					Meshes[MeshIdx].NormalMap=	
-						ResourceSys->Insert<IDirect3DTexture9>(TextureNameW, Meshes[MeshIdx].NormalMap);
-				}
-			}
-		}
-
-		if (AiMaterial->GetTextureCount(aiTextureType::aiTextureType_EMISSIVE) > 0)
-		{
-			aiString AiFileName;
-
-			const aiReturn AiReturn = AiMaterial->
-				GetTexture(aiTextureType::aiTextureType_EMISSIVE, 0, &AiFileName, NULL, NULL, NULL, NULL, NULL);
-
-			if (AiReturn == aiReturn::aiReturn_SUCCESS)
-			{
-				const std::string TextureName = AiFileName.C_Str();
-				std::wstring TextureNameW;
-				TextureNameW.assign(std::begin(TextureName), std::end(TextureName));
-				Meshes[MeshIdx].EmissiveMap=
-					ResourceSys->Get<IDirect3DTexture9>(TextureNameW);
-
-				if (Meshes[MeshIdx].EmissiveMap == nullptr)
-				{
-					const std::filesystem::path TexFileFullPath = FilePath / AiFileName.C_Str();
-					D3DXCreateTextureFromFile(Device, TexFileFullPath.c_str(), &Meshes[MeshIdx].EmissiveMap);
-					Meshes[MeshIdx].EmissiveMap=ResourceSys->Insert<IDirect3DTexture9>(TextureNameW, Meshes[MeshIdx].EmissiveMap);
-				}
-			}
-		}
+		Meshes[MeshIdx].MaterialInfo.Load(Device, FilePath / L"Material", L".tga");
 	};
 
 	for (uint32 i = 0; i < WorldVertexLocation.size(); i += 3u)
@@ -609,26 +410,26 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 		Fx->BeginPass(i);
 		for (auto& CurMesh : Meshes)
 		{
-			Fx->SetVector("RimAmtColor", &CurMesh.RimAmtColor);
+			Fx->SetVector("RimAmtColor", &CurMesh.MaterialInfo.RimAmtColor);
 			
-			Fx->SetFloat("RimOuterWidth", CurMesh.RimOuterWidth);
-			Fx->SetFloat("RimInnerWidth", CurMesh.RimInnerWidth);
-			Fx->SetVector("AmbientColor", &CurMesh.AmbientColor);
-			Fx->SetFloat("Power", CurMesh.Power);
-			Fx->SetFloat("SpecularIntencity", CurMesh.SpecularIntencity);
-			Fx->SetFloat("Contract", CurMesh.Contract); 
+			Fx->SetFloat("RimOuterWidth", CurMesh.MaterialInfo.RimOuterWidth);
+			Fx->SetFloat("RimInnerWidth", CurMesh.MaterialInfo.RimInnerWidth);
+			Fx->SetVector("AmbientColor", &CurMesh.MaterialInfo.AmbientColor);
+			Fx->SetFloat("Power", CurMesh.MaterialInfo.Power);
+			Fx->SetFloat("SpecularIntencity", CurMesh.MaterialInfo.SpecularIntencity);
+			Fx->SetFloat("Contract", CurMesh.MaterialInfo.Contract);
 			Device->SetVertexDeclaration(VtxDecl);
 			Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
 			Device->SetIndices(CurMesh.IdxBuf);
 
-			Fx->SetTexture("DiffuseMap", CurMesh.DiffuseMap);
-			Fx->SetTexture("NormalMap", CurMesh.NormalMap);
-			Fx->SetInt("bCavity", CurMesh.bCavity);
+			Fx->SetTexture("DiffuseMap", CurMesh.MaterialInfo.GetTexture(L"Diffuse"));
+			Fx->SetTexture("NormalMap", CurMesh.MaterialInfo.GetTexture(L"Normal"));
+			Fx->SetInt("bCavity", CurMesh.MaterialInfo.bCavity);
 
-			if(CurMesh.bCavity==1)
-				Fx->SetTexture("CavityMap", CurMesh.CavityMap);
+			if(CurMesh.MaterialInfo.bCavity==1)
+				Fx->SetTexture("CavityMap", CurMesh.MaterialInfo.GetTexture(L"Cavity"));
 
-			Fx->SetTexture("EmissiveMap", CurMesh.EmissiveMap);
+			Fx->SetTexture("EmissiveMap", CurMesh.MaterialInfo.GetTexture(L"Emissive"));
 			Fx->CommitChanges();
 			Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
 				0u, CurMesh.PrimitiveCount);
@@ -690,12 +491,12 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 						Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
 						Device->SetIndices(CurMesh.IdxBuf);
 						const Vector4 RimAmtColor{ 1.f,1.f,1.f, 1.f };
-						Fx->SetVector("RimAmtColor", &CurMesh.RimAmtColor);
-						Fx->SetFloat("RimOuterWidth", CurMesh.RimOuterWidth);
-						Fx->SetFloat("RimInnerWidth", CurMesh.RimInnerWidth);
-						Fx->SetFloat("Power", CurMesh.Power);
-						Fx->SetFloat("SpecularIntencity", CurMesh.SpecularIntencity);
-						Fx->SetFloat("Contract",CurMesh.Contract);
+						Fx->SetVector("RimAmtColor", &CurMesh.MaterialInfo.RimAmtColor);
+						Fx->SetFloat("RimOuterWidth", CurMesh.MaterialInfo.RimOuterWidth);
+						Fx->SetFloat("RimInnerWidth", CurMesh.MaterialInfo.RimInnerWidth);
+						Fx->SetFloat("Power", CurMesh.MaterialInfo.Power);
+						Fx->SetFloat("SpecularIntencity", CurMesh.MaterialInfo.SpecularIntencity);
+						Fx->SetFloat("Contract",CurMesh.MaterialInfo.Contract);
 						if (Engine::Global::bDebugMode 
 							&& (PickDecoInstancePtr == CurDecoInstance.get()))
 						{
@@ -704,16 +505,19 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 						}
 						else
 						{
-							Fx->SetVector("AmbientColor", &CurMesh.AmbientColor);
+							Fx->SetVector("AmbientColor", &CurMesh.MaterialInfo.AmbientColor);
 						}
-						Fx->SetTexture("DiffuseMap", CurMesh.DiffuseMap);
-						Fx->SetTexture("NormalMap", CurMesh.NormalMap);
-						Fx->SetInt("bCavity", CurMesh.bCavity);
+						Fx->SetTexture("DiffuseMap", CurMesh.MaterialInfo.GetTexture(L"Diffuse"));
+						Fx->SetTexture("NormalMap", CurMesh.MaterialInfo.GetTexture
+						(L"Normal"));
+						Fx->SetInt("bCavity", CurMesh.MaterialInfo.bCavity);
 						
-						if(CurMesh.bCavity==1)
-							Fx->SetTexture("CavityMap", CurMesh.CavityMap);
+						if(CurMesh.MaterialInfo.bCavity==1)
+							Fx->SetTexture("CavityMap", 
+								CurMesh.MaterialInfo.GetTexture(L"Cavity"));
 
-						Fx->SetTexture("EmissiveMap", CurMesh.EmissiveMap);
+						Fx->SetTexture("EmissiveMap", 
+							CurMesh.MaterialInfo.GetTexture(L"Emissive"));
 						Fx->CommitChanges();
 						Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
 							0u, CurMesh.PrimitiveCount);
