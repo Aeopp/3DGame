@@ -14,8 +14,9 @@ namespace Engine
 				const std::filesystem::path& MatFilePath,
 			const std::filesystem::path& MatFileName,
 			const std::wstring& TexFileExtenstion /*= L".tga"*/)&;
+		void PropsLoad(const std::filesystem::path& PropsFilePath)&;
 		IDirect3DTexture9* GetTexture(const std::wstring& TexKey)const&;
-		void PropSave()&;
+		void PropSave(std::filesystem::path PropsFilePath = {})&;
 	public:
 		int32 bCavity = 0;
 		int32 Contract = 4;

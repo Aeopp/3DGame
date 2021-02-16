@@ -422,6 +422,10 @@ void Tool::Landscape()&
 					{
 						for (auto& CurMesh : DecoPtr->Meshes)
 						{
+							if (ImGui::Button("PropsSave"))
+							{
+								CurMesh.MaterialInfo.PropSave();
+							}
 							ImGui::SliderInt((std::to_string(DummyLableID)
 					    + "_Contract").c_str(), &CurMesh.MaterialInfo.Contract,1.f,20.f); 
 							ImGui::ColorEdit4( (std::to_string(DummyLableID)+"_AmbientColor").c_str(), CurMesh.MaterialInfo.AmbientColor);
