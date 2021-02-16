@@ -616,6 +616,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 			Fx->SetVector("AmbientColor", &CurMesh.AmbientColor);
 			Fx->SetFloat("Power", CurMesh.Power);
 			Fx->SetFloat("SpecularIntencity", CurMesh.SpecularIntencity);
+			Fx->SetFloat("Contract", CurMesh.Contract); 
 			Device->SetVertexDeclaration(VtxDecl);
 			Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
 			Device->SetIndices(CurMesh.IdxBuf);
@@ -694,7 +695,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 						Fx->SetFloat("RimInnerWidth", CurMesh.RimInnerWidth);
 						Fx->SetFloat("Power", CurMesh.Power);
 						Fx->SetFloat("SpecularIntencity", CurMesh.SpecularIntencity);
-						 
+						Fx->SetFloat("Contract",CurMesh.Contract);
 						if (Engine::Global::bDebugMode 
 							&& (PickDecoInstancePtr == CurDecoInstance.get()))
 						{

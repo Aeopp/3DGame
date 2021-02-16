@@ -422,6 +422,8 @@ void Tool::Landscape()&
 					{
 						for (auto& CurMesh : DecoPtr->Meshes)
 						{
+							ImGui::SliderFloat((std::to_string(DummyLableID)
+					    + "_Contract").c_str(), &CurMesh.Contract,1.f,20.f); 
 							ImGui::ColorEdit4( (std::to_string(DummyLableID)+"_AmbientColor").c_str(), CurMesh.AmbientColor);
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_Power").c_str(), &CurMesh.Power, 1.f, 100.f);
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_SpecularIntencity").c_str(), &CurMesh.SpecularIntencity, 0.f, 1.f);
@@ -429,6 +431,7 @@ void Tool::Landscape()&
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_RimOuterWidth").c_str(),&CurMesh.RimOuterWidth,0.f,1.f);
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_RimInnerWidth").c_str(), &CurMesh.RimInnerWidth, 0.f, 1.f);
 							++DummyLableID;
+							
 							ImGui::Separator();
 						}
 					}

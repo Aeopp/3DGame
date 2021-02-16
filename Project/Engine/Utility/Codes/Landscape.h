@@ -22,13 +22,14 @@ namespace Engine
 			uint32 VtxCount{ 0u };
 			uint32 Stride{ 0u };
 			uint32 PrimitiveCount{ 0u };
-			DWORD FVF{ 0u };
+			DWORD  FVF{ 0u };
 			std::string Name{}; 
 			IDirect3DTexture9* DiffuseMap{ nullptr };
 			IDirect3DTexture9* CavityMap{ nullptr };
 			IDirect3DTexture9* NormalMap{ nullptr };
 			IDirect3DTexture9* EmissiveMap{ nullptr };
 			int32 bCavity = 0;
+			int32 Contract = 4;
 			float RimInnerWidth = 0.003f; 
 			float RimOuterWidth = 0.300f;
 			float Power = 16.f;

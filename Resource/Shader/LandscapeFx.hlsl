@@ -6,11 +6,12 @@ float4 LightColor;
 float4 CameraLocation;
 float4 LightDirection;
 float4 RimAmtColor;
-float RimOuterWidth;
-float RimInnerWidth;
+float  RimOuterWidth;
+float  RimInnerWidth;
 float  Power;
-float SpecularIntencity;
+float  SpecularIntencity;
 float4 AmbientColor;
+int    Contract;
 
 int bCavity;
 
@@ -170,7 +171,7 @@ PS_OUT PS_MAIN(PS_IN In)
     
     float Diffuse = saturate(dot(-LightDirectionNormal, WorldNormal));
     // ÇÏÇÁ ¶÷¹öÆ®.
-    Diffuse = (Diffuse * 0.5) + 0.5;
+    Diffuse = pow(((Diffuse * 0.5) + 0.5), Contract);
     // ¼¿ ½¦ÀÌµù
     Diffuse = ceil(Diffuse * 5) / 5.0f;
     
