@@ -1,0 +1,1 @@
+Specular = 16

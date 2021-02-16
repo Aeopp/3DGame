@@ -63,8 +63,6 @@ void Engine::Landscape::DecoratorLoad(
 		const std::wstring ResourceIDStr = std::to_wstring(StaticMeshResourceID++);
 		aiMesh* AiMesh = AiScene->mMeshes[MeshIdx];
 
-
-
 		LoadDecorator.Meshes[MeshIdx].Name = AiMesh->mName.C_Str();
 
 		LoadDecorator.Meshes[MeshIdx].VtxCount = AiMesh->mNumVertices;
@@ -118,8 +116,11 @@ void Engine::Landscape::DecoratorLoad(
 		// 머테리얼 파싱 . 
 		aiMaterial* AiMaterial = AiScene->mMaterials[AiMesh->mMaterialIndex];
 
+		const std::wstring
+			MatName = ToW(AiScene->mMaterials[AiMesh->mMaterialIndex]->GetName().C_Str());
+
 		LoadDecorator.Meshes[MeshIdx].MaterialInfo.Load(Device,
-			LoadPath / L"Material", L".tga");
+			LoadPath / L"Material",MatName + L".mat", L".tga");
 	};
 
 	DecoratorContainer.insert({ LoadFileName,LoadDecorator } );
@@ -349,7 +350,14 @@ void Engine::Landscape::Initialize(
 		// 머테리얼 파싱 . 
 		aiMaterial* AiMaterial = AiScene->mMaterials[AiMesh->mMaterialIndex];
 
-		Meshes[MeshIdx].MaterialInfo.Load(Device, FilePath / L"Material", L".tga");
+		const std::wstring
+			MatName = ToW(AiScene->mMaterials[AiMesh->mMaterialIndex]->GetName().C_Str());
+
+		Meshes[MeshIdx].MaterialInfo.Load(Device,
+			FilePath / L"Material", MatName + L".mat", L".tga");
+
+		Meshes[MeshIdx].MaterialInfo.Contract = 1;
+
 	};
 
 	for (uint32 i = 0; i < WorldVertexLocation.size(); i += 3u)

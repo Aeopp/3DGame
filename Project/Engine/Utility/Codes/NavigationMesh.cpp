@@ -636,7 +636,7 @@ void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 		for (auto& [MarkerKey,DrawMarkerDebugSphere]: CurrentMarkers)
 		{
-			const float Scale = DrawMarkerDebugSphere->_Sphere.Radius * 0.1f;
+			const float Scale = DrawMarkerDebugSphere->_Sphere.Radius;
 			const Matrix World = FMath::WorldMatrix({ Scale,Scale,Scale }, 
 													{ 0,0,0 }, 
 													{DrawMarkerDebugSphere->_Sphere.Center });

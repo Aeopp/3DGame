@@ -12,8 +12,10 @@ namespace Engine
 	public:
 		void Load(IDirect3DDevice9* const Device, 
 				const std::filesystem::path& MatFilePath,
+			const std::filesystem::path& MatFileName,
 			const std::wstring& TexFileExtenstion /*= L".tga"*/)&;
-		IDirect3DTexture9* GetTexture(const std::wstring& TexKey)const&; 
+		IDirect3DTexture9* GetTexture(const std::wstring& TexKey)const&;
+		void PropSave()&;
 	public:
 		int32 bCavity = 0;
 		int32 Contract = 4;
@@ -24,6 +26,7 @@ namespace Engine
 		Vector4 RimAmtColor{ 1,1,1,1 };
 		Vector4 AmbientColor{ 0.10f,0.10f,0.10f,1.f };
 	private:
+		std::filesystem::path PropPath{};
 		std::unordered_map<std::wstring, IDirect3DTexture9*>TextureMap;
 	};
 	
