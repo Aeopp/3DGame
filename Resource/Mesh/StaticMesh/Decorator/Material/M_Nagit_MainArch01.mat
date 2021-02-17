@@ -1,9 +1,6 @@
-Normal=color_non
-Other[0]=Red_Ruins_MainArch_Block01_Normals
-Other[1]=Red_Ruins_MainArch_Block01_Cavity
-Other[2]=Red_Ruins_Diffuse01
-Other[3]=Ruins_Detail_01_N
-Other[4]=Cave_Detail_02_N
-Other[5]=img16size
-Other[6]=nomal_non
-Other[7]=rough_non
+Diffuse=NonWhite
+Normal=Red_Ruins_MainArch_Block01_Normals
+Cavity=Red_Ruins_MainArch_Block01_Cavity
+Emissive=NonWhite
+DetailDiffuse=Red_Ruins_Diffuse01
+DetailNormal=Ruins_Detail_01_N

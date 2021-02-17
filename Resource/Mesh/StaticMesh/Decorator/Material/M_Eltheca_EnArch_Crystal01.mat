@@ -1,9 +1,6 @@
-Normal=blandmask_non
-Other[0]=Eltheca_EnArch_Crystal_N
-Other[1]=Eltheca_EnArch_Crystal_C
-Other[2]=Eltheca_EnArch_Crystal_E
-Other[3]=Eltheca_EnArch_Crystal_D
-Other[4]=color_non
-Other[5]=img16size
-Other[6]=nomal_non
-Other[7]=rough_non
+Diffuse=Eltheca_EnArch_Crystal_D
+Normal=Eltheca_EnArch_Crystal_N
+Cavity=Eltheca_EnArch_Crystal_C
+Emissive=Eltheca_EnArch_Crystal_E
+DetailDiffuse=NonWhite
+DetailNormal=nomal_non

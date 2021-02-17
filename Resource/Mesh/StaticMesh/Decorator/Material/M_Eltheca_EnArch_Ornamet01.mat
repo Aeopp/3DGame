@@ -1,8 +1,6 @@
-Normal=color_non
-Other[0]=Eltheca_EnArch_Ornament_N
-Other[1]=Eltheca_EnArch_Ornament_C
-Other[2]=Red_Ruins_Diffuse01
-Other[3]=Ruins_Detail_01_N
-Other[4]=img16size
-Other[5]=nomal_non
-Other[6]=rough_non
+Diffuse=Red_Ruins_Diffuse01
+Normal=Eltheca_EnArch_Ornament_N
+Cavity=Eltheca_EnArch_Ornament_C
+Emissive=color_non
+DetailDiffuse=NonWhite
+DetailNormal=nomal_non

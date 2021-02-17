@@ -1,7 +1,7 @@
-Normal=color_non
-Other[0]=Eltheca_EnArch_Ornament_N
-Other[1]=Eltheca_EnArch_Ornament_C
-Other[2]=Eltheca_Metal_Diffuse01
-Other[3]=img16size
-Other[4]=nomal_non
-Other[5]=rough_non
+Diffuse=NonWhite
+Normal=Eltheca_EnArch_Ornament_N
+Cavity=Eltheca_EnArch_Ornament_C
+Emissive=NonWhite
+DetailDiffuse=Eltheca_Metal_Diffuse01
+DetailNormal=nomal_non
+
