@@ -2,6 +2,7 @@ matrix  World;
 matrix  View;
 matrix  Projection;
 
+float  DetailScale;
 float4 LightColor;
 float4 CameraLocation;
 float4 LightDirection;
@@ -11,14 +12,16 @@ float  RimInnerWidth;
 float  Power;
 float  SpecularIntencity;
 float4 AmbientColor;
-int    Contract;
-
-int bCavity;
+float Contract;
+float DetailDiffuseIntensity;
+float DetailNormalIntensity;
 
 texture DiffuseMap;
 texture NormalMap;
 texture CavityMap;
 texture EmissiveMap;
+texture DetailDiffuseMap;
+texture DetailNormalMap;
 
 // UDN
 //vec3 NormalBlend_UDN(vec3 n1, vec3 n2)
@@ -29,6 +32,7 @@ texture EmissiveMap;
 
 // diffuse blend 
 // basediffuse * detail diffuse 
+
 sampler DiffuseSampler  = sampler_state
 {
     texture = DiffuseMap;
@@ -65,6 +69,23 @@ sampler EmissiveSampler = sampler_state
     mipfilter = linear;
 };
 
+sampler DetailDiffuseSampler = sampler_state
+{
+    texture = DetailDiffuseMap;
+
+    minfilter = linear;
+    magfilter = linear;
+    mipfilter = linear;
+};
+
+sampler DetailNormalSampler = sampler_state
+{
+    texture = DetailNormalMap;
+
+    minfilter = linear;
+    magfilter = linear;
+    mipfilter = linear;
+};
 
 struct VS_IN
 {
@@ -134,7 +155,13 @@ PS_OUT PS_MAIN(PS_IN In)
     
     float3 TangentNormal = tex2D(NormalSampler, In.UV).xyz;
     TangentNormal = normalize((TangentNormal * 2.0) - 1.0);
+
+	float3 DetailTangentNormal = tex2D(DetailNormalSampler, (In.UV * DetailScale)).xyz;
+	DetailTangentNormal = normalize ((DetailTangentNormal * 2.0) - 1.0);
+	DetailTangentNormal *= DetailNormalIntensity;
     
+	TangentNormal = normalize(float3(TangentNormal.xy + DetailTangentNormal.xy, TangentNormal.z));
+
     float3x3 TBN = float3x3(normalize(In.Tangent),
                             normalize(In.BiNormal),
                             normalize(In.Normal));
@@ -163,7 +190,6 @@ PS_OUT PS_MAIN(PS_IN In)
         RimAmt = RimAmtInner;
         RimAmt = smoothstep(1.0f - saturate(RimInnerWidth), 1.f, RimAmt);
     }
-   
     
     float3 LightDirectionNormal = normalize(LightDirection.xyz);
     
@@ -177,21 +203,19 @@ PS_OUT PS_MAIN(PS_IN In)
     
     float4 DiffuseColor = tex2D(DiffuseSampler, In.UV);
     float3 SpecularColor = float3(1.f,1.f,1.f) * SpecularIntencity;
-    
-    if (bCavity == 1)
-    {
-        float4 CavityColor = tex2D(CavitySampler, In.UV);
-        SpecularColor = CavityColor.rgb * SpecularIntencity;
-        DiffuseColor = (DiffuseColor.rgb * CavityColor.rgb, 1.f);
-    }
-    
 
-    if (Diffuse.x > 0)
-    {
-        float3 HalfVec = normalize((-LightDirectionNormal) + (In.ViewDirection));
-        Specular = saturate(dot(HalfVec, WorldNormal));
-        Specular = pow(abs(Specular),abs(Power));
-    }
+	float4 DetailDiffuseColor = tex2D(DetailDiffuseSampler, (In.UV * DetailScale));
+	DetailDiffuseColor *= DetailDiffuseIntensity;
+    
+	DiffuseColor = DiffuseColor * DetailDiffuseColor;
+    
+    float4 CavityColor = tex2D(CavitySampler, In.UV);
+    SpecularColor = CavityColor.rgb * SpecularIntencity;
+    DiffuseColor = (DiffuseColor.rgb * CavityColor.rgb, 1.f);
+    
+    float3 HalfVec = normalize((-LightDirectionNormal) + (In.ViewDirection));
+    Specular = saturate(dot(HalfVec, WorldNormal));
+    Specular = pow(abs(Specular),abs(Power));
     
     float3 Ambient = AmbientColor.xyz;
     

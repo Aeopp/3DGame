@@ -58,10 +58,6 @@ void Engine::MaterialInformation::Load
 	}
 
 
-	if (TextureMap.contains(L"Cavity"))
-	{
-		bCavity = true;
-	}
 
 	PropPath = MatFilePath / (MatFileName.stem().wstring() + L".props");
 	PropsLoad(PropPath);

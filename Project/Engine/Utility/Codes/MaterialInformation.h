@@ -18,11 +18,14 @@ namespace Engine
 		IDirect3DTexture9* GetTexture(const std::wstring& TexKey)const&;
 		void PropSave(std::filesystem::path PropsFilePath = {})&;
 	public:
+		float DetailScale = 1.f; 
 		int32 bCavity = 0;
-		int32 Contract = 4;
+		float Contract = 4.0f;
 		float RimInnerWidth = 0.003f;
 		float RimOuterWidth = 0.300f;
 		float Power = 16.f;
+		float DetailDiffuseIntensity = 1.f;
+		float DetailNormalIntensity = 1.f;
 		float SpecularIntencity = 0.5f;
 		Vector4 RimAmtColor{ 1,1,1,1 };
 		Vector4 AmbientColor{ 0.10f,0.10f,0.10f,1.f };

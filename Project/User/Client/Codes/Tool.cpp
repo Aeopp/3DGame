@@ -41,51 +41,7 @@
 
 void Tool::Initialize(IDirect3DDevice9* const Device)&
 {
-	/*auto AiScene = Engine::Global::AssimpImporter.ReadFile(
-		"..\\..\\..\\Resource\\Mesh\\StaticMesh\\Decorator\\GreatAscension_Zone_A_Block_A.fbx",
-		aiProcess_MakeLeftHanded |
-		aiProcess_FlipUVs |
-		aiProcess_FlipWindingOrder |
-		aiProcess_Triangulate |
-		aiProcess_CalcTangentSpace |
-		aiProcess_ValidateDataStructure |
-		aiProcess_ImproveCacheLocality |
-		aiProcess_RemoveRedundantMaterials |
-		aiProcess_GenUVCoords |
-		aiProcess_TransformUVCoords |
-		aiProcess_FindInstances |
-		aiProcess_GenSmoothNormals |
-		aiProcess_SortByPType |
-		aiProcess_OptimizeMeshes |
-		aiProcess_SplitLargeMeshes
-	);
-	std::ofstream of { "..\\..\\..\\Log.txt" };
-
-	
-	for (int32 i = 0; i < AiScene->mNumMeshes; ++i)
-	{
-		int qqqqq =AiScene->mMeshes[i]->GetNumUVChannels();
-
-		auto d = AiScene->mMeshes[i]->mNumUVComponents[0];
-		auto d1 = AiScene->mMeshes[i]->mNumUVComponents[1];
-
-
-		auto ddddd =AiScene->mMaterials[AiScene->mMeshes[i]->mMaterialIndex]->GetName().C_Str();
-
-
-		for (int32 a = 0; a < AiScene->mMeshes[i]->mNumVertices; ++a)
-		{
-			;
-			
-
-			auto __1 = AiScene->mMeshes[i]->mTextureCoords[0][a];
-			auto __2 = AiScene->mMeshes[i]->mTextureCoords[1][a];
-			
-			of << __1.x << " " << __1.y << " , " << __2.x << " " << __2.y << std::endl; 
-		}
-	}*/
-
-    Super::Initialize(Device);
+     Super::Initialize(Device);
 	
 	auto& FontMgr =     RefFontManager();
 	auto& Control =     RefControl();
@@ -426,7 +382,7 @@ void Tool::Landscape()&
 							{
 								CurMesh.MaterialInfo.PropSave();
 							}
-							ImGui::SliderInt((std::to_string(DummyLableID)
+							ImGui::SliderFloat((std::to_string(DummyLableID)
 					    + "_Contract").c_str(), &CurMesh.MaterialInfo.Contract,1.f,20.f); 
 							ImGui::ColorEdit4( (std::to_string(DummyLableID)+"_AmbientColor").c_str(), CurMesh.MaterialInfo.AmbientColor);
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_Power").c_str(), &CurMesh.MaterialInfo.Power, 1.f, 100.f);
@@ -434,6 +390,10 @@ void Tool::Landscape()&
 							ImGui::ColorEdit4((std::to_string(DummyLableID) + "_RimAmtColor").c_str(), CurMesh.MaterialInfo.RimAmtColor);
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_RimOuterWidth").c_str(),&CurMesh.MaterialInfo.RimOuterWidth,0.f,1.f);
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_RimInnerWidth").c_str(), &CurMesh.MaterialInfo.RimInnerWidth, 0.f, 1.f);
+							ImGui::SliderFloat((std::to_string(DummyLableID) + "_DetailScale").c_str(), &CurMesh.MaterialInfo.DetailScale,1.f,100.f);
+							ImGui::SliderFloat((std::to_string(DummyLableID) + "_DetailDiffuseIntensity").c_str(), &CurMesh.MaterialInfo.DetailDiffuseIntensity,1.f,2.f);
+							ImGui::SliderFloat((std::to_string(DummyLableID) + "_DetailNormalIntensity").c_str(), &CurMesh.MaterialInfo.DetailNormalIntensity,1.f,2.f);
+
 							++DummyLableID;
 							
 							ImGui::Separator();
