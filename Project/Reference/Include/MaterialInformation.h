@@ -18,20 +18,26 @@ namespace Engine
 		IDirect3DTexture9* GetTexture(const std::wstring& TexKey)const&;
 		void PropSave(std::filesystem::path PropsFilePath = {})&;
 	public:
+		std::string Name{"Material"};
+		/// <summary>
+		/// 툴에서 조절 가능한 쉐이더 변수.
+		/// </summary>
 		float DetailScale = 1.f; 
-		int32 bCavity = 0;
 		float Contract = 4.0f;
 		float RimInnerWidth = 0.003f;
 		float RimOuterWidth = 0.300f;
 		float Power = 16.f;
+		float CavityCoefficient = 1.f;
 		float DetailDiffuseIntensity = 1.f;
 		float DetailNormalIntensity = 1.f;
 		float SpecularIntencity = 0.5f;
 		Vector4 RimAmtColor{ 1,1,1,1 };
 		Vector4 AmbientColor{ 0.10f,0.10f,0.10f,1.f };
+
+		std::unordered_map<std::wstring, IDirect3DTexture9*>TextureMap;
 	private:
 		std::filesystem::path PropPath{};
-		std::unordered_map<std::wstring, IDirect3DTexture9*>TextureMap;
+		
 	};
 	
 }

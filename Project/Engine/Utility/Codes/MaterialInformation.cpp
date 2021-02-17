@@ -12,6 +12,7 @@
 #include <rapidjson/document.h>
 #include <rapidjson/ostreamwrapper.h>
 #include <rapidjson/istreamwrapper.h>
+#include "StringHelper.h"
 
 
 void Engine::MaterialInformation::Load
@@ -25,6 +26,8 @@ void Engine::MaterialInformation::Load
 	std::wstring TexLine{};
 	std::wstring TexKey{};
 	std::wstring TexFileName{};
+
+	Name = ToA(MatFileName);
 
 	while (MatStream)
 	{
@@ -83,14 +86,14 @@ void Engine::MaterialInformation::PropsLoad(const std::filesystem::path& PropsFi
 		}
 
 		Contract = _Document["Contract"].GetInt();
-
 		RimInnerWidth = _Document["RimInnerWidth"].GetFloat();
-
 		RimOuterWidth = _Document["RimOuterWidth"].GetFloat();
-
 		Power = _Document["Power"].GetFloat();
-
 		SpecularIntencity = _Document["SpecularIntencity"].GetFloat();
+		DetailScale = _Document["SpecularIntencity"].GetFloat();
+		CavityCoefficient = _Document["CavityCoefficient"].GetFloat();
+		DetailDiffuseIntensity = _Document["DetailDiffuseIntensity"].GetFloat();
+		DetailNormalIntensity = _Document["DetailNormalIntensity"].GetFloat();
 
 		const auto& RimAmtColorArr = _Document["RimAmtColor"].GetArray();
 		RimAmtColor.x = RimAmtColorArr[0].GetFloat();
@@ -140,7 +143,6 @@ void Engine::MaterialInformation::PropSave(std::filesystem::path PropsFilePath)&
 		{
 			Writer.Key("Contract");
 			Writer.Int(Contract);
-			
 
 			Writer.Key("RimInnerWidth");
 			Writer.Double(RimInnerWidth);
@@ -153,6 +155,18 @@ void Engine::MaterialInformation::PropSave(std::filesystem::path PropsFilePath)&
 
 			Writer.Key("SpecularIntencity");
 			Writer.Double(SpecularIntencity);
+
+			Writer.Key("DetailScale");
+			Writer.Double(DetailScale);
+
+			Writer.Key("CavityCoefficient");
+			Writer.Double(CavityCoefficient);
+
+			Writer.Key("DetailDiffuseIntensity");
+			Writer.Double(DetailDiffuseIntensity);
+
+			Writer.Key("DetailNormalIntensity");
+			Writer.Double(DetailNormalIntensity);
 
 			Writer.Key("RimAmtColor");
 			Writer.StartArray();

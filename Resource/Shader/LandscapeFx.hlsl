@@ -11,6 +11,8 @@ float  RimOuterWidth;
 float  RimInnerWidth;
 float  Power;
 float  SpecularIntencity;
+float  CavityCoefficient;
+
 float4 AmbientColor;
 float Contract;
 float DetailDiffuseIntensity;
@@ -202,16 +204,15 @@ PS_OUT PS_MAIN(PS_IN In)
     Diffuse = ceil(Diffuse * 10.0) / 10.0f;
     
     float4 DiffuseColor = tex2D(DiffuseSampler, In.UV);
-    float3 SpecularColor = float3(1.f,1.f,1.f) * SpecularIntencity;
-
 	float4 DetailDiffuseColor = tex2D(DetailDiffuseSampler, (In.UV * DetailScale));
 	DetailDiffuseColor *= DetailDiffuseIntensity;
     
 	DiffuseColor = DiffuseColor * DetailDiffuseColor;
-    
-    float4 CavityColor = tex2D(CavitySampler, In.UV);
-    SpecularColor = CavityColor.rgb * SpecularIntencity;
-    DiffuseColor = (DiffuseColor.rgb * CavityColor.rgb, 1.f);
+	float4 CavityColor = tex2D(CavitySampler, In.UV);
+	CavityColor.rgb *= CavityCoefficient;
+	CavityColor.rgba = clamp(CavityColor, 0.0f, 1.0f);
+    float3 SpecularColor = CavityColor.rgb * SpecularIntencity;
+	DiffuseColor *= CavityColor;
     
     float3 HalfVec = normalize((-LightDirectionNormal) + (In.ViewDirection));
     Specular = saturate(dot(HalfVec, WorldNormal));

@@ -427,6 +427,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 			Fx->SetFloat("Contract", CurMesh.MaterialInfo.Contract);
 			Fx->SetFloat("DetailDiffuseIntensity", CurMesh.MaterialInfo.DetailDiffuseIntensity);
 			Fx->SetFloat("DetailNormalIntensity", CurMesh.MaterialInfo.DetailNormalIntensity);
+			Fx->SetFloat("CavityCoefficient", CurMesh.MaterialInfo.CavityCoefficient);
 
 			Fx->SetFloat("DetailScale", CurMesh.MaterialInfo.DetailScale);
 			Device->SetVertexDeclaration(VtxDecl);
@@ -510,6 +511,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 						Fx->SetFloat("DetailScale", CurMesh.MaterialInfo.DetailScale);
 						Fx->SetFloat("DetailDiffuseIntensity", CurMesh.MaterialInfo.DetailDiffuseIntensity);
 						Fx->SetFloat("DetailNormalIntensity", CurMesh.MaterialInfo.DetailNormalIntensity);
+						Fx->SetFloat("CavityCoefficient", CurMesh.MaterialInfo.CavityCoefficient);
 
 						if (Engine::Global::bDebugMode 
 							&& (PickDecoInstancePtr == CurDecoInstance.get()))

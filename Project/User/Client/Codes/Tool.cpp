@@ -37,6 +37,7 @@
 #include "Landscape.h"
 #include <ostream>
 #include <fstream>
+#include "StringHelper.h"
 
 
 void Tool::Initialize(IDirect3DDevice9* const Device)&
@@ -382,24 +383,39 @@ void Tool::Landscape()&
 							{
 								CurMesh.MaterialInfo.PropSave();
 							}
+							ImGui::BulletText("%s", CurMesh.MaterialInfo.Name.c_str());
 							ImGui::SliderFloat((std::to_string(DummyLableID)
 					    + "_Contract").c_str(), &CurMesh.MaterialInfo.Contract,1.f,20.f); 
 							ImGui::ColorEdit4( (std::to_string(DummyLableID)+"_AmbientColor").c_str(), CurMesh.MaterialInfo.AmbientColor);
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_Power").c_str(), &CurMesh.MaterialInfo.Power, 1.f, 100.f);
+							ImGui::SliderFloat((std::to_string(DummyLableID) + "_CavityCoefficient").c_str(), &CurMesh.MaterialInfo.CavityCoefficient, 0.f, 2.2f);
+
+							
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_SpecularIntencity").c_str(), &CurMesh.MaterialInfo.SpecularIntencity, 0.f, 1.f);
 							ImGui::ColorEdit4((std::to_string(DummyLableID) + "_RimAmtColor").c_str(), CurMesh.MaterialInfo.RimAmtColor);
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_RimOuterWidth").c_str(),&CurMesh.MaterialInfo.RimOuterWidth,0.f,1.f);
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_RimInnerWidth").c_str(), &CurMesh.MaterialInfo.RimInnerWidth, 0.f, 1.f);
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_DetailScale").c_str(), &CurMesh.MaterialInfo.DetailScale,1.f,100.f);
-							ImGui::SliderFloat((std::to_string(DummyLableID) + "_DetailDiffuseIntensity").c_str(), &CurMesh.MaterialInfo.DetailDiffuseIntensity,1.f,2.f);
-							ImGui::SliderFloat((std::to_string(DummyLableID) + "_DetailNormalIntensity").c_str(), &CurMesh.MaterialInfo.DetailNormalIntensity,1.f,2.f);
+							ImGui::SliderFloat((std::to_string(DummyLableID) + "_DetailDiffuseIntensity").c_str(), &CurMesh.MaterialInfo.DetailDiffuseIntensity,0.f,2.f);
+							ImGui::SliderFloat((std::to_string(DummyLableID) + "_DetailNormalIntensity").c_str(), &CurMesh.MaterialInfo.DetailNormalIntensity, 0.f,2.f);
 
 							++DummyLableID;
+
+							if (ImGui::CollapsingHeader("Textures"))
+							{
+								for (const auto& [TexNameKey, Texture] : CurMesh.MaterialInfo.TextureMap)
+								{
+									ImGui::BulletText("%s", ToA(TexNameKey).c_str());
+									ImGui::Image(reinterpret_cast<void**>(Texture), { 1024,1024 });
+									ImGui::Separator();
+								}
+							}
 							
 							ImGui::Separator();
 						}
 					}
 				}
+		
 				ImGui::BulletText("StaticMesh : File : %s", KeyA.c_str());
 				ImGui::Separator();
 			}
