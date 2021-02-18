@@ -134,13 +134,25 @@ void Engine::SkeletonMesh::Render()&
 void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 {
 	Super::Update(Owner, DeltaTime);
-	T +=  (DeltaTime * Acceleration);
+	CurrentTransitionTime += (DeltaTime * CurrentTransitionAcceleration);
+
+	std::optional<float> IsTransition = std::nullopt;
+
+	if (CurrentTransitionTime < 1.0)
+	{
+		IsTransition = CurrentTransitionTime;
+	}
+	else
+	{
+		T += (DeltaTime * Acceleration);
+	}
 
 	bool bAnimation = AnimIdx < AiScene->mNumAnimations;
 	aiAnimation* CurAnimation = nullptr;
 	std::unordered_map<std::string, aiNodeAnim*>* CurAnimTable = nullptr;
 	uint32 TimeLineIdx = 0u;
 	float Duration = 0.0f;
+
 	if (bAnimation)
 	{
 		CurAnimation = AiScene->mAnimations[AnimIdx];
@@ -152,8 +164,10 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 
 	static const Matrix Identity = FMath::Identity();
 
+
 	RootBone->BoneMatrixUpdate(Identity,
 		T, CurAnimation, CurAnimTable ,
+		IsTransition,
 		_AnimationTrack->ScaleTimeLine[TimeLineIdx],
 		_AnimationTrack->QuatTimeLine[TimeLineIdx],
 		_AnimationTrack->PosTimeLine[TimeLineIdx]);
@@ -180,13 +194,22 @@ Engine::Bone* Engine::SkeletonMesh::MakeHierarchy(
 void Engine::SkeletonMesh::PlayAnimation(const uint32 AnimIdx ,
 	                                     const double Acceleration ,
 										// 애니메이션 전이 가속 시간 1 = 전이시간 1
-										const double TransitionAcceleration)&
+									     const std::optional<double> TransitionAcceleration)&
 {
-	this->T = 0.0f;
-	this->PrevAnimIdx = this->AnimIdx;
+	this->T = 0.0;
 	this->AnimIdx = AnimIdx;
 	this->Acceleration = Acceleration;
-	this->CurrentTransitionTime = 0.0f;
+
+	if (TransitionAcceleration.has_value())
+	{
+		this->CurrentTransitionAcceleration = TransitionAcceleration.value();
+		this->CurrentTransitionTime = 0.0;
+	}
+	else
+	{
+		static constexpr double NonTransitionTime = 1.0 + 0.1f;
+		this->CurrentTransitionTime = NonTransitionTime;
+	}
 }
 
 

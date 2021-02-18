@@ -63,7 +63,7 @@ inline int8 Engine::Controller::GetMouseState(const MouseKey _MouseKey) const&
 
 inline float Engine::Controller::GetMouseMove(const MouseMove _MouseMove) const&
 {
-	return  static_cast<float>(*(((int32*)&MouseState) + static_cast<uint8>			(_MouseMove)));
+	return  static_cast<float>(*(((int32*)&MouseState) + static_cast<uint8>(_MouseMove)));
 }
 
 inline bool Engine::Controller::InputCheckImplementation(

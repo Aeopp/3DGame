@@ -46,14 +46,16 @@ namespace Engine
 		void  Render() & override;
 		void  Update(Object* const Owner, const float DeltaTime)&;
 		Bone* MakeHierarchy(Bone* BoneParent, const aiNode* const AiNode);
-		void  PlayAnimation(const uint32 AnimIdx, const double Acceleration,const double TransitionAcceleration)&;
+
+		void  PlayAnimation(const uint32 AnimIdx, 
+			const double Acceleration,
+			const std::optional<double> TransitionAcceleration)&;
 	public:
 		static const inline Property          TypeProperty = Property::Render;
 		uint32    AnimIdx{ 0u };
-		uint32    PrevAnimIdx{ 0u };
-		double T{ 0.0f };
-		double CurrentTransitionTime = 0.0f;
-		double CurrentTransitionAcceleration = 1.f; 
+		double T{ 0.0 };
+		double CurrentTransitionTime = 0.0;
+		double CurrentTransitionAcceleration = 1.0; 
 		uint32 NumMaxRefBone{ 0u };
 		uint32 MaxAnimIdx{ 0u };
 	private:

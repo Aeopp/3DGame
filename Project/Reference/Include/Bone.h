@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <string>
 #include <map>
+#include <optional>
 
 namespace Engine
 {
@@ -14,8 +15,10 @@ namespace Engine
 	{
 		std::vector       <std::unordered_map<std::string,
 			std::map<double, Vector3>>>   ScaleTimeLine{};
+
 		std::vector       <std::unordered_map<std::string,
 			std::map<double, Quaternion>>>QuatTimeLine{};
+
 		std::vector       <std::unordered_map<std::string,
 			std::map<double, Vector3>>>   PosTimeLine{};
 	};
@@ -29,6 +32,11 @@ namespace Engine
 		Matrix OriginTransform{ FMath::Identity() };
 		Matrix ToRoot         { FMath::Identity() };
 		Matrix Offset         { FMath::Identity() };
+
+		Vector3 LastAnimScale{ 1,1,1 };
+		Quaternion LastAnimRotation { 0,0,0,1 };
+		Vector3 LastAnimLocation{ 0,0,0 }; 
+
 		std::string Name{};
 
 		void BoneMatrixUpdate(
@@ -36,7 +44,7 @@ namespace Engine
 			const double T,
 			const aiAnimation* const  CurAnimation,
 			const std::unordered_map<std::string, aiNodeAnim*>* TargetAnimTable,
-
+			const std::optional<double>& IsTransitionTime , 
 			const std::unordered_map<std::string,
 			std::map<double, Vector3>>&ScaleTrack,
 			const std::unordered_map<std::string,
