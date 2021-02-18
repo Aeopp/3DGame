@@ -6,7 +6,6 @@
 #include <type_traits>
 #include "TypeAlias.h"
 
-
 namespace DX
 {
 	template<typename D3DInstanceType>

@@ -4,18 +4,22 @@
 
 
 void Engine::Bone::BoneMatrixUpdate(
-	const Matrix ParentToRoot,
+	const Matrix& ParentToRoot,
 	const double T,
-	aiAnimation* CurAnimation,
-	std::unordered_map<std::string,aiNodeAnim*>* TargetAnimTable,
+	const aiAnimation*const  CurAnimation,
+	const std::unordered_map<std::string,aiNodeAnim*>* TargetAnimTable,
 
-	std::unordered_map<std::string,
+	const std::unordered_map<std::string,
 	std::map<double, Vector3>>&ScaleTrack,
-	std::unordered_map<std::string,
+
+	const std::unordered_map<std::string,
 	std::map<double, Quaternion>>&QuatTrack,
-	std::unordered_map<std::string,
+
+	const std::unordered_map<std::string,
 	std::map<double, Vector3>>&PosTrack)&
 {
+	// 여기서 이전 프레임과 다음 프레임을 보간 한다.
+
 	Matrix AnimationTransform = OriginTransform;
 
 	if (CurAnimation)
@@ -23,104 +27,62 @@ void Engine::Bone::BoneMatrixUpdate(
 		if (auto iter = TargetAnimTable->find(Name);
 			iter != std::end(*TargetAnimTable))
 		{
-			    aiNodeAnim* CurAnimation = iter->second;
+			    const aiNodeAnim* const CurAnimation = iter->second;
 				
-			/*	Vector3 ScaleLerp;  
-				if (ScaleTrack[Name].size() > 1u)
-				{
-					auto ScaleLast = ScaleTrack[Name].end();
-					std::advance(ScaleLast, -1);
-					const float ScaleLastT = ScaleLast->first;
-					const float ScaleT = T >= ScaleLastT ? (ScaleLastT - (std::numeric_limits<double>::min)()) : T;
-
-					auto ScaleEnd = ScaleTrack[Name].upper_bound(ScaleT);
-					auto ScaleBegin = ScaleEnd;
-					std::advance(ScaleBegin, -1);
-
-					const double ScaleInterval = (ScaleEnd->first - ScaleBegin->first);
-					ScaleLerp = FMath::Lerp(ScaleBegin->second, ScaleEnd->second,
-						(T - ScaleBegin->first) / ScaleInterval);
-				}
-				else
-				{
-					auto ScaleLast = ScaleTrack[Name].end();
-					std::advance(ScaleLast, -1);
-					ScaleLerp = ScaleLast->second;
-				}
-
-				Quaternion QuatLerp; 
-				if (QuatTrack[Name].size() > 1u)
-				{
-					auto RotationLast = QuatTrack[Name].end();
-					std::advance(RotationLast, -1);
-					const float RotationLastT = RotationLast->first;
-					const float RotationT = T >= RotationLastT ? (RotationLastT - (std::numeric_limits<double>::min)()) : T;
-
-					auto QuatEnd = QuatTrack[Name].upper_bound(RotationT);
-					auto QuatBegin = QuatEnd;
-					std::advance(QuatBegin, -1);
-
-					const double QuatInterval = QuatEnd->first - QuatBegin->first;
-
-					QuatLerp = FMath::SLerp(QuatBegin->second, QuatEnd->second,
-						(T - QuatBegin->first) / QuatInterval);
-				}
-				else
-				{
-					auto RotationLast = QuatTrack[Name].end();
-					std::advance(RotationLast, -1);
-					QuatLerp = RotationLast->second;
-				}
-				Vector3 PosLerp;  
-				if (PosTrack[Name].size() > 1u)
-				{
-					auto PosLast = PosTrack[Name].end();
-					std::advance(PosLast, -1);
-					const float PosLastT = PosLast->first;
-					const float PosT = T >= PosLastT ? (PosLastT - (std::numeric_limits<double>::min)()) : T;
-
-					auto PosEnd = PosTrack[Name].upper_bound(PosT);
-					auto PosBegin = PosEnd;
-					std::advance(PosBegin, -1);
-
-					const double PosInterval = PosEnd->first - PosBegin->first;
-					PosLerp  = FMath::Lerp(PosBegin->second, PosEnd->second,
-						(T - PosBegin->first) / PosInterval);
-				}
-				else
-				{
-					auto PosLast = PosTrack[Name].end();
-					std::advance(PosLast, -1);
-					PosLerp = PosLast->second;
-				}*/
-
-				auto ScaleEnd = ScaleTrack[Name].upper_bound(T);
+				const auto& CurNameScaleTrack = ScaleTrack.find(Name)->second;
+				const auto ScaleEnd = CurNameScaleTrack.upper_bound(T);
 				auto ScaleBegin = ScaleEnd;
 				std::advance(ScaleBegin, -1);
 
-				const double ScaleInterval = ScaleEnd->first - ScaleBegin->first;
-				const Vector3 ScaleLerp = FMath::Lerp(ScaleBegin->second, ScaleEnd->second,
-					(T - ScaleBegin->first) / ScaleInterval);
+				const bool bScaleNextFrame = ScaleEnd != std::end(CurNameScaleTrack);
+				Vector3 ScaleLerp = ScaleBegin->second;
 
-				auto QuatEnd = QuatTrack[Name].upper_bound(T);
+				if (bScaleNextFrame)
+				{
+					const double ScaleInterval = ScaleEnd->first - ScaleBegin->first;
+					
+					ScaleLerp= FMath::Lerp(
+						ScaleBegin->second, 
+						ScaleEnd->second,
+						(T - ScaleBegin->first) / ScaleInterval);
+				}
+				const auto& CurNameQuatTrack = QuatTrack.find(Name)->second;
+
+				const auto QuatEnd = CurNameQuatTrack.upper_bound(T);
 				auto QuatBegin = QuatEnd;
 				std::advance(QuatBegin, -1);
 
-				const double QuatInterval = QuatEnd->first - QuatBegin->first;
-				Quaternion QuatLerp = FMath::SLerp(QuatBegin->second, QuatEnd->second,
-					(T - QuatBegin->first) / QuatInterval);
-				//D3DXQuaternionNormalize(&QuatLerp, &QuatLerp);
+				const bool bQuatNextFrame = QuatEnd != std::end(CurNameQuatTrack);
+				Quaternion  QuatLerp = QuatBegin->second;
 
-				auto PosEnd = PosTrack[Name].upper_bound(T);
+				if (bQuatNextFrame)
+				{
+					const double QuatInterval = QuatEnd->first - QuatBegin->first;
+					
+					QuatLerp = FMath::Lerp(
+						QuatBegin->second,
+						QuatEnd->second, 
+						(T - QuatBegin->first) / QuatInterval);
+					D3DXQuaternionNormalize(&QuatLerp, &QuatLerp);
+				}
+
+				const auto& CurNamePosTrack = PosTrack.find(Name)->second;
+				const auto PosEnd = CurNamePosTrack.upper_bound(T);
 				auto PosBegin = PosEnd;
 				std::advance(PosBegin, -1);
 
-				const double PosInterval = PosEnd->first - PosBegin->first;
-				const Vector3 PosLerp = FMath::Lerp(PosBegin->second, PosEnd->second,
-					(T - PosBegin->first) / PosInterval);
+				const bool bPosNextFrame = PosEnd != std::end(CurNamePosTrack);
+				Vector3 PosLerp = PosBegin->second;
+
+				if (bPosNextFrame)
+				{
+					const double PosInterval = PosEnd->first - PosBegin->first;
+				
+					PosLerp = FMath::Lerp(PosBegin->second,
+						PosEnd->second,	(T - PosBegin->first) / PosInterval);
+				}
 			
-				AnimationTransform=
-			   (FMath::Scale(ScaleLerp)* FMath::Rotation(QuatLerp)* FMath::Translation(PosLerp));
+				AnimationTransform=(FMath::Scale(ScaleLerp)* FMath::Rotation(QuatLerp)* FMath::Translation(PosLerp));
 		}
 	}
 

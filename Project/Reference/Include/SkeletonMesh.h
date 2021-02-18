@@ -51,6 +51,10 @@ namespace Engine
 		static const inline Property          TypeProperty = Property::Render;
 		uint32    AnimIdx{ 0u };
 		double T{ 0.0f };
+
+		bool bAnimationTransition = false;
+		double TransitionT = 0.0f;
+
 		uint32 NumMaxRefBone{ 0u };
 		uint32 MaxAnimIdx{ 0u };
 	private:

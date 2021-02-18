@@ -97,17 +97,20 @@ void Engine::SkeletonMesh::Render()&
 		std::memcpy(VertexBufferPtr, CurrentRenderMesh.VerticiesPtr,
 			CurrentRenderMesh.VtxBufSize);
 
-		for (uint32 i = 0; i < CurrentRenderMesh.VtxCount; ++i)
+		for (uint64 i = 0; i < CurrentRenderMesh.VtxCount; ++i)
 		{
-			Vector3       AnimLocation{ 0,0,0 };
 			// 버텍스의 첫번째 메모리 주소가 반드시 Vector3 이라고 가정하고 있음. 유의해야함.
 			void* CurrentMemory = (VertexBufferPtr + (i * CurrentRenderMesh.Stride));
-			Vector3* CurrentLocationPtr = reinterpret_cast<Vector3*>(CurrentMemory);
-			for (uint32 j = 0; j < CurrentRenderMesh.Finals[i].size(); ++j)
+			const Vector3*const CurrentLocationPtr = reinterpret_cast<const Vector3*const >(CurrentMemory);
+			const uint32 FinalRenderMatrixSize = CurrentRenderMesh.Finals[i].size();
+			const auto& CurMeshFinalRow = CurrentRenderMesh.Finals[i];
+			const auto& CurMeshWeightsRow = CurrentRenderMesh.Weights[i]; 
+			Vector3 AnimLocation{ 0,0,0 };
+			for (uint32 j = 0; j < FinalRenderMatrixSize; ++j)
 			{
 				Vector3 _Location{ 0,0,0 };
-				D3DXVec3TransformCoord(&_Location, CurrentLocationPtr, CurrentRenderMesh.Finals[i][j]);
-				AnimLocation += (_Location *= CurrentRenderMesh.Weights[i][j]);
+				D3DXVec3TransformCoord(&_Location, CurrentLocationPtr, CurMeshFinalRow[j]);
+				AnimLocation += (_Location *= CurMeshWeightsRow[j]);
 			}
 			static constexpr uint32 _float3Size = sizeof(Vector3);
 			std::memcpy(CurrentMemory, &AnimLocation, _float3Size);
@@ -147,8 +150,9 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 		T=std::fmod(T,CurAnimation->mDuration);
 	}
 
+	static const Matrix Identity = FMath::Identity();
 
-	RootBone->BoneMatrixUpdate(FMath::Identity(), 
+	RootBone->BoneMatrixUpdate(Identity,
 		T, CurAnimation, CurAnimTable ,
 		_AnimationTrack->ScaleTimeLine[TimeLineIdx],
 		_AnimationTrack->QuatTimeLine[TimeLineIdx],
@@ -174,11 +178,15 @@ Engine::Bone* Engine::SkeletonMesh::MakeHierarchy(
 }
 
 void Engine::SkeletonMesh::PlayAnimation(const uint32 AnimIdx ,
-	                                     const double Acceleration)&
+	                                     const double Acceleration ,
+										// 애니메이션 전이 가속 시간 1 = 전이시간 1
+										const double TransitionAcceleration)&
 {
 	this->T = 0.0f;
+	this->PrevAnimIdx = this->AnimIdx;
 	this->AnimIdx = AnimIdx;
 	this->Acceleration = Acceleration;
+	this->CurrentTransitionTime = 0.0f;
 }
 
 

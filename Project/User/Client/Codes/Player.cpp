@@ -85,7 +85,7 @@ void Player::PrototypeInitialize(IDirect3DDevice9* const Device,
 
 	_SkeletonMeshProto->Load<Vertex::Skeleton>(Device, 
 		App::ResourcePath/L"Mesh"/L"DynamicMesh"/L"Golem"/L"",
-		L"Golem.fbx", L"Player");
+		L"GolemAnim.fbx", L"Player");
 
 	RefResourceSys().InsertAny<decltype(_SkeletonMeshProto)>(L"Player", _SkeletonMeshProto);
 }
@@ -137,6 +137,13 @@ void Player::Update(const float DeltaTime)&
 	if (Control.IsPressing(DIK_PGDN))
 	{
 		_Transform->Move({ 0,1,0 },  DeltaTime, -Speed);
+	}
+
+	if (ImGui::Button("GOGO!"))
+	{
+		GetComponent<Engine::SkeletonMesh>()->PlayAnimation(1, 100.f);
+
+
 	}
 
 

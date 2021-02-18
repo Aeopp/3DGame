@@ -11,8 +11,6 @@
 #include "MathStruct.h"
 #include <optional>
 
-
-
 class FMath
 {
 public:

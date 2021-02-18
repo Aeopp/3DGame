@@ -32,17 +32,17 @@ namespace Engine
 		std::string Name{};
 
 		void BoneMatrixUpdate(
-			const Matrix ParentToRoot,
+			const Matrix& ParentToRoot,
 			const double T,
-			aiAnimation* CurAnimation,
-			std::unordered_map<std::string, aiNodeAnim*>* TargetAnimTable,
+			const aiAnimation* const  CurAnimation,
+			const std::unordered_map<std::string, aiNodeAnim*>* TargetAnimTable,
 
-			std::unordered_map<std::string,
+			const std::unordered_map<std::string,
 			std::map<double, Vector3>>&ScaleTrack,
-			std::unordered_map<std::string,
+			const std::unordered_map<std::string,
 			std::map<double, Quaternion>>&QuatTrack,
-			std::unordered_map<std::string,
-			std::map<double, Vector3>>&  PosTrack)&;
+			const std::unordered_map<std::string,
+			std::map<double, Vector3>>&PosTrack)&;
 	};
 };
 
