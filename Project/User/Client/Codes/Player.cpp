@@ -51,7 +51,7 @@ void Player::Initialize(
 		_Transform);
 
 	RenderInterface::bCullingOn = false;
-	_SkeletonMesh->PlayAnimation(0u,100.f, std::nullopt);
+	_SkeletonMesh->PlayAnimation(0u,100.f, -1);
 	
 	// 바운딩 스피어
 	{
@@ -139,20 +139,22 @@ void Player::Update(const float DeltaTime)&
 		_Transform->Move({ 0,1,0 },  DeltaTime, -Speed);
 	}
 
-	static float TransitionAcceleration = 1.f;
-	ImGui::SliderFloat("TransitionAcceleration", &TransitionAcceleration, 1.f, 1000.f);
+	static float TransitionDuration = 1.0;
+	static float TransitionAceeleration = 10.0; 
+	ImGui::SliderFloat("TransitionDuration", &TransitionDuration, 0.1, 10.0);
+	ImGui::SliderFloat("TransitionAcceleration", & TransitionAceeleration , 1.0 , 1000.0);
 
 	if (ImGui::Button("Anim 0"))
 	{
-		GetComponent<Engine::SkeletonMesh>()->PlayAnimation(0u, 100.f, TransitionAcceleration);
+		GetComponent<Engine::SkeletonMesh>()->PlayAnimation(0u, TransitionAceeleration, TransitionDuration);
 	}
 	if (ImGui::Button("Anim 1"))
 	{
-		GetComponent<Engine::SkeletonMesh>()->PlayAnimation(1u, 100.f, TransitionAcceleration);
+		GetComponent<Engine::SkeletonMesh>()->PlayAnimation(1u, TransitionAceeleration, TransitionDuration);
 	}
 	if (ImGui::Button("Anim 2"))
 	{
-		GetComponent<Engine::SkeletonMesh>()->PlayAnimation(2u, 100.f, TransitionAcceleration);
+		GetComponent<Engine::SkeletonMesh>()->PlayAnimation(2u, TransitionAceeleration, TransitionDuration);
 	}
 
 

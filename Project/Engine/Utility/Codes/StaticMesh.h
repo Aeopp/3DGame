@@ -3,7 +3,6 @@
 #include "Vertexs.hpp"
 #include <string>
 #include "ExportUtility.hpp"
-
 #include "UtilityGlobal.h"
 #include "ResourceSystem.h"
 #include <vector>

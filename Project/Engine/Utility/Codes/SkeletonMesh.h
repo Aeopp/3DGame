@@ -49,16 +49,22 @@ namespace Engine
 
 		void  PlayAnimation(const uint32 AnimIdx, 
 			const double Acceleration,
-			const std::optional<double> TransitionAcceleration)&;
+			const double TransitionDuration )&;
 	public:
 		static const inline Property          TypeProperty = Property::Render;
-		uint32    AnimIdx{ 0u };
-		double T{ 0.0 };
-		double CurrentTransitionTime = 0.0;
-		double CurrentTransitionAcceleration = 1.0; 
+		uint32 PrevAnimIndex = 0u;
+		uint32 AnimIdx{ 0u };
+		uint32 AnimEndAfterAnimIdx{ 0u };
+
+		double CurrentAnimMotionTime{ 0.0 };
+		double PrevAnimMotionTime{ 0.0 }; 
+		double TransitionRemainTime = -1.0;
+		double TransitionDuration = 0.0;
+
 		uint32 NumMaxRefBone{ 0u };
 		uint32 MaxAnimIdx{ 0u };
 	private:
+		double PrevAnimAcceleration = 1.f;
 		double Acceleration = 1.f;
 		std::vector       <std::unordered_map<std::string, aiNodeAnim*>>  AnimTable{};
 		std::shared_ptr<AnimationTrack>                            _AnimationTrack{};
@@ -248,11 +254,6 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 				}
 			}
 		}
-
-
-
-
-
 		MeshContainer.push_back(CreateMesh);
 	}
 

@@ -33,24 +33,42 @@ namespace Engine
 		Matrix ToRoot         { FMath::Identity() };
 		Matrix Offset         { FMath::Identity() };
 
-		Vector3 LastAnimScale{ 1,1,1 };
-		Quaternion LastAnimRotation { 0,0,0,1 };
-		Vector3 LastAnimLocation{ 0,0,0 }; 
-
 		std::string Name{};
+
+		struct AnimationBlendInfo
+		{
+			const double PrevAnimationWeight = 0.0;
+			const double AnimationTime{ 0.0 };
+
+			const aiAnimation* const  CurAnimation; 
+
+			const std::unordered_map<std::string, aiNodeAnim*>* TargetAnimTable;
+
+			const std::unordered_map<std::string,
+			std::map<double, Vector3>>& ScaleTrack;
+
+			const std::unordered_map<std::string,
+			std::map<double, Quaternion>>&QuatTrack;
+
+			const std::unordered_map<std::string, std::map<double, Vector3>>& PosTrack; 
+		};
 
 		void BoneMatrixUpdate(
 			const Matrix& ParentToRoot,
 			const double T,
 			const aiAnimation* const  CurAnimation,
 			const std::unordered_map<std::string, aiNodeAnim*>* TargetAnimTable,
-			const std::optional<double>& IsTransitionTime , 
+
 			const std::unordered_map<std::string,
 			std::map<double, Vector3>>&ScaleTrack,
+
 			const std::unordered_map<std::string,
 			std::map<double, Quaternion>>&QuatTrack,
+
 			const std::unordered_map<std::string,
-			std::map<double, Vector3>>&PosTrack)&;
+			std::map<double, Vector3>>&PosTrack,
+
+			const std::optional<AnimationBlendInfo>& IsAnimationBlend)&;
 	};
 };
 

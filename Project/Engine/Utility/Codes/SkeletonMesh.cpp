@@ -134,43 +134,71 @@ void Engine::SkeletonMesh::Render()&
 void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 {
 	Super::Update(Owner, DeltaTime);
-	CurrentTransitionTime += (DeltaTime * CurrentTransitionAcceleration);
-
-	std::optional<float> IsTransition = std::nullopt;
-
-	if (CurrentTransitionTime < 1.0)
-	{
-		IsTransition = CurrentTransitionTime;
-	}
-	else
-	{
-		T += (DeltaTime * Acceleration);
-	}
-
-	bool bAnimation = AnimIdx < AiScene->mNumAnimations;
-	aiAnimation* CurAnimation = nullptr;
-	std::unordered_map<std::string, aiNodeAnim*>* CurAnimTable = nullptr;
-	uint32 TimeLineIdx = 0u;
-	float Duration = 0.0f;
-
-	if (bAnimation)
-	{
-		CurAnimation = AiScene->mAnimations[AnimIdx];
-		CurAnimTable = &AnimTable[AnimIdx];
-		TimeLineIdx = AnimIdx;
-		Duration = AiScene->mAnimations[AnimIdx]->mDuration;
-		T=std::fmod(T,CurAnimation->mDuration);
-	}
 
 	static const Matrix Identity = FMath::Identity();
 
+	CurrentAnimMotionTime  += (DeltaTime * Acceleration);
+	PrevAnimMotionTime     += (DeltaTime * PrevAnimAcceleration);
+	TransitionRemainTime   -= DeltaTime;
 
-	RootBone->BoneMatrixUpdate(Identity,
-		T, CurAnimation, CurAnimTable ,
-		IsTransition,
-		_AnimationTrack->ScaleTimeLine[TimeLineIdx],
-		_AnimationTrack->QuatTimeLine[TimeLineIdx],
-		_AnimationTrack->PosTimeLine[TimeLineIdx]);
+	if (TransitionRemainTime > 0.0)
+	{
+		const aiAnimation* const PrevAnimation = AiScene->mAnimations[PrevAnimIndex];
+		std::optional<Bone::AnimationBlendInfo> IsAnimationBlend = std::nullopt;
+
+		if (PrevAnimMotionTime > PrevAnimation->mDuration)
+		{
+			PrevAnimMotionTime = PrevAnimation->mDuration;
+		}
+
+		if (AnimIdx < AiScene->mNumAnimations)
+		{
+			const double PrevAnimationWeight = TransitionRemainTime / TransitionDuration;
+			std::unordered_map<std::string, aiNodeAnim*>* PrevAnimTable = &AnimTable[PrevAnimIndex];
+
+			IsAnimationBlend.emplace(Bone::AnimationBlendInfo
+				{
+					PrevAnimationWeight , PrevAnimMotionTime ,
+					PrevAnimation , PrevAnimTable  ,
+						_AnimationTrack->ScaleTimeLine[PrevAnimIndex] ,
+						_AnimationTrack->QuatTimeLine[PrevAnimIndex],
+						_AnimationTrack->PosTimeLine[PrevAnimIndex]
+				});
+
+			aiAnimation* CurAnimation = AiScene->mAnimations[AnimIdx];
+			std::unordered_map<std::string, aiNodeAnim*>* CurAnimTable = &AnimTable[AnimIdx];
+
+			if (CurrentAnimMotionTime > CurAnimation->mDuration)
+			{
+				CurrentAnimMotionTime = CurAnimation->mDuration;
+			}
+
+			RootBone->BoneMatrixUpdate(Identity,
+				CurrentAnimMotionTime, CurAnimation, CurAnimTable,
+				_AnimationTrack->ScaleTimeLine[AnimIdx],
+				_AnimationTrack->QuatTimeLine[AnimIdx],
+				_AnimationTrack->PosTimeLine[AnimIdx], IsAnimationBlend);
+		}
+	}
+	else
+	{
+		if (AnimIdx < AiScene->mNumAnimations)
+		{
+			aiAnimation*  CurAnimation = AiScene->mAnimations[AnimIdx];
+			std::unordered_map<std::string, aiNodeAnim*>*  CurAnimTable = &AnimTable[AnimIdx];
+
+			if (CurrentAnimMotionTime > CurAnimation->mDuration)
+			{
+				CurrentAnimMotionTime = CurAnimation->mDuration; 
+			}
+
+			RootBone->BoneMatrixUpdate(Identity,
+				CurrentAnimMotionTime, CurAnimation, CurAnimTable,
+				_AnimationTrack->ScaleTimeLine[AnimIdx]    ,
+				_AnimationTrack->QuatTimeLine[AnimIdx]   ,
+				_AnimationTrack->PosTimeLine[AnimIdx]   ,     std::nullopt);
+		}
+	}
 }
 
 Engine::Bone* Engine::SkeletonMesh::MakeHierarchy(
@@ -193,23 +221,16 @@ Engine::Bone* Engine::SkeletonMesh::MakeHierarchy(
 
 void Engine::SkeletonMesh::PlayAnimation(const uint32 AnimIdx ,
 	                                     const double Acceleration ,
-										// 애니메이션 전이 가속 시간 1 = 전이시간 1
-									     const std::optional<double> TransitionAcceleration)&
+										 const double TransitionDuration)&
 {
-	this->T = 0.0;
-	this->AnimIdx = AnimIdx;
-	this->Acceleration = Acceleration;
+	PrevAnimMotionTime = CurrentAnimMotionTime;
+	CurrentAnimMotionTime = 0.0;
+	PrevAnimIndex = this->AnimIdx;
 
-	if (TransitionAcceleration.has_value())
-	{
-		this->CurrentTransitionAcceleration = TransitionAcceleration.value();
-		this->CurrentTransitionTime = 0.0;
-	}
-	else
-	{
-		static constexpr double NonTransitionTime = 1.0 + 0.1f;
-		this->CurrentTransitionTime = NonTransitionTime;
-	}
+	this->AnimIdx = AnimIdx;
+	this->TransitionDuration = TransitionRemainTime = TransitionDuration;
+	this->PrevAnimAcceleration = this->Acceleration;
+	this->Acceleration = Acceleration;
 }
 
 

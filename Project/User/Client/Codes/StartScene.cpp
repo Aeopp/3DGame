@@ -72,12 +72,13 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 
 	// 오브젝트 스폰
 	{
-		RefManager().NewObject<EnemyLayer,TombStone>(L"Static", L"TombStone_1" ,
-			Vector3{ 1.f,1.f,1.f},Vector3{ 0,0,0 }, Vector3{ 0,0,0 });
+	/*	RefManager().NewObject<EnemyLayer,TombStone>(L"Static", L"TombStone_1" ,
+			Vector3{ 1.f,1.f,1.f},Vector3{ 0,0,0 }, Vector3{ 0,0,0 });*/
 		RefManager().NewObject<StaticLayer,Player>(L"Static", L"Player",
 			Vector3{ 0.01f,0.01f,0.01f }, Vector3{ 0,0,0}, Vector3{ 0,0,5 });
-		RefManager().NewObject<StaticLayer, TestTerrain>(L"Static", L"TestTerrain",
-			Vector3{ 1.f,1.f,1.f }, Vector3{ FMath::ToRadian(90.f),0,0 }, Vector3{ 0,0,5 });
+
+		/*RefManager().NewObject<StaticLayer, TestTerrain>(L"Static", L"TestTerrain",
+			Vector3{ 1.f,1.f,1.f }, Vector3{ FMath::ToRadian(90.f),0,0 }, Vector3{ 0,0,5 });*/
 	}
 
 	LogoVtxBuf = ResourceSys.Get<IDirect3DVertexBuffer9>(L"VertexBuffer_Plane");
