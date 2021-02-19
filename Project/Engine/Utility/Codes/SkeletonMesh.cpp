@@ -18,10 +18,14 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 		(ResourceSys->GetAny<std::shared_ptr<Engine::SkeletonMesh>>(ResourceName));
 
 	this->operator=(*ProtoSkeletonMesh);
-
+	BoneTableIdxFromName.clear();
 	BoneTable.clear();
 	// Bone Info 
-	RootBone = &(BoneTable[AiScene->mRootNode->mName.C_Str()] = Bone{});
+	auto _Bone = std::make_shared<Bone>(); 
+	BoneTable.push_back(_Bone);
+	const uint64 CurBoneIdx = BoneTable.size() - 1u; 
+	RootBone = _Bone.get();
+	BoneTableIdxFromName.insert({AiScene->mRootNode->mName.C_Str() , CurBoneIdx });
 	RootBone->Name = AiScene->mRootNode->mName.C_Str();
 	RootBone->OriginTransform = RootBone->Transform = FromAssimp(AiScene->mRootNode->mTransformation);
 	RootBone->Parent = nullptr;
@@ -63,16 +67,26 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 			for (uint32 BoneIdx = 0u; BoneIdx < _AiMesh->mNumBones; ++BoneIdx)
 			{
 				const aiBone* const CurVtxBone = _AiMesh->mBones[BoneIdx];
-				auto iter = BoneTable.find(CurVtxBone->mName.C_Str());
-				if (iter != std::end(BoneTable))
+				
+				if (auto iter = BoneTableIdxFromName.find(CurVtxBone->mName.C_Str());
+					iter != std::end(BoneTableIdxFromName))
 				{
-					for (uint32 WeightIdx = 0u; WeightIdx < CurVtxBone->mNumWeights; ++WeightIdx)
+					const uint64 TargetBoneIdx = iter->second;
+					if (TargetBoneIdx < BoneTable.size())
 					{
-						const aiVertexWeight  _AiVtxWit = CurVtxBone->mWeights[WeightIdx];
-						const uint32 VtxIdx = _AiVtxWit.mVertexId;
-						iter->second.Offset = FromAssimp(CurVtxBone->mOffsetMatrix);
-						MeshContainer[MeshIdx].Finals[VtxIdx].push_back(&(iter->second.Final));
-					    MeshContainer[MeshIdx].Weights[VtxIdx].push_back(_AiVtxWit.mWeight);
+						auto& TargetBone = BoneTable[TargetBoneIdx];
+						
+						for (uint32 WeightIdx = 0u; WeightIdx < CurVtxBone->mNumWeights; ++WeightIdx)
+						{
+								const aiVertexWeight  _AiVtxWit = CurVtxBone->mWeights[WeightIdx];
+								const uint32 VtxIdx = _AiVtxWit.mVertexId;
+								TargetBone->Offset = FromAssimp(CurVtxBone->mOffsetMatrix);
+
+								MeshContainer[MeshIdx].Finals[VtxIdx].push_back(
+									&TargetBone->Final);
+
+								MeshContainer[MeshIdx].Weights[VtxIdx].push_back(_AiVtxWit.mWeight);
+						}
 					}
 				}
 			}
@@ -80,6 +94,8 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 	};
 
 	_ShaderFx.Initialize(L"SkeletonSkinningDefaultFx");
+
+	InitTextureForVertexTextureFetch();
 }
 
 void Engine::SkeletonMesh::Event(Object* Owner)&
@@ -115,13 +131,28 @@ void Engine::SkeletonMesh::Render(const Matrix& World,
 			for (uint32 j = 0; j < FinalRenderMatrixSize; ++j)
 			{
 				Vector3 _Location{ 0,0,0 };
-				D3DXVec3TransformCoord(&_Location, CurrentLocationPtr, CurMeshFinalRow[j]);
+
+				;
+				// D3DXVec3TransformCoord(&_Location, CurrentLocationPtr, CurMeshFinalRow[j]);
+				
+					D3DXVec3TransformCoord(&_Location, CurrentLocationPtr, 
+						&BoneTable[
+							(*reinterpret_cast<Vertex::LocationTangentUV2DSkinning*>(VertexBufferPtr[i])).BoneIds[j]]->Final);
+
 				AnimLocation += (_Location *= CurMeshWeightsRow[j]);
 			}
 			static constexpr uint32 _float3Size = sizeof(Vector3);
 			std::memcpy(CurrentMemory, &AnimLocation, _float3Size);
 		}
 		CurrentRenderMesh.VertexBuffer->Unlock();
+
+		//D3DLOCKED_RECT LockRect{ 0u, };
+		//if (FAILED(BoneAnimMatrixInfo->LockRect(0u, &LockRect, nullptr, 0)))
+		//{
+		//	assert(NULL);
+		//}
+
+		//std::memcpy(LockRect.pBits, );
 	
 	}
 
@@ -245,22 +276,26 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 	}
 }
 
-Engine::Bone* Engine::SkeletonMesh::MakeHierarchy(
+Engine::Bone*
+Engine::SkeletonMesh::MakeHierarchy(
 	Bone* BoneParent,const aiNode* const AiNode)
 {
-	Bone* TargetBone =     &(BoneTable[AiNode->mName.C_Str()] = Bone{});
+	auto TargetBone = std::make_shared<Bone>(); 
+	BoneTable.push_back(TargetBone);
+	const uint64 CurBoneIdx = BoneTable.size() - 1;
+
+	BoneTableIdxFromName.insert({ AiNode->mName.C_Str()  ,CurBoneIdx });
 	TargetBone->Name = AiNode->mName.C_Str();
 	TargetBone->OriginTransform = TargetBone->Transform = FromAssimp(AiNode->mTransformation);
-	TargetBone->Parent = BoneParent;
+	TargetBone->Parent = TargetBone.get(); 
 	TargetBone->ToRoot = TargetBone->OriginTransform * BoneParent->ToRoot;
-	std::cout << TargetBone->Name << std::endl;
 
 	for (uint32 i = 0; i < AiNode->mNumChildren; ++i)
 	{
-		TargetBone->Childrens.push_back(MakeHierarchy(TargetBone, AiNode->mChildren[i]));
+		TargetBone->Childrens.push_back(MakeHierarchy(TargetBone.get(), AiNode->mChildren[i]));
 	}
 
-	return TargetBone;
+	return TargetBone.get();
 }
 
 void Engine::SkeletonMesh::PlayAnimation(const uint32 AnimIdx ,
@@ -275,6 +310,39 @@ void Engine::SkeletonMesh::PlayAnimation(const uint32 AnimIdx ,
 	this->TransitionDuration = TransitionRemainTime = TransitionDuration;
 	this->PrevAnimAcceleration = this->Acceleration;
 	this->Acceleration = Acceleration;
+}
+
+void Engine::SkeletonMesh::InitTextureForVertexTextureFetch()&
+{
+	/// <summary>
+	/// 텍스쳐 채널 4개 채널당 부동소수 1개이니 텍셀당 4차원 벡터를 저장할수 있으며
+	/// 4x4 행렬로 본 매트릭스를 넘기므로 텍셀 4개당 행렬 하나의 정보이다.
+	/// 때문에 단일 서브 메쉬가 참조하는 본의 최대 개수의 상한선 만큼 (혹은 조금 어유를 둘 정도로 2의 배수로 텍스쳐의 사이즈를 맞춰준다.
+	/// </summary>
+	
+	const uint64 ExactTexelLength = 
+		static_cast<uint64>(std::ceill(sqrt(NumMaxRefBone * 16u)));
+
+	uint64 PowerOf2 = 1u;
+	uint64 RealTexelLength = static_cast<uint64> (std::pow(2, PowerOf2));
+	// 2의 승수가 최대 6이므로 지원하는 최대 본은 1024 임을 나타냄.
+	for (PowerOf2 = 1u; PowerOf2 < 7u; ++PowerOf2)
+	{
+		RealTexelLength = static_cast<uint64>(std::pow(2u, PowerOf2)); 
+
+		if (ExactTexelLength <= RealTexelLength)
+			break;;
+	};
+
+	Device->CreateTexture
+	(RealTexelLength, RealTexelLength,1,0, D3DFMT_A32B32G32R32F,D3DPOOL_MANAGED,
+		&BoneAnimMatrixInfo, nullptr);
+
+	static uint64 BoneAnimMatrixInfoTextureResourceID = 0u;
+
+	ResourceSystem::Instance->Insert<IDirect3DTexture9>
+		(
+			L"VTF_" + std::to_wstring(BoneAnimMatrixInfoTextureResourceID++), BoneAnimMatrixInfo);
 }
 
 

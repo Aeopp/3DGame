@@ -169,7 +169,7 @@ PS_OUT PS_MAIN(PS_IN In)
                             normalize(In.Normal));
     
     TBN = transpose(TBN);
-    float3 WorldNormal = normalize(mul(TBN, TangentNormal));
+     float3 WorldNormal = normalize(mul(TBN, TangentNormal));
     
     In.ViewDirection = normalize(In.ViewDirection);
     

@@ -24,6 +24,8 @@ namespace Engine
 	{
 		std::vector<std::vector<float>>     Weights{};
 		std::vector<std::vector<Matrix*>>   Finals{};
+		// 참조하는 본의 개수와 일치. (스키닝 본 테이블의 사이즈)
+		uint64 NumFinalMatrix = 0u;
 		std::any                            Verticies{};
 		void* VerticiesPtr{ nullptr };
 	};
@@ -52,11 +54,14 @@ namespace Engine
 					const Matrix& Projection,
 					const Vector4& CameraLocation4D) & override;
 		void  Update(Object* const Owner, const float DeltaTime)&;
-		Bone* MakeHierarchy(Bone* BoneParent, const aiNode* const AiNode);
+		Engine::Bone*
+			MakeHierarchy(Bone* BoneParent, const aiNode* const AiNode);
 
 		void  PlayAnimation(const uint32 AnimIdx, 
 			const double Acceleration,
 			const double TransitionDuration )&;
+	private:
+		void InitTextureForVertexTextureFetch()&; 
 	public:
 		static const inline Property          TypeProperty = Property::Render;
 		uint32 PrevAnimIndex = 0u;
@@ -77,9 +82,12 @@ namespace Engine
 		double Acceleration = 1.f;
 		std::vector       <std::unordered_map<std::string, aiNodeAnim*>>  AnimTable{};
 		std::shared_ptr<AnimationTrack>                            _AnimationTrack{};
-		std::unordered_map<std::string, Bone>                             BoneTable{};
+		std::unordered_map<std::string,uint64>               BoneTableIdxFromName{};
+		std::vector<std::shared_ptr<Bone>> BoneTable{}; 
 		Bone* RootBone{ nullptr };
 		std::vector       <SkinningMeshElement>                          MeshContainer{};
+		// VTF 기술로 버텍스 쉐이더에서 애니메이션 스키닝을 수행.
+		IDirect3DTexture9* BoneAnimMatrixInfo{nullptr}; 
 	};
 }
 
@@ -115,14 +123,18 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 	auto& ResourceSys = RefResourceSys();
 	MaxAnimIdx = AiScene->mNumAnimations;
 
+	BoneTable.clear();
+	BoneTableIdxFromName.clear();
 	// Bone Info 
-	 RootBone = &(BoneTable[AiScene->mRootNode->mName.C_Str()] = Bone{});
+	auto _Bone = std::make_shared<Bone>();
+	RootBone = _Bone.get();
+	BoneTable.push_back(_Bone);
+	BoneTableIdxFromName.insert({ AiScene->mRootNode->mName.C_Str()  , BoneTable .size()-1u });
 	 RootBone->Name = AiScene->mRootNode->mName.C_Str();
 	 RootBone->OriginTransform = RootBone->Transform = FromAssimp(AiScene->mRootNode->mTransformation);
 	 RootBone->Parent = nullptr;
 	 RootBone->ToRoot = RootBone->OriginTransform;  *FMath::Identity();
-	 std::cout << RootBone->Name.c_str() << std::endl;
-
+	 
 	for (uint32 i = 0; i < AiScene->mRootNode->mNumChildren; ++i)
 	{
 		RootBone->Childrens.push_back(MakeHierarchy(RootBone, AiScene->mRootNode->mChildren[i]));
@@ -153,10 +165,7 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 			D3DPOOL_DEFAULT, &_VertexBuffer, nullptr);
 		CreateMesh.VertexBuffer = ResourceSys.Insert<IDirect3DVertexBuffer9>(MeshVtxBufResourceName, _VertexBuffer);
 		CreateMesh.PrimitiveCount = CreateMesh.FaceCount = _AiMesh->mNumFaces;
-		VertexType* VertexBufferPtr{ nullptr };
-		CreateMesh.VertexBuffer->Lock(0, 0, reinterpret_cast<void**>(&VertexBufferPtr), NULL);
-		std::memcpy(VertexBufferPtr, Verticies->data(), CreateMesh.VtxBufSize);
-		CreateMesh.VertexBuffer->Unlock();
+
 		CreateMesh.VtxCount = Verticies->size();
 		CreateMesh.Stride = sizeof(VertexType);
 		// 인덱스 버퍼.
@@ -197,30 +206,66 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 		// Vtx Bone 정보,
 		if (_AiMesh->HasBones())
 		{
+			uint64 WeightMatrixCount = 0u;
+
 			CreateMesh.Weights.resize(CreateMesh.VtxCount);
 			CreateMesh.Finals.resize(CreateMesh.VtxCount);
 			NumMaxRefBone = (std::max)(_AiMesh->mNumBones , NumMaxRefBone);
-			for (uint32 BoneIdx = 0u; BoneIdx < _AiMesh->mNumBones; ++BoneIdx)
+			CreateMesh.NumFinalMatrix = _AiMesh->mNumBones; 
+			for (uint32 BoneIdx = 0u; BoneIdx < CreateMesh.NumFinalMatrix; ++BoneIdx)
 			{
 				const aiBone* const CurVtxBone = _AiMesh->mBones[BoneIdx];
-				auto iter = BoneTable.find(CurVtxBone->mName.C_Str());
-				if (iter != std::end(BoneTable))
+				auto iter = BoneTableIdxFromName.find(CurVtxBone->mName.C_Str());
+				if (iter != std::end(BoneTableIdxFromName))
 				{
-					for (uint32 WeightIdx = 0u; WeightIdx < CurVtxBone->mNumWeights; ++WeightIdx)
+					const uint64 TargetBoneIdx = iter->second;
+					if (TargetBoneIdx < BoneTable.size())
 					{
-						const aiVertexWeight  _AiVtxWit = CurVtxBone->mWeights[WeightIdx];
-						const uint32 VtxIdx = _AiVtxWit.mVertexId;
-						const float _Wit = _AiVtxWit.mWeight;
-						const Matrix OffsetMatrix = FromAssimp(CurVtxBone->mOffsetMatrix);
-						iter->second.Offset = OffsetMatrix;
-						CreateMesh.Weights[VtxIdx].push_back(_Wit);
-						CreateMesh.Finals[VtxIdx].push_back(&(iter->second.Final));
+						auto& TargetBone = BoneTable[TargetBoneIdx];
+						for (uint32 WeightIdx = 0u; WeightIdx < CurVtxBone->mNumWeights; ++WeightIdx)
+						{
+							const aiVertexWeight  _AiVtxWit = CurVtxBone->mWeights[WeightIdx];
+							const uint32 VtxIdx = _AiVtxWit.mVertexId;
+							const float _Wit = _AiVtxWit.mWeight;
+							const Matrix OffsetMatrix = FromAssimp(CurVtxBone->mOffsetMatrix);
+							TargetBone->Offset = OffsetMatrix;
+							CreateMesh.Weights[VtxIdx].push_back(_Wit);
+							CreateMesh.Finals[VtxIdx].push_back(&TargetBone->Final);
+
+							// 현재 버텍스에서 Vector4 의 float 슬롯중 비어있는 슬롯을 찾아냄.
+							static auto FindVtxCurrentBoneSlot = [](
+								const Vector4& TargetWeights)->uint8
+							{
+								uint8 SlotIdx = 0u;
+								while (((SlotIdx < 4u) || (TargetWeights[SlotIdx] == 0.0f)))
+								{
+									++SlotIdx;
+								}
+								return SlotIdx;
+							};
+
+							const uint8 CurSlot = 
+								FindVtxCurrentBoneSlot((*Verticies)[VtxIdx].Weights);
+
+							(*Verticies)[VtxIdx].Weights[CurSlot] = _Wit;
+							(*Verticies)[VtxIdx].BoneIds[CurSlot] = TargetBoneIdx;
+
+							++WeightMatrixCount;
+						}
 					}
 				}
 			}
 		}
+
+
+		VertexType* VertexBufferPtr{ nullptr };
+		CreateMesh.VertexBuffer->Lock(0, 0, reinterpret_cast<void**>(&VertexBufferPtr), NULL);
+		std::memcpy(VertexBufferPtr, Verticies->data(), CreateMesh.VtxBufSize);
+		CreateMesh.VertexBuffer->Unlock();
+
 		MeshContainer.push_back(CreateMesh);
 	}
+
 
 	const std::wstring VtxTypeNameW = ToW(typeid(VertexType).name());
 	VtxDecl = ResourceSys.Get<IDirect3DVertexDeclaration9>(VtxTypeNameW);

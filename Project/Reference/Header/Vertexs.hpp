@@ -219,6 +219,8 @@ namespace Vertex
 		Vector3 Tangent;
 		Vector3 BiNormal;
 		Vector2 TexCoord;
+		Vector4 BoneIds{0,0,0,0};
+		Vector4 Weights{0,0,0,0};
 		static IDirect3DVertexDeclaration9* const
 			GetVertexDecl(IDirect3DDevice9* const Device)
 		{
@@ -229,6 +231,8 @@ namespace Vertex
 				{ 0, 24, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TANGENT,  0 },
 				{ 0, 36, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BINORMAL,  0 },
 				{ 0, 48, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD,  0 },
+				{ 0, 56, D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD,  1 },
+				{ 0, 72, D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD,  2 },
 				D3DDECL_END()
 			};
 			IDirect3DVertexDeclaration9* VertexDeclaration{ nullptr };
@@ -244,7 +248,9 @@ namespace Vertex
 				FromAssimp(AiMesh->mNormals[CurrentIdx]),
 				FromAssimp(AiMesh->mTangents[CurrentIdx]),
 				FromAssimp(AiMesh->mBitangents[CurrentIdx]),
-				FMath::ToVec2(FromAssimp(AiMesh->mTextureCoords[0u][CurrentIdx]))
+				FMath::ToVec2(FromAssimp(AiMesh->mTextureCoords[0u][CurrentIdx])) ,
+				Vector4 {0,0,0,0},
+				Vector4 {0,0,0,0} 
 			};
 		};
 	};
