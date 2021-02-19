@@ -13,7 +13,8 @@ public:
 	void PrototypeInitialize(IDirect3DDevice9*const Device ,
 							 const Engine::RenderInterface::Group _Group)&;
 	virtual void Event()&override;
-	virtual void Render() & override;
+	virtual void Render(const Matrix& View, const Matrix& Projection,
+		const Vector4& CameraLocation) & override;
 	virtual void Update(const float DeltaTime)&;
 
 	virtual void HitNotify(Object* const Target, const Vector3 PushDir,

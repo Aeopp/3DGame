@@ -24,7 +24,6 @@
 #include "FontManager.h"
 #include "UtilityGlobal.h"
 #include "ShaderManager.h"
-#include "TestTerrain.h"
 
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
 {
@@ -56,8 +55,8 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 
 	// 프로토타입 로딩.
 	{
-		Proto.LoadPrototype<TestTerrain>(L"Static", Device, Engine::RenderInterface::Group::Enviroment);
-		Proto.LoadPrototype<TombStone>(L"Static", Device ,Engine::RenderInterface::Group::NoAlpha);
+		
+	// 	Proto.LoadPrototype<TombStone>(L"Static", Device ,Engine::RenderInterface::Group::NoAlpha);
 		Proto.LoadPrototype<Player>(L"Static", Device,Engine::RenderInterface::Group::NoAlpha);
 	}
 
@@ -72,13 +71,10 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 
 	// 오브젝트 스폰
 	{
-	/*	RefManager().NewObject<EnemyLayer,TombStone>(L"Static", L"TombStone_1" ,
+		/*RefManager().NewObject<EnemyLayer,TombStone>(L"Static", L"TombStone_1" ,
 			Vector3{ 1.f,1.f,1.f},Vector3{ 0,0,0 }, Vector3{ 0,0,0 });*/
-		RefManager().NewObject<StaticLayer,Player>(L"Static", L"Player",
-			Vector3{ 0.01f,0.01f,0.01f }, Vector3{ 0,0,0}, Vector3{ 0,0,5 });
-
-		/*RefManager().NewObject<StaticLayer, TestTerrain>(L"Static", L"TestTerrain",
-			Vector3{ 1.f,1.f,1.f }, Vector3{ FMath::ToRadian(90.f),0,0 }, Vector3{ 0,0,5 });*/
+		RefManager().NewObject<StaticLayer, Player>(L"Static", L"Player",
+			Vector3{ 0.01f,0.01f,0.01f }, Vector3{ 0,0,0 }, Vector3{ 0,0,5 });
 	}
 
 	LogoVtxBuf = ResourceSys.Get<IDirect3DVertexBuffer9>(L"VertexBuffer_Plane");

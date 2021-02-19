@@ -12,7 +12,10 @@ void Engine::Mesh::Event(Object* Owner)&
 	Super::Event(Owner);
 }
 
-void Engine::Mesh::Render()&
+void Engine::Mesh::Render(const Matrix& World,
+	const Matrix& View,
+	const Matrix& Projection,
+	const Vector4& CameraLocation4D)&
 {
 
 }

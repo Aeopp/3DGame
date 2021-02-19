@@ -13,6 +13,9 @@
 #include "FMath.hpp"
 #include <filesystem>
 #include <memory>
+#include "ShaderFx.h"
+#include "StringHelper.h"
+
 
 namespace Engine
 {
@@ -36,9 +39,15 @@ namespace Engine
 			const std::wstring ResourceName)&;
 		void  Initialize(const std::wstring& ResourceName)&;
 		void  Event(class Object* Owner) & override;
-		void  Render() & override;
+		void  Render(const Matrix& World,
+			const Matrix& View,
+			const Matrix& Projection,
+			const Vector4& CameraLocation4D) & override;
 	public:
 		std::vector       <MeshElement>                          MeshContainer{};
+	private:
+		Engine::ShaderFx _ShaderFx{}; 
+		IDirect3DVertexDeclaration9* VtxDecl{ nullptr };
 	};
 	
 }
@@ -94,7 +103,7 @@ inline void Engine::StaticMesh::Load(
 			L"StaticMesh_VertexBuffer_" + CurrentResourceName;
 		IDirect3DVertexBuffer9* _VertexBuffer{ nullptr };
 		CreateMesh.VtxBufSize = sizeof(VertexType) * Verticies->size();
-		Device->CreateVertexBuffer(CreateMesh.VtxBufSize, D3DUSAGE_WRITEONLY, VertexType::FVF,
+		Device->CreateVertexBuffer(CreateMesh.VtxBufSize, D3DUSAGE_WRITEONLY, NULL,
 			D3DPOOL_MANAGED, &_VertexBuffer, nullptr);
 		CreateMesh.VertexBuffer =
 			ResourceSys.Insert<IDirect3DVertexBuffer9>(MeshVtxBufResourceName, _VertexBuffer);
@@ -105,7 +114,6 @@ inline void Engine::StaticMesh::Load(
 		CreateMesh.VertexBuffer->Unlock();
 		CreateMesh.VtxCount = Verticies->size();
 		CreateMesh.Stride = sizeof(VertexType);
-		CreateMesh.FVF = VertexType::FVF;
 		// 인덱스 버퍼.
 		std::vector<uint32> Indicies{};
 		for (uint32 FaceIdx = 0u; FaceIdx < _AiMesh->mNumFaces; ++FaceIdx)
@@ -128,59 +136,24 @@ inline void Engine::StaticMesh::Load(
 		CreateMesh.IndexBuffer->Lock(0, 0, reinterpret_cast<void**>(&IndexBufferPtr), NULL);
 		std::memcpy(IndexBufferPtr, Indicies.data(), IdxBufSize);
 		CreateMesh.IndexBuffer->Unlock();
-		// 머테리얼.
+	
+
+         // 머테리얼 파싱 . 
 		aiMaterial* AiMaterial = AiScene->mMaterials[_AiMesh->mMaterialIndex];
-		if (AiMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0)
-		{
-			aiString AiFileName;
 
-			const aiReturn AiReturn = AiMaterial->
-				GetTexture(aiTextureType_DIFFUSE, 0, &AiFileName, NULL, NULL, NULL, NULL, NULL);
+		const std::wstring
+			MatName = ToW(AiScene->mMaterials[_AiMesh->mMaterialIndex]->GetName().C_Str());
 
-			if (AiReturn == aiReturn::aiReturn_SUCCESS)
-			{
-				const std::filesystem::path TexFileFullPath = FilePath / AiFileName.C_Str();
-				const std::wstring TexResourceName = L"StaticMesh_DiffuseTexture_" + CurrentResourceName;
-
-				ResourceSys.Emplace<IDirect3DTexture9>
-					(TexResourceName,
-						D3DXCreateTextureFromFile, Device, TexFileFullPath.c_str(), &CreateMesh.DiffuseTexture);
-			}
-		}
-		if (AiMaterial->GetTextureCount(aiTextureType::aiTextureType_NORMALS) > 0)
-		{
-			aiString AiFileName;
-
-			const aiReturn AiReturn = AiMaterial->
-				GetTexture(aiTextureType::aiTextureType_NORMALS, 0, &AiFileName, NULL, NULL, NULL, NULL, NULL);
-
-			if (AiReturn == aiReturn::aiReturn_SUCCESS)
-			{
-				const std::filesystem::path TexFileFullPath = FilePath / AiFileName.C_Str();
-				const std::wstring TexResourceName = L"StaticMesh_NormalTexture_" + CurrentResourceName;
-
-				ResourceSys.Emplace<IDirect3DTexture9>
-					(TexResourceName,
-						D3DXCreateTextureFromFile, Device, TexFileFullPath.c_str(), &CreateMesh.NormalTexture);
-			}
-		}
-		if (AiMaterial->GetTextureCount(aiTextureType::aiTextureType_SPECULAR) > 0)
-		{
-			aiString AiFileName;
-
-			const aiReturn AiReturn = AiMaterial->
-				GetTexture(aiTextureType::aiTextureType_SPECULAR, 0, &AiFileName, NULL, NULL, NULL, NULL, NULL);
-
-			if (AiReturn == aiReturn::aiReturn_SUCCESS)
-			{
-				const std::filesystem::path TexFileFullPath = FilePath / AiFileName.C_Str();
-				const std::wstring TexResourceName = L"StaticMesh_SpecularTexture_" + CurrentResourceName;
-
-				ResourceSys.Emplace<IDirect3DTexture9>
-					(TexResourceName,
-						D3DXCreateTextureFromFile, Device, TexFileFullPath.c_str(), &CreateMesh.SpecularTexture);
-			}
-		}
+		CreateMesh.MaterialInfo.Load(Device,
+			FilePath / L"Material", MatName + L".mat", L".tga");
+		/// 
 		MeshContainer.push_back(CreateMesh);
+	}
+
+	const std::wstring VtxTypeNameW = ToW(typeid(VertexType).name());
+	VtxDecl = ResourceSys.Get<IDirect3DVertexDeclaration9>(VtxTypeNameW);
+	if (!VtxDecl)
+	{
+		VtxDecl = ResourceSys.Insert<IDirect3DVertexDeclaration9>(VtxTypeNameW, VertexType::GetVertexDecl(Device));
 	}
 }

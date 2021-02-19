@@ -32,7 +32,8 @@ void Engine::RenderObject::Update(const float DeltaTime)&
 	Super::Update(DeltaTime);
 };
 
-void Engine::RenderObject::Render()&
+void Engine::RenderObject::Render(const Matrix& View, const Matrix& Projection,
+	const Vector4& CameraLocation)&
 {
 	
 };

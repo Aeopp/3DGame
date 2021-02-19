@@ -428,8 +428,12 @@ void Engine::Management::CreateStaticResource()&
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"LandscapeFx.hlsl", L"LandscapeFx");
 
 		Engine::ShaderFx::Load(Device.get(), 
-			Engine::Global::ResourcePath / L"Shader" / L"LandscapeFxNonCavity.hlsl", 
-			L"LandscapeFxNonCavity");
+			Engine::Global::ResourcePath / L"Shader" / L"DefaultFx.hlsl", 
+			L"DefaultFx");
+
+		Engine::ShaderFx::Load(Device.get(),
+			Engine::Global::ResourcePath / L"Shader" / L"SkeletonSkinningDefaultFx.hlsl",
+			L"SkeletonSkinningDefaultFx");
 	}
 }
 void Engine::Management::CreateCollisionDebugResource()&

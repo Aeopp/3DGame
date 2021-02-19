@@ -25,7 +25,8 @@ namespace Engine
 		void SetUpRenderingInformation(const Group _Group);
 		//   렌더링을 원하는 타이밍의 업데이트 루프속에서 호출해주세요.
 		void Regist();
-		virtual void Render()& abstract;
+		virtual void Render(const Matrix& View, const Matrix& Projection,
+							const Vector4& CameraLocation)& abstract;
 		inline const Group GetGroup()const& { return _Group; };
 		Sphere GetCullingSphere() const&; 
 		bool bCullingOn{ true };

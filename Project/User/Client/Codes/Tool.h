@@ -23,9 +23,11 @@ private:
 	enum class Mode : uint8 
 	{
 		NaviMesh=0u,
-		Landscape
+		Landscape,
+		AnimationTool,
 	};
 private:
+	void AnimationTool()&;
 	void NaviMeshTool()&;
 	void Landscape()&;
 

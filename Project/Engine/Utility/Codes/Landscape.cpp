@@ -381,13 +381,12 @@ void Engine::Landscape::Initialize(
 	}
 
 	_ShaderFx.Initialize(L"LandscapeFx");
-	_ShaderFxNonCavity.Initialize(L"LandscapeFxNonCavity");
 }
 
 
 void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 	const Matrix& View, const Matrix& Projection,
-	const Vector3& CameraLocation)&
+	const Vector4& CameraLocation4D)&
 {
 	for (auto& [DecoKey, CurDeco] : DecoratorContainer)
 	{
@@ -411,7 +410,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 	Fx->SetMatrix("Projection", &Projection);
 	Fx->SetVector("LightDirection", &Renderer.LightDirection);
 	Fx->SetVector("LightColor", &Renderer.LightColor);
-	const Vector4 CameraLocation4D = Vector4{ CameraLocation.x,CameraLocation.y,CameraLocation.z ,1.f };
+
 	Fx->SetVector("CameraLocation", &CameraLocation4D);
 	for (uint32 i = 0; i < PassNum; ++i)
 	{

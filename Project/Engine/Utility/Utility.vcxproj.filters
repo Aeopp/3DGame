@@ -202,11 +202,14 @@
     <ClInclude Include="..\..\..\Resource\Shader\NaviMeshFx.hlsl">
       <Filter>Shader\HLSL</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Resource\Shader\LandscapeFxNonCavity.hlsl">
-      <Filter>Shader\HLSL</Filter>
-    </ClInclude>
     <ClInclude Include="Codes\MaterialInformation.h">
       <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Resource\Shader\SkeletonSkinningDefaultFx.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Resource\Shader\DefaultFx.hlsl">
+      <Filter>Shader\HLSL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

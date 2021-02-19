@@ -24,11 +24,15 @@ namespace Engine
 		Vector4 LightColor{ 1,1,1,1 }; 
 	private:
 		void RenderLandscape(Frustum& RefFrustum, const Matrix& View, const Matrix& Projection ,
-			const Vector3& CameraLocation)&;
-		void RenderDebugCollision()&;
-		void RenderNoAlpha()&;
-		void RenderEnviroment()&;
-		void RenderUI()&;
+			                                       const Vector4 & CameraLocation)&;
+		void RenderDebugCollision(const Matrix& View, const Matrix& Projection,
+			const Vector4& CameraLocation)&;
+		void RenderNoAlpha(const Matrix& View, const Matrix& Projection,
+			const Vector4& CameraLocation)&;
+		void RenderEnviroment(const Matrix& View, const Matrix& Projection,
+			const Vector4& CameraLocation)&;
+		void RenderUI(const Matrix& View, const Matrix& Projection,
+			const Vector4& CameraLocation)&;
 	private:
 		Landscape CurrentLandscape{};
 		std::map<RenderInterface::Group, std::vector<std::reference_wrapper<RenderInterface>>>RenderObjects;

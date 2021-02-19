@@ -13,6 +13,9 @@
 #include "ExportUtility.hpp"
 #include <optional>
 #include <set>
+#include "ShaderFx.h"
+#include "StringHelper.h"
+
 
 
 namespace Engine
@@ -21,7 +24,7 @@ namespace Engine
 	{
 		std::vector<std::vector<float>>     Weights{};
 		std::vector<std::vector<Matrix*>>   Finals{};
-		std::any                Verticies{};
+		std::any                            Verticies{};
 		void* VerticiesPtr{ nullptr };
 	};
 
@@ -43,7 +46,11 @@ namespace Engine
 			const std::wstring ResourceName)&;
 		void  Initialize(const std::wstring& ResourceName)&;
 		void  Event(class Object* Owner) & override;
-		void  Render() & override;
+
+		void  Render(const Matrix& World,
+					const Matrix& View,
+					const Matrix& Projection,
+					const Vector4& CameraLocation4D) & override;
 		void  Update(Object* const Owner, const float DeltaTime)&;
 		Bone* MakeHierarchy(Bone* BoneParent, const aiNode* const AiNode);
 
@@ -64,6 +71,8 @@ namespace Engine
 		uint32 NumMaxRefBone{ 0u };
 		uint32 MaxAnimIdx{ 0u };
 	private:
+		IDirect3DVertexDeclaration9* VtxDecl{ nullptr }; 
+		Engine::ShaderFx _ShaderFx{};
 		double PrevAnimAcceleration = 1.f;
 		double Acceleration = 1.f;
 		std::vector       <std::unordered_map<std::string, aiNodeAnim*>>  AnimTable{};
@@ -140,7 +149,7 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 			L"SkeletonMesh_VertexBuffer_" + CurrentResourceName;
 		IDirect3DVertexBuffer9* _VertexBuffer{ nullptr };
 		CreateMesh.VtxBufSize = sizeof(VertexType) * Verticies->size();
-		Device->CreateVertexBuffer(CreateMesh.VtxBufSize, D3DUSAGE_DYNAMIC, VertexType::FVF,
+		Device->CreateVertexBuffer(CreateMesh.VtxBufSize, D3DUSAGE_DYNAMIC, NULL,
 			D3DPOOL_DEFAULT, &_VertexBuffer, nullptr);
 		CreateMesh.VertexBuffer = ResourceSys.Insert<IDirect3DVertexBuffer9>(MeshVtxBufResourceName, _VertexBuffer);
 		CreateMesh.PrimitiveCount = CreateMesh.FaceCount = _AiMesh->mNumFaces;
@@ -150,7 +159,6 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 		CreateMesh.VertexBuffer->Unlock();
 		CreateMesh.VtxCount = Verticies->size();
 		CreateMesh.Stride = sizeof(VertexType);
-		CreateMesh.FVF = VertexType::FVF;
 		// 인덱스 버퍼.
 		std::vector<uint32> Indicies{};
 		for (uint32 FaceIdx = 0u; FaceIdx < _AiMesh->mNumFaces; ++FaceIdx)
@@ -175,59 +183,16 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 		CreateMesh.IndexBuffer->Unlock();
 		CreateMesh.Verticies = Verticies;
 		CreateMesh.VerticiesPtr = Verticies->data();
-		// 머테리얼.
+
+		// 머테리얼 파싱 . 
 		aiMaterial* AiMaterial = AiScene->mMaterials[_AiMesh->mMaterialIndex];
-		if (AiMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0)
-		{
-			aiString AiFileName;
 
-			const aiReturn AiReturn = AiMaterial->
-				GetTexture(aiTextureType_DIFFUSE, 0, &AiFileName, NULL, NULL, NULL, NULL, NULL);
+		const std::wstring
+			MatName = ToW(AiScene->mMaterials[_AiMesh->mMaterialIndex]->GetName().C_Str());
 
-			if (AiReturn == aiReturn::aiReturn_SUCCESS)
-			{
-				const std::filesystem::path TexFileFullPath = FilePath / AiFileName.C_Str();
-				const std::wstring TexResourceName = L"SkeletonMesh_DiffuseTexture_" + CurrentResourceName;
-
-				ResourceSys.Emplace<IDirect3DTexture9>
-					(TexResourceName,
-						D3DXCreateTextureFromFile, Device, TexFileFullPath.c_str(), &CreateMesh.DiffuseTexture);
-			}
-		}
-		if (AiMaterial->GetTextureCount(aiTextureType::aiTextureType_NORMALS) > 0)
-		{
-			aiString AiFileName;
-
-			const aiReturn AiReturn = AiMaterial->
-				GetTexture(aiTextureType::aiTextureType_NORMALS, 0, &AiFileName, NULL, NULL, NULL, NULL, NULL);
-
-			if (AiReturn == aiReturn::aiReturn_SUCCESS)
-			{
-				const std::filesystem::path TexFileFullPath = FilePath / AiFileName.C_Str();
-				const std::wstring TexResourceName = L"SkeletonMesh_NormalTexture_" + CurrentResourceName;
-
-				ResourceSys.Emplace<IDirect3DTexture9>
-					(TexResourceName,
-						D3DXCreateTextureFromFile, Device, TexFileFullPath.c_str(), &CreateMesh.NormalTexture);
-			}
-		}
-		if (AiMaterial->GetTextureCount(aiTextureType::aiTextureType_SPECULAR) > 0)
-		{
-			aiString AiFileName;
-
-			const aiReturn AiReturn = AiMaterial->
-				GetTexture(aiTextureType::aiTextureType_SPECULAR, 0, &AiFileName, NULL, NULL, NULL, NULL, NULL);
-
-			if (AiReturn == aiReturn::aiReturn_SUCCESS)
-			{
-				const std::filesystem::path TexFileFullPath = FilePath / AiFileName.C_Str();
-				const std::wstring TexResourceName = L"SkeletonMesh_SpecularTexture_" + CurrentResourceName;
-
-				ResourceSys.Emplace<IDirect3DTexture9>
-					(TexResourceName,
-						D3DXCreateTextureFromFile, Device, TexFileFullPath.c_str(), &CreateMesh.SpecularTexture);
-			}
-		}
+		CreateMesh.MaterialInfo.Load(Device,
+			FilePath / L"Material",MatName+L".mat",L".tga");
+		///// 
 
 		// Vtx Bone 정보,
 		if (_AiMesh->HasBones())
@@ -257,6 +222,14 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 		MeshContainer.push_back(CreateMesh);
 	}
 
+	const std::wstring VtxTypeNameW = ToW(typeid(VertexType).name());
+	VtxDecl = ResourceSys.Get<IDirect3DVertexDeclaration9>(VtxTypeNameW);
+	if (!VtxDecl)
+	{
+		VtxDecl= ResourceSys.Insert<IDirect3DVertexDeclaration9>(VtxTypeNameW, VertexType::GetVertexDecl(Device));
+	}
+	
+	
 	// 애니메이션 데이터 파싱.
 	if (AiScene->HasAnimations())
 	{

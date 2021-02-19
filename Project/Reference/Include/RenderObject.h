@@ -16,7 +16,8 @@ namespace Engine
 							const RenderInterface::Group _Group )&;
 	public:
 		virtual void Event()&;
-		virtual void Render()& abstract;
+		virtual void Render(const Matrix& View, const Matrix& Projection,
+			const Vector4& CameraLocation)& abstract;
 		virtual void LateUpdate(const float DeltaTime) & override;
 		virtual void Update(const float DeltaTime) & override;
 	protected:

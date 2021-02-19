@@ -5,6 +5,7 @@
 #include <set>
 #include <optional>
 #include "imgui.h"
+#include "Renderer.h"
 
 
 void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
@@ -37,7 +38,7 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 		MeshContainer[MeshIdx].VertexBuffer = nullptr;
 
 		Device->CreateVertexBuffer(MeshContainer[MeshIdx].VtxBufSize,
-			D3DUSAGE_DYNAMIC, MeshContainer[MeshIdx].FVF,D3DPOOL_DEFAULT,
+			D3DUSAGE_DYNAMIC, NULL,D3DPOOL_DEFAULT,
 			&MeshContainer[MeshIdx].VertexBuffer, nullptr);
 
 		static uint32 VertexBufferCloneID = 0u;
@@ -77,6 +78,8 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 			}
 		}
 	};
+
+	_ShaderFx.Initialize(L"SkeletonSkinningDefaultFx");
 }
 
 void Engine::SkeletonMesh::Event(Object* Owner)&
@@ -84,9 +87,12 @@ void Engine::SkeletonMesh::Event(Object* Owner)&
 	Super::Event(Owner);
 }
 
-void Engine::SkeletonMesh::Render()&
+void Engine::SkeletonMesh::Render(const Matrix& World,
+	const Matrix& View,
+	const Matrix& Projection,
+	const Vector4& CameraLocation4D)&
 {
-	Super::Render();
+	Super::Render(World ,View ,Projection, CameraLocation4D );
 
 	for (auto& CurrentRenderMesh : MeshContainer)
 	{
@@ -121,13 +127,51 @@ void Engine::SkeletonMesh::Render()&
 
 	for (auto& CurrentRenderMesh : MeshContainer)
 	{
-		Device->SetFVF(CurrentRenderMesh.FVF);
-		Device->SetTexture(0, CurrentRenderMesh.DiffuseTexture);
-		Device->SetStreamSource(0, CurrentRenderMesh.VertexBuffer, 0, CurrentRenderMesh.Stride);
-		Device->SetIndices(CurrentRenderMesh.IndexBuffer);
+		auto& Renderer = *Engine::Renderer::Instance;
+		auto Fx = _ShaderFx.GetHandle();
+		uint32 PassNum = 0u;
+		Fx->Begin(&PassNum, 0);
+		Fx->SetMatrix("World", &World);
+		Fx->SetMatrix("View", &View);
+		Fx->SetMatrix("Projection", &Projection);
+		Fx->SetVector("LightDirection", &Renderer.LightDirection);
+		Fx->SetVector("LightColor", &Renderer.LightColor);
+		Fx->SetVector("CameraLocation", &CameraLocation4D);
+		for (uint32 i = 0; i < PassNum; ++i)
+		{
+			Fx->BeginPass(i);
+			
+			for (auto& CurMesh : MeshContainer)
+			{
+				Fx->SetVector("RimAmtColor", &CurMesh.MaterialInfo.RimAmtColor);
+				Fx->SetFloat("RimOuterWidth", CurMesh.MaterialInfo.RimOuterWidth);
+				Fx->SetFloat("RimInnerWidth", CurMesh.MaterialInfo.RimInnerWidth);
+				Fx->SetVector("AmbientColor", &CurMesh.MaterialInfo.AmbientColor);
+				Fx->SetFloat("Power", CurMesh.MaterialInfo.Power);
+				Fx->SetFloat("SpecularIntencity", CurMesh.MaterialInfo.SpecularIntencity);
+				Fx->SetFloat("Contract", CurMesh.MaterialInfo.Contract);
+				Fx->SetFloat("DetailDiffuseIntensity", CurMesh.MaterialInfo.DetailDiffuseIntensity);
+				Fx->SetFloat("DetailNormalIntensity", CurMesh.MaterialInfo.DetailNormalIntensity);
+				Fx->SetFloat("CavityCoefficient", CurMesh.MaterialInfo.CavityCoefficient);
 
-		Device->DrawIndexedPrimitive(
-			D3DPT_TRIANGLELIST, 0u, 0u, CurrentRenderMesh.VtxCount, 0u, CurrentRenderMesh.PrimitiveCount);
+				Fx->SetFloat("DetailScale", CurMesh.MaterialInfo.DetailScale);
+				Device->SetVertexDeclaration(VtxDecl);
+				Device->SetStreamSource(0, CurMesh.VertexBuffer, 0, CurMesh.Stride);
+				Device->SetIndices(CurMesh.IndexBuffer);
+
+				Fx->SetTexture("DiffuseMap", CurMesh.MaterialInfo.GetTexture(L"Diffuse"));
+				Fx->SetTexture("NormalMap", CurMesh.MaterialInfo.GetTexture(L"Normal"));
+				Fx->SetTexture("CavityMap", CurMesh.MaterialInfo.GetTexture(L"Cavity"));
+				Fx->SetTexture("EmissiveMap", CurMesh.MaterialInfo.GetTexture(L"Emissive"));
+				Fx->SetTexture("DetailDiffuseMap", CurMesh.MaterialInfo.GetTexture(L"DetailDiffuse"));
+				Fx->SetTexture("DetailNormalMap", CurMesh.MaterialInfo.GetTexture(L"DetailNormal"));
+
+				Fx->CommitChanges();
+				Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,0u, CurMesh.PrimitiveCount);
+			}
+			Fx->EndPass();
+		}
+		Fx->End();
 	}
 }
 

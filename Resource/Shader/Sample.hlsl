@@ -77,15 +77,6 @@ PS_OUT PS_MAIN(PS_IN In)
 	
 	In.Location.xyzw = (In.Location.xyzw / In.Location.w);
 	
-	if(In.Location.x <0.f)
-	{
-		Out.Color.r *= 2.f;
-	}
-	else
-	{
-		Out.Color.g *= 2.f;
-	}
-	
 	return Out;
 }
 

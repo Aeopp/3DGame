@@ -51,7 +51,7 @@ namespace Engine
 		)&;
 
 		void Render(Engine::Frustum& RefFrustum,
-			const Matrix& View, const Matrix& Projection ,const Vector3& CameraLocation)&;
+			const Matrix& View, const Matrix& Projection ,const Vector4& CameraLocation)&;
 		inline const std::vector<PlaneInfo>& GetMapWorldCoordPlanes()const&;
 
 		void DecoratorLoad(const std::filesystem::path& LoadPath,
@@ -78,7 +78,6 @@ namespace Engine
 		std::string DecoratorSaveInfo{}; 
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr };
 		Engine::ShaderFx _ShaderFx{};
-		Engine::ShaderFx _ShaderFxNonCavity{};
 		Vector3 Scale{1,1,1};
 		Vector3 Rotation{0,0,0};
 		Vector3 Location{0,0,0}; 

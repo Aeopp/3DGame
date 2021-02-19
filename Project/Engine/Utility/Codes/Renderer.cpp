@@ -16,17 +16,17 @@ void Engine::Renderer::Render()&
 	Device->GetTransform(D3DTS_VIEW, &View);
 	Device->GetTransform(D3DTS_PROJECTION, &Projection);
 	CameraWorld = FMath::Inverse(View);
-	const Vector3 CameraLocation = { CameraWorld._41,CameraWorld._42,CameraWorld._43 };
+	const Vector4  CameraLocation = { CameraWorld._41,CameraWorld._42,CameraWorld._43 ,1.f };
 	_Frustum.Make(CameraWorld, Projection);
 	RenderLandscape(_Frustum, View  , Projection , CameraLocation);
-	RenderEnviroment();
-	RenderNoAlpha();
+	RenderEnviroment(View, Projection, CameraLocation);
+	RenderNoAlpha(View,Projection,CameraLocation  );
 	if (Engine::Global::bDebugMode)
 	{
-		RenderDebugCollision();
+		RenderDebugCollision(View, Projection, CameraLocation);
 	}
 	_Frustum.Render(Device.get());
-	RenderUI();
+	RenderUI(View, Projection, CameraLocation);
 	RenderObjects.clear();
 };
 
@@ -43,17 +43,18 @@ Engine::Landscape& Engine::Renderer::RefLandscape()&
 void Engine::Renderer::RenderLandscape(
 	Frustum& RefFrustum,
 	const Matrix& View,const Matrix& Projection ,
-	const Vector3& CameraLocation)&
+	const Vector4& CameraLocation4D)&
 {
 	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 	Device->SetRenderState(D3DRS_ZENABLE, TRUE);
 	Device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
 	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
-	CurrentLandscape.Render(RefFrustum , View, Projection , CameraLocation);
+	CurrentLandscape.Render(RefFrustum , View, Projection , CameraLocation4D);
 }
 
-void Engine::Renderer::RenderDebugCollision()&
+void Engine::Renderer::RenderDebugCollision(const Matrix& View, const Matrix& Projection,
+	const Vector4& CameraLocation)&
 {
 	if (Engine::Global::bDebugMode)
 	{
@@ -97,12 +98,12 @@ void Engine::Renderer::RenderDebugCollision()&
 				{
 					if (_Frustum.IsIn(_RefRender.GetCullingSphere()))
 					{
-						_RefRender.Render();
+						_RefRender.Render(View,Projection,CameraLocation);
 					}
 				}
 				else
 				{
-					_RefRender.Render();
+					_RefRender.Render(View, Projection, CameraLocation);
 				}
 			}
 		}
@@ -110,7 +111,8 @@ void Engine::Renderer::RenderDebugCollision()&
 	}
 }
 
-void Engine::Renderer::RenderNoAlpha()&
+void Engine::Renderer::RenderNoAlpha(const Matrix& View, const Matrix& Projection,
+	const Vector4& CameraLocation)&
 {
 	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	Device->SetRenderState(D3DRS_ZENABLE, TRUE);
@@ -153,19 +155,20 @@ void Engine::Renderer::RenderNoAlpha()&
 			{
 				if (_Frustum.IsIn(_RefRender.GetCullingSphere()))
 				{
-					_RefRender.Render();
+					_RefRender.Render(View, Projection, CameraLocation);
 				}
 			}
 			else
 			{
-				_RefRender.Render();
+				_RefRender.Render(View, Projection, CameraLocation);
 			}
 		}
 	}
 #endif
 }
 
-void Engine::Renderer::RenderEnviroment()&
+void Engine::Renderer::RenderEnviroment(const Matrix& View, const Matrix& Projection,
+										const Vector4& CameraLocation                   )&
 {
 	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	Device->SetRenderState(D3DRS_ZENABLE, TRUE);
@@ -208,19 +211,20 @@ void Engine::Renderer::RenderEnviroment()&
 			{
 				if (_Frustum.IsIn(_RefRender.GetCullingSphere()))
 				{
-					_RefRender.Render();
+					_RefRender.Render(View, Projection, CameraLocation);
 				}
 			}
 			else
 			{
-				_RefRender.Render();
+				_RefRender.Render(View, Projection, CameraLocation);
 			}
 		}
 	}
 #endif
 }
 
-void Engine::Renderer::RenderUI()&
+void Engine::Renderer::RenderUI(const Matrix& View, const Matrix& Projection,
+	const Vector4& CameraLocation)&
 {
 	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 	Device->SetRenderState(D3DRS_ZENABLE, FALSE);
@@ -255,7 +259,7 @@ void Engine::Renderer::RenderUI()&
 		for (auto& _RenderEntity : iter->second)
 		{
 			RenderInterface& _RefRender = _RenderEntity.get();
-			_RefRender.Render();
+			_RefRender.Render(View, Projection, CameraLocation);
 		}
 	}
 #endif

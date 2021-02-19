@@ -82,17 +82,10 @@
     <ClInclude Include="Codes\EnterGame.h">
       <Filter>Scene\Enter</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\Logo.h">
-      <Filter>Object\Logo</Filter>
-    </ClInclude>
     <ClInclude Include="Codes\Player.h">
       <Filter>Object\Player</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Resource\Shader\Sample.hlsl">
-      <Filter>HLSL</Filter>
-    </ClInclude>
-    <ClInclude Include="Codes\TestTerrain.h" />
-    <ClInclude Include="..\..\..\Resource\Shader\TestTerrain.hlsl">
       <Filter>HLSL</Filter>
     </ClInclude>
   </ItemGroup>
@@ -124,13 +117,9 @@
     <ClCompile Include="Codes\EnterGame.cpp">
       <Filter>Scene\Enter</Filter>
     </ClCompile>
-    <ClCompile Include="Codes\Logo.cpp">
-      <Filter>Object\Logo</Filter>
-    </ClCompile>
     <ClCompile Include="Codes\Player.cpp">
       <Filter>Object\Player</Filter>
     </ClCompile>
-    <ClCompile Include="Codes\TestTerrain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Client.rc">

@@ -1,0 +1,10 @@
+Diffuse=
+Normal=
+Cavity=
+Emissive=
+DetailDiffuse=
+DetailNormal=
+
+nomal_non
+NonWhite
+base_gray_d

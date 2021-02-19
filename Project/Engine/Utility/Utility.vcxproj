@@ -276,8 +276,9 @@
     <ClInclude Include="..\..\..\Resource\Shader\LandscapeFx.hlsl">
       <FileType>Document</FileType>
     </ClInclude>
-    <ClInclude Include="..\..\..\Resource\Shader\LandscapeFxNonCavity.hlsl">
+    <ClInclude Include="..\..\..\Resource\Shader\DefaultFx.hlsl">
       <FileType>Document</FileType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">3.0</ShaderModel>
     </ClInclude>
     <FxCompile Include="..\..\..\Resource\Shader\LandscapePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -300,6 +301,10 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">3.0</ShaderModel>
     </FxCompile>
+    <ClInclude Include="..\..\..\Resource\Shader\SkeletonSkinningDefaultFx.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">3.0</ShaderModel>
+      <FileType>Document</FileType>
+    </ClInclude>
     <FxCompile Include="..\..\..\Resource\Shader\SkeletonVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">3.0</ShaderModel>

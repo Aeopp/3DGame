@@ -82,7 +82,7 @@ void TombStone::PrototypeInitialize(IDirect3DDevice9* const Device,
 
 	auto _StaticMeshProto = std::make_shared<Engine::StaticMesh>();
 
-	_StaticMeshProto->Load<Vertex::LocationNormal>(Device,
+	_StaticMeshProto->Load<Vertex::LocationTangentUV2D>(Device,
 		App::ResourcePath / L"Mesh" / L"StaticMesh" / L"SnowTerrain" / L"",
 		L"SnowTerrain.dae", L"Floor");
 
@@ -94,26 +94,13 @@ void TombStone::Event()&
 	Super::Event();
 }
 
-void TombStone::Render()&
+void TombStone::Render(const Matrix& View, const Matrix& Projection,
+	const Vector4& CameraLocation)&
 {
-	Super::Render();
+	Super::Render( View ,Projection ,CameraLocation);
 	const Matrix& World = GetComponent<Engine::Transform>()->UpdateWorld();
-	Device->SetTransform(D3DTS_WORLD, &World);
 	auto _StaticMesh = GetComponent<Engine::StaticMesh>();
-	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-
-	for (auto& CurrentRenderMesh : _StaticMesh->MeshContainer)
-	{
-		Device->SetFVF(CurrentRenderMesh.FVF);
-		Device->SetTexture(0, CurrentRenderMesh.DiffuseTexture);
-		Device->SetStreamSource(0, CurrentRenderMesh.VertexBuffer, 0, CurrentRenderMesh.Stride);
-		Device->SetIndices(CurrentRenderMesh.IndexBuffer);
-
-		Device->DrawIndexedPrimitive(
-			D3DPT_TRIANGLELIST, 0u, 0u, CurrentRenderMesh.VtxCount, 0u, CurrentRenderMesh.PrimitiveCount);
-	}
-
-	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	_StaticMesh->Render(World , View ,Projection ,CameraLocation);
 }
 
 void TombStone::Update(const float DeltaTime)&

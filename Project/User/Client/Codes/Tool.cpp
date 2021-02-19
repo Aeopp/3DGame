@@ -81,42 +81,50 @@ void Tool::Initialize(IDirect3DDevice9* const Device)&
 		RefLandscape.Initialize(Device, MapScale, MapRotation,MapLocation, App::ResourcePath /
 			L"Mesh" / L"StaticMesh" / L"Landscape", L"Mountain.fbx");
 		
-		const std::filesystem::path DecoratorPath
-		{ Engine::Global::ResourcePath / L"Mesh" / L"StaticMesh" / L"Decorator" / L""};
-
-		for (auto& TargetFileCurPath : std::filesystem::directory_iterator{ DecoratorPath })
+		std::vector<std::filesystem::path>DecoratorPaths
 		{
-			const auto& FileName = TargetFileCurPath.path().filename();
-			
-			if (FileName.has_extension())
+			{ Engine::Global::ResourcePath / L"Mesh" / L"StaticMesh" / L"Decorator" / L""} ,
+			{ Engine::Global::ResourcePath / L"Mesh" / L"StaticMesh" / L""},
+			{ Engine::Global::ResourcePath / L"Mesh" / L"DynamicMesh" /  L""}
+		};
+
+		for (const auto& CurPath : DecoratorPaths)
+		{
+			for (auto& TargetFileCurPath : std::filesystem::directory_iterator{ CurPath })
 			{
-				RefLandscape.DecoratorLoad(DecoratorPath, FileName);
-				
-				const auto PicturePath = (DecoratorPath / L"Converted"/FileName.stem()).wstring()+ L".png";
-				DecoratorOption LoadDecoOpt;
+				const auto& FileName = TargetFileCurPath.path().filename();
 
-				LoadDecoOpt.Picture = ResourceSys.Get<IDirect3DTexture9>(PicturePath);
-
-				if (LoadDecoOpt.Picture)
+				if (FileName.has_extension())
 				{
-					LoadDecoOpt.Width = ResourceSys.GetAny<float>(PicturePath + L"Width");
-					LoadDecoOpt.Height = ResourceSys.GetAny<float>(PicturePath + L"Height");
-				}
-				else 
-				{
-					D3DXCreateTextureFromFile(Device, PicturePath.c_str(), &LoadDecoOpt.Picture);
-					ResourceSys.Insert<IDirect3DTexture9>(PicturePath , LoadDecoOpt.Picture);
-					D3DSURFACE_DESC ImageDesc;
-					LoadDecoOpt.Picture->GetLevelDesc(0, &ImageDesc);
-					LoadDecoOpt.Width = static_cast<float> (ImageDesc.Width); 
-					LoadDecoOpt.Height = static_cast<float> (ImageDesc.Height);
-					ResourceSys.InsertAny<float>(PicturePath + L"Width" , LoadDecoOpt.Width );
-					ResourceSys.InsertAny<float>(PicturePath + L"Height" , LoadDecoOpt.Height);
-				}
+					RefLandscape.DecoratorLoad(CurPath, FileName);
 
-				DecoratorOpts.insert({ FileName  ,LoadDecoOpt } );
+					const auto PicturePath = (CurPath / L"Converted" / FileName.stem()).wstring() + L".png";
+					DecoratorOption LoadDecoOpt;
+
+					LoadDecoOpt.Picture = ResourceSys.Get<IDirect3DTexture9>(PicturePath);
+
+					if (LoadDecoOpt.Picture)
+					{
+						LoadDecoOpt.Width = ResourceSys.GetAny<float>(PicturePath + L"Width");
+						LoadDecoOpt.Height = ResourceSys.GetAny<float>(PicturePath + L"Height");
+					}
+					else
+					{
+						D3DXCreateTextureFromFile(Device, PicturePath.c_str(), &LoadDecoOpt.Picture);
+						ResourceSys.Insert<IDirect3DTexture9>(PicturePath, LoadDecoOpt.Picture);
+						D3DSURFACE_DESC ImageDesc;
+						LoadDecoOpt.Picture->GetLevelDesc(0, &ImageDesc);
+						LoadDecoOpt.Width = static_cast<float> (ImageDesc.Width);
+						LoadDecoOpt.Height = static_cast<float> (ImageDesc.Height);
+						ResourceSys.InsertAny<float>(PicturePath + L"Width", LoadDecoOpt.Width);
+						ResourceSys.InsertAny<float>(PicturePath + L"Height", LoadDecoOpt.Height);
+					}
+
+					DecoratorOpts.insert({ FileName  ,LoadDecoOpt });
+				}
 			}
 		}
+		
 	}
 
 	D3DXCreateLine(Device, &LinearSpace);
@@ -138,9 +146,12 @@ void Tool::Event() &
 		if (ImGui::Button("Landscape", ImVec2{ 70,35}))
 		{
 			CurrentMode = Mode::Landscape;
+		}ImGui::SameLine();
+		if (ImGui::Button("Material Tool", ImVec2{ 70,35 }))
+		{
+			CurrentMode = Mode::AnimationTool;
 		}
 	}
-	
 
 	switch (CurrentMode)
 	{
@@ -149,6 +160,9 @@ void Tool::Event() &
 		break;
 	case Tool::Mode::Landscape:
 		Landscape();
+		break;
+	case Tool::Mode::AnimationTool:
+		AnimationTool(); 
 		break;
 	default:
 		break;
@@ -180,6 +194,10 @@ void Tool::Render()&
 	LinearSpace->DrawTransform(ZAxis.data(), ZAxis.size(), &ViewProjection,
 		D3DCOLOR_ARGB(100, 0, 0, 255));
 	LinearSpace->End();
+}
+
+void Tool::AnimationTool()&
+{
 }
 
 void Tool::NaviMeshTool()&
@@ -350,7 +368,8 @@ void Tool::Landscape()&
 				std::string KeyA;
 				KeyA.assign(std::begin(DecoKey), std::end(DecoKey));
 
-				if (ImGui::ImageButton(reinterpret_cast<void**>(DecoOpt.Picture), ImVec2{ 100,100 }))
+				if (ImGui::ImageButton(reinterpret_cast<void**>
+					(DecoOpt.Picture), ImVec2{ 1024,1024 }))
 				{
 					switch (SpawnTransformComboSelectItem)
 					{

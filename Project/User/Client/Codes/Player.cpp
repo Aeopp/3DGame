@@ -83,8 +83,8 @@ void Player::PrototypeInitialize(IDirect3DDevice9* const Device,
 
 	auto _SkeletonMeshProto = std::make_shared<Engine::SkeletonMesh>();
 
-	_SkeletonMeshProto->Load<Vertex::Skeleton>(Device, 
-		App::ResourcePath/L"Mesh"/L"DynamicMesh"/L"Golem"/L"",
+	_SkeletonMeshProto->Load<Vertex::LocationTangentUV2DSkinning>(Device,
+		App::ResourcePath/L"Mesh"/L"DynamicMesh"/L"",
 		L"GolemAnim.fbx", L"Player");
 
 	RefResourceSys().InsertAny<decltype(_SkeletonMeshProto)>(L"Player", _SkeletonMeshProto);
@@ -97,13 +97,14 @@ void Player::Event()&
 	auto _SkeletonMeshComponent = GetComponent<Engine::SkeletonMesh>();
 }
 
-void Player::Render()&
+void Player::Render(const Matrix& View,
+					const Matrix& Projection,
+					const Vector4& CameraLocation)&
 {
-	Super::Render();
+	Super::Render(View ,Projection ,CameraLocation);
 	auto _SkeletonMeshComponent = GetComponent<Engine::SkeletonMesh>();
 	const Matrix& World = GetComponent<Engine::Transform>()->UpdateWorld();
-	Device->SetTransform(D3DTS_WORLD, &World);
-	_SkeletonMeshComponent->Render();
+	_SkeletonMeshComponent->Render(World ,View ,Projection, CameraLocation);
 }
 
 void Player::Update(const float DeltaTime)&

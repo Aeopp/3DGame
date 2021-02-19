@@ -203,11 +203,9 @@
     <ClInclude Include="Codes\App.h" />
     <ClInclude Include="Codes\EnemyLayer.h" />
     <ClInclude Include="Codes\EnterGame.h" />
-    <ClInclude Include="Codes\Logo.h" />
     <ClInclude Include="Codes\Player.h" />
     <ClInclude Include="Codes\StartScene.h" />
     <ClInclude Include="Codes\StaticLayer.h" />
-    <ClInclude Include="Codes\TestTerrain.h" />
     <ClInclude Include="Codes\TombStone.h" />
     <ClInclude Include="Codes\Tool.h" />
     <ClInclude Include="framework.h" />
@@ -220,11 +218,9 @@
     <ClCompile Include="Codes\App.cpp" />
     <ClCompile Include="Codes\EnemyLayer.cpp" />
     <ClCompile Include="Codes\EnterGame.cpp" />
-    <ClCompile Include="Codes\Logo.cpp" />
     <ClCompile Include="Codes\Player.cpp" />
     <ClCompile Include="Codes\StartScene.cpp" />
     <ClCompile Include="Codes\StaticLayer.cpp" />
-    <ClCompile Include="Codes\TestTerrain.cpp" />
     <ClCompile Include="Codes\TombStone.cpp" />
     <ClCompile Include="Codes\Tool.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -249,11 +245,6 @@
     <ProjectReference Include="..\..\Engine\Utility\Utility.vcxproj">
       <Project>{ae7afafc-8a2e-4634-968f-836bd7fd880b}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\Resource\Shader\TestTerrain.hlsl">
-      <FileType>Document</FileType>
-    </ClInclude>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

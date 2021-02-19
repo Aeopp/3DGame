@@ -36,7 +36,7 @@ void Engine::Collision::Event(Object* Owner)&
 	RenderInterface::Regist();
 };
 
-void Engine::Collision::Render()&
+void Engine::Collision::Render(const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation)&
 {
 	Device->SetTransform(D3DTS_WORLD, &OwnerTransform->UpdateWorld());
 	_Geometric->Render(Device, bCurrentFrameCollision);
