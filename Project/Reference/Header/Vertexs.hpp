@@ -219,8 +219,8 @@ namespace Vertex
 		Vector3 Tangent;
 		Vector3 BiNormal;
 		Vector2 TexCoord;
-		Vector4 BoneIds{0,0,0,0};
-		Vector4 Weights{0,0,0,0};
+		Vector4 BoneIds{0.0f,0.0f,0.0f,0.0f };
+		Vector4 Weights{ 0.0f,0.0f,0.0f,0.0f };
 		static IDirect3DVertexDeclaration9* const
 			GetVertexDecl(IDirect3DDevice9* const Device)
 		{

@@ -124,86 +124,91 @@ void Engine::SkeletonMesh::Render(const Matrix& World,
 			// 버텍스의 첫번째 메모리 주소가 반드시 Vector3 이라고 가정하고 있음. 유의해야함.
 			void* CurrentMemory = (VertexBufferPtr + (i * CurrentRenderMesh.Stride));
 			const Vector3*const CurrentLocationPtr = reinterpret_cast<const Vector3*const >(CurrentMemory);
-			const uint32 FinalRenderMatrixSize = CurrentRenderMesh.Finals[i].size();
+			/*const uint32 FinalRenderMatrixSize = CurrentRenderMesh.Finals[i].size();
 			const auto& CurMeshFinalRow = CurrentRenderMesh.Finals[i];
-			const auto& CurMeshWeightsRow = CurrentRenderMesh.Weights[i]; 
+			const auto& CurMeshWeightsRow = CurrentRenderMesh.Weights[i]; */
 			Vector3 AnimLocation{ 0,0,0 };
-			for (uint32 j = 0; j < FinalRenderMatrixSize; ++j)
+			for (uint32 j = 0; j < 4; ++j)
 			{
 				Vector3 _Location{ 0,0,0 };
 
-				;
-				// D3DXVec3TransformCoord(&_Location, CurrentLocationPtr, CurMeshFinalRow[j]);
+				const Matrix& RenderMatrix = BoneTable[reinterpret_cast<Vertex::LocationTangentUV2DSkinning*>(VertexBufferPtr)
+					[i].BoneIds[j]  ]->Final ;
 				
-					D3DXVec3TransformCoord(&_Location, CurrentLocationPtr, 
-						&BoneTable[
-							(*reinterpret_cast<Vertex::LocationTangentUV2DSkinning*>(VertexBufferPtr[i])).BoneIds[j]]->Final);
+				const float _Weight = reinterpret_cast<Vertex::LocationTangentUV2DSkinning*>(VertexBufferPtr)
+					[i].Weights[j];
 
-				AnimLocation += (_Location *= CurMeshWeightsRow[j]);
+					D3DXVec3TransformCoord(&_Location, CurrentLocationPtr, 
+					&RenderMatrix);
+
+					AnimLocation += (_Location *= _Weight);					
 			}
 			static constexpr uint32 _float3Size = sizeof(Vector3);
 			std::memcpy(CurrentMemory, &AnimLocation, _float3Size);
 		}
 		CurrentRenderMesh.VertexBuffer->Unlock();
 
-		//D3DLOCKED_RECT LockRect{ 0u, };
-		//if (FAILED(BoneAnimMatrixInfo->LockRect(0u, &LockRect, nullptr, 0)))
-		//{
-		//	assert(NULL);
-		//}
+		D3DLOCKED_RECT LockRect{ 0u, };
+		if (FAILED(BoneAnimMatrixInfo->LockRect(0u, &LockRect, nullptr, 0)))
+		{
+			assert(NULL);
+		}
 
 		//std::memcpy(LockRect.pBits, );
-	
+		BoneAnimMatrixInfo->UnlockRect(0u);
+
 	}
 
+	auto Fx = _ShaderFx.GetHandle();
+	auto& Renderer = *Engine::Renderer::Instance;
+
+	uint32 PassNum = 0u;
+	Fx->Begin(&PassNum, 0);
+
+	Fx->SetMatrix("World", &World);
+	Fx->SetMatrix("View", &View);
+	Fx->SetMatrix("Projection", &Projection);
+	Fx->SetVector("LightDirection", &Renderer.LightDirection);
+	Fx->SetVector("LightColor", &Renderer.LightColor);
+	Fx->SetVector("CameraLocation", &CameraLocation4D);
 	for (auto& CurrentRenderMesh : MeshContainer)
 	{
-		auto& Renderer = *Engine::Renderer::Instance;
-		auto Fx = _ShaderFx.GetHandle();
-		uint32 PassNum = 0u;
-		Fx->Begin(&PassNum, 0);
-		Fx->SetMatrix("World", &World);
-		Fx->SetMatrix("View", &View);
-		Fx->SetMatrix("Projection", &Projection);
-		Fx->SetVector("LightDirection", &Renderer.LightDirection);
-		Fx->SetVector("LightColor", &Renderer.LightColor);
-		Fx->SetVector("CameraLocation", &CameraLocation4D);
+		Fx->SetVector("RimAmtColor", &CurrentRenderMesh.MaterialInfo.RimAmtColor);
+		Fx->SetFloat("RimOuterWidth", CurrentRenderMesh.MaterialInfo.RimOuterWidth);
+		Fx->SetFloat("RimInnerWidth", CurrentRenderMesh.MaterialInfo.RimInnerWidth);
+		Fx->SetVector("AmbientColor", &CurrentRenderMesh.MaterialInfo.AmbientColor);
+		Fx->SetFloat("Power", CurrentRenderMesh.MaterialInfo.Power);
+		Fx->SetFloat("SpecularIntencity", CurrentRenderMesh.MaterialInfo.SpecularIntencity);
+		Fx->SetFloat("Contract", CurrentRenderMesh.MaterialInfo.Contract);
+		Fx->SetFloat("DetailDiffuseIntensity", CurrentRenderMesh.MaterialInfo.DetailDiffuseIntensity);
+		Fx->SetFloat("DetailNormalIntensity", CurrentRenderMesh.MaterialInfo.DetailNormalIntensity);
+		Fx->SetFloat("CavityCoefficient", CurrentRenderMesh.MaterialInfo.CavityCoefficient);
+
+		Fx->SetFloat("DetailScale", CurrentRenderMesh.MaterialInfo.DetailScale);
+		Device->SetVertexDeclaration(VtxDecl);
+		Device->SetStreamSource(0, CurrentRenderMesh.VertexBuffer, 0, CurrentRenderMesh.Stride);
+		Device->SetIndices(CurrentRenderMesh.IndexBuffer);
+
+		Fx->SetTexture("DiffuseMap", CurrentRenderMesh.MaterialInfo.GetTexture(L"Diffuse"));
+		Fx->SetTexture("NormalMap", CurrentRenderMesh.MaterialInfo.GetTexture(L"Normal"));
+		Fx->SetTexture("CavityMap", CurrentRenderMesh.MaterialInfo.GetTexture(L"Cavity"));
+		Fx->SetTexture("EmissiveMap", CurrentRenderMesh.MaterialInfo.GetTexture(L"Emissive"));
+		Fx->SetTexture("DetailDiffuseMap", CurrentRenderMesh.MaterialInfo.GetTexture(L"DetailDiffuse"));
+		Fx->SetTexture("DetailNormalMap", CurrentRenderMesh.MaterialInfo.GetTexture(L"DetailNormal"));
+
+		Fx->CommitChanges();
+
 		for (uint32 i = 0; i < PassNum; ++i)
 		{
 			Fx->BeginPass(i);
-			
-			for (auto& CurMesh : MeshContainer)
-			{
-				Fx->SetVector("RimAmtColor", &CurMesh.MaterialInfo.RimAmtColor);
-				Fx->SetFloat("RimOuterWidth", CurMesh.MaterialInfo.RimOuterWidth);
-				Fx->SetFloat("RimInnerWidth", CurMesh.MaterialInfo.RimInnerWidth);
-				Fx->SetVector("AmbientColor", &CurMesh.MaterialInfo.AmbientColor);
-				Fx->SetFloat("Power", CurMesh.MaterialInfo.Power);
-				Fx->SetFloat("SpecularIntencity", CurMesh.MaterialInfo.SpecularIntencity);
-				Fx->SetFloat("Contract", CurMesh.MaterialInfo.Contract);
-				Fx->SetFloat("DetailDiffuseIntensity", CurMesh.MaterialInfo.DetailDiffuseIntensity);
-				Fx->SetFloat("DetailNormalIntensity", CurMesh.MaterialInfo.DetailNormalIntensity);
-				Fx->SetFloat("CavityCoefficient", CurMesh.MaterialInfo.CavityCoefficient);
 
-				Fx->SetFloat("DetailScale", CurMesh.MaterialInfo.DetailScale);
-				Device->SetVertexDeclaration(VtxDecl);
-				Device->SetStreamSource(0, CurMesh.VertexBuffer, 0, CurMesh.Stride);
-				Device->SetIndices(CurMesh.IndexBuffer);
+			Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, 
+				CurrentRenderMesh.VtxCount, 0u, CurrentRenderMesh.PrimitiveCount);
 
-				Fx->SetTexture("DiffuseMap", CurMesh.MaterialInfo.GetTexture(L"Diffuse"));
-				Fx->SetTexture("NormalMap", CurMesh.MaterialInfo.GetTexture(L"Normal"));
-				Fx->SetTexture("CavityMap", CurMesh.MaterialInfo.GetTexture(L"Cavity"));
-				Fx->SetTexture("EmissiveMap", CurMesh.MaterialInfo.GetTexture(L"Emissive"));
-				Fx->SetTexture("DetailDiffuseMap", CurMesh.MaterialInfo.GetTexture(L"DetailDiffuse"));
-				Fx->SetTexture("DetailNormalMap", CurMesh.MaterialInfo.GetTexture(L"DetailNormal"));
-
-				Fx->CommitChanges();
-				Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,0u, CurMesh.PrimitiveCount);
-			}
 			Fx->EndPass();
 		}
-		Fx->End();
 	}
+	Fx->End();
 }
 
 void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
@@ -320,22 +325,22 @@ void Engine::SkeletonMesh::InitTextureForVertexTextureFetch()&
 	/// 때문에 단일 서브 메쉬가 참조하는 본의 최대 개수의 상한선 만큼 (혹은 조금 어유를 둘 정도로 2의 배수로 텍스쳐의 사이즈를 맞춰준다.
 	/// </summary>
 	
-	const uint64 ExactTexelLength = 
-		static_cast<uint64>(std::ceill(sqrt(NumMaxRefBone * 16u)));
+	//const uint64 ExactTexelLength = 
+	//	static_cast<uint64>(std::ceill(sqrt(NumMaxRefBone * 16u)));
 
-	uint64 PowerOf2 = 1u;
-	uint64 RealTexelLength = static_cast<uint64> (std::pow(2, PowerOf2));
-	// 2의 승수가 최대 6이므로 지원하는 최대 본은 1024 임을 나타냄.
-	for (PowerOf2 = 1u; PowerOf2 < 7u; ++PowerOf2)
-	{
-		RealTexelLength = static_cast<uint64>(std::pow(2u, PowerOf2)); 
+	//uint64 PowerOf2 = 1u;
+	//uint64 RealTexelLength = static_cast<uint64> (std::pow(2, PowerOf2));
+	//// 2의 승수가 최대 6이므로 지원하는 최대 본은 1024 임을 나타냄.
+	//for (PowerOf2 = 1u; PowerOf2 < 7u; ++PowerOf2)
+	//{
+	//	RealTexelLength = static_cast<uint64>(std::pow(2u, PowerOf2)); 
 
-		if (ExactTexelLength <= RealTexelLength)
-			break;;
-	};
+	//	if (ExactTexelLength <= RealTexelLength)
+	//		break;;
+	//};
 
 	Device->CreateTexture
-	(RealTexelLength, RealTexelLength,1,0, D3DFMT_A32B32G32R32F,D3DPOOL_MANAGED,
+	(64u, 64u,1,0, D3DFMT_A32B32G32R32F,D3DPOOL_MANAGED,
 		&BoneAnimMatrixInfo, nullptr);
 
 	static uint64 BoneAnimMatrixInfoTextureResourceID = 0u;

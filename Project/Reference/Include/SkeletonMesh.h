@@ -237,7 +237,7 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 								const Vector4& TargetWeights)->uint8
 							{
 								uint8 SlotIdx = 0u;
-								while (((SlotIdx < 4u) || (TargetWeights[SlotIdx] == 0.0f)))
+								while (((SlotIdx < 4u) && (TargetWeights[SlotIdx] != 0.0f)))
 								{
 									++SlotIdx;
 								}

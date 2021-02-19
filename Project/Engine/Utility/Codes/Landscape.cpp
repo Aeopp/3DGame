@@ -402,49 +402,53 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 	auto& Renderer = *Engine::Renderer::Instance;
 	const Matrix MapWorld = FMath::WorldMatrix(Scale, Rotation, Location);
 
+
+	Device->SetVertexDeclaration(VtxDecl);
+
 	auto Fx = _ShaderFx.GetHandle();
-	uint32 PassNum = 0u;
-	Fx->Begin(&PassNum, 0);
 	Fx->SetMatrix("World", &MapWorld);
 	Fx->SetMatrix("View", &View);
 	Fx->SetMatrix("Projection", &Projection);
 	Fx->SetVector("LightDirection", &Renderer.LightDirection);
 	Fx->SetVector("LightColor", &Renderer.LightColor);
+	Fx->SetVector("CameraLocation", &CameraLocation4D); 
 
-	Fx->SetVector("CameraLocation", &CameraLocation4D);
-	for (uint32 i = 0; i < PassNum; ++i)
+	uint32 PassNum = 0u;
+	Fx->Begin(&PassNum, 0);
+	for (auto& CurMesh : Meshes)
 	{
-		Fx->BeginPass(i);
-		for (auto& CurMesh : Meshes)
+		Fx->SetVector("RimAmtColor", &CurMesh.MaterialInfo.RimAmtColor);
+		Fx->SetFloat("RimOuterWidth", CurMesh.MaterialInfo.RimOuterWidth);
+		Fx->SetFloat("RimInnerWidth", CurMesh.MaterialInfo.RimInnerWidth);
+		Fx->SetVector("AmbientColor", &CurMesh.MaterialInfo.AmbientColor);
+		Fx->SetFloat("Power", CurMesh.MaterialInfo.Power);
+		Fx->SetFloat("SpecularIntencity", CurMesh.MaterialInfo.SpecularIntencity);
+		Fx->SetFloat("Contract", CurMesh.MaterialInfo.Contract);
+		Fx->SetFloat("DetailDiffuseIntensity", CurMesh.MaterialInfo.DetailDiffuseIntensity);
+		Fx->SetFloat("DetailNormalIntensity", CurMesh.MaterialInfo.DetailNormalIntensity);
+		Fx->SetFloat("CavityCoefficient", CurMesh.MaterialInfo.CavityCoefficient);
+
+		Fx->SetFloat("DetailScale", CurMesh.MaterialInfo.DetailScale);
+	
+		Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
+		Device->SetIndices(CurMesh.IdxBuf);
+
+		Fx->SetTexture("DiffuseMap", CurMesh.MaterialInfo.GetTexture(L"Diffuse"));
+		Fx->SetTexture("NormalMap", CurMesh.MaterialInfo.GetTexture(L"Normal"));
+		Fx->SetTexture("CavityMap", CurMesh.MaterialInfo.GetTexture(L"Cavity"));
+		Fx->SetTexture("EmissiveMap", CurMesh.MaterialInfo.GetTexture(L"Emissive"));
+		Fx->SetTexture("DetailDiffuseMap", CurMesh.MaterialInfo.GetTexture(L"DetailDiffuse"));
+		Fx->SetTexture("DetailNormalMap", CurMesh.MaterialInfo.GetTexture(L"DetailNormal"));
+
+		Fx->CommitChanges();
+
+		for (uint32 i = 0; i < PassNum; ++i)
 		{
-			Fx->SetVector("RimAmtColor", &CurMesh.MaterialInfo.RimAmtColor);
-			Fx->SetFloat("RimOuterWidth", CurMesh.MaterialInfo.RimOuterWidth);
-			Fx->SetFloat("RimInnerWidth", CurMesh.MaterialInfo.RimInnerWidth);
-			Fx->SetVector("AmbientColor", &CurMesh.MaterialInfo.AmbientColor);
-			Fx->SetFloat("Power", CurMesh.MaterialInfo.Power);
-			Fx->SetFloat("SpecularIntencity", CurMesh.MaterialInfo.SpecularIntencity);
-			Fx->SetFloat("Contract", CurMesh.MaterialInfo.Contract);
-			Fx->SetFloat("DetailDiffuseIntensity", CurMesh.MaterialInfo.DetailDiffuseIntensity);
-			Fx->SetFloat("DetailNormalIntensity", CurMesh.MaterialInfo.DetailNormalIntensity);
-			Fx->SetFloat("CavityCoefficient", CurMesh.MaterialInfo.CavityCoefficient);
-
-			Fx->SetFloat("DetailScale", CurMesh.MaterialInfo.DetailScale);
-			Device->SetVertexDeclaration(VtxDecl);
-			Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
-			Device->SetIndices(CurMesh.IdxBuf);
-
-			Fx->SetTexture("DiffuseMap", CurMesh.MaterialInfo.GetTexture(L"Diffuse"));
-			Fx->SetTexture("NormalMap", CurMesh.MaterialInfo.GetTexture(L"Normal"));
-			Fx->SetTexture("CavityMap", CurMesh.MaterialInfo.GetTexture(L"Cavity"));
-			Fx->SetTexture("EmissiveMap", CurMesh.MaterialInfo.GetTexture(L"Emissive"));
-			Fx->SetTexture("DetailDiffuseMap", CurMesh.MaterialInfo.GetTexture(L"DetailDiffuse"));
-			Fx->SetTexture("DetailNormalMap", CurMesh.MaterialInfo.GetTexture(L"DetailNormal"));
-
-			Fx->CommitChanges();
+			Fx->BeginPass(i);
 			Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
 				0u, CurMesh.PrimitiveCount);
+			Fx->EndPass();
 		}
-		Fx->EndPass();
 	}
 	Fx->End();
 
@@ -464,77 +468,81 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 					DecoTfmScale, 
 					DecoTfmRotation, DecoTfmLocation);
 
-			uint32 PassNum = 0u;
-			Fx->Begin(&PassNum, 0);
+			Device->SetVertexDeclaration(VtxDecl);
 			Fx->SetMatrix("World", &DecoWorld);
 			Fx->SetMatrix("View", &View);
 			Fx->SetMatrix("Projection", &Projection);
 			Fx->SetVector("CameraLocation", &CameraLocation4D);
 
-		
+			uint32 PassNum = 0u;
+			Fx->Begin(&PassNum, 0);
 
-			for (uint32 i = 0; i < PassNum; ++i)
+			for (auto& CurMesh : CurDeco.Meshes)
 			{
-				Fx->BeginPass(i);
-				for (auto& CurMesh : CurDeco.Meshes)
-				{
-					Sphere CurDecoMeshBoundingSphere;
-					CurDecoMeshBoundingSphere.Center = FMath::Mul(CurMesh.BoundingSphere.Center, DecoWorld);
-					CurDecoMeshBoundingSphere.Radius = (CurMesh.BoundingSphere.Radius * FMath::MaxScala(DecoTfmScale));
-					const bool bRender = RefFrustum.IsIn(CurDecoMeshBoundingSphere);
+				Sphere CurDecoMeshBoundingSphere;
+				CurDecoMeshBoundingSphere.Center = FMath::Mul(CurMesh.BoundingSphere.Center, DecoWorld);
+				CurDecoMeshBoundingSphere.Radius = (CurMesh.BoundingSphere.Radius * FMath::MaxScala(DecoTfmScale));
+				const bool bRender = RefFrustum.IsIn(CurDecoMeshBoundingSphere);
 
-					if (Engine::Global::bDebugMode)
-					{
-						if (bRender)
-						{
-							ImGui::TextColored(ImVec4{ 1.f,107.f / 255.f,181.f / 255.f,0.5f }, "Draw : %s", CurMesh.Name.c_str());
-						}
-						else
-						{
-							ImGui::TextColored(ImVec4{ 158.f / 255.f,158.f/ 255.f,255.f,0.5f }, "Culling : %s", CurMesh.Name.c_str());
-						}
-					}
-					
+				if (Engine::Global::bDebugMode)
+				{
 					if (bRender)
 					{
-						Device->SetVertexDeclaration(VtxDecl);
-						Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
-						Device->SetIndices(CurMesh.IdxBuf);
-						const Vector4 RimAmtColor{ 1.f,1.f,1.f, 1.f };
-						Fx->SetVector("RimAmtColor", &CurMesh.MaterialInfo.RimAmtColor);
-						Fx->SetFloat("RimOuterWidth", CurMesh.MaterialInfo.RimOuterWidth);
-						Fx->SetFloat("RimInnerWidth", CurMesh.MaterialInfo.RimInnerWidth);
-						Fx->SetFloat("Power", CurMesh.MaterialInfo.Power);
-						Fx->SetFloat("SpecularIntencity", CurMesh.MaterialInfo.SpecularIntencity);
-						Fx->SetFloat("Contract",CurMesh.MaterialInfo.Contract);
-						Fx->SetFloat("DetailScale", CurMesh.MaterialInfo.DetailScale);
-						Fx->SetFloat("DetailDiffuseIntensity", CurMesh.MaterialInfo.DetailDiffuseIntensity);
-						Fx->SetFloat("DetailNormalIntensity", CurMesh.MaterialInfo.DetailNormalIntensity);
-						Fx->SetFloat("CavityCoefficient", CurMesh.MaterialInfo.CavityCoefficient);
-
-						if (Engine::Global::bDebugMode 
-							&& (PickDecoInstancePtr == CurDecoInstance.get()))
-						{
-							const Vector4 PickAccentAmbient{25.f,0.f,255.f,1.f};
-							Fx->SetVector("AmbientColor", &PickAccentAmbient);
-						}
-						else
-						{
-							Fx->SetVector("AmbientColor", &CurMesh.MaterialInfo.AmbientColor);
-						}
-						Fx->SetTexture("DiffuseMap", CurMesh.MaterialInfo.GetTexture(L"Diffuse"));
-						Fx->SetTexture("NormalMap", CurMesh.MaterialInfo.GetTexture(L"Normal"));
-						Fx->SetTexture("CavityMap",CurMesh.MaterialInfo.GetTexture(L"Cavity"));
-						Fx->SetTexture("EmissiveMap", CurMesh.MaterialInfo.GetTexture(L"Emissive"));
-						Fx->SetTexture("DetailDiffuseMap", CurMesh.MaterialInfo.GetTexture(L"DetailDiffuse"));
-						Fx->SetTexture("DetailNormalMap", CurMesh.MaterialInfo.GetTexture(L"DetailNormal"));
-						Fx->CommitChanges();
-						Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
-							0u, CurMesh.PrimitiveCount);
+						ImGui::TextColored(ImVec4{ 1.f,107.f / 255.f,181.f / 255.f,0.5f }, "Draw : %s", CurMesh.Name.c_str());
+					}
+					else
+					{
+						ImGui::TextColored(ImVec4{ 158.f / 255.f,158.f / 255.f,255.f,0.5f }, "Culling : %s", CurMesh.Name.c_str());
 					}
 				}
-				Fx->EndPass();
+
+				if (bRender)
+				{
+					
+					Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
+					Device->SetIndices(CurMesh.IdxBuf);
+					Fx->SetVector("RimAmtColor", &CurMesh.MaterialInfo.RimAmtColor);
+					Fx->SetFloat("RimOuterWidth", CurMesh.MaterialInfo.RimOuterWidth);
+					Fx->SetFloat("RimInnerWidth", CurMesh.MaterialInfo.RimInnerWidth);
+					Fx->SetFloat("Power", CurMesh.MaterialInfo.Power);
+					Fx->SetFloat("SpecularIntencity", CurMesh.MaterialInfo.SpecularIntencity);
+					Fx->SetFloat("Contract", CurMesh.MaterialInfo.Contract);
+					Fx->SetFloat("DetailScale", CurMesh.MaterialInfo.DetailScale);
+					Fx->SetFloat("DetailDiffuseIntensity", CurMesh.MaterialInfo.DetailDiffuseIntensity);
+					Fx->SetFloat("DetailNormalIntensity", CurMesh.MaterialInfo.DetailNormalIntensity);
+					Fx->SetFloat("CavityCoefficient", CurMesh.MaterialInfo.CavityCoefficient);
+
+					if (Engine::Global::bDebugMode
+						&& (PickDecoInstancePtr == CurDecoInstance.get()))
+					{
+						const Vector4 PickAccentAmbient{ 25.f,0.f,255.f,1.f };
+						Fx->SetVector("AmbientColor", &PickAccentAmbient);
+					}
+					else
+					{
+						Fx->SetVector("AmbientColor", &CurMesh.MaterialInfo.AmbientColor);
+					}
+
+					Fx->SetTexture("DiffuseMap", CurMesh.MaterialInfo.GetTexture(L"Diffuse"));
+					Fx->SetTexture("NormalMap", CurMesh.MaterialInfo.GetTexture(L"Normal"));
+					Fx->SetTexture("CavityMap", CurMesh.MaterialInfo.GetTexture(L"Cavity"));
+					Fx->SetTexture("EmissiveMap", CurMesh.MaterialInfo.GetTexture(L"Emissive"));
+					Fx->SetTexture("DetailDiffuseMap", CurMesh.MaterialInfo.GetTexture(L"DetailDiffuse"));
+					Fx->SetTexture("DetailNormalMap", CurMesh.MaterialInfo.GetTexture(L"DetailNormal"));
+
+					Fx->CommitChanges();
+				
+
+					for (uint32 i = 0; i < PassNum; ++i)
+					{
+						Fx->BeginPass(i);
+						Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
+							0u, CurMesh.PrimitiveCount);
+						Fx->EndPass();
+					}
+				}
 			}
+
 			Fx->End();
 		}
 	}
