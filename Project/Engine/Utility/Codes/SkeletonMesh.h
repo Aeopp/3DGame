@@ -22,12 +22,10 @@ namespace Engine
 {
 	struct DLL_DECL SkinningMeshElement : public MeshElement
 	{
-		// 참조하는 본의 개수와 일치. (스키닝 본 테이블의 사이즈)
-		uint64 NumFinalMatrix = 0u;
-		std::any                            Verticies{};
-		void* VerticiesPtr{ nullptr };
 	};
-
+	
+	// 본에 관한 정보를 클론들끼리 절대로 공유하지 마세요 
+	// ( 프로토타입에서의 카피 이후 구조는 동일하지만 새로운 인스턴스로 본정보를 구축하세요.)
 	class DLL_DECL SkeletonMesh : public Mesh
 	{
 	public:
@@ -71,7 +69,6 @@ namespace Engine
 		double TransitionRemainTime = -1.0;
 		double TransitionDuration = 0.0;
 
-		uint32 NumMaxRefBone{ 0u };
 		uint32 MaxAnimIdx{ 0u };
 	private:
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr }; 
@@ -81,11 +78,11 @@ namespace Engine
 		std::vector       <std::unordered_map<std::string, aiNodeAnim*>>  AnimTable{};
 		std::shared_ptr<AnimationTrack>                            _AnimationTrack{};
 		std::unordered_map<std::string,uint64>               BoneTableIdxFromName{};
-		std::vector<std::shared_ptr<Bone>> BoneTable{}; 
-		Bone* RootBone{ nullptr };
+		std::vector<std::shared_ptr<Bone>>                   BoneTable{}; 
 		std::vector       <SkinningMeshElement>                          MeshContainer{};
 		// VTF 기술로 버텍스 쉐이더에서 애니메이션 스키닝을 수행.
 		IDirect3DTexture9* BoneAnimMatrixInfo{nullptr}; 
+		int32 VTFPitch{ 0 };
 	};
 }
 
@@ -125,7 +122,7 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 	BoneTableIdxFromName.clear();
 	// Bone Info 
 	auto _Bone = std::make_shared<Bone>();
-	RootBone = _Bone.get();
+	Bone* RootBone = _Bone.get();
 	BoneTable.push_back(_Bone);
 	BoneTableIdxFromName.insert({ AiScene->mRootNode->mName.C_Str()  , BoneTable .size()-1u });
 	 RootBone->Name = AiScene->mRootNode->mName.C_Str();
@@ -188,8 +185,6 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 		CreateMesh.IndexBuffer->Lock(0, 0, reinterpret_cast<void**>(&IndexBufferPtr), NULL);
 		std::memcpy(IndexBufferPtr, Indicies.data(), IdxBufSize);
 		CreateMesh.IndexBuffer->Unlock();
-		CreateMesh.Verticies = Verticies;
-		CreateMesh.VerticiesPtr = Verticies->data();
 
 		// 머테리얼 파싱 . 
 		aiMaterial* AiMaterial = AiScene->mMaterials[_AiMesh->mMaterialIndex];
@@ -206,9 +201,8 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 		{
 			uint64 WeightMatrixCount = 0u;
 
-			NumMaxRefBone = (std::max)(_AiMesh->mNumBones , NumMaxRefBone);
-			CreateMesh.NumFinalMatrix = _AiMesh->mNumBones; 
-			for (uint32 BoneIdx = 0u; BoneIdx < CreateMesh.NumFinalMatrix; ++BoneIdx)
+			
+			for (uint32 BoneIdx = 0u; BoneIdx < _AiMesh->mNumBones; ++BoneIdx)
 			{
 				const aiBone* const CurVtxBone = _AiMesh->mBones[BoneIdx];
 				auto iter = BoneTableIdxFromName.find(CurVtxBone->mName.C_Str());
@@ -242,8 +236,7 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 								FindVtxCurrentBoneSlot((*Verticies)[VtxIdx].Weights);
 
 							(*Verticies)[VtxIdx].Weights[CurSlot] = _Wit;
-							(*Verticies)[VtxIdx].BoneIds[CurSlot] =
-								static_cast<int16>(TargetBoneIdx);
+							(*Verticies)[VtxIdx].BoneIds[CurSlot] =static_cast<int16>(TargetBoneIdx);
 
 							++WeightMatrixCount;
 						}

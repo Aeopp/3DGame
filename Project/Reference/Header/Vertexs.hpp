@@ -250,7 +250,7 @@ namespace Vertex
 				FromAssimp(AiMesh->mBitangents[CurrentIdx]),
 				FMath::ToVec2(FromAssimp(AiMesh->mTextureCoords[0u][CurrentIdx])) ,
 				Vector4{0,0,0,0},
-				Vector4 {0,0,0,0} 
+				Vector4 {0,0,0,0}  
 			};
 		};
 	};

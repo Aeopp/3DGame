@@ -73,8 +73,11 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	{
 		/*RefManager().NewObject<EnemyLayer,TombStone>(L"Static", L"TombStone_1" ,
 			Vector3{ 1.f,1.f,1.f},Vector3{ 0,0,0 }, Vector3{ 0,0,0 });*/
-		RefManager().NewObject<StaticLayer, Player>(L"Static", L"Player",
+		RefManager().NewObject<StaticLayer, Player>(L"Static", L"Player_0",
 			Vector3{ 0.01f,0.01f,0.01f }, Vector3{ 0,0,0 }, Vector3{ 0,0,5 });
+
+		RefManager().NewObject<StaticLayer, Player>(L"Static", L"Player_1",
+			Vector3{ 0.01f,0.01f,0.01f }, Vector3{ 0,0,0 }, Vector3{ 10,0,5 });
 	}
 
 	LogoVtxBuf = ResourceSys.Get<IDirect3DVertexBuffer9>(L"VertexBuffer_Plane");

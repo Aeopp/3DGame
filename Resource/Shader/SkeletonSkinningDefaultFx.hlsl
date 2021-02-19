@@ -18,6 +18,10 @@ float Contract;
 float DetailDiffuseIntensity;
 float DetailNormalIntensity;
 
+
+// VTF ÅØ½ºÃÄ
+int VTFPitch;
+
 texture DiffuseMap;
 texture NormalMap;
 texture CavityMap;
@@ -132,32 +136,41 @@ VS_OUT VS_MAIN(VS_IN In)
     float4 AnimBiNormal = float4(0, 0, 0, 0);
     float4 AnimPos = float4(0, 0, 0, 1);
     
-    
     In.Position.w = 1.0f;
     
-    float VTFOffset = 1.f / 64.f;
+    
+    float UVCorrection = 0.5f;
+    float FVTFPitch = float(VTFPitch);
+    int   IVTFPitch = int(VTFPitch);
     
     for (int i = 0; i < 4; ++i)
     {
-        int Idx = In.BoneIds[i]; 
-        float4 uvCol = float4(((float) ((Idx % 16) * 4) + 0.5f) / 64.0f, 
-        ((float) ((Idx / 16)) + 0.5f) / 64.0f, 0.0f, 0.0f);
- 
-        float4x4 mat =
-        {
-            tex2Dlod(VTFSampler, uvCol),
-  tex2Dlod(VTFSampler, uvCol + float4(1.0f / 64.0f, 0, 0, 0)),
-  tex2Dlod(VTFSampler, uvCol + float4(2.0f / 64.0f, 0, 0, 0)),
-  tex2Dlod(VTFSampler, uvCol + float4(3.0f / 64.0f, 0, 0, 0))
-        };
-
-       
-
+        int Idx = In.BoneIds[i] *4; 
         
-        AnimTanget += (mul(float4(In.Tangent, 0.f), mat) * In.Weights[i]);
-        AnimNormal += (mul(float4(In.Normal, 0.f), mat) * In.Weights[i]);
-        AnimBiNormal += (mul(float4(In.BiNormal, 0.f), mat) * In.Weights[i]);
-        AnimPos += (mul(In.Position, mat) * In.Weights[i]);
+        float2 VTFUVRow0 = float2((float( Idx % IVTFPitch) +  UVCorrection)  / FVTFPitch,
+                                  (float( Idx / IVTFPitch) +  UVCorrection) / FVTFPitch);
+        
+        float2 VTFUVRow1 = float2((float((Idx +1) % IVTFPitch) + UVCorrection) / FVTFPitch,
+                                  (float((Idx +1) / IVTFPitch) + UVCorrection) / FVTFPitch);
+        
+        float2 VTFUVRow2 = float2((float((Idx +2) % IVTFPitch) + UVCorrection) / FVTFPitch,
+                                  (float((Idx +2) / IVTFPitch) + UVCorrection) / FVTFPitch);
+        
+        float2 VTFUVRow3 = float2((float( (Idx+3) % IVTFPitch) + UVCorrection) / FVTFPitch,
+                                  (float( (Idx+3) / IVTFPitch) + UVCorrection) / FVTFPitch);
+        
+        float4x4 AnimMatrix =
+        {
+            tex2Dlod(VTFSampler, float4(VTFUVRow0, 0.f, 0.f)),
+            tex2Dlod(VTFSampler, float4(VTFUVRow1, 0.f, 0.f)),
+            tex2Dlod(VTFSampler, float4(VTFUVRow2, 0.f, 0.f)),
+            tex2Dlod(VTFSampler, float4(VTFUVRow3, 0.f, 0.f))
+        };
+        
+        AnimTanget += (mul(float4(In.Tangent, 0.f), AnimMatrix) * In.Weights[i]);
+        AnimNormal += (mul(float4(In.Normal, 0.f), AnimMatrix) * In.Weights[i]);
+        AnimBiNormal += (mul(float4(In.BiNormal, 0.f), AnimMatrix) * In.Weights[i]);
+        AnimPos += (mul(In.Position, AnimMatrix) * In.Weights[i]);
     }
     
     

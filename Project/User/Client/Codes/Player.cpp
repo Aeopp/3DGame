@@ -21,6 +21,7 @@ void Player::Initialize(
 	const Vector3& Rotation,
 	const Vector3& SpawnLocation)&
 {
+	
 	Super::Initialize();
 
 	auto _Transform =AddComponent<Engine::Transform>();
@@ -145,15 +146,15 @@ void Player::Update(const float DeltaTime)&
 	ImGui::SliderFloat("TransitionDuration", &TransitionDuration, 0.1, 10.0);
 	ImGui::SliderFloat("TransitionAcceleration", & TransitionAceeleration , 1.0 , 1000.0);
 
-	if (ImGui::Button("Anim 0"))
+	if (ImGui::Button( (  ToA(Name)+"Anim 0").c_str() ))
 	{
 		GetComponent<Engine::SkeletonMesh>()->PlayAnimation(0u, TransitionAceeleration, TransitionDuration);
 	}
-	if (ImGui::Button("Anim 1"))
+	if (ImGui::Button((ToA(Name) + "Anim 1").c_str() ))
 	{
 		GetComponent<Engine::SkeletonMesh>()->PlayAnimation(1u, TransitionAceeleration, TransitionDuration);
 	}
-	if (ImGui::Button("Anim 2"))
+	if (ImGui::Button((ToA(Name) + "Anim 2").c_str() ))
 	{
 		GetComponent<Engine::SkeletonMesh>()->PlayAnimation(2u, TransitionAceeleration, TransitionDuration);
 	}

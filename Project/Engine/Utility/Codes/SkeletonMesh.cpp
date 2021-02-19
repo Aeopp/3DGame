@@ -18,16 +18,18 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 		(ResourceSys->GetAny<std::shared_ptr<Engine::SkeletonMesh>>(ResourceName));
 
 	this->operator=(*ProtoSkeletonMesh);
-	BoneTableIdxFromName.clear();
+
 	BoneTable.clear();
+	BoneTableIdxFromName.clear();
 	// Bone Info 
 	auto _Bone = std::make_shared<Bone>(); 
 	BoneTable.push_back(_Bone);
 	const uint64 CurBoneIdx = BoneTable.size() - 1u; 
-	RootBone = _Bone.get();
+	Bone* RootBone = _Bone.get();
 	BoneTableIdxFromName.insert({AiScene->mRootNode->mName.C_Str() , CurBoneIdx });
 	RootBone->Name = AiScene->mRootNode->mName.C_Str();
-	RootBone->OriginTransform = RootBone->Transform = FromAssimp(AiScene->mRootNode->mTransformation);
+	RootBone->OriginTransform = RootBone->Transform = 
+		FromAssimp(AiScene->mRootNode->mTransformation);
 	RootBone->Parent = nullptr;
 	RootBone->ToRoot = RootBone->OriginTransform;  *FMath::Identity();
 
@@ -38,26 +40,10 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 
 	for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
 	{
-		MeshContainer[MeshIdx].VertexBuffer = nullptr;
-
-		Device->CreateVertexBuffer(MeshContainer[MeshIdx].VtxBufSize,
-			D3DUSAGE_DYNAMIC, NULL,D3DPOOL_DEFAULT,
-			&MeshContainer[MeshIdx].VertexBuffer, nullptr);
-
-		static uint32 VertexBufferCloneID = 0u;
-		void* VtxBufPtr{ nullptr };
-		MeshContainer[MeshIdx].VertexBuffer->Lock(0, 0, reinterpret_cast<void**>(&VtxBufPtr), NULL);
-		std::memcpy(VtxBufPtr, MeshContainer[MeshIdx].VerticiesPtr, MeshContainer[MeshIdx].VtxBufSize);
-		MeshContainer[MeshIdx].VertexBuffer->Unlock();
-
-		ResourceSys->Insert<IDirect3DVertexBuffer9>(
-			L"VertexBuffer_SkeletonMesh_Clone_" + std::to_wstring(VertexBufferCloneID++), MeshContainer[MeshIdx].VertexBuffer);
-
 		aiMesh* _AiMesh = AiScene->mMeshes[MeshIdx];
 
 		if (_AiMesh->HasBones())
 		{
-			
 			for (uint32 BoneIdx = 0u; BoneIdx < _AiMesh->mNumBones; ++BoneIdx)
 			{
 				const aiBone* const CurVtxBone = _AiMesh->mBones[BoneIdx];
@@ -83,7 +69,6 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 	};
 
 	_ShaderFx.Initialize(L"SkeletonSkinningDefaultFx");
-
 	InitTextureForVertexTextureFetch();
 }
 
@@ -115,46 +100,6 @@ void Engine::SkeletonMesh::Render(const Matrix& World,
 	std::memcpy(LockRect.pBits, RenderBoneMatricies.data(), RenderBoneMatricies.size() * sizeof(Matrix) );
 	BoneAnimMatrixInfo->UnlockRect(0u);
 
-
-	for (auto& CurrentRenderMesh : MeshContainer)
-	{
-		//byte* VertexBufferPtr{ nullptr };
-
-		//CurrentRenderMesh.VertexBuffer->Lock(0, 0, reinterpret_cast<void**>(&VertexBufferPtr), NULL);
-
-		//std::memcpy(VertexBufferPtr, CurrentRenderMesh.VerticiesPtr,
-		//	CurrentRenderMesh.VtxBufSize);
-
-		//for (uint64 i = 0; i < CurrentRenderMesh.VtxCount; ++i)
-		//{
-		//	// 버텍스의 첫번째 메모리 주소가 반드시 Vector3 이라고 가정하고 있음. 유의해야함.
-		//	void* CurrentMemory = (VertexBufferPtr + (i * CurrentRenderMesh.Stride));
-		//	const Vector3*const CurrentLocationPtr = reinterpret_cast<const Vector3*const >(CurrentMemory);
-
-		//	Vector3 AnimLocation{ 0,0,0 };
-		//	for (uint32 j = 0; j < 4; ++j)
-		//	{
-		//		Vector3 _Location{ 0,0,0 };
-
-		//		const Matrix& RenderMatrix = BoneTable[reinterpret_cast<Vertex::LocationTangentUV2DSkinning*>(VertexBufferPtr)
-		//			[i].BoneIds[j]  ]->Final ;
-		//		
-		//		const float _Weight = reinterpret_cast<Vertex::LocationTangentUV2DSkinning*>(VertexBufferPtr)
-		//			[i].Weights[j];
-
-		//			D3DXVec3TransformCoord(&_Location, CurrentLocationPtr, 
-		//			&RenderMatrix);
-
-		//			AnimLocation += (_Location *= _Weight);					
-		//	}
-		//	static constexpr uint32 _float3Size = sizeof(Vector3);
-		//	std::memcpy(CurrentMemory, &AnimLocation, _float3Size);
-		//}
-		//CurrentRenderMesh.VertexBuffer->Unlock();
-
-
-	}
-
 	auto Fx = _ShaderFx.GetHandle();
 	auto& Renderer = *Engine::Renderer::Instance;
 
@@ -165,7 +110,7 @@ void Engine::SkeletonMesh::Render(const Matrix& World,
 	Fx->SetVector("LightColor", &Renderer.LightColor);
 	Fx->SetVector("CameraLocation", &CameraLocation4D);
 	Fx->SetTexture("VTF", BoneAnimMatrixInfo);
-
+	Fx->SetInt("VTFPitch", VTFPitch);
 	uint32 PassNum = 0u;
 	Fx->Begin(&PassNum, 0);
 	
@@ -251,6 +196,7 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 				CurrentAnimMotionTime = CurAnimation->mDuration;
 			}
 
+			Bone* RootBone = BoneTable.front().get();
 			RootBone->BoneMatrixUpdate(Identity,
 				CurrentAnimMotionTime, CurAnimation, CurAnimTable,
 				_AnimationTrack->ScaleTimeLine[AnimIdx],
@@ -269,6 +215,7 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 			{
 				CurrentAnimMotionTime = CurAnimation->mDuration; 
 			}
+			Bone* RootBone = BoneTable.front().get();
 
 			RootBone->BoneMatrixUpdate(Identity,
 				CurrentAnimMotionTime, CurAnimation, CurAnimTable,
@@ -317,9 +264,20 @@ void Engine::SkeletonMesh::PlayAnimation(const uint32 AnimIdx ,
 
 void Engine::SkeletonMesh::InitTextureForVertexTextureFetch()&
 {
+	// 본 테이블 개수만큼 매트릭스가 필요하며 텍셀당 벡터4D 하나씩 저장 가능.
+	const float TexPitchPrecision = std::sqrtf(BoneTable.size() * sizeof(Matrix) / 4u);
+
+	const uint8 PowerOfMax = 9u;
+	// 2^9 * 2^9 / 4 = 4096개의 행렬을 저장 가능하며 4096개의 본을 가진 캐릭터가 존재하는 게임을 나는 아직 못만듬.
+	for (uint8 PowerOf2 = 1u; PowerOf2 < PowerOfMax; ++PowerOf2)
+	{
+		VTFPitch = std::powl(2, PowerOf2);
+		if (VTFPitch >= TexPitchPrecision)
+			break;
+	}
 
 	Device->CreateTexture
-	(64u, 64u,1,0, D3DFMT_A32B32G32R32F,D3DPOOL_MANAGED,
+	(VTFPitch, VTFPitch,1,0, D3DFMT_A32B32G32R32F,D3DPOOL_MANAGED,
 		&BoneAnimMatrixInfo, nullptr);
 
 	static uint64 BoneAnimMatrixInfoTextureResourceID = 0u;
