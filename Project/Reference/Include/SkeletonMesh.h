@@ -22,8 +22,6 @@ namespace Engine
 {
 	struct DLL_DECL SkinningMeshElement : public MeshElement
 	{
-		std::vector<std::vector<float>>     Weights{};
-		std::vector<std::vector<Matrix*>>   Finals{};
 		// 참조하는 본의 개수와 일치. (스키닝 본 테이블의 사이즈)
 		uint64 NumFinalMatrix = 0u;
 		std::any                            Verticies{};
@@ -208,8 +206,6 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 		{
 			uint64 WeightMatrixCount = 0u;
 
-			CreateMesh.Weights.resize(CreateMesh.VtxCount);
-			CreateMesh.Finals.resize(CreateMesh.VtxCount);
 			NumMaxRefBone = (std::max)(_AiMesh->mNumBones , NumMaxRefBone);
 			CreateMesh.NumFinalMatrix = _AiMesh->mNumBones; 
 			for (uint32 BoneIdx = 0u; BoneIdx < CreateMesh.NumFinalMatrix; ++BoneIdx)
@@ -229,9 +225,7 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 							const float _Wit = _AiVtxWit.mWeight;
 							const Matrix OffsetMatrix = FromAssimp(CurVtxBone->mOffsetMatrix);
 							TargetBone->Offset = OffsetMatrix;
-							CreateMesh.Weights[VtxIdx].push_back(_Wit);
-							CreateMesh.Finals[VtxIdx].push_back(&TargetBone->Final);
-
+							
 							// 현재 버텍스에서 Vector4 의 float 슬롯중 비어있는 슬롯을 찾아냄.
 							static auto FindVtxCurrentBoneSlot = [](
 								const Vector4& TargetWeights)->uint8
@@ -248,7 +242,8 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 								FindVtxCurrentBoneSlot((*Verticies)[VtxIdx].Weights);
 
 							(*Verticies)[VtxIdx].Weights[CurSlot] = _Wit;
-							(*Verticies)[VtxIdx].BoneIds[CurSlot] = TargetBoneIdx;
+							(*Verticies)[VtxIdx].BoneIds[CurSlot] =
+								static_cast<int16>(TargetBoneIdx);
 
 							++WeightMatrixCount;
 						}

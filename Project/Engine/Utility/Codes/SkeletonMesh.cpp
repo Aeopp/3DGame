@@ -38,7 +38,6 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 
 	for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
 	{
-		MeshContainer[MeshIdx].Finals.clear();
 		MeshContainer[MeshIdx].VertexBuffer = nullptr;
 
 		Device->CreateVertexBuffer(MeshContainer[MeshIdx].VtxBufSize,
@@ -58,12 +57,7 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 
 		if (_AiMesh->HasBones())
 		{
-			MeshContainer[MeshIdx].Finals.clear();
-			MeshContainer[MeshIdx].Weights.clear();
-
-			MeshContainer[MeshIdx].Finals.resize(MeshContainer[MeshIdx].VtxCount);
-		    MeshContainer[MeshIdx].Weights.resize(MeshContainer[MeshIdx].VtxCount);
-
+			
 			for (uint32 BoneIdx = 0u; BoneIdx < _AiMesh->mNumBones; ++BoneIdx)
 			{
 				const aiBone* const CurVtxBone = _AiMesh->mBones[BoneIdx];
@@ -81,11 +75,6 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 								const aiVertexWeight  _AiVtxWit = CurVtxBone->mWeights[WeightIdx];
 								const uint32 VtxIdx = _AiVtxWit.mVertexId;
 								TargetBone->Offset = FromAssimp(CurVtxBone->mOffsetMatrix);
-
-								MeshContainer[MeshIdx].Finals[VtxIdx].push_back(
-									&TargetBone->Final);
-
-								MeshContainer[MeshIdx].Weights[VtxIdx].push_back(_AiVtxWit.mWeight);
 						}
 					}
 				}
@@ -110,60 +99,64 @@ void Engine::SkeletonMesh::Render(const Matrix& World,
 {
 	Super::Render(World ,View ,Projection, CameraLocation4D );
 
+	std::vector<Matrix> RenderBoneMatricies(BoneTable.size());
+
+	std::transform(std::begin(BoneTable), std::end(BoneTable),
+		std::begin(RenderBoneMatricies), []
+		(const std::shared_ptr<Bone>& CopyBoneFinalMatrix)
+		{
+			return CopyBoneFinalMatrix->Final;
+		});
+	D3DLOCKED_RECT LockRect{ 0u, };
+	if (FAILED(BoneAnimMatrixInfo->LockRect(0u, &LockRect, nullptr, 0)))
+	{
+		assert(NULL);
+	}
+	std::memcpy(LockRect.pBits, RenderBoneMatricies.data(), RenderBoneMatricies.size() * sizeof(Matrix) );
+	BoneAnimMatrixInfo->UnlockRect(0u);
+
+
 	for (auto& CurrentRenderMesh : MeshContainer)
 	{
-		byte* VertexBufferPtr{ nullptr };
+		//byte* VertexBufferPtr{ nullptr };
 
-		CurrentRenderMesh.VertexBuffer->Lock(0, 0, reinterpret_cast<void**>(&VertexBufferPtr), NULL);
+		//CurrentRenderMesh.VertexBuffer->Lock(0, 0, reinterpret_cast<void**>(&VertexBufferPtr), NULL);
 
-		std::memcpy(VertexBufferPtr, CurrentRenderMesh.VerticiesPtr,
-			CurrentRenderMesh.VtxBufSize);
+		//std::memcpy(VertexBufferPtr, CurrentRenderMesh.VerticiesPtr,
+		//	CurrentRenderMesh.VtxBufSize);
 
-		for (uint64 i = 0; i < CurrentRenderMesh.VtxCount; ++i)
-		{
-			// 버텍스의 첫번째 메모리 주소가 반드시 Vector3 이라고 가정하고 있음. 유의해야함.
-			void* CurrentMemory = (VertexBufferPtr + (i * CurrentRenderMesh.Stride));
-			const Vector3*const CurrentLocationPtr = reinterpret_cast<const Vector3*const >(CurrentMemory);
-			/*const uint32 FinalRenderMatrixSize = CurrentRenderMesh.Finals[i].size();
-			const auto& CurMeshFinalRow = CurrentRenderMesh.Finals[i];
-			const auto& CurMeshWeightsRow = CurrentRenderMesh.Weights[i]; */
-			Vector3 AnimLocation{ 0,0,0 };
-			for (uint32 j = 0; j < 4; ++j)
-			{
-				Vector3 _Location{ 0,0,0 };
+		//for (uint64 i = 0; i < CurrentRenderMesh.VtxCount; ++i)
+		//{
+		//	// 버텍스의 첫번째 메모리 주소가 반드시 Vector3 이라고 가정하고 있음. 유의해야함.
+		//	void* CurrentMemory = (VertexBufferPtr + (i * CurrentRenderMesh.Stride));
+		//	const Vector3*const CurrentLocationPtr = reinterpret_cast<const Vector3*const >(CurrentMemory);
 
-				const Matrix& RenderMatrix = BoneTable[reinterpret_cast<Vertex::LocationTangentUV2DSkinning*>(VertexBufferPtr)
-					[i].BoneIds[j]  ]->Final ;
-				
-				const float _Weight = reinterpret_cast<Vertex::LocationTangentUV2DSkinning*>(VertexBufferPtr)
-					[i].Weights[j];
+		//	Vector3 AnimLocation{ 0,0,0 };
+		//	for (uint32 j = 0; j < 4; ++j)
+		//	{
+		//		Vector3 _Location{ 0,0,0 };
 
-					D3DXVec3TransformCoord(&_Location, CurrentLocationPtr, 
-					&RenderMatrix);
+		//		const Matrix& RenderMatrix = BoneTable[reinterpret_cast<Vertex::LocationTangentUV2DSkinning*>(VertexBufferPtr)
+		//			[i].BoneIds[j]  ]->Final ;
+		//		
+		//		const float _Weight = reinterpret_cast<Vertex::LocationTangentUV2DSkinning*>(VertexBufferPtr)
+		//			[i].Weights[j];
 
-					AnimLocation += (_Location *= _Weight);					
-			}
-			static constexpr uint32 _float3Size = sizeof(Vector3);
-			std::memcpy(CurrentMemory, &AnimLocation, _float3Size);
-		}
-		CurrentRenderMesh.VertexBuffer->Unlock();
+		//			D3DXVec3TransformCoord(&_Location, CurrentLocationPtr, 
+		//			&RenderMatrix);
 
-		D3DLOCKED_RECT LockRect{ 0u, };
-		if (FAILED(BoneAnimMatrixInfo->LockRect(0u, &LockRect, nullptr, 0)))
-		{
-			assert(NULL);
-		}
+		//			AnimLocation += (_Location *= _Weight);					
+		//	}
+		//	static constexpr uint32 _float3Size = sizeof(Vector3);
+		//	std::memcpy(CurrentMemory, &AnimLocation, _float3Size);
+		//}
+		//CurrentRenderMesh.VertexBuffer->Unlock();
 
-		//std::memcpy(LockRect.pBits, );
-		BoneAnimMatrixInfo->UnlockRect(0u);
 
 	}
 
 	auto Fx = _ShaderFx.GetHandle();
 	auto& Renderer = *Engine::Renderer::Instance;
-
-	uint32 PassNum = 0u;
-	Fx->Begin(&PassNum, 0);
 
 	Fx->SetMatrix("World", &World);
 	Fx->SetMatrix("View", &View);
@@ -171,6 +164,11 @@ void Engine::SkeletonMesh::Render(const Matrix& World,
 	Fx->SetVector("LightDirection", &Renderer.LightDirection);
 	Fx->SetVector("LightColor", &Renderer.LightColor);
 	Fx->SetVector("CameraLocation", &CameraLocation4D);
+	Fx->SetTexture("VTF", BoneAnimMatrixInfo);
+
+	uint32 PassNum = 0u;
+	Fx->Begin(&PassNum, 0);
+	
 	for (auto& CurrentRenderMesh : MeshContainer)
 	{
 		Fx->SetVector("RimAmtColor", &CurrentRenderMesh.MaterialInfo.RimAmtColor);
@@ -319,25 +317,6 @@ void Engine::SkeletonMesh::PlayAnimation(const uint32 AnimIdx ,
 
 void Engine::SkeletonMesh::InitTextureForVertexTextureFetch()&
 {
-	/// <summary>
-	/// 텍스쳐 채널 4개 채널당 부동소수 1개이니 텍셀당 4차원 벡터를 저장할수 있으며
-	/// 4x4 행렬로 본 매트릭스를 넘기므로 텍셀 4개당 행렬 하나의 정보이다.
-	/// 때문에 단일 서브 메쉬가 참조하는 본의 최대 개수의 상한선 만큼 (혹은 조금 어유를 둘 정도로 2의 배수로 텍스쳐의 사이즈를 맞춰준다.
-	/// </summary>
-	
-	//const uint64 ExactTexelLength = 
-	//	static_cast<uint64>(std::ceill(sqrt(NumMaxRefBone * 16u)));
-
-	//uint64 PowerOf2 = 1u;
-	//uint64 RealTexelLength = static_cast<uint64> (std::pow(2, PowerOf2));
-	//// 2의 승수가 최대 6이므로 지원하는 최대 본은 1024 임을 나타냄.
-	//for (PowerOf2 = 1u; PowerOf2 < 7u; ++PowerOf2)
-	//{
-	//	RealTexelLength = static_cast<uint64>(std::pow(2u, PowerOf2)); 
-
-	//	if (ExactTexelLength <= RealTexelLength)
-	//		break;;
-	//};
 
 	Device->CreateTexture
 	(64u, 64u,1,0, D3DFMT_A32B32G32R32F,D3DPOOL_MANAGED,

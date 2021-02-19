@@ -24,7 +24,7 @@ texture CavityMap;
 texture EmissiveMap;
 texture DetailDiffuseMap;
 texture DetailNormalMap;
-
+texture VTF;
 // UDN
 //vec3 NormalBlend_UDN(vec3 n1, vec3 n2)
 //{
@@ -35,13 +35,24 @@ texture DetailNormalMap;
 // diffuse blend 
 // basediffuse * detail diffuse 
 
+sampler VTFSampler = sampler_state
+{
+    texture = VTF;
+
+    minfilter = point;
+    magfilter = point;
+    mipfilter = point;
+};
+
 sampler DiffuseSampler = sampler_state
 {
     texture = DiffuseMap;
 
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
+    minfilter = point;
+    magfilter = point;
+    mipfilter = point;
+    addressu = wrap;
+    addressv = wrap;
 };
 
 sampler CavitySampler = sampler_state
@@ -96,6 +107,8 @@ struct VS_IN
     float3 Tangent : TANGENT;
     float3 BiNormal : BINORMAL;
     float2 UV : TEXCOORD0;
+    float4 BoneIds : BLENDINDICES;
+    float4 Weights : BLENDWEIGHT;
 };
 
 struct VS_OUT
@@ -114,18 +127,52 @@ VS_OUT VS_MAIN(VS_IN In)
 {
     VS_OUT Out = (VS_OUT) 0;
 
+    float4 AnimNormal = float4(0, 0, 0,0);
+    float4 AnimTanget = float4(0, 0, 0, 0);
+    float4 AnimBiNormal = float4(0, 0, 0, 0);
+    float4 AnimPos = float4(0, 0, 0, 1);
+    
+    
+    In.Position.w = 1.0f;
+    
+    float VTFOffset = 1.f / 64.f;
+    
+    for (int i = 0; i < 4; ++i)
+    {
+        int Idx = In.BoneIds[i]; 
+        float4 uvCol = float4(((float) ((Idx % 16) * 4) + 0.5f) / 64.0f, 
+        ((float) ((Idx / 16)) + 0.5f) / 64.0f, 0.0f, 0.0f);
+ 
+        float4x4 mat =
+        {
+            tex2Dlod(VTFSampler, uvCol),
+  tex2Dlod(VTFSampler, uvCol + float4(1.0f / 64.0f, 0, 0, 0)),
+  tex2Dlod(VTFSampler, uvCol + float4(2.0f / 64.0f, 0, 0, 0)),
+  tex2Dlod(VTFSampler, uvCol + float4(3.0f / 64.0f, 0, 0, 0))
+        };
+
+       
+
+        
+        AnimTanget += (mul(float4(In.Tangent, 0.f), mat) * In.Weights[i]);
+        AnimNormal += (mul(float4(In.Normal, 0.f), mat) * In.Weights[i]);
+        AnimBiNormal += (mul(float4(In.BiNormal, 0.f), mat) * In.Weights[i]);
+        AnimPos += (mul(In.Position, mat) * In.Weights[i]);
+    }
+    
+    
     matrix WorldView, WorldViewProjection;
 
     WorldView = mul(World, View);
     WorldViewProjection = mul(WorldView, Projection);
 
-    Out.Position = mul(vector(In.Position.xyz, 1.f), WorldViewProjection);
+    Out.Position = mul(vector(AnimPos.xyz, 1.f), WorldViewProjection);
     Out.UV = In.UV;
-    Out.Normal = mul(float4(In.Normal.xyz, 0.f), World);
-    Out.Tangent = mul(float4(In.Tangent.xyz, 0.f), World);
-    Out.BiNormal = mul(float4(In.BiNormal.xyz, 0.f), World);
+    Out.Normal = mul(float4(AnimNormal.xyz, 0.f), World);
+    Out.Tangent = mul(float4(AnimTanget.xyz, 0.f), World);
+    Out.BiNormal = mul(float4(AnimBiNormal.xyz, 0.f), World);
     
-    Out.WorldLocation = mul(vector(In.Position.xyz, 1.f), World).xyz;
+    Out.WorldLocation = mul(float4(AnimPos.xyz, 1.f), World).xyz;
     Out.ViewDirection = normalize(CameraLocation.xyz - Out.WorldLocation.xyz);
     
     return Out;
