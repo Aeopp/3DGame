@@ -6,7 +6,16 @@
 #include <optional>
 #include "imgui.h"
 #include "Renderer.h"
-
+#include <rapidjson/prettywriter.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/reader.h> 
+#include <rapidjson/document.h>
+#include <rapidjson/ostreamwrapper.h>
+#include <rapidjson/istreamwrapper.h>
+#include "FileHelper.h"
+#include <fstream>
+#include <ostream>
 
 void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 {
@@ -15,9 +24,11 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 	auto& ResourceSys = Engine::ResourceSystem::Instance;
 
 	auto ProtoSkeletonMesh = 
-		(ResourceSys->GetAny<std::shared_ptr<Engine::SkeletonMesh>>(ResourceName));
+		(*ResourceSys->GetAny<std::shared_ptr<Engine::SkeletonMesh>>(ResourceName));
 
+	uint32 IDBackUp = ID;
 	this->operator=(*ProtoSkeletonMesh);
+	ID = IDBackUp;
 
 	BoneTable.clear();
 	BoneTableIdxFromName.clear();
@@ -75,14 +86,84 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 void Engine::SkeletonMesh::Event(Object* Owner)&
 {
 	Super::Event(Owner);
+
+	if (Engine::Global::bDebugMode)
+	{
+		if (ImGui::TreeNode(("SkeletonEdit_" + ToA(Owner->GetName())).c_str()))
+		{
+			ImGui::BulletText("%s", (std::to_string(ID) + "_" + FullPath.string()).c_str());
+
+			if (ImGui::TreeNode("Animation"))
+			{
+				if (ImGui::Button("Save"))
+				{
+					AnimationSave();
+				}
+
+				for (uint32 AnimIdx = 0u; AnimIdx < AnimTable.size(); ++AnimIdx)
+				{
+					std::string AnimName = (AiScene->mAnimations[AnimIdx]->mName.C_Str());
+			
+					std::string Message = "Index : " + std::to_string(AnimIdx) +
+						" Name : " + AnimName;
+
+					if (ImGui::CollapsingHeader(Message.c_str()))
+					{
+						ImGui::Text("TickPerSecond : %f", AiScene->mAnimations[AnimIdx]->mTicksPerSecond);
+
+						std::string AccelerationMsg = "Acceleration_" + AnimName;
+
+						float FAcceleration = AnimInfoTable[AnimIdx].Acceleration;
+						ImGui::SliderFloat(AccelerationMsg.c_str(), &FAcceleration, 0.01f, 100.f);
+						AnimInfoTable[AnimIdx].Acceleration = static_cast<double>(FAcceleration);
+
+						std::string TransitionTimeMsg = "TransitionTime_" + AnimName;
+
+						float FTransitionTime = AnimInfoTable[AnimIdx].TransitionTime;
+						ImGui::SliderFloat(TransitionTimeMsg.c_str(), &FTransitionTime, 0.01f, 3.f);
+						AnimInfoTable[AnimIdx].TransitionTime = static_cast<double>(FTransitionTime);
+
+						std::string PlayMsg = "Play_" + AnimName;
+
+						if (ImGui::Button(PlayMsg.c_str()))
+						{
+							PlayAnimation(AnimIdx, AnimInfoTable[AnimIdx].Acceleration,
+								AnimInfoTable[AnimIdx].TransitionTime);
+						}
+
+						ImGui::Separator();
+					}
+				};
+				ImGui::TreePop();
+			};
+
+			if (ImGui::TreeNode("Bone"))
+			{
+				bBoneDebug = true;
+				BoneTable.front()->BoneEdit();
+				ImGui::TreePop();
+			}
+			else
+			{
+				bBoneDebug = false;
+			}
+
+			ImGui::TreePop();
+		}
+	}
 }
 
-void Engine::SkeletonMesh::Render(const Matrix& World,
-	const Matrix& View,
-	const Matrix& Projection,
-	const Vector4& CameraLocation4D)&
+void Engine::SkeletonMesh::Render(	const Matrix& World,
+									const Matrix& View,
+									const Matrix& Projection,
+									const Vector4& CameraLocation4D)&
 {
-	Super::Render(World ,View ,Projection, CameraLocation4D );
+	if (Engine::Global::bDebugMode)
+	{
+		ImGui::TextColored(ImVec4{ 1.f,114.f/255.f, 198.f/255.f , 1.0f},"Draw : %s", ToA(ResourceName).c_str());
+	}
+
+	Super::Render(World,View,Projection,CameraLocation4D );
 
 	std::vector<Matrix> RenderBoneMatricies(BoneTable.size());
 
@@ -152,6 +233,20 @@ void Engine::SkeletonMesh::Render(const Matrix& World,
 		}
 	}
 	Fx->End();
+
+	if (bBoneDebug)
+	{
+		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+		Device->SetRenderState(D3DRS_ZENABLE, FALSE); 
+		auto& ResourceSys = ResourceSystem::Instance;
+		ID3DXMesh* const _DebugMesh = ResourceSys->Get<ID3DXMesh>(L"SphereMesh");
+		for (auto& _Bone : BoneTable)
+		{
+			_Bone->DebugRender(World, Device, _DebugMesh);
+		}
+		Device->SetRenderState(D3DRS_ZENABLE, TRUE);
+		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	}
 }
 
 void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
@@ -262,6 +357,18 @@ void Engine::SkeletonMesh::PlayAnimation(const uint32 AnimIdx ,
 	this->Acceleration = Acceleration;
 }
 
+void Engine::SkeletonMesh::PlayAnimation(const uint32 AnimIdx)&
+{
+	this->PlayAnimation
+	(AnimIdx, AnimInfoTable[AnimIdx].Acceleration, AnimInfoTable[AnimIdx].TransitionTime);
+}
+
+void Engine::SkeletonMesh::PlayAnimation(const std::string& AnimName)&
+{
+	const uint32 AnimIdx = AnimIdxFromName.find(AnimName)->second;
+	this->PlayAnimation(AnimIdx);
+}
+
 void Engine::SkeletonMesh::InitTextureForVertexTextureFetch()&
 {
 	// 본 테이블 개수만큼 매트릭스가 필요하며 텍셀당 벡터4D 하나씩 저장 가능.
@@ -287,4 +394,73 @@ void Engine::SkeletonMesh::InitTextureForVertexTextureFetch()&
 			L"VTF_" + std::to_wstring(BoneAnimMatrixInfoTextureResourceID++), BoneAnimMatrixInfo);
 }
 
+void Engine::SkeletonMesh::AnimationSave()&
+{
+	using namespace rapidjson;
+
+	StringBuffer StrBuf;
+	PrettyWriter<StringBuffer> Writer(StrBuf);
+	// Cell Information Write...
+	Writer.StartObject();
+	Writer.Key("AnimationInfoTable");
+	Writer.StartArray();
+	{
+		for (uint32 AnimIdx = 0u; AnimIdx < AnimInfoTable.size(); ++AnimIdx)
+		{
+			Writer.StartObject();
+			{
+				Writer.Key("Index");
+				Writer.Uint(AnimIdx);
+
+				Writer.Key("Name");
+				Writer.String(AiScene->mAnimations[AnimIdx]->mName.C_Str());
+
+				Writer.Key("Acceleration");
+				Writer.Double(AnimInfoTable[AnimIdx].Acceleration);
+
+				Writer.Key("TransitionTime");
+				Writer.Double(AnimInfoTable[AnimIdx].TransitionTime);
+			}
+			Writer.EndObject();
+		}
+	}
+	Writer.EndArray();
+
+	Writer.EndObject();
+	std::filesystem::path TargetPath = FullPath; 
+	TargetPath.replace_extension("Animation");
+	std::ofstream Of{ TargetPath };
+	Of << StrBuf.GetString();
+
+};
+
+void Engine::SkeletonMesh::AnimationLoad()&
+{
+	std::filesystem::path TargetPath = FullPath;
+	TargetPath.replace_extension("Animation");
+	std::ifstream Is{ TargetPath };
+	using namespace rapidjson;
+	if (!Is.is_open()) return;
+
+	IStreamWrapper Isw(Is);
+	Document _Document;
+	_Document.ParseStream(Isw);
+
+	if (_Document.HasParseError())
+	{
+		MessageBox(Engine::Global::Hwnd, L"Json Parse Error", L"Json Parse Error", MB_OK);
+		return;
+	}
+
+	const Value& AnimationJsonTable = _Document["AnimationInfoTable"];
+
+	const auto& AnimTableArray  =AnimationJsonTable.GetArray();
+	for (auto iter = AnimTableArray.begin();
+		iter != AnimTableArray.end(); ++iter)
+	{
+		const uint32 Idx = iter->FindMember("Index")->value.GetUint();
+		AnimInfoTable[Idx].Acceleration = iter->FindMember("Acceleration")->value.GetDouble();
+		AnimInfoTable[Idx].TransitionTime = iter->FindMember("TransitionTime")->value.GetDouble();
+	}
+}
 

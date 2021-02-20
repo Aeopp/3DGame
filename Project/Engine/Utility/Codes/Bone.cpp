@@ -1,14 +1,14 @@
 #include "Bone.h"
 #include "imgui.h"
+#include "ResourceSystem.h"
+#include "ExportUtility.hpp"
 
+static std::tuple<Vector3, Quaternion, Vector3> CurrentAnimationTransform(
 
+	const double CurrentAnimTimeTrackTime,
+	const std::string& Name,
 
-static std::tuple<Vector3, Quaternion,Vector3> CurrentAnimationTransform(
-
-const double CurrentAnimTimeTrackTime , 
-const std::string& Name, 
-
-const std::unordered_map<std::string,
+	const std::unordered_map<std::string,
 	std::map<double, Vector3>>&ScaleTrack,
 
 	const std::unordered_map<std::string,
@@ -72,8 +72,63 @@ const std::unordered_map<std::string,
 			PosEnd->second, (CurrentAnimTimeTrackTime - PosBegin->first) / PosInterval);
 	}
 
-	return { CurAnimScale,CurAnimRotation,CurAnimLocation};
-}
+	return { CurAnimScale,CurAnimRotation,CurAnimLocation };
+};
+
+void Engine::Bone::BoneEdit()
+{
+	if (ImGui::TreeNode(Name.c_str()))
+	{
+		bEditObserver = true;
+		if (ImGui::CollapsingHeader("Edit"))
+		{
+			bEditSelect = true; 
+			ImGui::Button("Attach");
+			ImGui::Button("Detach");
+		}
+		else
+		{
+			bEditSelect = false;
+		}
+
+		for (const auto& _Children : Childrens)
+		{
+			_Children->BoneEdit();
+		}
+		ImGui::TreePop();
+	}
+	else
+	{
+		bEditObserver = false;
+	}
+};
+
+void Engine::Bone::DebugRender(
+	const Matrix& World,
+	IDirect3DDevice9* Device, 
+	ID3DXMesh* const DebugMesh)&
+{
+	IDirect3DTexture9* CurColorTex{ nullptr };
+	auto& ResourceSys = ResourceSystem::Instance;
+
+	if (bEditSelect)
+	{
+		CurColorTex = ResourceSys->Get<IDirect3DTexture9>(L"Texture_Red");
+	}
+	else if (bEditObserver)
+	{
+		CurColorTex = ResourceSys->Get<IDirect3DTexture9>(L"Texture_Blue");
+	}
+	else
+	{
+		CurColorTex = ResourceSys->Get<IDirect3DTexture9>(L"Texture_Green");
+	}
+	
+	const Matrix Final = FMath::Scale({ 10,10,10 }) * ToRoot * World ;
+	Device->SetTransform(D3DTS_WORLD,&Final);
+	Device->SetTexture(0, CurColorTex);
+	DebugMesh->DrawSubset(0);
+};
 
 void Engine::Bone::BoneMatrixUpdate(
 	const Matrix& ParentToRoot,

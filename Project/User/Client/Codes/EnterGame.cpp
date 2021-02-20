@@ -13,7 +13,7 @@
 #include "ResourceSystem.h"
 #include "FMath.hpp"
 #include "App.h"
-#include "StaticLayer.h"
+#include "NormalLayer.h"
 #include <vector>
 #include <array>
 #include <numbers>
@@ -27,6 +27,7 @@
 #include "FontManager.h"
 #include "UtilityGlobal.h"
 #include "ShaderManager.h"
+#include "AnimationTool.h"
 
 void EnterGame::Initialize(IDirect3DDevice9* const Device)&
 {
@@ -46,7 +47,7 @@ void EnterGame::Initialize(IDirect3DDevice9* const Device)&
 	// 현재 씬 레이어 추가.
 	{
 		Manager.NewLayer<EnemyLayer>();
-		Manager.NewLayer<StaticLayer>();
+		Manager.NewLayer<Engine::NormalLayer>();
 	}
 
 
@@ -59,7 +60,7 @@ void EnterGame::Initialize(IDirect3DDevice9* const Device)&
 	{
 		constexpr float Aspect = App::ClientSize<float>.first / App::ClientSize<float>.second;
 
-		Manager.NewObject<StaticLayer, Engine::DynamicCamera>(
+		Manager.NewObject<Engine::NormalLayer,Engine::DynamicCamera>(
 			L"Static", L"Camera",
 			FMath::PI / 3.f, 0.1f, 100.f, Aspect, 10.f, &Control);
 	}
@@ -80,6 +81,10 @@ void EnterGame::Event() &
 		if (ImGui::Button("Editor"))
 		{
 			Manager.ChangeScene<Tool>();
+		}
+		if (ImGui::Button("AnimationTool"))
+		{
+			Manager.ChangeScene<AnimationTool>();
 		}
 		ImGui::End(); 
 	}

@@ -2,6 +2,9 @@
 #include "Transform.h"
 #include "FMath.hpp"
 #include "imgui.h"
+#include <string>
+#include "StringHelper.h"
+
 
 void Engine::Transform::Initialize()&
 {
@@ -19,18 +22,30 @@ void Engine::Transform::Event(Object* const Owner)&
 {
 	Super::Event(Owner);
 
-	const Vector3& Scale = GetScale();
+	const Vector3& Scale    = GetScale();
 	const Vector3& Location = GetLocation();
 	const Vector3& Rotation = GetRotation();
 
-	ImGui::Text(
-		"Scale\n X : %f \n Y : %f \n Z : %f", Scale.x, Scale.y, Scale.z);
-	ImGui::Text(
-		"Location\n X : %f \n Y : %f \n Z : %f", Location.x, Location.y, Location.z);
-	ImGui::Text(
-		"Rotation\n X : %f \n Y : %f \n Z : %f",Rotation.x, Rotation.y, Rotation.z);
-	ImGui::Text(
-		"Forward\n X : %f \n Y : %f \n Z : %f", Forward.x, Forward.y, Forward.z);
+	if (ImGui::TreeNode(("TransformEdit_" + ToA(Owner->GetName())).c_str()))
+	{
+		ImGui::InputFloat3("Scale", (float*)&Scale);
+		ImGui::InputFloat3("Rotation", (float*)&Rotation);
+		ImGui::InputFloat3("Location", (float*)&Location);
+
+		Vector3 CurSliderScale{ 0,0,0 }, CurSliderRotation{ 0,0,0 }, CurSliderLocation{ 0,0,0 };
+		ImGui::SliderFloat3("_Scale",(float*) &CurSliderScale, -0.1f, +0.1f); 
+		ImGui::SliderFloat3("_Rotation", (float*)&CurSliderRotation , -0.1f, +0.1f);
+		ImGui::SliderFloat3("_Location", (float*)&CurSliderLocation, -0.1f, +0.1f);
+
+		SetScale(Scale + CurSliderScale);
+		SetRotation(Rotation + CurSliderRotation);
+		SetLocation(Location + CurSliderLocation);
+
+
+
+		ImGui::TreePop();
+		ImGui::Separator();
+	}
 };
 
 const Matrix& Engine::Transform::UpdateWorld()&

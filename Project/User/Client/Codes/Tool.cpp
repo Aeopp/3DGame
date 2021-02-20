@@ -15,7 +15,7 @@
 #include "ResourceSystem.h"
 #include "FMath.hpp"
 #include "App.h"
-#include "StaticLayer.h"
+#include "NormalLayer.h"
 #include <vector>
 #include <array>
 #include <numbers>
@@ -40,6 +40,7 @@
 #include "StringHelper.h"
 
 
+
 void Tool::Initialize(IDirect3DDevice9* const Device)&
 {
      Super::Initialize(Device);
@@ -59,19 +60,19 @@ void Tool::Initialize(IDirect3DDevice9* const Device)&
 
 	// 현재 씬 레이어 추가.
 	{
-		Manager.NewLayer<StaticLayer>();
+		Manager.NewLayer<Engine::NormalLayer>();
 	}
 
 	// 프로토타입 로딩.
 	{
-
+		
 	}
 
-	// 카메라 오브젝트 추가.
+	// 오브젝트 추가.
 	{
 		constexpr float Aspect = App::ClientSize<float>.first / App::ClientSize<float>.second;
 
-		Manager.NewObject<StaticLayer, Engine::DynamicCamera>(
+		Manager.NewObject<Engine::NormalLayer, Engine::DynamicCamera>(
 			L"Static", L"Camera",
 			FMath::PI / 3.f, 0.1f, 10000.f, Aspect, 1000.f, &Control);
 	}
@@ -105,8 +106,8 @@ void Tool::Initialize(IDirect3DDevice9* const Device)&
 
 					if (LoadDecoOpt.Picture)
 					{
-						LoadDecoOpt.Width = ResourceSys.GetAny<float>(PicturePath + L"Width");
-						LoadDecoOpt.Height = ResourceSys.GetAny<float>(PicturePath + L"Height");
+						LoadDecoOpt.Width = *ResourceSys.GetAny<float>(PicturePath + L"Width");
+						LoadDecoOpt.Height = *ResourceSys.GetAny<float>(PicturePath + L"Height");
 					}
 					else
 					{
@@ -146,10 +147,6 @@ void Tool::Event() &
 		if (ImGui::Button("Landscape", ImVec2{ 70,35}))
 		{
 			CurrentMode = Mode::Landscape;
-		}ImGui::SameLine();
-		if (ImGui::Button("Material Tool", ImVec2{ 70,35 }))
-		{
-			CurrentMode = Mode::AnimationTool;
 		}
 	}
 
@@ -160,9 +157,6 @@ void Tool::Event() &
 		break;
 	case Tool::Mode::Landscape:
 		Landscape();
-		break;
-	case Tool::Mode::AnimationTool:
-		AnimationTool(); 
 		break;
 	default:
 		break;
@@ -182,22 +176,23 @@ void Tool::Render()&
 	Matrix ViewProjection = View * Projection;
 
 	std::array<Vector3, 2u> XAxis{ Vector3{0,0,0},Vector3{ (std::numeric_limits<float>::max)() ,0,0} };
-	std::array<Vector3, 2u> YAxis{ Vector3{0,0,0},Vector3{ 0.f,(std::numeric_limits<float>::max)()/2.f,0} };
+	std::array<Vector3, 2u> YAxis{ Vector3{0,0,0},Vector3{ 0.f,(std::numeric_limits<float>::max)() / 2.f,0} };
 	std::array<Vector3, 2u> ZAxis{ Vector3{0,0,0},Vector3{ 0 ,0,(std::numeric_limits<float>::max)()} };
 	LinearSpace->SetWidth(3.f);
 	LinearSpace->Begin();
-	
+
 	LinearSpace->DrawTransform(XAxis.data(), XAxis.size(), &ViewProjection,
-		D3DCOLOR_ARGB(100,255,0,0));
+		D3DCOLOR_ARGB(100, 255, 0, 0));
 	LinearSpace->DrawTransform(YAxis.data(), YAxis.size(), &ViewProjection,
 		D3DCOLOR_ARGB(100, 0, 255, 0));
 	LinearSpace->DrawTransform(ZAxis.data(), ZAxis.size(), &ViewProjection,
 		D3DCOLOR_ARGB(100, 0, 0, 255));
 	LinearSpace->End();
-}
+};
 
 void Tool::AnimationTool()&
 {
+
 }
 
 void Tool::NaviMeshTool()&
@@ -328,7 +323,7 @@ void Tool::Landscape()&
 	auto& RefLandscape = Renderer.RefLandscape();
 	auto& RefMgr = RefManager();
 
-	auto _Camera = RefMgr.FindObject<StaticLayer, Engine::DynamicCamera>(L"Camera");
+	auto _Camera = RefMgr.FindObject<Engine::NormalLayer, Engine::DynamicCamera>(L"Camera");
 	auto CameraTransform =_Camera->GetComponent<Engine::Transform>();
 	const Vector3 CameraLocation =CameraTransform->GetLocation();
 	const Vector3 CameraLook = CameraTransform->GetForward();
@@ -369,7 +364,7 @@ void Tool::Landscape()&
 				KeyA.assign(std::begin(DecoKey), std::end(DecoKey));
 
 				if (ImGui::ImageButton(reinterpret_cast<void**>
-					(DecoOpt.Picture), ImVec2{ 1024,1024 }))
+					(DecoOpt.Picture), ImVec2{ 256,256}))
 				{
 					switch (SpawnTransformComboSelectItem)
 					{

@@ -23,6 +23,12 @@ namespace Engine
 	struct DLL_DECL SkinningMeshElement : public MeshElement
 	{
 	};
+
+	struct DLL_DECL AnimationInformation
+	{
+		double TransitionTime = 0.5f;
+		double Acceleration = 1.f;
+	};
 	
 	// 본에 관한 정보를 클론들끼리 절대로 공유하지 마세요 
 	// ( 프로토타입에서의 카피 이후 구조는 동일하지만 새로운 인스턴스로 본정보를 구축하세요.)
@@ -55,9 +61,13 @@ namespace Engine
 
 		void  PlayAnimation(const uint32 AnimIdx, 
 			const double Acceleration,
-			const double TransitionDuration )&;
+			const double TransitionDuration)&;
+		void  PlayAnimation(const uint32 AnimIdx)&;
+		void  PlayAnimation(const std::string& AnimName)&;
 	private:
 		void InitTextureForVertexTextureFetch()&; 
+		void AnimationSave()&;
+		void AnimationLoad()&;
 	public:
 		static const inline Property          TypeProperty = Property::Render;
 		uint32 PrevAnimIndex = 0u;
@@ -70,19 +80,30 @@ namespace Engine
 		double TransitionDuration = 0.0;
 
 		uint32 MaxAnimIdx{ 0u };
+		bool bBoneDebug = false; 
 	private:
+		std::shared_ptr<std::set<std::string>> BoneNameSet{}; 
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr }; 
 		Engine::ShaderFx _ShaderFx{};
 		double PrevAnimAcceleration = 1.f;
 		double Acceleration = 1.f;
-		std::vector       <std::unordered_map<std::string, aiNodeAnim*>>  AnimTable{};
-		std::shared_ptr<AnimationTrack>                            _AnimationTrack{};
-		std::unordered_map<std::string,uint64>               BoneTableIdxFromName{};
-		std::vector<std::shared_ptr<Bone>>                   BoneTable{}; 
-		std::vector       <SkinningMeshElement>                          MeshContainer{};
+
+		/// <summary>
+		/// 애니메이션 테이블과 정보 테이블을 인덱스를 공유.
+		/// </summary>
+		std::vector<std::unordered_map<std::string, aiNodeAnim*>>  AnimTable{};
+		std::vector<AnimationInformation>                          AnimInfoTable{}; 
+		std::unordered_map<std::string,uint32>                     AnimIdxFromName{}; 
+
+		std::shared_ptr<AnimationTrack>                             _AnimationTrack{};
+		std::unordered_map<std::string,uint64>						BoneTableIdxFromName{};
+		std::vector<std::shared_ptr<Bone>>							BoneTable{}; 
+		std::vector       <SkinningMeshElement>                     MeshContainer{};
 		// VTF 기술로 버텍스 쉐이더에서 애니메이션 스키닝을 수행.
 		IDirect3DTexture9* BoneAnimMatrixInfo{nullptr}; 
 		int32 VTFPitch{ 0 };
+
+		std::filesystem::path FullPath{};
 	};
 }
 
@@ -92,10 +113,12 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 	const std::filesystem::path FileName,
 	const std::wstring ResourceName)&
 {
+	this->ResourceName = ResourceName;
 	this->Device = Device;
 	// 모델 생성 플래그 , 같은 플래그를 두번, 혹은 호환이 안되는
 	// 플래그가 겹칠 경우 런타임 에러이며 에러 핸들링이
 	// 어려우므로 매우 유의 할 것.
+	FullPath = FilePath /FileName;
 	AiScene = Engine::Global::AssimpImporter.ReadFile(
 		(FilePath / FileName).string(),
 		aiProcess_MakeLeftHanded |
@@ -114,6 +137,10 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 		aiProcess_OptimizeMeshes |
 		aiProcess_SplitLargeMeshes
 	);
+
+	BoneNameSet = std::make_shared<std::set<std::string>>();
+
+
 	static uint32 SkeletonResourceID = 0u;
 	auto& ResourceSys = RefResourceSys();
 	MaxAnimIdx = AiScene->mNumAnimations;
@@ -206,6 +233,7 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 			{
 				const aiBone* const CurVtxBone = _AiMesh->mBones[BoneIdx];
 				auto iter = BoneTableIdxFromName.find(CurVtxBone->mName.C_Str());
+				BoneNameSet->insert(CurVtxBone->mName.C_Str());
 				if (iter != std::end(BoneTableIdxFromName))
 				{
 					const uint64 TargetBoneIdx = iter->second;
@@ -267,6 +295,9 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 	if (AiScene->HasAnimations())
 	{
 		AnimTable.resize(AiScene->mNumAnimations);
+		AnimInfoTable.resize(AiScene->mNumAnimations); 
+		AnimIdxFromName.reserve(AiScene->mNumAnimations);
+
 		_AnimationTrack = std::make_shared<AnimationTrack>();
 		_AnimationTrack->ScaleTimeLine.resize(AiScene->mNumAnimations);
 		_AnimationTrack->QuatTimeLine.resize(AiScene->mNumAnimations);
@@ -275,6 +306,8 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 		for (uint32 AnimIdx = 0u; AnimIdx < AiScene->mNumAnimations; ++AnimIdx)
 		{
 			aiAnimation* _Animation = AiScene->mAnimations[AnimIdx];
+			AnimInfoTable[AnimIdx].Acceleration = 1.0 * _Animation->mTicksPerSecond;
+			AnimIdxFromName.insert({ _Animation ->mName.C_Str() , AnimIdx});
 			for (uint32 ChannelIdx = 0u; ChannelIdx < _Animation->mNumChannels; ++ChannelIdx)
 			{
 				const std::string ChannelName = _Animation->mChannels[ChannelIdx]->mNodeName.C_Str();
@@ -312,4 +345,6 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 			}
 		}
 	}
+
+	AnimationLoad();
 }

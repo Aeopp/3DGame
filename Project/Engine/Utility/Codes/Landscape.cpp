@@ -461,7 +461,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 		{
 			const Vector3 DecoTfmScale = CurDecoInstance->Scale;
 			const Vector3 DecoTfmLocation = CurDecoInstance->Location;
-			const Vector3  DecoTfmRotation = CurDecoInstance->Rotation;
+			const Vector3 DecoTfmRotation = CurDecoInstance->Rotation;
 
 			const Matrix DecoWorld = 
 				FMath::WorldMatrix(

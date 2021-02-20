@@ -19,8 +19,12 @@ namespace Engine
 				Params&&... _Params)&;
 		template<typename ObjectSubType>
 		auto Clone(const std::wstring& TargetTag)&;
+
 		void Clear() & noexcept;
 		void Clear(const std::wstring& Tag);
+		void ClearExceptTag(const std::wstring& Tag)&;
+
+		void Event()&;
 	private:
 		std::unordered_map<std::wstring/*User Custom Tag*/, 
 		std::unordered_map<std::string,

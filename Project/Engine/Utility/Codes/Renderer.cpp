@@ -12,6 +12,11 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 
 void Engine::Renderer::Render()&
 {
+	if (Engine::Global::bDebugMode)
+	{
+		ImGui::TreeNode("Frustum Culling");
+	}
+
 	Matrix View, Projection, CameraWorld;
 	Device->GetTransform(D3DTS_VIEW, &View);
 	Device->GetTransform(D3DTS_PROJECTION, &Projection);
@@ -28,6 +33,11 @@ void Engine::Renderer::Render()&
 	_Frustum.Render(Device.get());
 	RenderUI(View, Projection, CameraLocation);
 	RenderObjects.clear();
+
+	if (Engine::Global::bDebugMode)
+	{
+		ImGui::TreePop();
+	}
 };
 
 void Engine::Renderer::Regist(RenderInterface* const Target)
@@ -62,8 +72,7 @@ void Engine::Renderer::RenderDebugCollision(const Matrix& View, const Matrix& Pr
 		Device->SetPixelShader(nullptr);
 		Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 		Device->SetRenderState(D3DRS_LIGHTING, FALSE);
-		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-		Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+		Device->SetRenderState(D3DRS_FILLMODE,D3DFILL_WIREFRAME);
 #ifdef PARALLEL
 		if (auto iter = RenderObjects.find(RenderInterface::Group::DebugCollision);
 			iter != std::end(RenderObjects))
@@ -96,6 +105,7 @@ void Engine::Renderer::RenderDebugCollision(const Matrix& View, const Matrix& Pr
 				RenderInterface& _RefRender = _RenderEntity.get();
 				if (_RefRender.bCullingOn)
 				{
+					
 					if (_Frustum.IsIn(_RefRender.GetCullingSphere()))
 					{
 						_RefRender.Render(View,Projection,CameraLocation);

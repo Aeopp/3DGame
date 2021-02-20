@@ -67,8 +67,8 @@ void Engine::OBB::MakeDebugCollisionBox(IDirect3DDevice9* const Device)
 		(L"VertexBuffer_Location3DUV_Cube_Collision_" + std::to_wstring(++CollisionResourceID), VertexBuffer);
 
 	IndexBuffer = ResourceSys->Get<IDirect3DIndexBuffer9>(L"IndexBuffer_Cube");
-	CollisionTexture = ResourceSys->Get<IDirect3DTexture9>(L"Texture_Collision");
-	NoCollisionTexture = ResourceSys->Get<IDirect3DTexture9>(L"Texture_NoCollision");
+	CollisionTexture = ResourceSys->Get<IDirect3DTexture9>(L"Texture_Red");
+	NoCollisionTexture = ResourceSys->Get<IDirect3DTexture9>(L"Texture_Green");
 }
 
 
@@ -77,9 +77,10 @@ Engine::Geometric::Type Engine::OBB::GetType() const&
 	return Engine::Geometric::Type::OBB;
 };
 
-void Engine::OBB::Update(const Vector3 Scale, const Vector3 Rotation, const Vector3 Location)&
+void Engine::OBB::Update(const Vector3 Scale, const Vector3 Rotation, const Vector3 Location,
+	const Matrix& OffsetMatrix)&
 {
-	const Matrix ToWorld = FMath::WorldMatrix(Scale, Rotation, Location);
+	const Matrix ToWorld =  OffsetMatrix*FMath::WorldMatrix(Scale, Rotation, Location);
 	WorldCenter = FMath::Mul(LocalCenter, ToWorld);
 	std::transform(std::begin(LocalFaceNormals), std::end(LocalFaceNormals), std::begin(WorldFaceNormals),
 		[ToWorld](const Vector3& LocalFaceNormal) {
@@ -218,8 +219,8 @@ void Engine::GSphere::MakeDebugCollisionSphere(IDirect3DDevice9* const Device)
 	ResourceSys->Insert<ID3DXBuffer>
 		(L"Adjacency_Sphere_Collision_"+ std::to_wstring(++CollisionResourceID), _SphereAdjacency);
 
-	CollisionTexture = ResourceSys->Get<IDirect3DTexture9>(L"Texture_Collision");
-	NoCollisionTexture = ResourceSys->Get<IDirect3DTexture9>(L"Texture_NoCollision");
+	CollisionTexture = ResourceSys->Get<IDirect3DTexture9>(L"Texture_Red");
+	NoCollisionTexture = ResourceSys->Get<IDirect3DTexture9>(L"Texture_Green");
 }
 
 Engine::Geometric::Type Engine::GSphere::GetType() const&
@@ -227,9 +228,10 @@ Engine::Geometric::Type Engine::GSphere::GetType() const&
 	return Engine::Geometric::Type::Sphere;
 }
 
-void Engine::GSphere::Update(const Vector3 Scale, const Vector3 Rotation, const Vector3 Location)&
+void Engine::GSphere::Update(const Vector3 Scale, const Vector3 Rotation, const Vector3 Location,
+	const Matrix& OffsetMatrix)&
 {
-	const Matrix ToWorld = FMath::WorldMatrix(Scale, Rotation, Location);
+	const Matrix ToWorld = OffsetMatrix * FMath::WorldMatrix(Scale, Rotation, Location);
 	WorldSphere.Center = FMath::Mul(LocalSphere.Center, ToWorld);
 	WorldSphere.Radius = LocalSphere.Radius * ((Scale.x + Scale.y + Scale.z) / 3.f);
 }

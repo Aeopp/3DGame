@@ -41,6 +41,8 @@ namespace Engine
 		virtual void HitEnd(Object* const Target)&;
 		virtual void HitNotify(Object* const Target, const Vector3 PushDir,
 			const float CrossAreaScale)&;
+	public:
+		virtual void PrototypeEdit()&abstract;
 	protected:
 		std::wstring Name{};
 	private:

@@ -14,6 +14,8 @@
 #include "ResourceSystem.h"
 #include "App.h"
 #include "ShaderManager.h"
+#include "NormalLayer.h"
+
 
 
 void Player::Initialize(
@@ -21,7 +23,6 @@ void Player::Initialize(
 	const Vector3& Rotation,
 	const Vector3& SpawnLocation)&
 {
-	
 	Super::Initialize();
 
 	auto _Transform =AddComponent<Engine::Transform>();
@@ -32,8 +33,15 @@ void Player::Initialize(
 	auto _SkeletonMesh = AddComponent<Engine::SkeletonMesh>(L"Player");
 
 	auto _Collision = AddComponent<Engine::Collision>
-		(Device, Engine::CollisionTag::Decorator, _Transform);
+						(Device, Engine::CollisionTag::Decorator, _Transform,
+							typeid(Player).name());
+
+	std::vector<Vector3> ModelVertexLocations{};
 	
+	for (const Vector3& LocalLocation: *_SkeletonMesh->LocalVertexLocations)
+	{
+
+	}
 	// 바운딩 박스.
 	{
 		Vector3  BoundingBoxMin{}, BoundingBoxMax{};
@@ -42,16 +50,17 @@ void Player::Initialize(
 			sizeof(Vector3), &BoundingBoxMin, &BoundingBoxMax);
 
 		_Collision->_Geometric = std::make_unique<Engine::OBB>
-			(BoundingBoxMin, BoundingBoxMax);
+									(BoundingBoxMin, BoundingBoxMax);
 
-		static_cast<Engine::OBB* const> (_Collision->_Geometric.get())->MakeDebugCollisionBox(Device);
+		static_cast<Engine::OBB* const> (_Collision->_Geometric.get())->MakeDebugCollisionBox				(Device);
 	}
 
 	RenderInterface::SetUpCullingInformation(
 		_Collision->_Geometric->LocalSphere  ,
 		_Transform);
 
-	RenderInterface::bCullingOn = false;
+	RenderInterface::bCullingOn = true;
+
 	_SkeletonMesh->PlayAnimation(0u,100.f, -1);
 	
 	// 바운딩 스피어
@@ -141,23 +150,23 @@ void Player::Update(const float DeltaTime)&
 		_Transform->Move({ 0,1,0 },  DeltaTime, -Speed);
 	}
 
-	static float TransitionDuration = 1.0;
-	static float TransitionAceeleration = 10.0; 
-	ImGui::SliderFloat("TransitionDuration", &TransitionDuration, 0.1, 10.0);
-	ImGui::SliderFloat("TransitionAcceleration", & TransitionAceeleration , 1.0 , 1000.0);
+	//static float TransitionDuration = 1.0;
+	//static float TransitionAceeleration = 10.0; 
+	//ImGui::SliderFloat("TransitionDuration", &TransitionDuration, 0.1, 10.0);
+	//ImGui::SliderFloat("TransitionAcceleration", & TransitionAceeleration , 1.0 , 1000.0);
 
-	if (ImGui::Button( (  ToA(Name)+"Anim 0").c_str() ))
-	{
-		GetComponent<Engine::SkeletonMesh>()->PlayAnimation(0u, TransitionAceeleration, TransitionDuration);
-	}
-	if (ImGui::Button((ToA(Name) + "Anim 1").c_str() ))
-	{
-		GetComponent<Engine::SkeletonMesh>()->PlayAnimation(1u, TransitionAceeleration, TransitionDuration);
-	}
-	if (ImGui::Button((ToA(Name) + "Anim 2").c_str() ))
-	{
-		GetComponent<Engine::SkeletonMesh>()->PlayAnimation(2u, TransitionAceeleration, TransitionDuration);
-	}
+	//if (ImGui::Button( (  ToA(Name)+"Anim 0").c_str() ))
+	//{
+	//	GetComponent<Engine::SkeletonMesh>()->PlayAnimation(0u, TransitionAceeleration, TransitionDuration);
+	//}
+	//if (ImGui::Button((ToA(Name) + "Anim 1").c_str() ))
+	//{
+	//	GetComponent<Engine::SkeletonMesh>()->PlayAnimation(1u, TransitionAceeleration, TransitionDuration);
+	//}
+	//if (ImGui::Button((ToA(Name) + "Anim 2").c_str() ))
+	//{
+	//	GetComponent<Engine::SkeletonMesh>()->PlayAnimation(2u, TransitionAceeleration, TransitionDuration);
+	//}
 
 
 	if (Control.IsPressing(DIK_R))
@@ -201,3 +210,21 @@ void Player::HitEnd(Object* const Target)&
 {
 	Super::HitEnd(Target);
 };
+
+void Player::PrototypeEdit()&
+{
+	auto& RefManager = Engine::Management::Instance;
+
+	static uint32 SpawnID = 0u;
+	
+	if (ImGui::Button("Spawn"))
+	{
+		RefManager->NewObject<Engine::NormalLayer, Player>
+			(L"Static", L"Player_" + std::to_wstring(SpawnID++),
+				Vector3{ 1.f,1.f,1.f }, Vector3{ 0,0,0 }, Vector3{ 0,0,0 });
+	}
+};
+
+
+
+

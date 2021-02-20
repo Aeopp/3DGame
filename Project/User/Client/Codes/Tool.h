@@ -24,7 +24,6 @@ private:
 	{
 		NaviMesh=0u,
 		Landscape,
-		AnimationTool,
 	};
 private:
 	void AnimationTool()&;

@@ -35,7 +35,7 @@ namespace Engine
 		static const inline Property TypeProperty = Property::Render;
 		std::shared_ptr<std::vector<Vector3>> LocalVertexLocations;
 	protected:
-	
+		std::wstring ResourceName{ };  
 		const aiScene* AiScene{};
 		IDirect3DDevice9* Device{ nullptr };
 	};

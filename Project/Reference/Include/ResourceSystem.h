@@ -5,6 +5,7 @@
 #include <d3d9.h>
 #include "TypeAlias.h"
 #include <any>
+#include <optional>
 
 namespace Engine
 {
@@ -54,7 +55,15 @@ inline auto Engine::ResourceSystem::Get(const std::wstring& Name)
 template<typename ResourceType>
 inline auto Engine::ResourceSystem::GetAny(const std::wstring& Name)
 {
-	return std::any_cast<ResourceType>(AnyContainer[typeid(ResourceType).hash_code()][Name]);
+	std::optional<ResourceType> _IsResource;
+
+	auto iter = AnyContainer[typeid(ResourceType).hash_code()].find(Name);
+	if (iter != std::end(AnyContainer[typeid(ResourceType).hash_code()]))
+	{
+		_IsResource = std::any_cast<ResourceType>(iter->second);
+	}
+
+	return _IsResource;
 }
 
 template<typename ResourceType, typename ResourceCreateMethodType, typename ...Params>

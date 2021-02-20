@@ -14,7 +14,8 @@ namespace Engine
 		void Initialize(
 			IDirect3DDevice9* const Device,
 			const CollisionTag _Tag,
-			class Transform* const OwnerTransform)&;
+			class Transform* const OwnerTransform ,
+			const std::string& ClassIdentifier)&;
 		virtual void Update(class Object* const Owner,
 			const float DeltaTime) & override;
 		virtual void Event(class Object* Owner) & override;
@@ -23,6 +24,9 @@ namespace Engine
 		auto& RefPushCollisionables()&;
 		bool IsCollisionable(const CollisionTag _Tag)const&;
 		bool IsCollision(Collision* const Rhs)&;
+
+		void Save()&;
+		void Load()&;
 	public:
 		bool bCurrentFrameCollision = false;
 		static const inline Property TypeProperty = Property::Collision;
@@ -33,7 +37,17 @@ namespace Engine
 		std::set<uint32> HitCollisionIDs{};
 		bool bCollision = true;
 		class Object* Owner{ nullptr };
+		std::string OwnerClassIdentifier{};
+		Matrix OffsetMatrix = FMath::Identity();
 	private:
+		struct OffsetInformation
+		{
+			Vector3 Scale{ 1,1,1 };
+			Vector3 Rotation{ 0,0,0 };
+			Vector3 Location{ 0,0,0 };
+		};
+		OffsetInformation _OffsetInfo{}; 
+
 		IDirect3DDevice9* Device{ nullptr };  
 		class Transform* OwnerTransform{ nullptr };
 		std::set<CollisionTag> PushCollisionables;

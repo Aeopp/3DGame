@@ -6,6 +6,7 @@
 #include <optional>
 #include "UtilityGlobal.h"
 #include "Renderer.h"
+#include "imgui.h"
 
 void Engine::StaticMesh::Initialize(
 	const std::wstring& ResourceName)&
@@ -15,10 +16,10 @@ void Engine::StaticMesh::Initialize(
 	auto& ResourceSys = Engine::ResourceSystem::Instance;
 
 	auto ProtoStaticMesh =
-		(ResourceSys->GetAny<std::shared_ptr<Engine::StaticMesh>>(ResourceName));
-
+		(*ResourceSys->GetAny<std::shared_ptr<Engine::StaticMesh>>(ResourceName));
+	uint32 BackupID = ID; 
 	this->operator=(*ProtoStaticMesh);
-
+	ID = BackupID; 
 	_ShaderFx.Initialize(L"DefaultFx");
 }
 
@@ -32,6 +33,12 @@ void Engine::StaticMesh::Render(const Matrix& World,
                                 const Matrix& Projection,
 	                            const Vector4& CameraLocation4D)&
 {
+
+	if (Engine::Global::bDebugMode)
+	{
+		ImGui::TextColored(ImVec4{ 1.f,114.f / 255.f, 198.f / 255.f , 1.0f }, "Draw : %s", ToA(ResourceName).c_str());
+	}
+
 	Super::Render(World , View , Projection , CameraLocation4D);
 
 	auto& Renderer = *Engine::Renderer::Instance;

@@ -1,0 +1,22 @@
+{
+    "AnimationInfoTable": [
+        {
+            "Index": 0,
+            "Name": "Skill01",
+            "Acceleration": 30.236000061035158,
+            "TransitionTime": 0.5
+        },
+        {
+            "Index": 1,
+            "Name": "Skill02",
+            "Acceleration": 30.562999725341798,
+            "TransitionTime": 0.5
+        },
+        {
+            "Index": 2,
+            "Name": "Skill03",
+            "Acceleration": 30.562999725341798,
+            "TransitionTime": 0.5
+        }
+    ]
+}

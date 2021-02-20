@@ -21,6 +21,8 @@ public:
 	virtual void HitBegin(Object* const Target, const Vector3 PushDir,
 		const float CrossAreaScale) & override;
 	virtual void HitEnd(Object* const Target) & override;
+
+	virtual void PrototypeEdit() & override;
 private:
 	IDirect3DDevice9* Device{ nullptr };
 };

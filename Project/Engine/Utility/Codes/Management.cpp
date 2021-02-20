@@ -162,6 +162,7 @@ void Engine::Management::Event()&
 	_Controller->Update();
 	_Sound->Update();
 	_CurrentScene->Event();
+	_PrototypeManager->Event();
 }
 
 void Engine::Management::Update(const float DeltaTime)&
@@ -387,7 +388,7 @@ void Engine::Management::CreateStaticResource()&
 		Device.get(), &_DxLine);*/
 	ID3DXMesh* SphereMesh{ nullptr };
 	ID3DXBuffer* SphereMeshAdjacency{ nullptr };
-	D3DXCreateSphere(Device.get(), 1.f, 10, 10, &SphereMesh, &SphereMeshAdjacency);
+	D3DXCreateSphere(Device.get(), 1.f, 16, 16, &SphereMesh, &SphereMeshAdjacency);
 	_ResourceSys->Insert<ID3DXMesh>(L"SphereMesh", SphereMesh);
 	_ResourceSys->Insert<ID3DXBuffer>(L"SphereMeshAdjacency", SphereMeshAdjacency);
 
@@ -420,9 +421,6 @@ void Engine::Management::CreateStaticResource()&
 		_FontManager->AddFont(Device.get(), L"Font_Jinji", L"궁서", 15, 20, FW_THIN);
 	}
 
-
-
-	
 	{
 		// 상위 셰이더 로딩
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"LandscapeFx.hlsl", L"LandscapeFx");
@@ -440,26 +438,38 @@ void Engine::Management::CreateCollisionDebugResource()&
 {
 	auto Device = _GraphicDevice->GetDevice();
 
-	IDirect3DTexture9* TextureNoCollision{ nullptr };
-	IDirect3DTexture9* TextureCollision{ nullptr };
+	IDirect3DTexture9* TextureRed{ nullptr };
+	IDirect3DTexture9* TextureGreen{ nullptr };
+	IDirect3DTexture9* TextureBlue{ nullptr };
 
 	{
-		Device->CreateTexture(1, 1, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &TextureNoCollision, NULL);
+		Device->CreateTexture(1, 1, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &TextureRed, NULL);
 		D3DLOCKED_RECT		LockRect;
 		ZeroMemory(&LockRect, sizeof(D3DLOCKED_RECT));
-		TextureNoCollision->LockRect(0, &LockRect, NULL, 0);
-		*((uint32*)LockRect.pBits) = D3DXCOLOR(1.f, 0.f, 0.f, 1.f);
-		TextureNoCollision->UnlockRect(0);
-		_ResourceSys->Insert<IDirect3DTexture9>(L"Texture_Collision", TextureNoCollision);
+		TextureRed->LockRect(0, &LockRect, NULL, 0);
+		*((uint32*)LockRect.pBits) = D3DXCOLOR(1.f, 0.f, 0.f, 0.1f);
+		TextureRed->UnlockRect(0);
+		_ResourceSys->Insert<IDirect3DTexture9>(L"Texture_Red", TextureRed);
 	}
 
 	{
-		Device->CreateTexture(1, 1, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &TextureCollision, NULL);
+		Device->CreateTexture(1, 1, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &TextureGreen, NULL);
 		D3DLOCKED_RECT		LockRect;
 		ZeroMemory(&LockRect, sizeof(D3DLOCKED_RECT));
-		TextureCollision->LockRect(0, &LockRect, NULL, 0);
-		*((uint32*)LockRect.pBits) = D3DXCOLOR(0.f, 1.f, 0.f, 1.f);
-		TextureCollision->UnlockRect(0);
-		_ResourceSys->Insert<IDirect3DTexture9>(L"Texture_NoCollision", TextureCollision);
+		TextureGreen->LockRect(0, &LockRect, NULL, 0);
+		*((uint32*)LockRect.pBits) = D3DXCOLOR(0.f, 1.f, 0.f, 0.1f);
+		TextureGreen->UnlockRect(0);
+		_ResourceSys->Insert<IDirect3DTexture9>(L"Texture_Green", TextureGreen);
 	}
+
+	{
+		Device->CreateTexture(1, 1, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &TextureBlue, NULL);
+		D3DLOCKED_RECT		LockRect;
+		ZeroMemory(&LockRect, sizeof(D3DLOCKED_RECT));
+		TextureBlue->LockRect(0, &LockRect, NULL, 0);
+		*((uint32*)LockRect.pBits) = D3DXCOLOR(0.f, 0.f, 1.f, 0.1f);
+		TextureBlue->UnlockRect(0);
+		_ResourceSys->Insert<IDirect3DTexture9>(L"Texture_Blue", TextureBlue);
+	}
+
 };

@@ -23,9 +23,6 @@
     <Filter Include="Layer\Enemy">
       <UniqueIdentifier>{c2abae9f-23c1-451c-98b4-1e61ffffc1a9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Layer\Static">
-      <UniqueIdentifier>{21b35400-d589-4ef2-8469-36b4c2584c67}</UniqueIdentifier>
-    </Filter>
     <Filter Include="HLSL">
       <UniqueIdentifier>{9c8eda08-8ccb-41a5-a4e5-1e5afa0d65a9}</UniqueIdentifier>
     </Filter>
@@ -37,9 +34,6 @@
     </Filter>
     <Filter Include="Scene\Enter">
       <UniqueIdentifier>{d82fc86d-dc43-41c6-bc43-7afb342c9813}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Object\Logo">
-      <UniqueIdentifier>{2510fb1f-b567-4acf-9cc4-cffb3bc6b5aa}</UniqueIdentifier>
     </Filter>
     <Filter Include="Object\Player">
       <UniqueIdentifier>{cdf652ac-5e5d-4d93-9caf-eae551d4888c}</UniqueIdentifier>
@@ -70,9 +64,6 @@
     <ClInclude Include="Codes\EnemyLayer.h">
       <Filter>Layer\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\StaticLayer.h">
-      <Filter>Layer\Static</Filter>
-    </ClInclude>
     <ClInclude Include="Codes\TombStone.h">
       <Filter>Object</Filter>
     </ClInclude>
@@ -87,6 +78,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Resource\Shader\Sample.hlsl">
       <Filter>HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\AnimationTool.h">
+      <Filter>Scene\Tool</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -105,9 +99,6 @@
     <ClCompile Include="Codes\EnemyLayer.cpp">
       <Filter>Layer\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="Codes\StaticLayer.cpp">
-      <Filter>Layer\Static</Filter>
-    </ClCompile>
     <ClCompile Include="Codes\TombStone.cpp">
       <Filter>Object</Filter>
     </ClCompile>
@@ -119,6 +110,9 @@
     </ClCompile>
     <ClCompile Include="Codes\Player.cpp">
       <Filter>Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\AnimationTool.cpp">
+      <Filter>Scene\Tool</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

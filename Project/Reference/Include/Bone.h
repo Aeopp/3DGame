@@ -33,6 +33,8 @@ namespace Engine
 		Matrix ToRoot         { FMath::Identity() };
 		Matrix Offset         { FMath::Identity() };
 
+		bool bEditSelect = false;
+		bool bEditObserver = false;
 		std::string Name{};
 
 		struct AnimationBlendInfo
@@ -52,6 +54,11 @@ namespace Engine
 
 			const std::unordered_map<std::string, std::map<double, Vector3>>& PosTrack; 
 		};
+
+		void BoneEdit();
+
+		void DebugRender( const Matrix& World , IDirect3DDevice9* Device, 
+					ID3DXMesh*const DebugMesh)&;
 
 		void BoneMatrixUpdate(
 			const Matrix& ParentToRoot,

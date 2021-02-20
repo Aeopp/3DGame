@@ -98,6 +98,7 @@ inline void Engine::Management::ChangeScene() & noexcept
 	{
 		SceneChangeEvent = [this]()
 		{
+			_PrototypeManager->ClearExceptTag(L"Static");
 			_CurrentScene = std::make_unique<SceneType>();
 			_CurrentScene->Initialize(_GraphicDevice->GetDevice().get());
 		};

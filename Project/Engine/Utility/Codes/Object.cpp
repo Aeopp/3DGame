@@ -2,6 +2,7 @@
 #include "imgui.h"
 #include <string>
 #include <iostream>
+#include "Management.h"
 
 
 void Engine::Object::Initialize()&
@@ -25,7 +26,7 @@ void Engine::Object::Event()&
 #ifdef DEVELOP
 	std::string _Name;
 	_Name.assign(std::begin(Name), std::end(Name));
-	_Name += "Information";
+	ImGui::Separator();
 	ImGui::Text(_Name.c_str());
 #endif
 
@@ -69,8 +70,9 @@ void Engine::Object::HitEnd(Object* const Target)&
 	ImGui::Text("%s Overlapped end", Target->GetName().c_str());
 }
 
-void Engine::Object::HitNotify( Object* const Target,
-								const Vector3 PushDir, const float CrossAreaScale)&
+void Engine::Object::HitNotify(Object* const Target,
+	const Vector3 PushDir, const float CrossAreaScale)&
 {
-	
-}
+
+};
+

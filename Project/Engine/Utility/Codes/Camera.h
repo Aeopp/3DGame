@@ -18,6 +18,7 @@ namespace Engine
 						const float Far,
 						const float Aspect)&;
 		void PrototypeInitialize(IDirect3DDevice9* const Device)&;
+		virtual void PrototypeEdit()&override;
 	public:
 		float FovY{ 0.0f };
 		float Far{ 1000.f };

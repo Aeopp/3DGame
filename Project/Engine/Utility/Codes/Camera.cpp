@@ -48,4 +48,9 @@ void Engine::Camera::PrototypeInitialize(IDirect3DDevice9* const Device)&
 	Super::PrototypeInitialize();
 
 	this->Device = Device;
-};
+}
+void Engine::Camera::PrototypeEdit()&
+{
+
+}
+;

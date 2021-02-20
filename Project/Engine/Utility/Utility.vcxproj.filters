@@ -103,6 +103,9 @@
     <Filter Include="Material">
       <UniqueIdentifier>{1d1437a2-173c-4653-a2ec-0cce9bf1b6d5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Layer\Normal">
+      <UniqueIdentifier>{192cec08-80c1-4b86-b4e0-bbe3b9bf9771}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
@@ -210,6 +213,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Resource\Shader\DefaultFx.hlsl">
       <Filter>Shader\HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\NormalLayer.h">
+      <Filter>Layer\Normal</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -320,6 +326,9 @@
     </ClCompile>
     <ClCompile Include="Codes\MaterialInformation.cpp">
       <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\NormalLayer.cpp">
+      <Filter>Layer\Normal</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

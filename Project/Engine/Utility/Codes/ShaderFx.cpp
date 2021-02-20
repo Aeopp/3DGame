@@ -5,7 +5,7 @@
 void Engine::ShaderFx::Initialize(const std::wstring& ResourceName)&
 {
 	auto& ResourceSys = Engine::ResourceSystem::Instance;
-	auto ProtoShaderFx = ResourceSys->GetAny<std::shared_ptr<Engine::ShaderFx>>(ResourceName);
+	auto ProtoShaderFx = *ResourceSys->GetAny<std::shared_ptr<Engine::ShaderFx>>(ResourceName);
 	this->operator=(*ProtoShaderFx);
 }
 

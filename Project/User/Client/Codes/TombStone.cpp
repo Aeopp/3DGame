@@ -15,6 +15,8 @@
 #include "App.h"
 #include "ShaderManager.h"
 
+#include "NormalLayer.h"
+
 void TombStone::Initialize(
 	const Vector3& Scale,
 	const Vector3& Rotation,
@@ -31,7 +33,8 @@ void TombStone::Initialize(
 	auto _StaticMesh =AddComponent<Engine::StaticMesh>(L"Floor");
 
 	auto _Collision = AddComponent<Engine::Collision>
-		(Device, Engine::CollisionTag::Decorator, _Transform);
+		(Device, Engine::CollisionTag::Decorator, _Transform ,
+			typeid(TombStone).name());
 
 	// 바운딩 박스.
 	{
@@ -177,4 +180,16 @@ void TombStone::HitBegin(Object* const Target, const Vector3 PushDir, const floa
 void TombStone::HitEnd(Object* const Target)&
 {
 	Super::HitEnd(Target);
-};
+}
+void TombStone::PrototypeEdit()&
+{
+	auto& RefManager = Engine::Management::Instance;
+
+	static uint32 SpawnID = 0u;
+
+	if (ImGui::Button("Spawn"))
+	{
+		RefManager->NewObject<Engine::NormalLayer, TombStone>(L"Static", L"TombStone_" + std::to_wstring(SpawnID++),
+			Vector3{ 1.f,1.f,1.f }, Vector3{ 0,0,0 }, Vector3{ 0,0,0 });
+	}
+}

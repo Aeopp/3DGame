@@ -5,6 +5,7 @@ static uint32 ComponentID = 0;
 void Engine::Component::Initialize()&
 {
 	ID = ComponentID++;
+
 }
 
 void Engine::Component::Update(class Object* const Owner,

@@ -10,7 +10,7 @@
 #include "ResourceSystem.h"
 #include "FMath.hpp"
 #include "App.h"
-#include "StaticLayer.h"
+#include "NormalLayer.h"
 #include <vector>
 #include <array>
 #include <numbers>
@@ -49,13 +49,12 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	// 현재 씬 레이어 추가.
 	{
 		Manager.NewLayer<EnemyLayer>();
-		Manager.NewLayer<StaticLayer>();
+		Manager.NewLayer<Engine::NormalLayer>();
 	}
 
 
 	// 프로토타입 로딩.
 	{
-		
 	// 	Proto.LoadPrototype<TombStone>(L"Static", Device ,Engine::RenderInterface::Group::NoAlpha);
 		Proto.LoadPrototype<Player>(L"Static", Device,Engine::RenderInterface::Group::NoAlpha);
 	}
@@ -64,7 +63,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	{
 		constexpr float Aspect = App::ClientSize<float>.first / App::ClientSize<float>.second;
 
-		Manager.NewObject<StaticLayer, Engine::DynamicCamera>(
+		Manager.NewObject<Engine::NormalLayer, Engine::DynamicCamera>(
 			L"Static", L"Camera",
 			FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 10.f, &Control);
 	}
@@ -73,11 +72,12 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	{
 		/*RefManager().NewObject<EnemyLayer,TombStone>(L"Static", L"TombStone_1" ,
 			Vector3{ 1.f,1.f,1.f},Vector3{ 0,0,0 }, Vector3{ 0,0,0 });*/
-		RefManager().NewObject<StaticLayer, Player>(L"Static", L"Player_0",
-			Vector3{ 0.01f,0.01f,0.01f }, Vector3{ 0,0,0 }, Vector3{ 0,0,5 });
 
-		RefManager().NewObject<StaticLayer, Player>(L"Static", L"Player_1",
-			Vector3{ 0.01f,0.01f,0.01f }, Vector3{ 0,0,0 }, Vector3{ 10,0,5 });
+		//RefManager().NewObject<Engine::NormalLayer, Player>(L"Static", L"Player_0",
+		//	Vector3{ 1.f,1.f,1.f }, Vector3{ 0,0,0 }, Vector3{ 0,0,5 });
+
+		//RefManager().NewObject<Engine::NormalLayer, Player>(L"Static", L"Player_1",
+		//	Vector3{ 1.f,1.f,1.f }, Vector3{ 0,0,0 }, Vector3{ 5,0,5 });
 	}
 
 	LogoVtxBuf = ResourceSys.Get<IDirect3DVertexBuffer9>(L"VertexBuffer_Plane");
@@ -86,6 +86,9 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 void StartScene::Event()&
 {
 	Super::Event();
+
+	ImGui::ShowDemoWindow();
+
 
 	if (Engine::Global::bDebugMode)
 	{
@@ -126,7 +129,7 @@ void StartScene::Update(const float DeltaTime)&
 		{
 			_TombStone->GetName();
 		}
-		for (auto& _Camera: RefManager().FindObjects<StaticLayer, Engine::DynamicCamera>())
+		for (auto& _Camera: RefManager().FindObjects<Engine::NormalLayer, Engine::DynamicCamera>())
 		{
 			_Camera->GetName();
 		}

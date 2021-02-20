@@ -28,6 +28,7 @@ namespace Engine
 	public:
 		// 자식마다 정의.
 		static const inline Property TypeProperty = Property::Standard;
+		bool bEdit = false;
 	};
 };
 
