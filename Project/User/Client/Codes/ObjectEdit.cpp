@@ -13,6 +13,8 @@
 #include "Renderer.h"
 #include "Landscape.h"
 #include "imgui.h"
+#include "UtilityGlobal.h"
+
 
 void ObjectEdit::Initialize(IDirect3DDevice9* const Device)&
 {
@@ -52,6 +54,27 @@ void ObjectEdit::Initialize(IDirect3DDevice9* const Device)&
 		auto& RefLandscape = Renderer.RefLandscape();
 		RefLandscape.Initialize(Device, MapScale, MapRotation, MapLocation, App::ResourcePath /
 			L"Mesh" / L"StaticMesh" / L"Landscape", L"Mountain.fbx");
+
+		//std::vector<std::filesystem::path>DecoratorPaths
+		//{
+		//	{ Engine::Global::ResourcePath / L"Mesh" / L"StaticMesh" / L"Decorator" / L""} ,
+		//	{ Engine::Global::ResourcePath / L"Mesh" / L"StaticMesh" / L""},
+		//	{ Engine::Global::ResourcePath / L"Mesh" / L"DynamicMesh" / L""}
+		//};
+
+		//for (const auto& CurPath : DecoratorPaths)
+		//{
+		//	for (auto& TargetFileCurPath : std::filesystem::directory_iterator{ CurPath })
+		//	{
+		//		const auto& FileName = TargetFileCurPath.path().filename();
+
+		//		if (FileName.has_extension())
+		//		{
+		//			RefLandscape.DecoratorLoad(CurPath, FileName);
+		//		}
+		//	}
+		//}
+
 	}
 }
 
@@ -62,6 +85,9 @@ void ObjectEdit::Event()&
 	auto& Renderer = RefRenderer();
 	auto& RefLandscape = Renderer.RefLandscape();
 	auto& NaviMesh = RefNaviMesh();
+	auto& Proto = RefProto();
+
+	Proto.Editor(); 
 
 	const Matrix MapWorld = FMath::WorldMatrix(MapScale, MapRotation, MapLocation); 
 

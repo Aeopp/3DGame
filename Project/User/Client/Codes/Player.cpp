@@ -16,8 +16,6 @@
 #include "ShaderManager.h"
 #include "NormalLayer.h"
 
-
-
 void Player::Initialize(
 	const Vector3& Scale,
 	const Vector3& Rotation,

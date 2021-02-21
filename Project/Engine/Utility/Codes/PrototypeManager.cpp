@@ -27,7 +27,7 @@ void Engine::PrototypeManager::ClearExceptTag(const std::wstring& Tag)&
 		});
 }
 
-void Engine::PrototypeManager::Event()&
+void Engine::PrototypeManager::Editor()&
 {
 	if (Engine::Global::bDebugMode)
 	{

@@ -24,7 +24,7 @@ namespace Engine
 		void Clear(const std::wstring& Tag);
 		void ClearExceptTag(const std::wstring& Tag)&;
 
-		void Event()&;
+		void Editor()&;
 	private:
 		std::unordered_map<std::wstring/*User Custom Tag*/, 
 		std::unordered_map<std::string,

@@ -162,7 +162,7 @@ void Engine::Management::Event()&
 	_Controller->Update();
 	_Sound->Update();
 	_CurrentScene->Event();
-	_PrototypeManager->Event();
+
 }
 
 void Engine::Management::Update(const float DeltaTime)&
