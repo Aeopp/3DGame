@@ -16,6 +16,8 @@
 #include "ShaderFx.h"
 #include "StringHelper.h"
 
+
+
 namespace Engine
 {
 	struct DLL_DECL SkinningMeshElement : public MeshElement
@@ -63,6 +65,7 @@ namespace Engine
 		Engine::Bone*
 			MakeHierarchyClone(Bone* BoneParent, const Bone* const PrototypeBone);
 
+
 		void  PlayAnimation(const uint32 AnimIdx, 
 			const double Acceleration,
 			const double TransitionDuration)&;
@@ -96,12 +99,12 @@ namespace Engine
 		double PrevAnimAcceleration = 1.f;
 		double Acceleration = 1.f;
 
-		std::vector<AnimationInformation>                           AnimInfoTable{}; 
-		std::unordered_map<std::string,uint32>                      AnimIdxFromName{}; 
+		std::vector<AnimationInformation>                          AnimInfoTable{}; 
+		std::unordered_map<std::string,uint32>                     AnimIdxFromName{}; 
 
 		std::shared_ptr<AnimationTrack>                             _AnimationTrack{};
 		std::unordered_map<std::string,uint64>						BoneTableIdxFromName{};
-		std::vector       <std::shared_ptr<Bone>>				    BoneTable{}; 
+		std::vector<std::shared_ptr<Bone>>							BoneTable{}; 
 		std::vector       <SkinningMeshElement>                     MeshContainer{};
 		// VTF 기술로 버텍스 쉐이더에서 애니메이션 스키닝을 수행.
 		IDirect3DTexture9* BoneAnimMatrixInfo{nullptr}; 
@@ -278,6 +281,7 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 			}
 		}
 
+
 		VertexType* VertexBufferPtr{ nullptr };
 		CreateMesh.VertexBuffer->Lock(0, 0, reinterpret_cast<void**>(&VertexBufferPtr), NULL);
 		std::memcpy(VertexBufferPtr, Verticies->data(), CreateMesh.VtxBufSize);
@@ -286,12 +290,14 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 		MeshContainer.push_back(CreateMesh);
 	}
 
+
 	const std::wstring VtxTypeNameW = ToW(typeid(VertexType).name());
 	VtxDecl = ResourceSys.Get<IDirect3DVertexDeclaration9>(VtxTypeNameW);
 	if (!VtxDecl)
 	{
 		VtxDecl= ResourceSys.Insert<IDirect3DVertexDeclaration9>(VtxTypeNameW, VertexType::GetVertexDecl(Device));
 	}
+	
 	
 	// 애니메이션 데이터 파싱.
 	if (AiScene->HasAnimations())
@@ -316,6 +322,7 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 			for (uint32 ChannelIdx = 0u; ChannelIdx < _Animation->mNumChannels; ++ChannelIdx)
 			{
 				const std::string ChannelName = _Animation->mChannels[ChannelIdx]->mNodeName.C_Str();
+
 
 				for (uint32 ScaleKeyIdx = 0u;
 					ScaleKeyIdx < _Animation->mChannels[ChannelIdx]->mNumScalingKeys;

@@ -32,6 +32,10 @@ namespace Engine
 		template<typename ObjectSubType>
 		auto FindObject(const std::wstring& TargetName)&;
 	public:
+
+		Engine::Object* NewObject
+		(const std::string& ObjectSubTypeName ,std::shared_ptr<Object> Clone )&; 
+
 		template<typename ObjectSubType>
 		auto NewObject(std::shared_ptr<ObjectSubType> Clone)&;
 	private:
@@ -77,7 +81,12 @@ inline auto Engine::Layer::NewObject(
 inline auto& Engine::Layer::RefObjects()&
 {
 	return _ObjectMap;
-};
+}
+inline Engine::Object* Engine::Layer::NewObject(const std::string& ObjectSubTypeName, std::shared_ptr<Object> Clone)&
+{
+	return _ObjectMap[ObjectSubTypeName].emplace_back(std::move(Clone)).get();
+}
+;
 
 template<typename ObjectSubType>
 inline auto Engine::Layer::FindObjects()&

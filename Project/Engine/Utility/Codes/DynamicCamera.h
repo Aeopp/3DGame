@@ -21,6 +21,8 @@ namespace Engine
 						class Controller*const _Control)&;
 		void PrototypeInitialize(IDirect3DDevice9* const Device ,
 								  const HWND Hwnd)&;
+		virtual std::shared_ptr<Engine::Object> GetCopyShared()& override;
+		virtual std::optional<SpawnReturnValue> InitializeFromEditSpawnParam(const SpawnParam& _SpawnParam)& override;
 	public:
 		float Speed = 100.f;
 	private:

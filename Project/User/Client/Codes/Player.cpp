@@ -226,5 +226,18 @@ std::function<Engine::Object::SpawnReturnValue(
 };
 
 
+std::shared_ptr<Engine::Object> Player::GetCopyShared()&
+{
+	std::remove_pointer_t<decltype(this)>  Clone = *this;
+	return std::make_shared<Player>(Clone);
+};
 
+std::optional<Engine::Object::SpawnReturnValue> 
+Player::InitializeFromEditSpawnParam(const SpawnParam& _SpawnParam)&
+{
+	Player::Initialize(_SpawnParam.Scale,
+		_SpawnParam.Rotation,
+		_SpawnParam.Location);
 
+	return { Engine::Object::SpawnReturnValue{} };
+}

@@ -20,6 +20,10 @@ namespace Engine
 		template<typename ObjectSubType>
 		auto Clone(const std::wstring& TargetTag)&;
 
+		std::shared_ptr<Engine::Object > Clone(
+			const std::string& ObjectSubTypeName , 
+			const std::wstring& TargetTag)&;
+
 		void Clear() & noexcept;
 		void Clear(const std::wstring& Tag);
 		void ClearExceptTag(const std::wstring& Tag)&;
@@ -33,6 +37,31 @@ namespace Engine
 	};
 };
 
+
+
+inline std::shared_ptr<Engine::Object >
+Engine::PrototypeManager::Clone(
+	const std::string& ObjectSubTypeName, const std::wstring&TargetTag)&
+{
+	auto ContainerIter = _Container.find(TargetTag);
+
+	std::shared_ptr<Engine::Object > ClonePtr{ nullptr };
+
+	if (ContainerIter != std::end(_Container))
+	{
+		const auto& TargetContainer = ContainerIter->second;
+		if (auto ProtoTypeIter = TargetContainer.find(ObjectSubTypeName);
+			ProtoTypeIter != std::end(TargetContainer))
+		{
+			const auto& Prototype = ProtoTypeIter->second;
+
+			ClonePtr = Prototype->GetCopyShared();
+			ClonePtr->Clone();
+		}
+	}
+
+	return ClonePtr; 
+}
 
 template<typename ObjectSubType>
 inline auto Engine::PrototypeManager::Clone(
@@ -63,7 +92,7 @@ inline void Engine::PrototypeManager::LoadPrototype(
 	auto _PrototypeElement = std::make_unique<ObjectSubType>();
 	_PrototypeElement->PrototypeInitialize(std::forward<Params>
 		(_Params)...);
-
+	_PrototypeElement->PrototypeTag = Tag;
 	_Container[Tag].insert({ typeid(ObjectSubType).name(),
 		std::move(_PrototypeElement) });
 }

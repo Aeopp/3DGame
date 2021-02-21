@@ -211,3 +211,18 @@ std::function<Engine::Object::SpawnReturnValue(const Engine::Object::SpawnParam&
 		return {};
 	}
 }
+
+std::shared_ptr<Engine::Object> TombStone::GetCopyShared()&
+{
+	std::remove_pointer_t<decltype(this)>  Clone = *this;
+	return std::make_shared<TombStone>(Clone);
+}
+
+std::optional<Engine::Object::SpawnReturnValue> TombStone::InitializeFromEditSpawnParam(const SpawnParam& _SpawnParam)&
+{
+	Initialize(_SpawnParam.Scale,
+		_SpawnParam.Rotation,
+		_SpawnParam.Location);
+
+	return { Engine::Object::SpawnReturnValue{} };
+}

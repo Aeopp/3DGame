@@ -16,8 +16,8 @@ void Engine::DynamicCamera::Initialize(
 	Controller* const _Control)&
 {
 	Super::Initialize(FovY , Near  ,Far , Aspect  ,typeid(DynamicCamera).name());
-	this->_Control = _Control;
-	this->Speed = Speed;
+	this->_Control    = _Control;
+	this->Speed       = Speed;
 }
 
 void Engine::DynamicCamera::Update(const float DeltaTime)&
@@ -114,6 +114,15 @@ void Engine::DynamicCamera::PrototypeInitialize(
 {
 	Super::PrototypeInitialize(Device);
 	this->Hwnd = Hwnd;
+}
+std::shared_ptr<Engine::Object> Engine::DynamicCamera::GetCopyShared()&
+{
+	std::remove_pointer_t<decltype(this)> Clone = *this;
+	return std::make_shared<Engine::DynamicCamera>(Clone);
+}
+std::optional<Engine::Object::SpawnReturnValue>  Engine::DynamicCamera::InitializeFromEditSpawnParam(const SpawnParam& _SpawnParam)&
+{
+	return {};
 };
 
 void Engine::DynamicCamera::MouseFix()&

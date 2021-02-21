@@ -5,6 +5,8 @@
 #include <memory>
 #include "Component.h"
 #include <functional>
+#include <optional>
+
 
 namespace Engine
 {
@@ -17,13 +19,21 @@ namespace Engine
 		};
 		struct SpawnParam
 		{
+			Vector3 Scale{ 1,1,1 };
+			Vector3 Rotation{ 0,0,0 }; 
 			Vector3 Location{ 0,0,0 };
 		};
 	public:
+		virtual std::optional<SpawnReturnValue> 
+			InitializeFromEditSpawnParam(const SpawnParam& _SpawnParam)&abstract;
 		void Initialize()&;
 		//   프로토타입 초기화 단계에서 컴포넌트를 생성하지 마세요.
 		void PrototypeInitialize()&;
 		virtual void Clone()&;
+
+		// 오브젝트가 에디터에서 저장한 정보로 로딩되는 경우 템플릿 코드에 의존하면 문제가 매우 어려워지므로
+		// 제공하는 프로토타입용 편의 함수입니다.
+		virtual std::shared_ptr<Engine::Object> GetCopyShared()&abstract;
 		virtual void Event()&;
 		virtual void Update(const float DeltaTime)&;
 		virtual void LateUpdate(const float DeltaTime)&;
@@ -54,6 +64,8 @@ namespace Engine
 	public:
 		virtual std::function< SpawnReturnValue(const SpawnParam&)>
 			PrototypeEdit()& abstract;
+
+		std::wstring PrototypeTag{};
 	protected:
 		std::wstring Name{};
 	private:

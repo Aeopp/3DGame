@@ -12,6 +12,10 @@ public:
 					const Vector3& SpawnLocation)&;
 	void PrototypeInitialize(IDirect3DDevice9*const Device ,
 							const Engine::RenderInterface::Group _Group)&;
+	virtual std::shared_ptr<Engine::Object> GetCopyShared() & override;
+	virtual
+		std::optional<Engine::Object::SpawnReturnValue> InitializeFromEditSpawnParam(const SpawnParam& _SpawnParam) & override;
+public:
 	virtual void Event()&override;
 	virtual void Render(const Matrix& View, const Matrix& Projection,
 		const Vector4& CameraLocation) & override;

@@ -24,8 +24,12 @@ namespace Engine
 	public:
 		template<typename LayerSubType,typename...Params>
 		auto NewLayer(Params&&... _Params)&;
+
 		template<typename LayerSubType>
 		auto FindLayer()&;
+
+		auto FindLayer(const std::string& LayerSubType)&;
+
 		auto& RefLayers()&;
 
 		template<typename LayerSubType,typename ObjectSubType>
@@ -33,7 +37,11 @@ namespace Engine
 
 		template<typename LayerSubType,typename ObjectSubType>
 		auto NewObject(std::shared_ptr<ObjectSubType> PassClone)&;
-							
+			
+		Engine::Object* NewObject(
+			const std::string& LayerSubTypeName , 
+			const std::string& ObjectSubTypeName  , 
+			std::shared_ptr<Object> PassClone)&;
 	protected:
 		std::unordered_map<std::string,std::unique_ptr<Layer>> LayerMap;
 		IDirect3DDevice9* Device{ nullptr };
@@ -63,9 +71,39 @@ inline auto Engine::Scene::NewObject(
 	return FindLayer<LayerSubType>()->NewObject( std::move(PassClone));
 };
 
+inline auto Engine::Scene::FindLayer(const std::string& LayerSubType)&
+{
+	Engine::Layer* TargetLayer{ nullptr };
+
+	auto iter = LayerMap.find(LayerSubType);
+
+	if (iter != std::end(LayerMap))
+	{
+		TargetLayer = iter->second.get();
+	}
+
+	return TargetLayer;
+}
+
 inline auto& Engine::Scene::RefLayers()&
 {
 	return LayerMap;
+}
+inline Engine::Object* Engine::Scene::NewObject(
+	const std::string& LayerSubTypeName, 
+	const std::string& ObjectSubTypeName,
+	std::shared_ptr<Object> PassClone)&
+{
+	auto TargetLayer = FindLayer(LayerSubTypeName);
+
+	Engine::Object* ObjectPtr{ nullptr }; 
+
+	if (TargetLayer)
+	{
+		ObjectPtr = TargetLayer->NewObject(ObjectSubTypeName, std::move(PassClone));
+	}
+
+	return ObjectPtr;
 };
 
 template<typename LayerSubType, typename ...Params>

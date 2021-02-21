@@ -18,6 +18,7 @@ public:
 	virtual void Update(const float DeltaTime) & override;
 	virtual void Render() &override;
 private:
+	void CaptureObjectLoad(const std::filesystem::path& FullPath)&;
 	void CaptureCurrentObjects()&;
 	void DecoratorSave(Engine::Landscape& Landscape)const&;
 	void DecoratorLoad(Engine::Landscape& Landscape)&;

@@ -45,6 +45,16 @@ namespace Engine
 		auto NewObject(const std::wstring& PrototypeTag,
 							std::wstring ObjectName, 
 							Params&&... _Params)&;
+
+
+		
+		Engine::Object*  NewObject(
+			const std::string& LayerSubTypeName,
+			const std::string& ObjectSubTypeName,
+			const std::wstring& PrototypeTag,
+			std::wstring ObjectName,
+			const Engine::Object::SpawnParam& ObjectSpawnParam)&;
+
 		template<typename LayerSubType>
 		auto& RefObjects();
 		template<typename LayerSubType, typename ObjectSubType>
@@ -122,6 +132,28 @@ inline auto Engine::Management::NewObject(
 	_Clone->SetName(std::move(ObjectName));
 	_Clone->Initialize(std::forward<Params>(_Params)...);
 	return _CurrentScene->NewObject<LayerSubType>(std::move(_Clone));
+}
+
+inline Engine::Object* Engine::Management::NewObject
+(const std::string& LayerSubTypeName, const std::string& ObjectSubTypeName, const std::wstring& PrototypeTag, std::wstring ObjectName, 
+	const Engine::Object::SpawnParam& ObjectSpawnParam)&
+{
+	std::shared_ptr<Engine::Object> ClonePtr = _PrototypeManager->Clone(ObjectSubTypeName, PrototypeTag);
+
+	Engine::Object* CloneRawPtr{ nullptr }; 
+	
+	if (ClonePtr)
+	{
+		ClonePtr->SetName(std::move(ObjectName));
+		auto IsSpawnRV = ClonePtr->InitializeFromEditSpawnParam(ObjectSpawnParam);
+		if (IsSpawnRV)
+		{
+			CloneRawPtr = _CurrentScene->NewObject(LayerSubTypeName, ObjectSubTypeName, ClonePtr);
+		}
+		
+	}
+	
+	return CloneRawPtr;
 }
 
 template<typename LayerSubType>
