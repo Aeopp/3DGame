@@ -52,7 +52,8 @@ void Engine::Collision::Update(Object* const Owner, const float DeltaTime)&
 	_Geometric->Update( OwnerTransform->GetScale(),
 						OwnerTransform->GetRotation(),
 						OwnerTransform->GetLocation() ,
-						OffsetMatrix);
+						OffsetMatrix ,
+						_OffsetInfo.Scale);
 	bImmobility = false;
 	CurrentCheckedCollisionIDs.clear();
 };
@@ -120,7 +121,8 @@ bool Engine::Collision::IsCollision(Collision* const Rhs)&
 				Rhs->_Geometric->Update(Rhs->OwnerTransform->GetScale(),
 					Rhs->OwnerTransform->GetRotation(),
 					Rhs->OwnerTransform->GetLocation(),
-					Rhs->OffsetMatrix);
+					Rhs->OffsetMatrix,
+					Rhs->_OffsetInfo.Scale);
 
 				OwnerTransform->SetLocation(
 					OwnerTransform->GetLocation() + -PushDir * CrossArea * 0.5f);
@@ -128,7 +130,8 @@ bool Engine::Collision::IsCollision(Collision* const Rhs)&
 				_Geometric->Update(Rhs->OwnerTransform->GetScale(),
 					OwnerTransform->GetRotation(),
 					OwnerTransform->GetLocation(),
-					OffsetMatrix);
+					OffsetMatrix,
+					_OffsetInfo.Scale);
 			}
 			else
 			{
@@ -138,7 +141,8 @@ bool Engine::Collision::IsCollision(Collision* const Rhs)&
 				Rhs->_Geometric->Update(Rhs->OwnerTransform->GetScale(),
 					Rhs->OwnerTransform->GetRotation(),
 					Rhs->OwnerTransform->GetLocation(),
-					Rhs->OffsetMatrix);
+					Rhs->OffsetMatrix ,
+					Rhs->_OffsetInfo.Scale);
 			}
 		}
 		if (!CurrentCheckedCollisionIDs.contains(Rhs->ID))
@@ -262,6 +266,5 @@ void Engine::Collision::Load()&
 	}
 
 	OffsetMatrix = FMath::WorldMatrix(_OffsetInfo.Scale, _OffsetInfo.Rotation, _OffsetInfo.Location);
-
 };
 

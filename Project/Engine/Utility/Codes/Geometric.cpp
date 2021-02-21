@@ -78,7 +78,7 @@ Engine::Geometric::Type Engine::OBB::GetType() const&
 };
 
 void Engine::OBB::Update(const Vector3 Scale, const Vector3 Rotation, const Vector3 Location,
-	const Matrix& OffsetMatrix)&
+	const Matrix& OffsetMatrix, const Vector3& OffsetScale)&
 {
 	const Matrix ToWorld =  OffsetMatrix*FMath::WorldMatrix(Scale, Rotation, Location);
 	WorldCenter = FMath::Mul(LocalCenter, ToWorld);
@@ -90,11 +90,33 @@ void Engine::OBB::Update(const Vector3 Scale, const Vector3 Rotation, const Vect
 		[ToWorld](const Vector3& LocalPoint) {
 			return FMath::Mul(LocalPoint, ToWorld);
 		});
+	const Vector3 FinalScale = { OffsetScale.x * Scale.x , OffsetScale.y * Scale.y ,OffsetScale.z * Scale.z };
+
 	WorldSphere.Center = FMath::Mul(LocalSphere.Center, ToWorld);
-	WorldSphere.Radius = LocalSphere.Radius * ((Scale.x + Scale.y + Scale.z) / 3.f);
-	WorldHalfDistances = { LocalHalfDistances.x * Scale.x  ,
-						   LocalHalfDistances.y * Scale.y  ,
-						   LocalHalfDistances.z * Scale.z };
+	WorldSphere.Radius = LocalSphere.Radius * FMath::MaxScala(FinalScale);
+	WorldHalfDistances = { LocalHalfDistances.x * FinalScale.x  ,
+						   LocalHalfDistances.y * FinalScale.y  ,
+						   LocalHalfDistances.z * FinalScale.z };
+}
+
+void Engine::OBB::Update(const Matrix& ToOwnerWorld, const Vector3& OwnerScale , const Matrix& OffsetMatrix ,const Vector3& OffsetScale )&
+{
+	WorldCenter = FMath::Mul(LocalCenter, ToOwnerWorld);
+	std::transform(std::begin(LocalFaceNormals), std::end(LocalFaceNormals), std::begin(WorldFaceNormals),
+		[ToOwnerWorld](const Vector3& LocalFaceNormal) {
+			return  FMath::Normalize(FMath::MulNormal(LocalFaceNormal, ToOwnerWorld));
+		});
+	std::transform(std::begin(LocalPoints), std::end(LocalPoints), std::begin(WorldPoints),
+		[ToOwnerWorld](const Vector3& LocalPoint) {
+			return FMath::Mul(LocalPoint, ToOwnerWorld);
+		});
+	const Vector3 FinalScale = { OffsetScale.x * OwnerScale.x , OffsetScale.y * OwnerScale.y ,OffsetScale.z * OwnerScale.z };
+
+	WorldSphere.Center = FMath::Mul(LocalSphere.Center, ToOwnerWorld);
+	WorldSphere.Radius = LocalSphere.Radius * FMath::MaxScala(FinalScale);
+	WorldHalfDistances = { LocalHalfDistances.x * FinalScale.x  ,
+						   LocalHalfDistances.y * FinalScale.y  ,
+						   LocalHalfDistances.z * FinalScale.z };
 }
 
 void Engine::OBB::Render(IDirect3DDevice9* const Device , const bool bCurrentUpdateCollision)&
@@ -229,11 +251,19 @@ Engine::Geometric::Type Engine::GSphere::GetType() const&
 }
 
 void Engine::GSphere::Update(const Vector3 Scale, const Vector3 Rotation, const Vector3 Location,
-	const Matrix& OffsetMatrix)&
+							const Matrix& OffsetMatrix , const Vector3& OffsetScale )&
 {
 	const Matrix ToWorld = OffsetMatrix * FMath::WorldMatrix(Scale, Rotation, Location);
 	WorldSphere.Center = FMath::Mul(LocalSphere.Center, ToWorld);
-	WorldSphere.Radius = LocalSphere.Radius * ((Scale.x + Scale.y + Scale.z) / 3.f);
+	const Vector3 FinalScale = { OffsetScale.x * Scale.x , OffsetScale.y * Scale.y ,OffsetScale.z * Scale.z };
+	WorldSphere.Radius = LocalSphere.Radius * FMath::MaxScala(FinalScale);
+}
+
+void Engine::GSphere::Update(const Matrix& ToOwnerWorld, const Vector3& OwnerScale, const Matrix& OffsetMatrix , const Vector3& OffsetScale)&
+{
+	const Vector3 FinalScale = { OffsetScale.x * OwnerScale.x , OffsetScale.y * OwnerScale.y ,OffsetScale.z * OwnerScale.z };
+	WorldSphere.Center = FMath::Mul(LocalSphere.Center, ToOwnerWorld);
+	WorldSphere.Radius = LocalSphere.Radius * FMath::MaxScala(FinalScale);
 }
 
 void Engine::GSphere::Render(IDirect3DDevice9* const Device, const bool bCurrentUpdateCollision)&

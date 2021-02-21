@@ -10,6 +10,13 @@ namespace Engine
 	class DLL_DECL Collision : public Component, public RenderInterface
 	{
 	public:
+		struct OffsetInformation
+		{
+			Vector3 Scale{ 1,1,1 };
+			Vector3 Rotation{ 0,0,0 };
+			Vector3 Location{ 0,0,0 };
+		};
+	public:
 		using Super = Component;
 		void Initialize(
 			IDirect3DDevice9* const Device,
@@ -39,14 +46,9 @@ namespace Engine
 		class Object* Owner{ nullptr };
 		std::string OwnerClassIdentifier{};
 		Matrix OffsetMatrix = FMath::Identity();
+
+		OffsetInformation _OffsetInfo{};
 	private:
-		struct OffsetInformation
-		{
-			Vector3 Scale{ 1,1,1 };
-			Vector3 Rotation{ 0,0,0 };
-			Vector3 Location{ 0,0,0 };
-		};
-		OffsetInformation _OffsetInfo{}; 
 
 		IDirect3DDevice9* Device{ nullptr };  
 		class Transform* OwnerTransform{ nullptr };

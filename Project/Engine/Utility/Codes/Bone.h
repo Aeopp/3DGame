@@ -8,6 +8,7 @@
 #include <string>
 #include <map>
 #include <optional>
+#include "Geometric.h"
 
 namespace Engine
 {
@@ -32,6 +33,7 @@ namespace Engine
 		Matrix OriginTransform{ FMath::Identity() };
 		Matrix ToRoot         { FMath::Identity() };
 		Matrix Offset         { FMath::Identity() };
+		std::unique_ptr<Geometric> CollisionGeometric;
 
 		bool bEditSelect = false;
 		bool bEditObserver = false;

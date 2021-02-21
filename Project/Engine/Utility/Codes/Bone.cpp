@@ -128,6 +128,11 @@ void Engine::Bone::DebugRender(
 	Device->SetTransform(D3DTS_WORLD,&Final);
 	Device->SetTexture(0, CurColorTex);
 	DebugMesh->DrawSubset(0);
+
+	if (CollisionGeometric)
+	{
+		CollisionGeometric->Render(Device, true);
+	}
 };
 
 void Engine::Bone::BoneMatrixUpdate(
@@ -192,12 +197,15 @@ void Engine::Bone::BoneMatrixUpdate(
 				FMath::Translation(CurAnimLocation));
 		}
 	}
-		
-	
 
     Transform = AnimationTransform;
 	ToRoot =    Transform * ParentToRoot;
 	Final =     Offset * ToRoot;
+
+	/*if (CollisionGeometric)
+	{
+		CollisionGeometric->Update()
+	}*/
 
 	for (auto& ChildrenTarget : Childrens)
 	{

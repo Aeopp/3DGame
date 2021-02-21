@@ -22,9 +22,9 @@ namespace Engine
 		Geometric(const float Radius, const Vector3 Center) : LocalSphere{Radius,Center}  {};
 	public:
 		virtual std::optional<std::pair<float, Vector3>> IsCollision(Geometric* const Rhs)& abstract;
-		virtual void Update(const Vector3 Scale,
-							const Vector3 Rotation,
-							const Vector3 Location , const Matrix& OffsetMatrix)& abstract;
+		virtual void Update(const Vector3 Scale, const Vector3 Rotation, const Vector3 Location,
+			const Matrix& OffsetMatrix, const Vector3& OffsetScale)& abstract;
+		virtual void Update(const Matrix& ToOwnerWorld, const Vector3& OwnerScale, const Matrix& OffsetMatrix, const Vector3& OffsetScale)& abstract;
 		virtual Type GetType() const& abstract;
 		virtual void Render(IDirect3DDevice9* const Device, const bool bCurrentUpdateCollision)& abstract;
 		IDirect3DVertexBuffer9* VertexBuffer{ nullptr };
@@ -41,9 +41,9 @@ namespace Engine
 		GSphere(const float Radius,const Vector3 Center);
 		void MakeDebugCollisionSphere(IDirect3DDevice9* const Device);
 		virtual Type GetType() const& override;
-		virtual void Update(const Vector3 Scale,
-		                 	const Vector3 Rotation,
-			                const Vector3 Location, const Matrix& OffsetMatrix) & override;
+		virtual void Update(const Vector3 Scale, const Vector3 Rotation, const Vector3 Location,
+			const Matrix& OffsetMatrix, const Vector3& OffsetScale) & override;
+		virtual void Update(const Matrix& ToOwnerWorld, const Vector3& OwnerScale, const Matrix& OffsetMatrix, const Vector3& OffsetScale)& override;
 		virtual void Render(IDirect3DDevice9* const Device, const bool bCurrentUpdateCollision) & override;
 		virtual std::optional<std::pair<float, Vector3>> IsCollision(Geometric* const Rhs) & override;
 		std::optional<std::pair<float, Vector3>> IsCollisionOBB(class OBB* const Rhs)const&;
@@ -57,9 +57,9 @@ namespace Engine
 		OBB(const Vector3 LocalMin, const Vector3 LocalMax);
 		void MakeDebugCollisionBox(IDirect3DDevice9* const Device);
 		virtual Type GetType() const& override;
-		virtual void Update(const Vector3 Scale,
-			const Vector3 Rotation,
-			const Vector3 Location, const Matrix& OffsetMatrix) & override;
+		virtual void Update(const Matrix& ToOwnerWorld, const Vector3& OwnerScale, const Matrix& OffsetMatrix, const Vector3& OffsetScale) & override;
+		virtual void Update(const Vector3 Scale, const Vector3 Rotation, const Vector3 Location,
+			const Matrix& OffsetMatrix, const Vector3& OffsetScale) & override;
 		virtual void Render(IDirect3DDevice9* const Device , const bool bCurrentUpdateCollision) & override;
 		virtual std::optional<std::pair<float, Vector3>> IsCollision(Geometric* const Rhs) & override;
 		std::optional<std::pair<float,Vector3>> IsCollisionOBB(OBB* const Rhs)const&;
