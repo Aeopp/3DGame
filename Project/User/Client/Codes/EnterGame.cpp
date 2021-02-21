@@ -1,7 +1,7 @@
 #include "..\\stdafx.h"
 #include "EnterGame.h"
 #include "TombStone.h"
-#include "Tool.h"
+#include "MapEdit.h"
 #include "StartScene.h"
 
 #include "Player.h"
@@ -27,7 +27,7 @@
 #include "FontManager.h"
 #include "UtilityGlobal.h"
 #include "ShaderManager.h"
-#include "AnimationTool.h"
+#include "ObjectEdit.h"
 
 void EnterGame::Initialize(IDirect3DDevice9* const Device)&
 {
@@ -54,6 +54,7 @@ void EnterGame::Initialize(IDirect3DDevice9* const Device)&
 	// 프로토타입 로딩.
 	{
 		Proto.LoadPrototype<Engine::DynamicCamera>(L"Static",Device,App::Hwnd);
+		Proto.LoadPrototype<Player>(L"Static", Device, Engine::RenderInterface::Group::NoAlpha);
 	}
 
 	// 카메라 오브젝트 추가.
@@ -80,11 +81,11 @@ void EnterGame::Event() &
 		}
 		if (ImGui::Button("Editor"))
 		{
-			Manager.ChangeScene<Tool>();
+			Manager.ChangeScene<MapEdit>();
 		}
-		if (ImGui::Button("AnimationTool"))
+		if (ImGui::Button("ObjectEdit"))
 		{
-			Manager.ChangeScene<AnimationTool>();
+			Manager.ChangeScene<ObjectEdit>();
 		}
 		ImGui::End(); 
 	}

@@ -1,0 +1,591 @@
+#include "..\\stdafx.h"
+#include "MapEdit.h"
+#include "FileHelper.h"
+#include "StaticMesh.h"
+#include <array>
+#include "Controller.h"
+#include "TombStone.h"
+#include "Player.h"
+#include "Shader.h"
+#include "Vertexs.hpp"
+#include "NavigationMesh.h"
+#include "Management.h"
+#include "EnemyLayer.h"
+#include "ExportUtility.hpp"
+#include "ResourceSystem.h"
+#include "FMath.hpp"
+#include "App.h"
+#include "NormalLayer.h"
+#include <vector>
+#include <array>
+#include <numbers>
+#include "Layer.h"
+#include <iostream>
+#include "DynamicCamera.h"
+#include <d3d9.h>
+#include <d3dx9.h>
+#include <array>
+#include "imgui.h"
+#include "FontManager.h"
+#include "UtilityGlobal.h"
+#include "ShaderManager.h"
+#include "Transform.h"
+#include <commdlg.h>
+#include <Windows.h>
+#include <stdio.h>
+#include "Renderer.h"
+#include "Landscape.h"
+#include <ostream>
+#include <fstream>
+#include "StringHelper.h"
+
+
+
+void MapEdit::Initialize(IDirect3DDevice9* const Device)&
+{
+     Super::Initialize(Device);
+	
+	auto& FontMgr =     RefFontManager();
+	auto& Control =     RefControl();
+	auto& ResourceSys = RefResourceSys();
+	auto& Manager = RefManager();
+	auto& Proto =       RefProto();
+	auto& Renderer =    RefRenderer(); 
+
+	_NaviMesh = &RefNaviMesh();
+	// 텍스쳐 리소스 추가. 
+	{
+
+	}
+
+	// 현재 씬 레이어 추가.
+	{
+		Manager.NewLayer<Engine::NormalLayer>();
+	}
+
+	// 프로토타입 로딩.
+	{
+		
+	}
+
+	// 오브젝트 추가.
+	{
+		constexpr float Aspect = App::ClientSize<float>.first / App::ClientSize<float>.second;
+
+		Manager.NewObject<Engine::NormalLayer, Engine::DynamicCamera>(
+			L"Static", L"Camera",
+			FMath::PI / 3.f, 0.1f, 10000.f, Aspect, 1000.f, &Control);
+	}
+
+	{
+		 MapScale     = { 0.01f , 0.01f, 0.01f };
+		 MapRotation = { 3.14f / 2.f,0.f,0.f };
+		 MapLocation = { 0,0,0 };
+
+		auto& RefLandscape = Renderer.RefLandscape();
+		RefLandscape.Initialize(Device, MapScale, MapRotation,MapLocation, App::ResourcePath /
+			L"Mesh" / L"StaticMesh" / L"Landscape", L"Mountain.fbx");
+		
+		std::vector<std::filesystem::path>DecoratorPaths
+		{
+			{ Engine::Global::ResourcePath / L"Mesh" / L"StaticMesh" / L"Decorator" / L""} ,
+			{ Engine::Global::ResourcePath / L"Mesh" / L"StaticMesh" / L""},
+			{ Engine::Global::ResourcePath / L"Mesh" / L"DynamicMesh" /  L""}
+		};
+
+		for (const auto& CurPath : DecoratorPaths)
+		{
+			for (auto& TargetFileCurPath : std::filesystem::directory_iterator{ CurPath })
+			{
+				const auto& FileName = TargetFileCurPath.path().filename();
+				
+				if (FileName.has_extension())
+				{
+					RefLandscape.DecoratorLoad(CurPath, FileName);
+
+					const auto PicturePath = (CurPath / L"Converted" / FileName.stem()).wstring() + L".png";
+					DecoratorOption LoadDecoOpt;
+
+					LoadDecoOpt.Picture = ResourceSys.Get<IDirect3DTexture9>(PicturePath);
+
+					if (LoadDecoOpt.Picture)
+					{
+						LoadDecoOpt.Width = *ResourceSys.GetAny<float>(PicturePath + L"Width");
+						LoadDecoOpt.Height = *ResourceSys.GetAny<float>(PicturePath + L"Height");
+					}
+					else
+					{
+						D3DXCreateTextureFromFile(Device, PicturePath.c_str(), &LoadDecoOpt.Picture);
+						ResourceSys.Insert<IDirect3DTexture9>(PicturePath, LoadDecoOpt.Picture);
+						D3DSURFACE_DESC ImageDesc;
+						LoadDecoOpt.Picture->GetLevelDesc(0, &ImageDesc);
+						LoadDecoOpt.Width = static_cast<float> (ImageDesc.Width);
+						LoadDecoOpt.Height = static_cast<float> (ImageDesc.Height);
+						ResourceSys.InsertAny<float>(PicturePath + L"Width", LoadDecoOpt.Width);
+						ResourceSys.InsertAny<float>(PicturePath + L"Height", LoadDecoOpt.Height);
+					}
+
+					DecoratorOpts.insert({ FileName  ,LoadDecoOpt });
+				}
+			}
+		}
+	}
+
+	D3DXCreateLine(Device, &LinearSpace);
+	ResourceSys.Insert<ID3DXLine>(L"DebugLinearSpace", LinearSpace);
+};
+
+void MapEdit::Event() & 
+{
+	Super::Event();
+	auto& Manager = RefManager();
+
+
+	if (ImGui::CollapsingHeader("Select"))
+	{
+		if (ImGui::Button("Navigation Mesh", ImVec2{ 100,35}) )
+		{
+			CurrentMode = Mode::NaviMesh;
+		}ImGui::SameLine();
+		if (ImGui::Button("Landscape", ImVec2{ 70,35}))
+		{
+			CurrentMode = Mode::Landscape;
+		}
+	}
+
+	switch (CurrentMode)
+	{
+	case MapEdit::Mode::NaviMesh:
+		NaviMeshTool();
+		break;
+	case MapEdit::Mode::Landscape:
+		Landscape();
+		break;
+	default:
+		break;
+	}
+	
+}
+void MapEdit::Update(const float DeltaTime)&
+{
+	Super::Update(DeltaTime);
+}
+
+void MapEdit::Render()&
+{
+	Matrix View, Projection;
+	Device->GetTransform(D3DTS_VIEW, &View);
+	Device->GetTransform(D3DTS_PROJECTION, &Projection);
+	Matrix ViewProjection = View * Projection;
+
+	std::array<Vector3, 2u> XAxis{ Vector3{0,0,0},Vector3{ (std::numeric_limits<float>::max)() ,0,0} };
+	std::array<Vector3, 2u> YAxis{ Vector3{0,0,0},Vector3{ 0.f,(std::numeric_limits<float>::max)() / 2.f,0} };
+	std::array<Vector3, 2u> ZAxis{ Vector3{0,0,0},Vector3{ 0 ,0,(std::numeric_limits<float>::max)()} };
+	LinearSpace->SetWidth(3.f);
+	LinearSpace->Begin();
+
+	LinearSpace->DrawTransform(XAxis.data(), XAxis.size(), &ViewProjection,
+		D3DCOLOR_ARGB(100, 255, 0, 0));
+	LinearSpace->DrawTransform(YAxis.data(), YAxis.size(), &ViewProjection,
+		D3DCOLOR_ARGB(100, 0, 255, 0));
+	LinearSpace->DrawTransform(ZAxis.data(), ZAxis.size(), &ViewProjection,
+		D3DCOLOR_ARGB(100, 0, 0, 255));
+	LinearSpace->End();
+};
+
+
+void MapEdit::NaviMeshTool()&
+{
+	auto& NaviMesh = RefNaviMesh();
+
+	const Matrix MapWorld = FMath::WorldMatrix(MapScale, MapRotation, MapLocation);
+
+	ImGui::Begin("Navigation Mesh");
+	{
+		if (ImGui::Button("Save")) 
+		{
+			std::filesystem::path OpenPath = Engine::FileHelper::OpenDialogBox();
+			NaviMesh.Save(OpenPath,MapWorld);
+		}ImGui::SameLine(); 
+		if (ImGui::Button("Load"))
+		{
+			std::filesystem::path OpenPath = Engine::FileHelper::OpenDialogBox();
+			NaviMesh.Load(OpenPath,MapWorld);
+		}ImGui::SameLine();
+		if (ImGui::Button("Clear"))
+		{
+			NaviMesh.Clear();
+		}ImGui::Separator();
+		if (ImGui::Button("Connecting Neighbors of Cells"))
+		{
+			NaviMesh.CellNeighborLink();
+		}ImGui::Separator();
+		if (NaviMeshCurrentSelectMarkeyKey != 0u)
+		{
+			static const ImVec2 Size{ 40,50 };
+			static Vector3 PrevValue{ 0,0,0 };
+			float x{ 0 }, y{ 0 }, z{ 0 };
+			ImGui::BulletText("Location Control");
+
+			{
+				const char* Format = "None";
+				ImGui::VSliderFloat("1",Size, &y, -0.01f, +0.01f,
+					PrevValue.y == 0.0f ? "None" : PrevValue.y > 0.0f ? "Positive" : "Negative");
+				PrevValue.y = y;
+				const ImVec4 Color{ 0.f,1.f,0.f,1.f };
+				ImGui::SameLine();
+				ImGui::TextColoredV(Color, "Y", {});
+			}
+			{
+				ImGui::SameLine();
+				const char* Format = "None";
+				ImGui::VSliderFloat("2", Size, &x, -0.01f, +0.01f,
+					PrevValue.x == 0.0f ? "None" : PrevValue.x > 0.0f ? "Positive" : "Negative");
+				PrevValue.x = x ;
+				const ImVec4 Color{1.f,0.f,0.f,1.f  };
+				ImGui::SameLine();
+				ImGui::TextColoredV(Color, "X", {});
+			}
+			
+			{
+				ImGui::SameLine();
+				const char* Format = "None";
+				ImGui::VSliderFloat("3", Size, &z, -0.01f, +0.01f,
+					PrevValue.z == 0.0f ? "None" : PrevValue.z > 0.0f ? "Positive" : "Negative");
+				PrevValue.z = z;
+				const ImVec4 Color{ 0.f,0.f,1.f,1.f };
+				ImGui::SameLine();
+				ImGui::TextColoredV(Color, "Z", {});
+			}
+
+			NaviMesh.MarkerMove(NaviMeshCurrentSelectMarkeyKey, Vector3{ x,y,z });
+		}
+
+		NaviMesh.DebugLog();
+		ImGui::Text("Option ?");
+		ImGui::RadioButton("Picking", &NavigationMeshModeSelect, 0); ImGui::SameLine(); 
+		ImGui::RadioButton("Deletion", &NavigationMeshModeSelect, 1); ImGui::SameLine();
+		ImGui::RadioButton("Observer", &NavigationMeshModeSelect, 2); 
+
+		ImGui::BulletText("Debug Color");
+		ImGui::ColorEdit4("Cell", NaviMesh.DefaultColor);
+		ImGui::ColorEdit4("Select", NaviMesh.SelectColor);
+		ImGui::ColorEdit4("Neighbor", NaviMesh.NeighborColor);
+	}
+	ImGui::End();
+
+	POINT Pt;
+	GetCursorPos(&Pt);
+	ScreenToClient(App::Hwnd, &Pt);
+	Vector3 Dir = { (float)Pt.x,(float)Pt.y,1.f };
+	const Ray _Ray =
+		FMath::GetRayScreenProjection
+		(Dir, App::Device, App::ClientSize<float>.first, App::ClientSize<float>.second);
+
+	auto& Control = RefControl();	
+	auto& Renderer = RefRenderer();
+	auto& RefLandscape = Renderer.RefLandscape();
+
+	if (Control.IsDown(DIK_RIGHTCLICK))
+	{
+		if (NavigationMeshModeSelect == 0u)
+		{
+			NaviMeshCurrentSelectMarkeyKey = NaviMesh.InsertPointFromMarkers(_Ray);
+			if (NaviMeshCurrentSelectMarkeyKey == 0u)
+			{
+				for (const auto& CurTargetPlane : RefLandscape.GetMapWorldCoordPlanes())
+				{
+					float t = 0.0f;
+					Vector3 IntersectPt;
+					if (FMath::IsTriangleToRay(CurTargetPlane, _Ray, t, IntersectPt))
+					{
+						NaviMeshCurrentSelectMarkeyKey = NaviMesh.InsertPoint(IntersectPt);
+					}
+				}
+			}
+		}
+		else if (NavigationMeshModeSelect == 1u)
+		{
+			NaviMesh.EraseCellFromRay(_Ray);
+		}
+		else if (NavigationMeshModeSelect == 2u)
+		{
+			NaviMeshCurrentSelectMarkeyKey=NaviMesh.SelectMarkerFromRay(_Ray);
+			NaviMeshCurrentSelectCellKey = NaviMesh.SelectCellFromRay(_Ray);
+		}
+	}
+};
+
+
+void MapEdit::Landscape()&
+{
+	auto& Renderer = RefRenderer();
+	auto& RefLandscape = Renderer.RefLandscape();
+	auto& RefMgr = RefManager();
+
+	auto _Camera = RefMgr.FindObject<Engine::NormalLayer, Engine::DynamicCamera>(L"Camera");
+	auto CameraTransform =_Camera->GetComponent<Engine::Transform>();
+	const Vector3 CameraLocation =CameraTransform->GetLocation();
+	const Vector3 CameraLook = CameraTransform->GetForward();
+
+	auto& Control = RefControl();
+
+	if (Control.IsDown(DIK_RIGHTCLICK))
+	{
+		POINT Pt;
+		GetCursorPos(&Pt);
+		ScreenToClient(App::Hwnd, &Pt);
+		Vector3 Dir = { (float)Pt.x,(float)Pt.y,1.f };
+		const Ray _Ray =
+			FMath::GetRayScreenProjection
+			(Dir, App::Device, App::ClientSize<float>.first, App::ClientSize<float>.second);
+		
+		bool PickSuccess = false; 
+		if (SpawnTransformComboSelectItem == MapEdit::SpawnTransformItem::PickOvertheLandscape)
+		{
+			auto WeakPickDeco = RefLandscape.PushDecorator(SelectDecoKey, SpawnEditScale, SpawnEditRotation, SpawnEditLocation, bLandscapeInclude , _Ray);
+
+			PickSuccess = !WeakPickDeco.expired(); 
+			if (PickSuccess)
+			{
+				CurEditDecoInstance = WeakPickDeco;
+			}
+		}
+
+		if (auto PickSuccess = RefLandscape.PickDecoInstance(_Ray);
+			!PickSuccess.expired())
+		{
+			CurEditDecoInstance = PickSuccess;
+		}
+	}
+	
+	
+	uint32 DummyLableID = 0u;
+
+	ImGui::Begin("Map Edit");
+
+	{
+		if (ImGui::CollapsingHeader("Decoratos"))
+		{
+			for (auto& [DecoKey, DecoOpt] : DecoratorOpts)
+			{
+				std::string KeyA;
+				KeyA.assign(std::begin(DecoKey), std::end(DecoKey));
+
+				if ( ImGui::ImageButton(reinterpret_cast<void**>
+					(DecoOpt.Picture), ImVec2{ 256,256 }))
+				{
+					switch (SpawnTransformComboSelectItem)
+					{
+					case MapEdit::SpawnTransformItem::CustomTransform:
+						CurEditDecoInstance = RefLandscape.PushDecorator(DecoKey,
+							SpawnEditScale, SpawnEditRotation, SpawnEditLocation ,
+							bLandscapeInclude);
+						break;
+					case MapEdit::SpawnTransformItem::PickOvertheLandscape:
+						SelectDecoKey = DecoKey;
+						break;
+					case MapEdit::SpawnTransformItem::InFrontOf:
+						CurEditDecoInstance = RefLandscape.PushDecorator(DecoKey,
+							SpawnEditScale, SpawnEditRotation,
+							CameraLocation + CameraLook * InfrontOfScale,
+							bLandscapeInclude
+						);
+						break;
+					default:
+						break;
+					}
+				}
+				if (ImGui::CollapsingHeader( (KeyA+"_Material").c_str()))
+				{
+					if (auto DecoPtr = RefLandscape.GetDecorator(DecoKey);
+						DecoPtr)
+					{
+						for (auto& CurMesh : DecoPtr->Meshes)
+						{
+							if (ImGui::Button("PropsSave"))
+							{
+								CurMesh.MaterialInfo.PropSave();
+							}
+							ImGui::BulletText("%s", CurMesh.MaterialInfo.Name.c_str());
+							ImGui::SliderFloat((std::to_string(DummyLableID)
+					    + "_Contract").c_str(), &CurMesh.MaterialInfo.Contract,1.f,20.f); 
+							ImGui::ColorEdit4( (std::to_string(DummyLableID)+"_AmbientColor").c_str(), CurMesh.MaterialInfo.AmbientColor);
+							ImGui::SliderFloat((std::to_string(DummyLableID) + "_Power").c_str(), &CurMesh.MaterialInfo.Power, 1.f, 100.f);
+							ImGui::SliderFloat((std::to_string(DummyLableID) + "_CavityCoefficient").c_str(), &CurMesh.MaterialInfo.CavityCoefficient, 0.f, 2.2f);
+
+							
+							ImGui::SliderFloat((std::to_string(DummyLableID) + "_SpecularIntencity").c_str(), &CurMesh.MaterialInfo.SpecularIntencity, 0.f, 1.f);
+							ImGui::ColorEdit4((std::to_string(DummyLableID) + "_RimAmtColor").c_str(), CurMesh.MaterialInfo.RimAmtColor);
+							ImGui::SliderFloat((std::to_string(DummyLableID) + "_RimOuterWidth").c_str(),&CurMesh.MaterialInfo.RimOuterWidth,0.f,1.f);
+							ImGui::SliderFloat((std::to_string(DummyLableID) + "_RimInnerWidth").c_str(), &CurMesh.MaterialInfo.RimInnerWidth, 0.f, 1.f);
+							ImGui::SliderFloat((std::to_string(DummyLableID) + "_DetailScale").c_str(), &CurMesh.MaterialInfo.DetailScale,1.f,100.f);
+							ImGui::SliderFloat((std::to_string(DummyLableID) + "_DetailDiffuseIntensity").c_str(), &CurMesh.MaterialInfo.DetailDiffuseIntensity,0.f,2.f);
+							ImGui::SliderFloat((std::to_string(DummyLableID) + "_DetailNormalIntensity").c_str(), &CurMesh.MaterialInfo.DetailNormalIntensity, 0.f,2.f);
+
+							++DummyLableID;
+
+							if (ImGui::CollapsingHeader("Textures"))
+							{
+								for (const auto& [TexNameKey, Texture] : CurMesh.MaterialInfo.TextureMap)
+								{
+									ImGui::BulletText("%s", ToA(TexNameKey).c_str());
+									ImGui::Image(reinterpret_cast<void**>(Texture), { 1024,1024 });
+									ImGui::Separator();
+								}
+							}
+							
+							ImGui::Separator();
+						}
+					}
+				}
+		
+				ImGui::BulletText("StaticMesh : File : %s", KeyA.c_str());
+				ImGui::Separator();
+			}
+		}
+		ImGui::Separator();
+		if (ImGui::CollapsingHeader("Spawn Information Edit"))
+		{
+			ImGui::Combo("Select", 
+				(int32*)&SpawnTransformComboSelectItem,
+				SpawnTransformComboNames.data(), SpawnTransformComboNames.size());
+
+			ImGui::Checkbox("bLandscapeInclude", &bLandscapeInclude);
+
+			if (ImGui::CollapsingHeader("Scale"))
+			{
+				ImGui::SliderFloat3("Scale", (float*)&(SpawnEditScale), 0.01f, +100.f);
+			}
+			if (ImGui::CollapsingHeader("Rotation"))
+			{
+				ImGui::SliderAngle("Yaw", &(SpawnEditRotation.y));
+				ImGui::SliderAngle("Pitch", &(SpawnEditRotation.x));
+				ImGui::SliderAngle("Roll", &(SpawnEditRotation.z));
+			}
+			if (ImGui::CollapsingHeader("Location"))
+			{
+				ImGui::SliderFloat3("Location", (float*)&(SpawnEditLocation), -10000.f, +10000.f);
+			}
+
+			switch (SpawnTransformComboSelectItem)
+			{
+			case MapEdit::SpawnTransformItem::InFrontOf:
+				ImGui::VSliderFloat("In front Of Scale", { 30,100 }, &InfrontOfScale, 1.f, 10000.f);
+			default:
+				break;
+			}
+		}
+		ImGui::Separator();
+
+		ImGui::Begin("SelectObject");
+		if (auto CurEditDecoSharedInstance = CurEditDecoInstance.lock();
+			CurEditDecoSharedInstance)
+		{
+			if (ImGui::CollapsingHeader("Scale"))
+			{
+				static float Width = 10.f;
+				ImGui::InputFloat("Width", &Width);
+				ImGui::SliderFloat3("Scale", (float*)(&CurEditDecoSharedInstance->Scale), -Width, +Width);
+				ImGui::InputFloat3("_Scale", (float*)&(CurEditDecoSharedInstance->Scale));
+				float Allof = 0.f;
+				ImGui::SliderFloat("AllOf",&Allof, -Width / 1000.f, +Width / 1000.f);
+				if (false == FMath::AlmostEqual(Allof, 0.f))
+				{
+					CurEditDecoSharedInstance->Scale.x += Allof;
+					CurEditDecoSharedInstance->Scale.y += Allof;
+					CurEditDecoSharedInstance->Scale.z += Allof;
+				}
+			}
+			ImGui::Separator();
+			if (ImGui::CollapsingHeader("Rotation"))
+			{
+				ImGui::SliderAngle("Yaw", &(CurEditDecoSharedInstance->Rotation.y));
+				ImGui::SliderAngle("Pitch", &(CurEditDecoSharedInstance->Rotation.x));
+				ImGui::SliderAngle("Roll", &(CurEditDecoSharedInstance->Rotation.z));
+
+				Vector3 Degree = CurEditDecoSharedInstance->Rotation;
+				Degree.x = FMath::ToDegree(Degree.x);
+				Degree.y = FMath::ToDegree(Degree.y);
+				Degree.z = FMath::ToDegree(Degree.z);
+
+				if (ImGui::InputFloat3("Rotation", (float*)&(Degree),
+					"%.0f Deg"))
+				{
+					CurEditDecoSharedInstance->Rotation =
+						{ FMath::ToRadian(Degree.x),
+						FMath::ToRadian(Degree.y),
+						FMath::ToRadian(Degree.z) };
+				}
+			}
+			if (ImGui::CollapsingHeader("Location"))
+			{
+				Vector3 SliderLocation{ 0,0,0 };
+				static float LocationResponsiveness = 1.f;
+				ImGui::InputFloat("LocationResponsiveness", &LocationResponsiveness);
+				ImGui::SliderFloat3("Location", (float*)&(SliderLocation), 
+					-LocationResponsiveness, +LocationResponsiveness);
+				ImGui::InputFloat3("_Location", (float*)&(CurEditDecoSharedInstance->Location));
+				CurEditDecoSharedInstance->Location += SliderLocation;
+			}
+			ImGui::Separator();
+			if (ImGui::Button("Cleaning!"))
+			{
+				CurEditDecoSharedInstance->bPendingKill = true;
+			}
+		}
+		ImGui::End();
+
+		ImGui::Separator();
+		if (ImGui::CollapsingHeader("File"))
+		{
+			if (ImGui::Button("DecoratorSave"))
+			{
+				DecoratorSave(RefLandscape);
+			}ImGui::SameLine(); 
+			if (ImGui::Button("DecoratorLoad"))
+			{
+				DecoratorLoad(RefLandscape); 
+			} 
+			if (ImGui::Button("DecoratorClear"))
+			{
+				RefLandscape.Clear();
+			}ImGui::SameLine();
+		}
+
+		ImGui::Checkbox("DebugSphereMesh ?", &RefLandscape.bDecoratorSphereMeshRender);
+
+		const auto& DecoSaveInfoStr = RefLandscape.GetDecoratorSaveInfo();
+
+		if (DecoSaveInfoStr.empty() == false)
+		{
+			ImGui::LogText("%s", DecoSaveInfoStr.c_str()); 
+		};
+	}
+
+	ImGui::End();
+
+	ImGui::Begin("DirectionalLight");
+	ImGui::DragFloat3("Direction", (float*)&Renderer.LightDirection, 0.1f, -1.f, 1.f);
+	D3DXVec4Normalize(&Renderer.LightDirection, &Renderer.LightDirection);
+	ImGui::ColorEdit4("Color", (float*)&Renderer.LightColor);
+	ImGui::End();
+}
+
+
+void MapEdit::DecoratorSave(Engine::Landscape& Landscape)const&
+{
+	const auto& SelectPath = Engine::FileHelper::OpenDialogBox();
+	const Matrix MapWorld = FMath::WorldMatrix(MapScale, MapRotation, MapLocation);
+	Landscape.Save(SelectPath);
+};
+
+void MapEdit::DecoratorLoad(Engine::Landscape& Landscape)&
+{
+	const auto& SelectPath = Engine::FileHelper::OpenDialogBox();
+	const Matrix MapWorld = FMath::WorldMatrix(MapScale, MapRotation, MapLocation);
+	Landscape.Load(SelectPath);
+};
+
+
+

@@ -56,7 +56,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	// 프로토타입 로딩.
 	{
 	// 	Proto.LoadPrototype<TombStone>(L"Static", Device ,Engine::RenderInterface::Group::NoAlpha);
-		Proto.LoadPrototype<Player>(L"Static", Device,Engine::RenderInterface::Group::NoAlpha);
+
 	}
 
 	// 카메라 오브젝트 추가.
@@ -67,6 +67,10 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 			L"Static", L"Camera",
 			FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 10.f, &Control);
 	}
+
+	MapScale = { 1.f , 1.f, 1.f };
+	MapRotation = { 3.14f / 2.f,0.f,0.f };
+	MapLocation = { 0,0,0 };
 
 	// 오브젝트 스폰
 	{

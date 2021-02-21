@@ -14,7 +14,7 @@ void Engine::Renderer::Render()&
 {
 	if (Engine::Global::bDebugMode)
 	{
-		ImGui::TreeNode("Frustum Culling");
+		// ImGui::TreeNode("Frustum Culling");
 	}
 
 	Matrix View, Projection, CameraWorld;
@@ -36,7 +36,7 @@ void Engine::Renderer::Render()&
 
 	if (Engine::Global::bDebugMode)
 	{
-		ImGui::TreePop();
+		// ImGui::TreePop();
 	}
 };
 

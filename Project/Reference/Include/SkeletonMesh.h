@@ -103,7 +103,8 @@ namespace Engine
 		IDirect3DTexture9* BoneAnimMatrixInfo{nullptr}; 
 		int32 VTFPitch{ 0 };
 
-		std::filesystem::path FullPath{};
+		std::filesystem::path FilePath{};
+		std::filesystem::path FilePureName{};
 	};
 }
 
@@ -118,7 +119,9 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 	// 모델 생성 플래그 , 같은 플래그를 두번, 혹은 호환이 안되는
 	// 플래그가 겹칠 경우 런타임 에러이며 에러 핸들링이
 	// 어려우므로 매우 유의 할 것.
-	FullPath = FilePath /FileName;
+	this->FilePath = FilePath; 
+	this->FilePureName = FileName.stem();
+
 	AiScene = Engine::Global::AssimpImporter.ReadFile(
 		(FilePath / FileName).string(),
 		aiProcess_MakeLeftHanded |

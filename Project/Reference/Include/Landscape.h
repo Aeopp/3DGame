@@ -62,6 +62,11 @@ namespace Engine
 						    const Vector3& Scale , const Vector3& Rotation, const Vector3& Location,
 							const bool bLandscapePolygonInclude)&; 
 
+		std::weak_ptr<typename Engine::Landscape::DecoInformation>
+			PushDecorator(const std::wstring DecoratorKey,
+				const Vector3& Scale, const Vector3& Rotation, const Vector3& Location,
+				const bool bLandscapePolygonInclude , const Ray WorldRay)&;
+
 		typename Engine::Landscape::Decorator*
 			GetDecorator(const std::wstring DecoratorKey)&;
 
@@ -72,6 +77,7 @@ namespace Engine
 
 		void Save(const std::filesystem::path& SavePath)&; 
 		void Load(const std::filesystem::path& LoadPath)&;
+		void Clear()&;
 
 		inline const std::string& GetDecoratorSaveInfo()& { return DecoratorSaveInfo; };
 	private:

@@ -67,9 +67,6 @@
     <ClInclude Include="Codes\TombStone.h">
       <Filter>Object</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\Tool.h">
-      <Filter>Scene\Tool</Filter>
-    </ClInclude>
     <ClInclude Include="Codes\EnterGame.h">
       <Filter>Scene\Enter</Filter>
     </ClInclude>
@@ -79,7 +76,10 @@
     <ClInclude Include="..\..\..\Resource\Shader\Sample.hlsl">
       <Filter>HLSL</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\AnimationTool.h">
+    <ClInclude Include="Codes\ObjectEdit.h">
+      <Filter>Scene\Tool</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\MapEdit.h">
       <Filter>Scene\Tool</Filter>
     </ClInclude>
   </ItemGroup>
@@ -102,16 +102,16 @@
     <ClCompile Include="Codes\TombStone.cpp">
       <Filter>Object</Filter>
     </ClCompile>
-    <ClCompile Include="Codes\Tool.cpp">
-      <Filter>Scene\Tool</Filter>
-    </ClCompile>
     <ClCompile Include="Codes\EnterGame.cpp">
       <Filter>Scene\Enter</Filter>
     </ClCompile>
     <ClCompile Include="Codes\Player.cpp">
       <Filter>Object\Player</Filter>
     </ClCompile>
-    <ClCompile Include="Codes\AnimationTool.cpp">
+    <ClCompile Include="Codes\ObjectEdit.cpp">
+      <Filter>Scene\Tool</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\MapEdit.cpp">
       <Filter>Scene\Tool</Filter>
     </ClCompile>
   </ItemGroup>

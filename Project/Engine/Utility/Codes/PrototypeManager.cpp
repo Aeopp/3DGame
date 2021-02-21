@@ -5,6 +5,7 @@
 
 void Engine::PrototypeManager::Initialize()
 {
+
 }
 
 void Engine::PrototypeManager::Clear() & noexcept

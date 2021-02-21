@@ -91,7 +91,7 @@ void Engine::SkeletonMesh::Event(Object* Owner)&
 	{
 		if (ImGui::TreeNode(("SkeletonEdit_" + ToA(Owner->GetName())).c_str()))
 		{
-			ImGui::BulletText("%s", (std::to_string(ID) + "_" + FullPath.string()).c_str());
+			ImGui::BulletText("%s", (std::to_string(ID) + "_" + (FilePath/FilePureName).string()).c_str());
 
 			if (ImGui::TreeNode("Animation"))
 			{
@@ -427,8 +427,10 @@ void Engine::SkeletonMesh::AnimationSave()&
 	Writer.EndArray();
 
 	Writer.EndObject();
-	std::filesystem::path TargetPath = FullPath; 
-	TargetPath.replace_extension("Animation");
+	std::filesystem::path TargetPath = FilePath;
+	TargetPath /= L"Animation";
+	TargetPath /= FilePureName;
+	TargetPath.replace_extension("json");
 	std::ofstream Of{ TargetPath };
 	Of << StrBuf.GetString();
 
@@ -436,8 +438,10 @@ void Engine::SkeletonMesh::AnimationSave()&
 
 void Engine::SkeletonMesh::AnimationLoad()&
 {
-	std::filesystem::path TargetPath = FullPath;
-	TargetPath.replace_extension("Animation");
+	std::filesystem::path TargetPath = FilePath;
+	TargetPath /= L"Animation";
+	TargetPath /= FilePureName;
+	TargetPath.replace_extension("json");
 	std::ifstream Is{ TargetPath };
 	using namespace rapidjson;
 	if (!Is.is_open()) return;

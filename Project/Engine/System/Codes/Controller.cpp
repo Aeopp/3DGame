@@ -88,7 +88,6 @@ void Engine::Controller::InputStateCalc()&
 			case Engine::InputState::Down:
 				CurrentKeyState = InputState::Up;
 				break;
-
 			case Engine::InputState::Up:
 				CurrentKeyState = InputState::None;
 				break;

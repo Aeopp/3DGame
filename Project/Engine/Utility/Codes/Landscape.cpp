@@ -181,6 +181,20 @@ std::weak_ptr<typename Engine::Landscape::DecoInformation>  Engine::Landscape::P
 	return {};
 }
 
+std::weak_ptr<typename Engine::Landscape::DecoInformation> Engine::Landscape::PushDecorator(const std::wstring DecoratorKey, const Vector3& Scale, const Vector3& Rotation, const Vector3& Location, const bool bLandscapePolygonInclude, const Ray WorldRay)&
+{
+	for (const auto& CurWorldPlane : WorldPlanes)
+	{
+		float t;  Vector3 IntersectPt{}; 
+		if (FMath::IsTriangleToRay(CurWorldPlane, WorldRay, t, IntersectPt))
+		{
+			return PushDecorator(DecoratorKey,Scale,Rotation,IntersectPt+Location,bLandscapePolygonInclude);
+		}
+	}
+	
+	return  {};
+}
+
 typename Engine::Landscape::Decorator* Engine::Landscape::GetDecorator(const std::wstring DecoratorKey)&
 {
 	if (auto iter = DecoratorContainer.find(DecoratorKey);
@@ -267,7 +281,6 @@ void Engine::Landscape::Initialize(
 	const std::filesystem::path FilePath,
 	const std::filesystem::path FileName)&
 {
-	 //               TODO ::  노말 매핑 사용할시 변경 바람 . 
 	using VertexType = Vertex::LocationTangentUV2D;
 	this->Device = Device;
 	this->Scale = Scale;
@@ -313,7 +326,6 @@ void Engine::Landscape::Initialize(
 			WorldVertexLocation.push_back(
 				FMath::Mul(FromAssimp(AiMesh->mVertices[VerticesIdx]), MapWorld) );
 		};
-
 		
 		const uint32 VtxBufsize = Meshes[MeshIdx].VtxCount * Meshes[MeshIdx].Stride;
 		Device->CreateVertexBuffer(VtxBufsize, D3DUSAGE_WRITEONLY, 0u,
@@ -326,7 +338,6 @@ void Engine::Landscape::Initialize(
 		std::memcpy(VtxBufPtr, Vertexs.data(), VtxBufsize);
 		Meshes[MeshIdx].VtxBuf->Unlock();
 		Meshes[MeshIdx].FVF = 0u;
-		
 		
 		// 인덱스 버퍼 파싱. 
 		std::vector<uint32> Indicies{};
@@ -721,6 +732,15 @@ void Engine::Landscape::Load(const std::filesystem::path& LoadPath)&
 		}
 	};
 
+}
+
+void Engine::Landscape::Clear()&
+{
+	std::for_each(std::begin(DecoratorContainer), std::end(DecoratorContainer), 
+		[](decltype(DecoratorContainer)::value_type& DecoKey_Decorator)
+		{
+			DecoKey_Decorator.second.Instances.clear();
+		});
 }
 
 

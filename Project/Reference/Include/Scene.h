@@ -37,6 +37,10 @@ namespace Engine
 	protected:
 		std::unordered_map<std::string,std::unique_ptr<Layer>> LayerMap;
 		IDirect3DDevice9* Device{ nullptr };
+
+		Vector3 MapScale{ 1,1,1 }; 
+		Vector3 MapRotation{ 0,0,0 }; 
+		Vector3 MapLocation{ 0,0,0 };
 	};
 };
 
