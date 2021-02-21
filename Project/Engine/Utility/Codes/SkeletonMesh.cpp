@@ -145,6 +145,7 @@ void Engine::SkeletonMesh::Render(	const Matrix& World,
 		{
 			return CopyBoneFinalMatrix->Final;
 		});
+
 	D3DLOCKED_RECT LockRect{ 0u, };
 	if (FAILED(BoneAnimMatrixInfo->LockRect(0u, &LockRect, nullptr, 0)))
 	{

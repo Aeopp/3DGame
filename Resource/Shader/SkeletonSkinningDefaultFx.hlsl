@@ -138,7 +138,6 @@ VS_OUT VS_MAIN(VS_IN In)
     
     In.Position.w = 1.0f;
     
-    
     float UVCorrection = 0.5f;
     float FVTFPitch = float(VTFPitch);
     int   IVTFPitch = int(VTFPitch);
@@ -147,7 +146,7 @@ VS_OUT VS_MAIN(VS_IN In)
     {
         int Idx = In.BoneIds[i] *4; 
         
-        float2 VTFUVRow0 = float2((float( Idx % IVTFPitch) +  UVCorrection)  / FVTFPitch,
+        float2 VTFUVRow0 = float2((float( Idx % IVTFPitch) +  UVCorrection) / FVTFPitch,
                                   (float( Idx / IVTFPitch) +  UVCorrection) / FVTFPitch);
         
         float2 VTFUVRow1 = float2((float((Idx +1) % IVTFPitch) + UVCorrection) / FVTFPitch,

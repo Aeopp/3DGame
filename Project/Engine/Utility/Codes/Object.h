@@ -17,8 +17,6 @@ namespace Engine
 		};
 		struct SpawnParam
 		{
-			Vector3 Scale{ 1,1,1 };
-			Vector3 Rotation{ 0,0,0 };
 			Vector3 Location{ 0,0,0 };
 		};
 	public:

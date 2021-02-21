@@ -127,7 +127,7 @@ void ObjectEdit::Event()&
 	{
 		if (ImGui::TreeNode("Transform"))
 		{
-			ImGui::SliderFloat3("Scale", (float*)(&CurSpawnParam.Scale),
+			/*ImGui::SliderFloat3("Scale", (float*)(&CurSpawnParam.Scale),
 				0.01f, 10.f);
 
 			Vector3 SliderDegRotation = FMath::ToDegree(CurSpawnParam.Rotation);
@@ -136,9 +136,9 @@ void ObjectEdit::Event()&
 				-180, +180, "%f Deg"))
 			{
 				CurSpawnParam.Rotation = FMath::ToRadian(SliderDegRotation);
-			}
-			ImGui::SliderFloat3("Location", (float*)(&CurSpawnParam.Location),
-				0.001f, 10000.f);
+			}*/
+			/*ImGui::SliderFloat3("Location", (float*)(&CurSpawnParam.Location),
+				0.001f, 10000.f);*/
 
 			ImGui::TreePop();
 		}
@@ -167,6 +167,8 @@ void ObjectEdit::Event()&
 			{
 				if (CurSpawnEditEvent)
 				{
+					CurSpawnParam.Location = *IsIntersectPoint;
+
 					Engine::Object::SpawnReturnValue
 						_SpawnObjReturnValue = CurSpawnEditEvent(CurSpawnParam);
 				}
