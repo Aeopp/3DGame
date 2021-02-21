@@ -4,13 +4,25 @@
 #include "imgui.h"
 #include <string>
 #include "StringHelper.h"
+#include <rapidjson/prettywriter.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/reader.h> 
+#include <rapidjson/document.h>
+#include <rapidjson/ostreamwrapper.h>
+#include <rapidjson/istreamwrapper.h>
+#include "FileHelper.h"
+#include "UtilityGlobal.h"
+#include <fstream>
+#include <ostream>
+#include "ResourceSystem.h"
 
-
-void Engine::Transform::Initialize()&
+void Engine::Transform::Initialize(const std::string& OwnerClassIdentifier)&
 {
 	Super::Initialize();
-
+	this->OwnerClassIdentifier = OwnerClassIdentifier;
 	UpdateWorld();
+	Load();
 };
 
 void Engine::Transform::Update(Object* const Owner, const float DeltaTime)&
@@ -28,6 +40,11 @@ void Engine::Transform::Event(Object* const Owner)&
 
 	if (ImGui::TreeNode(("TransformEdit_" + ToA(Owner->GetName())).c_str()))
 	{
+		if (ImGui::Button("Save"))
+		{
+			Save();
+		}
+
 		ImGui::InputFloat3("Scale", (float*)&Scale);
 		ImGui::InputFloat3("Rotation", (float*)&Rotation);
 		ImGui::InputFloat3("Location", (float*)&Location);
@@ -40,8 +57,6 @@ void Engine::Transform::Event(Object* const Owner)&
 		SetScale(Scale + CurSliderScale);
 		SetRotation(Rotation + CurSliderRotation);
 		SetLocation(Location + CurSliderLocation);
-
-
 
 		ImGui::TreePop();
 		ImGui::Separator();
@@ -168,4 +183,94 @@ void Engine::Transform::MoveUp(const float DeltaTime, const float Speed)
 	 Right = FMath::MulNormal(Vector3{ 1,0,0 }, RotationMatrix);*/
 };
 
+
+
+
+ void Engine::Transform::Save()&
+ {
+	 using namespace rapidjson;
+
+	 StringBuffer StrBuf;
+	 PrettyWriter<StringBuffer> Writer(StrBuf);
+	 
+	 Writer.StartObject();
+
+	 Writer.Key("Transform");
+	 Writer.StartObject();
+	 {
+		 Writer.Key("Scale");
+		 Writer.StartArray();
+		 Writer.Double(Scale.x);
+		 Writer.Double(Scale.y);
+		 Writer.Double(Scale.z);
+		 Writer.EndArray();
+
+		 Writer.Key("Rotation");
+		 Writer.StartArray();
+		 Writer.Double(Rotation.x);
+		 Writer.Double(Rotation.y);
+		 Writer.Double(Rotation.z);
+		 Writer.EndArray();
+	 }
+	 Writer.EndObject();
+
+
+	 Writer.EndObject();
+	 const std::filesystem::path TargetPath = Engine::Global::ResourcePath 
+		 / "Transform" / (OwnerClassIdentifier + ".json");
+	 std::ofstream Of{ TargetPath };
+	 Of << StrBuf.GetString();
+ }
+
+ void Engine::Transform::Load()&
+ {
+	 const std::string LoadProp = "Transform_" + OwnerClassIdentifier;
+	 auto& ResourceSys = ResourceSystem::Instance;
+
+	 std::optional<TransformProperty> IsOffset = ResourceSys->GetAny<TransformProperty>(ToW(LoadProp));
+
+	 if (IsOffset)
+	 {
+		 SetScale(IsOffset->Scale);
+		 SetRotation(IsOffset->Rotation);
+	 }
+	 else
+	 {
+		 const std::filesystem::path TargetPath = Engine::Global::ResourcePath / "Transform" / (OwnerClassIdentifier + ".json");
+		 std::ifstream Is{ TargetPath };
+		 using namespace rapidjson;
+		 if (!Is.is_open()) return;
+
+		 IStreamWrapper Isw(Is);
+		 Document _Document;
+		 _Document.ParseStream(Isw);
+
+		 if (_Document.HasParseError())
+		 {
+			 MessageBox(Engine::Global::Hwnd, L"Json Parse Error", L"Json Parse Error", MB_OK);
+			 return;
+		 }
+
+		 const Value& AnimationJsonTable = _Document["Transform"];
+
+		 const auto& ScaleArr = AnimationJsonTable.FindMember("Scale")->value.GetArray();
+
+		 SetScale({
+			 ScaleArr[0].GetFloat()  ,
+			 ScaleArr[1].GetFloat()  ,
+			 ScaleArr[2].GetFloat() });
+
+		 const auto& RotationArr = AnimationJsonTable.FindMember("Rotation")->value.GetArray();
+
+		 SetRotation({
+			 RotationArr[0].GetFloat() ,
+			 RotationArr[1].GetFloat() ,
+			 RotationArr[2].GetFloat() });
+
+		 TransformProperty CurSaveClassProperty{};
+		 CurSaveClassProperty.Scale = Scale;
+		 CurSaveClassProperty.Rotation = Rotation;
+		 ResourceSys->InsertAny(ToW(LoadProp), CurSaveClassProperty);
+	 };
+ }
 

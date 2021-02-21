@@ -7,9 +7,16 @@ namespace Engine
 {
 	class DLL_DECL Transform : public  Component
 	{
+	public:
+		struct TransformProperty
+		{
+			Vector3 Scale{ 1,1,1 };
+			Vector3 Rotation{ 0,0,0 }; 
+		};
 	public :
+
 		using Super = Component;
-		void Initialize()&;
+		void Initialize(const std::string& OwnerClassIdentifier)&;
 		virtual void Update(class Object* const Owner,
 							const float DeltaTime)& override;
 		virtual void Event(class Object* const Owner)& override;
@@ -31,16 +38,18 @@ namespace Engine
 		inline void SetScale(const Vector3& Scale)&;
 	public:
 		const Matrix& UpdateWorld()&;
-		/*inline auto& RefLocation()&;
-		inline auto& RefRotation()&;
-		inline auto& RefScale()&;*/
 		inline const auto& GetLocation()const&;
 		inline const auto& GetRotation() const&;
 		inline const auto& GetScale() const&;
 		inline const auto& GetForward() const&;
 		inline const auto& GetRight() const&;
 		inline const auto& GetUp()const&;
+	public:
+		void Save()&;
+		void Load()&;
 	private:
+		std::string OwnerClassIdentifier{};
+
 		Matrix World;
 		Vector3 Scale{ 1,1,1 };
 		Vector3 Forward{ 0,0,1 };

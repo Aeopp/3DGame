@@ -24,11 +24,11 @@ void TombStone::Initialize(
 {
 	Super::Initialize();
 
-	auto _Transform =AddComponent<Engine::Transform>();
-	_Transform->SetScale({ 1,1,1 });
-	_Transform->SetScale(Scale);
+	auto _Transform =AddComponent<Engine::Transform>(typeid(TombStone).name() );
+
+	/*_Transform->SetScale(Scale);
 	_Transform->SetRotation(Rotation);
-	_Transform->SetLocation(SpawnLocation);
+	_Transform->SetLocation(SpawnLocation);*/
 
 	auto _StaticMesh =AddComponent<Engine::StaticMesh>(L"Floor");
 
@@ -181,15 +181,26 @@ void TombStone::HitEnd(Object* const Target)&
 {
 	Super::HitEnd(Target);
 }
-void TombStone::PrototypeEdit()&
+std::function<Engine::Object::SpawnReturnValue(const Engine::Object::SpawnParam&)> TombStone::PrototypeEdit()&
 {
-	auto& RefManager = Engine::Management::Instance;
-
 	static uint32 SpawnID = 0u;
 
-	if (ImGui::Button("Spawn"))
+	static bool SpawnSelectCheck = false;
+	ImGui::Checkbox("SpawnSelect", &SpawnSelectCheck);
+	if (SpawnSelectCheck)
 	{
-		RefManager->NewObject<Engine::NormalLayer, TombStone>(L"Static", L"TombStone_" + std::to_wstring(SpawnID++),
-			Vector3{ 1.f,1.f,1.f }, Vector3{ 0,0,0 }, Vector3{ 0,0,0 });
+		return[&RefManager = Engine::Management::Instance]
+		(const Engine::Object::SpawnParam& SpawnParams)->Engine::Object::SpawnReturnValue
+		{
+			RefManager->NewObject<Engine::NormalLayer, TombStone>
+				(L"Static", L"TombStone_" + std::to_wstring(SpawnID++),
+					SpawnParams.Scale, SpawnParams.Rotation, SpawnParams.Location);
+
+			return Engine::Object::SpawnReturnValue{};
+		};
+	}
+	else
+	{
+		return {};
 	}
 }

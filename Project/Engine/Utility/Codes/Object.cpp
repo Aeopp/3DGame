@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include "Management.h"
+#include "UtilityGlobal.h"
 
 
 void Engine::Object::Initialize()&
@@ -23,20 +24,26 @@ void Engine::Object::Clone()&
 }
 void Engine::Object::Event()&
 {
-#ifdef DEVELOP
-	std::string _Name;
-	_Name.assign(std::begin(Name), std::end(Name));
-	ImGui::Separator();
-	ImGui::Text(_Name.c_str());
-#endif
-
-	for (auto& [PropertyKey, ComponentContainer] : _Components)
+	if (Engine::Global::bDebugMode)
 	{
-		for (auto& [Key, CurrentComponent] : ComponentContainer)
+		std::string _Name;
+		_Name.assign(std::begin(Name), std::end(Name));
+		ImGui::Separator();
+		ImGui::Text(_Name.c_str());
+
+		for (auto& [PropertyKey, ComponentContainer] : _Components)
 		{
-			CurrentComponent->Event(this);
+			for (auto& [Key, CurrentComponent] : ComponentContainer)
+			{
+				CurrentComponent->Event(this);
+			}
+		};
+		
+		if (ImGui::SmallButton(("Kill "+ _Name).c_str()))
+		{
+			this->Kill();
 		}
-	};
+	}	
 };
 
 void Engine::Object::Update(const float DeltaTime)&

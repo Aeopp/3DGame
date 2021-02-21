@@ -20,5 +20,7 @@ public:
 private:
 	void DecoratorSave(Engine::Landscape& Landscape)const&;
 	void DecoratorLoad(Engine::Landscape& Landscape)&;
+private:
+	Engine::Object::SpawnParam CurSpawnParam{};
 };
 

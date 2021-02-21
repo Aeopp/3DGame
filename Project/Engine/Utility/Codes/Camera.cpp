@@ -7,11 +7,12 @@ void Engine::Camera::Initialize(
 	const float FovY,
 	const float Near,
 	const float Far,
-	const float Aspect
+	const float Aspect,
+	const std::string& ClassIdentity
 )&
 {
 	Super::Initialize();
-	AddComponent<Transform>();
+	AddComponent<Transform>(ClassIdentity);
 	this->FovY = FovY;
 	this->Near = Near;
 	this->Far = Far;
@@ -49,8 +50,9 @@ void Engine::Camera::PrototypeInitialize(IDirect3DDevice9* const Device)&
 
 	this->Device = Device;
 }
-void Engine::Camera::PrototypeEdit()&
+std::function<typename Engine::Object::SpawnReturnValue(
+	const Engine::Object::SpawnParam&)> 
+	Engine::Camera::PrototypeEdit()&
 {
-
-}
-;
+	return {};
+};

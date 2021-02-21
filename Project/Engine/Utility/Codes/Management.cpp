@@ -173,6 +173,17 @@ void Engine::Management::Update(const float DeltaTime)&
 
 void Engine::Management::Render()&
 {
+	if (Engine::Global::bDebugMode)
+	{
+		std::wstring TimerInfoW = _Timer->Information;
+		std::string TimerInfoA;
+		TimerInfoA.assign(std::begin(TimerInfoW), std::end(TimerInfoW));
+		if (ImGui::CollapsingHeader("FrameRate"))
+		{
+			ImGui::Text(TimerInfoA.c_str());
+		}
+	}
+
 	Matrix InvView;
 	_GraphicDevice->GetDevice()->GetTransform(D3DTS_VIEW, &InvView);
 	InvView = FMath::Inverse(InvView);
@@ -189,16 +200,7 @@ void Engine::Management::Render()&
 		_FontManager->RenderFont(L"Font_Default", L"기본", { 600,200 }, D3DXCOLOR{ 0.5f,0.f,0.5f,1.f });*/
 	}
 
-	if (Engine::Global::bDebugMode)
-	{
-		std::wstring TimerInfoW = _Timer->Information;
-		std::string TimerInfoA;
-		TimerInfoA.assign(std::begin(TimerInfoW), std::end(TimerInfoW));
-		if (ImGui::CollapsingHeader("FrameRate"))
-		{
-			ImGui::Text(TimerInfoA.c_str());
-		}
-	}
+
 	
 
 	ImGui::EndFrame();

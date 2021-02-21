@@ -9,6 +9,7 @@
 #include "ShaderFx.h"
 #include <unordered_map>
 #include "MaterialInformation.h"
+#include <optional>
 
 
 namespace Engine
@@ -72,6 +73,8 @@ namespace Engine
 
 		std::weak_ptr<DecoInformation> 
 			PickDecoInstance(const Ray WorldRay)&;
+
+		std::optional<Vector3 > RayIntersectPoint(const Ray  WorldRay)const&;
 
 		bool bDecoratorSphereMeshRender{ false }; 
 

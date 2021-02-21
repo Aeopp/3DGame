@@ -27,8 +27,13 @@ void Engine::PrototypeManager::ClearExceptTag(const std::wstring& Tag)&
 		});
 }
 
-void Engine::PrototypeManager::Editor()&
+std::vector< std::function<Engine::Object::SpawnReturnValue
+(const Engine::Object::SpawnParam&)>> Engine::PrototypeManager::Editor()&
 {
+	std::vector< std::function<Engine::Object::SpawnReturnValue
+	(const Engine::Object::SpawnParam&)>>
+		SpawnEditEventContainer{};
+
 	if (Engine::Global::bDebugMode)
 	{
 		ImGui::Begin("Class List");
@@ -40,7 +45,7 @@ void Engine::PrototypeManager::Editor()&
 				{
 					if (ImGui::TreeNode((ProtoTag).c_str()))
 					{
-						ObjectPtr->PrototypeEdit();
+						SpawnEditEventContainer.push_back(ObjectPtr->PrototypeEdit());
 						ImGui::TreePop();
 					}
 				}
@@ -49,4 +54,6 @@ void Engine::PrototypeManager::Editor()&
 		}
 		ImGui::End();
 	}	
+
+	return SpawnEditEventContainer;
 }

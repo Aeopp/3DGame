@@ -16,9 +16,10 @@ namespace Engine
 		void Initialize(const float FovY,
 						const float Near,
 						const float Far,
-						const float Aspect)&;
+						const float Aspect,
+			const std::string& ClassIdentity)&;
 		void PrototypeInitialize(IDirect3DDevice9* const Device)&;
-		virtual void PrototypeEdit()&override;
+		virtual std::function< SpawnReturnValue(const SpawnParam&)> PrototypeEdit()&override;
 	public:
 		float FovY{ 0.0f };
 		float Far{ 1000.f };

@@ -24,7 +24,8 @@ namespace Engine
 		void Clear(const std::wstring& Tag);
 		void ClearExceptTag(const std::wstring& Tag)&;
 
-		void Editor()&;
+		std::vector< std::function<Engine::Object::SpawnReturnValue
+		(const Engine::Object::SpawnParam&)>> Editor()&;
 	private:
 		std::unordered_map<std::wstring/*User Custom Tag*/, 
 		std::unordered_map<std::string,

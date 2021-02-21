@@ -39,12 +39,10 @@ namespace Engine
 
 		struct AnimationBlendInfo
 		{
+			uint32 PrevAnimationIdx{ 0u };
+
 			const double PrevAnimationWeight = 0.0;
 			const double AnimationTime{ 0.0 };
-
-			const aiAnimation* const  CurAnimation; 
-
-			const std::unordered_map<std::string, aiNodeAnim*>* TargetAnimTable;
 
 			const std::unordered_map<std::string,
 			std::map<double, Vector3>>& ScaleTrack;
@@ -63,8 +61,6 @@ namespace Engine
 		void BoneMatrixUpdate(
 			const Matrix& ParentToRoot,
 			const double T,
-			const aiAnimation* const  CurAnimation,
-			const std::unordered_map<std::string, aiNodeAnim*>* TargetAnimTable,
 
 			const std::unordered_map<std::string,
 			std::map<double, Vector3>>&ScaleTrack,

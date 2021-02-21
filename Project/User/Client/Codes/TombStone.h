@@ -22,7 +22,7 @@ public:
 		const float CrossAreaScale) & override;
 	virtual void HitEnd(Object* const Target) & override;
 
-	virtual void PrototypeEdit() & override;
+	virtual std::function< SpawnReturnValue(const SpawnParam&)> PrototypeEdit() & override;
 private:
 	IDirect3DDevice9* Device{ nullptr };
 };

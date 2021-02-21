@@ -48,6 +48,8 @@ public:
 
 	static inline float ToRadian(const float Degree);
 	static inline float ToDegree(const float Radian);
+	static inline Vector3 ToDegree(const Vector3& RadRotation);
+	static inline Vector3 ToRadian(const Vector3& DegRotation);
 
 	static inline Vector3 RotationVecCoord(const Vector3& Lhs,
 		const Vector3& Axis, const float Radian);
@@ -334,6 +336,19 @@ std::array<Segment, 3ul> FMath::MakeSegmentFromFace(const std::array<Vector3, 3u
 
 	return Segments;
 }
+
+inline Vector3 FMath::ToDegree(const Vector3& RadRotation)
+{
+	return { FMath::ToDegree(RadRotation.x) ,
+		FMath::ToDegree(RadRotation.y),
+		FMath::ToDegree(RadRotation.z) };
+}
+inline Vector3 FMath::ToRadian(const Vector3& DegRotation)
+{
+	return { FMath::ToRadian(DegRotation.x) ,
+		FMath::ToRadian(DegRotation.y),
+		FMath::ToRadian(DegRotation.z) };
+ }
 
 inline float FMath::ToRadian(const float Degree) { return Degree * (PI / 180.0f); }
 

@@ -4,11 +4,23 @@
 #include <unordered_map>
 #include <memory>
 #include "Component.h"
+#include <functional>
 
 namespace Engine
 {
 	class DLL_DECL Object abstract
 	{
+	public:
+		struct SpawnReturnValue
+		{
+
+		};
+		struct SpawnParam
+		{
+			Vector3 Scale{ 1,1,1 };
+			Vector3 Rotation{ 0,0,0 };
+			Vector3 Location{ 0,0,0 };
+		};
 	public:
 		void Initialize()&;
 		//   프로토타입 초기화 단계에서 컴포넌트를 생성하지 마세요.
@@ -42,7 +54,8 @@ namespace Engine
 		virtual void HitNotify(Object* const Target, const Vector3 PushDir,
 			const float CrossAreaScale)&;
 	public:
-		virtual void PrototypeEdit()&abstract;
+		virtual std::function< SpawnReturnValue(const SpawnParam&)>
+			PrototypeEdit()& abstract;
 	protected:
 		std::wstring Name{};
 	private:

@@ -33,7 +33,6 @@ void Engine::StaticMesh::Render(const Matrix& World,
                                 const Matrix& Projection,
 	                            const Vector4& CameraLocation4D)&
 {
-
 	if (Engine::Global::bDebugMode)
 	{
 		ImGui::TextColored(ImVec4{ 1.f,114.f / 255.f, 198.f / 255.f , 1.0f }, "Draw : %s", ToA(ResourceName).c_str());

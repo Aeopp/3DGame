@@ -15,7 +15,7 @@ void Engine::DynamicCamera::Initialize(
 	const float Speed,
 	Controller* const _Control)&
 {
-	Super::Initialize(FovY , Near  ,Far , Aspect );
+	Super::Initialize(FovY , Near  ,Far , Aspect  ,typeid(DynamicCamera).name());
 	this->_Control = _Control;
 	this->Speed = Speed;
 }

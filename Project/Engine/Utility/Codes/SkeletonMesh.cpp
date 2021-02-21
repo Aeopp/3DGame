@@ -30,6 +30,9 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 	this->operator=(*ProtoSkeletonMesh);
 	ID = IDBackUp;
 
+	auto ProtoRootBone = ProtoSkeletonMesh->BoneTable.front();
+	ProtoSkeletonMesh->BoneTableIdxFromName;
+
 	BoneTable.clear();
 	BoneTableIdxFromName.clear();
 	// Bone Info 
@@ -37,47 +40,16 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 	BoneTable.push_back(_Bone);
 	const uint64 CurBoneIdx = BoneTable.size() - 1u; 
 	Bone* RootBone = _Bone.get();
-	BoneTableIdxFromName.insert({AiScene->mRootNode->mName.C_Str() , CurBoneIdx });
-	RootBone->Name = AiScene->mRootNode->mName.C_Str();
-	RootBone->OriginTransform = RootBone->Transform = 
-		FromAssimp(AiScene->mRootNode->mTransformation);
+	BoneTableIdxFromName.insert({ ProtoRootBone ->Name, CurBoneIdx });
+	RootBone->Name = ProtoRootBone->Name;
+	RootBone->OriginTransform = RootBone->Transform = ProtoRootBone->Transform;
 	RootBone->Parent = nullptr;
 	RootBone->ToRoot = RootBone->OriginTransform;  *FMath::Identity();
 
-	for (uint32 i = 0; i < AiScene->mRootNode->mNumChildren; ++i)
+	for (const auto& ProtoBoneChildren : ProtoRootBone->Childrens)
 	{
-		RootBone->Childrens.push_back(MakeHierarchy(RootBone, AiScene->mRootNode->mChildren[i]));
+		RootBone->Childrens.push_back(MakeHierarchyClone(RootBone, ProtoBoneChildren));
 	}
-
-	for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
-	{
-		aiMesh* _AiMesh = AiScene->mMeshes[MeshIdx];
-
-		if (_AiMesh->HasBones())
-		{
-			for (uint32 BoneIdx = 0u; BoneIdx < _AiMesh->mNumBones; ++BoneIdx)
-			{
-				const aiBone* const CurVtxBone = _AiMesh->mBones[BoneIdx];
-				
-				if (auto iter = BoneTableIdxFromName.find(CurVtxBone->mName.C_Str());
-					iter != std::end(BoneTableIdxFromName))
-				{
-					const uint64 TargetBoneIdx = iter->second;
-					if (TargetBoneIdx < BoneTable.size())
-					{
-						auto& TargetBone = BoneTable[TargetBoneIdx];
-						
-						for (uint32 WeightIdx = 0u; WeightIdx < CurVtxBone->mNumWeights; ++WeightIdx)
-						{
-								const aiVertexWeight  _AiVtxWit = CurVtxBone->mWeights[WeightIdx];
-								const uint32 VtxIdx = _AiVtxWit.mVertexId;
-								TargetBone->Offset = FromAssimp(CurVtxBone->mOffsetMatrix);
-						}
-					}
-				}
-			}
-		}
-	};
 
 	_ShaderFx.Initialize(L"SkeletonSkinningDefaultFx");
 	InitTextureForVertexTextureFetch();
@@ -100,16 +72,16 @@ void Engine::SkeletonMesh::Event(Object* Owner)&
 					AnimationSave();
 				}
 
-				for (uint32 AnimIdx = 0u; AnimIdx < AnimTable.size(); ++AnimIdx)
+				for (uint32 AnimIdx = 0u; AnimIdx < AnimInfoTable.size(); ++AnimIdx)
 				{
-					std::string AnimName = (AiScene->mAnimations[AnimIdx]->mName.C_Str());
+					std::string AnimName = (ToA(AnimInfoTable[AnimIdx].Name).c_str());
 			
 					std::string Message = "Index : " + std::to_string(AnimIdx) +
 						" Name : " + AnimName;
 
 					if (ImGui::CollapsingHeader(Message.c_str()))
 					{
-						ImGui::Text("TickPerSecond : %f", AiScene->mAnimations[AnimIdx]->mTicksPerSecond);
+						ImGui::Text("TickPerSecond : %f", AnimInfoTable[AnimIdx].TickPerSecond);
 
 						std::string AccelerationMsg = "Acceleration_" + AnimName;
 
@@ -261,39 +233,34 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 
 	if (TransitionRemainTime > 0.0)
 	{
-		const aiAnimation* const PrevAnimation = AiScene->mAnimations[PrevAnimIndex];
 		std::optional<Bone::AnimationBlendInfo> IsAnimationBlend = std::nullopt;
 
-		if (PrevAnimMotionTime > PrevAnimation->mDuration)
+		if (PrevAnimMotionTime > AnimInfoTable[PrevAnimIndex].Duration)
 		{
-			PrevAnimMotionTime = PrevAnimation->mDuration;
+			PrevAnimMotionTime = AnimInfoTable[PrevAnimIndex].Duration;
 		}
 
-		if (AnimIdx < AiScene->mNumAnimations)
+		if (AnimIdx < AnimInfoTable.size() )
 		{
 			const double PrevAnimationWeight = TransitionRemainTime / TransitionDuration;
-			std::unordered_map<std::string, aiNodeAnim*>* PrevAnimTable = &AnimTable[PrevAnimIndex];
 
 			IsAnimationBlend.emplace(Bone::AnimationBlendInfo
 				{
+					PrevAnimIndex,
 					PrevAnimationWeight , PrevAnimMotionTime ,
-					PrevAnimation , PrevAnimTable  ,
-						_AnimationTrack->ScaleTimeLine[PrevAnimIndex] ,
-						_AnimationTrack->QuatTimeLine[PrevAnimIndex],
-						_AnimationTrack->PosTimeLine[PrevAnimIndex]
+					_AnimationTrack->ScaleTimeLine[PrevAnimIndex] ,
+					_AnimationTrack->QuatTimeLine[PrevAnimIndex],
+					_AnimationTrack->PosTimeLine[PrevAnimIndex]
 				});
 
-			aiAnimation* CurAnimation = AiScene->mAnimations[AnimIdx];
-			std::unordered_map<std::string, aiNodeAnim*>* CurAnimTable = &AnimTable[AnimIdx];
-
-			if (CurrentAnimMotionTime > CurAnimation->mDuration)
+			if (CurrentAnimMotionTime > AnimInfoTable[AnimIdx].Duration)
 			{
-				CurrentAnimMotionTime = CurAnimation->mDuration;
+				CurrentAnimMotionTime = AnimInfoTable[AnimIdx].Duration;
 			}
 
 			Bone* RootBone = BoneTable.front().get();
 			RootBone->BoneMatrixUpdate(Identity,
-				CurrentAnimMotionTime, CurAnimation, CurAnimTable,
+				CurrentAnimMotionTime,
 				_AnimationTrack->ScaleTimeLine[AnimIdx],
 				_AnimationTrack->QuatTimeLine[AnimIdx],
 				_AnimationTrack->PosTimeLine[AnimIdx], IsAnimationBlend);
@@ -301,19 +268,16 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 	}
 	else
 	{
-		if (AnimIdx < AiScene->mNumAnimations)
+		if (AnimIdx < AnimInfoTable.size())
 		{
-			aiAnimation*  CurAnimation = AiScene->mAnimations[AnimIdx];
-			std::unordered_map<std::string, aiNodeAnim*>*  CurAnimTable = &AnimTable[AnimIdx];
-
-			if (CurrentAnimMotionTime > CurAnimation->mDuration)
+			if (CurrentAnimMotionTime > AnimInfoTable[AnimIdx].Duration)
 			{
-				CurrentAnimMotionTime = CurAnimation->mDuration; 
+				CurrentAnimMotionTime = AnimInfoTable[AnimIdx].Duration; 
 			}
 			Bone* RootBone = BoneTable.front().get();
 
 			RootBone->BoneMatrixUpdate(Identity,
-				CurrentAnimMotionTime, CurAnimation, CurAnimTable,
+				CurrentAnimMotionTime,  
 				_AnimationTrack->ScaleTimeLine[AnimIdx]    ,
 				_AnimationTrack->QuatTimeLine[AnimIdx]   ,
 				_AnimationTrack->PosTimeLine[AnimIdx]   ,     std::nullopt);
@@ -332,12 +296,35 @@ Engine::SkeletonMesh::MakeHierarchy(
 	BoneTableIdxFromName.insert({ AiNode->mName.C_Str()  ,CurBoneIdx });
 	TargetBone->Name = AiNode->mName.C_Str();
 	TargetBone->OriginTransform = TargetBone->Transform = FromAssimp(AiNode->mTransformation);
-	TargetBone->Parent = TargetBone.get(); 
+	// TargetBone->Parent = TargetBone.get(); 
+	TargetBone->Parent = BoneParent;
 	TargetBone->ToRoot = TargetBone->OriginTransform * BoneParent->ToRoot;
 
 	for (uint32 i = 0; i < AiNode->mNumChildren; ++i)
 	{
 		TargetBone->Childrens.push_back(MakeHierarchy(TargetBone.get(), AiNode->mChildren[i]));
+	}
+
+	return TargetBone.get();
+}
+
+Engine::Bone* Engine::SkeletonMesh::MakeHierarchyClone(Bone* BoneParent, const Bone* const PrototypeBone)
+{
+	auto TargetBone = std::make_shared<Bone>();
+	BoneTable.push_back(TargetBone);
+	const uint64 CurBoneIdx = BoneTable.size() - 1;
+
+	BoneTableIdxFromName.insert({ PrototypeBone->Name  ,CurBoneIdx });
+	TargetBone->Name = PrototypeBone->Name;
+	TargetBone->OriginTransform = TargetBone->Transform = PrototypeBone->Transform;
+	// TargetBone->Parent = TargetBone.get();
+	TargetBone->Parent = BoneParent;
+	TargetBone->ToRoot = TargetBone->OriginTransform * BoneParent->ToRoot;
+	TargetBone->Offset = PrototypeBone->Offset;
+
+	for (const auto& PrototypeChildren : PrototypeBone->Childrens)
+	{
+		TargetBone->Childrens.push_back(MakeHierarchyClone(TargetBone.get(), PrototypeChildren));
 	}
 
 	return TargetBone.get();
@@ -368,6 +355,8 @@ void Engine::SkeletonMesh::PlayAnimation(const std::string& AnimName)&
 	const uint32 AnimIdx = AnimIdxFromName.find(AnimName)->second;
 	this->PlayAnimation(AnimIdx);
 }
+
+
 
 void Engine::SkeletonMesh::InitTextureForVertexTextureFetch()&
 {
@@ -413,7 +402,7 @@ void Engine::SkeletonMesh::AnimationSave()&
 				Writer.Uint(AnimIdx);
 
 				Writer.Key("Name");
-				Writer.String(AiScene->mAnimations[AnimIdx]->mName.C_Str());
+				Writer.String(ToA(AnimInfoTable[AnimIdx].Name).c_str());
 
 				Writer.Key("Acceleration");
 				Writer.Double(AnimInfoTable[AnimIdx].Acceleration);

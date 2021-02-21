@@ -26,6 +26,9 @@ namespace Engine
 
 	struct DLL_DECL AnimationInformation
 	{
+		std::wstring Name{}; 
+		double Duration = 1.f;
+		double TickPerSecond = 30.f;
 		double TransitionTime = 0.5f;
 		double Acceleration = 1.f;
 	};
@@ -59,11 +62,18 @@ namespace Engine
 		Engine::Bone*
 			MakeHierarchy(Bone* BoneParent, const aiNode* const AiNode);
 
+		Engine::Bone*
+			MakeHierarchyClone(Bone* BoneParent, const Bone* const PrototypeBone);
+
+
 		void  PlayAnimation(const uint32 AnimIdx, 
 			const double Acceleration,
 			const double TransitionDuration)&;
 		void  PlayAnimation(const uint32 AnimIdx)&;
 		void  PlayAnimation(const std::string& AnimName)&;
+
+		inline std::shared_ptr<Engine::Bone> GetBone(const std::string& BoneName) const&;
+		inline std::shared_ptr<Engine::Bone> GetRootBone() const&;
 	private:
 		void InitTextureForVertexTextureFetch()&; 
 		void AnimationSave()&;
@@ -82,16 +92,13 @@ namespace Engine
 		uint32 MaxAnimIdx{ 0u };
 		bool bBoneDebug = false; 
 	private:
+		std::string RootBoneName{}; 
 		std::shared_ptr<std::set<std::string>> BoneNameSet{}; 
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr }; 
 		Engine::ShaderFx _ShaderFx{};
 		double PrevAnimAcceleration = 1.f;
 		double Acceleration = 1.f;
 
-		/// <summary>
-		/// 애니메이션 테이블과 정보 테이블을 인덱스를 공유.
-		/// </summary>
-		std::vector<std::unordered_map<std::string, aiNodeAnim*>>  AnimTable{};
 		std::vector<AnimationInformation>                          AnimInfoTable{}; 
 		std::unordered_map<std::string,uint32>                     AnimIdxFromName{}; 
 
@@ -122,7 +129,7 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 	this->FilePath = FilePath; 
 	this->FilePureName = FileName.stem();
 
-	AiScene = Engine::Global::AssimpImporter.ReadFile(
+	const aiScene*const  AiScene = Engine::Global::AssimpImporter.ReadFile(
 		(FilePath / FileName).string(),
 		aiProcess_MakeLeftHanded |
 		aiProcess_FlipUVs |
@@ -230,8 +237,6 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 		if (_AiMesh->HasBones())
 		{
 			uint64 WeightMatrixCount = 0u;
-
-			
 			for (uint32 BoneIdx = 0u; BoneIdx < _AiMesh->mNumBones; ++BoneIdx)
 			{
 				const aiBone* const CurVtxBone = _AiMesh->mBones[BoneIdx];
@@ -297,7 +302,6 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 	// 애니메이션 데이터 파싱.
 	if (AiScene->HasAnimations())
 	{
-		AnimTable.resize(AiScene->mNumAnimations);
 		AnimInfoTable.resize(AiScene->mNumAnimations); 
 		AnimIdxFromName.reserve(AiScene->mNumAnimations);
 
@@ -310,14 +314,15 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 		{
 			aiAnimation* _Animation = AiScene->mAnimations[AnimIdx];
 			AnimInfoTable[AnimIdx].Acceleration = 1.0 * _Animation->mTicksPerSecond;
+			AnimInfoTable[AnimIdx].TickPerSecond = _Animation->mTicksPerSecond;
+			AnimInfoTable[AnimIdx].Name = ToW(_Animation->mName.C_Str());
+			AnimInfoTable[AnimIdx].Duration = _Animation->mDuration;
+
 			AnimIdxFromName.insert({ _Animation ->mName.C_Str() , AnimIdx});
 			for (uint32 ChannelIdx = 0u; ChannelIdx < _Animation->mNumChannels; ++ChannelIdx)
 			{
 				const std::string ChannelName = _Animation->mChannels[ChannelIdx]->mNodeName.C_Str();
 
-				AnimTable[AnimIdx].insert(
-					{ ChannelName,
-					_Animation->mChannels[ChannelIdx] });
 
 				for (uint32 ScaleKeyIdx = 0u;
 					ScaleKeyIdx < _Animation->mChannels[ChannelIdx]->mNumScalingKeys;
@@ -351,3 +356,23 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 
 	AnimationLoad();
 }
+
+
+
+
+inline  std::shared_ptr<Engine::Bone> Engine::SkeletonMesh::GetBone(const std::string& BoneName) const&
+{
+	if (auto iter = BoneTableIdxFromName.find(BoneName);
+		iter != std::end(BoneTableIdxFromName))
+	{
+		return BoneTable[iter->second];
+	}
+
+	return {};
+}
+
+inline  std::shared_ptr<Engine::Bone> Engine::SkeletonMesh::GetRootBone() const&
+{
+	return GetBone(RootBoneName);
+}
+

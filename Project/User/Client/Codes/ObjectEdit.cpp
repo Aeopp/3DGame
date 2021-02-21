@@ -55,26 +55,25 @@ void ObjectEdit::Initialize(IDirect3DDevice9* const Device)&
 		RefLandscape.Initialize(Device, MapScale, MapRotation, MapLocation, App::ResourcePath /
 			L"Mesh" / L"StaticMesh" / L"Landscape", L"Mountain.fbx");
 
-		//std::vector<std::filesystem::path>DecoratorPaths
-		//{
-		//	{ Engine::Global::ResourcePath / L"Mesh" / L"StaticMesh" / L"Decorator" / L""} ,
-		//	{ Engine::Global::ResourcePath / L"Mesh" / L"StaticMesh" / L""},
-		//	{ Engine::Global::ResourcePath / L"Mesh" / L"DynamicMesh" / L""}
-		//};
+		std::vector<std::filesystem::path>DecoratorPaths
+		{
+			{ Engine::Global::ResourcePath / L"Mesh" / L"StaticMesh" / L"Decorator" / L""} ,
+			{ Engine::Global::ResourcePath / L"Mesh" / L"StaticMesh" / L""},
+			{ Engine::Global::ResourcePath / L"Mesh" / L"DynamicMesh" / L""}
+		};
 
-		//for (const auto& CurPath : DecoratorPaths)
-		//{
-		//	for (auto& TargetFileCurPath : std::filesystem::directory_iterator{ CurPath })
-		//	{
-		//		const auto& FileName = TargetFileCurPath.path().filename();
+		for (const auto& CurPath : DecoratorPaths)
+		{
+			for (auto& TargetFileCurPath : std::filesystem::directory_iterator{ CurPath })
+			{
+				const auto& FileName = TargetFileCurPath.path().filename();
 
-		//		if (FileName.has_extension())
-		//		{
-		//			RefLandscape.DecoratorLoad(CurPath, FileName);
-		//		}
-		//	}
-		//}
-
+				if (FileName.has_extension())
+				{
+					RefLandscape.DecoratorLoad(CurPath, FileName);
+				}
+			}
+		}
 	}
 }
 
@@ -87,9 +86,7 @@ void ObjectEdit::Event()&
 	auto& NaviMesh = RefNaviMesh();
 	auto& Proto = RefProto();
 
-	Proto.Editor(); 
-
-	const Matrix MapWorld = FMath::WorldMatrix(MapScale, MapRotation, MapLocation); 
+	const Matrix MapWorld = FMath::WorldMatrix(MapScale, MapRotation, MapLocation);
 
 	ImGui::Begin("Object Editor");
 	if (ImGui::CollapsingHeader("File"))
@@ -99,7 +96,7 @@ void ObjectEdit::Event()&
 			if (ImGui::Button("DecoratorApply"))
 			{
 				DecoratorLoad(RefLandscape);
-			}ImGui::SameLine(); 
+			}ImGui::SameLine();
 			if (ImGui::Button("DecoratorClear"))
 			{
 				RefLandscape.Clear();
@@ -122,21 +119,71 @@ void ObjectEdit::Event()&
 			ImGui::Separator();
 			ImGui::TreePop();
 		}
+
+	}
+
+
+	if (ImGui::TreeNode("SpawnInformation"))
+	{
+		if (ImGui::TreeNode("Transform"))
+		{
+			ImGui::SliderFloat3("Scale", (float*)(&CurSpawnParam.Scale),
+				0.01f, 10.f);
+
+			Vector3 SliderDegRotation = FMath::ToDegree(CurSpawnParam.Rotation);
+
+			if (ImGui::SliderFloat3("Rotation", (float*)(&SliderDegRotation),
+				-180, +180, "%f Deg"))
+			{
+				CurSpawnParam.Rotation = FMath::ToRadian(SliderDegRotation);
+			}
+			ImGui::SliderFloat3("Location", (float*)(&CurSpawnParam.Location),
+				0.001f, 10000.f);
+
+			ImGui::TreePop();
+		}
+		ImGui::TreePop();
 	}
 	ImGui::End();
-}
+
+	auto CurSpawnEditEventList = Proto.Editor();
+
+	auto& Control = RefControl();
+
+	if (Control.IsDown(DIK_RIGHTCLICK))
+	{
+		POINT Pt;
+		GetCursorPos(&Pt);
+		ScreenToClient(App::Hwnd, &Pt);
+		Vector3 Dir = { (float)Pt.x,(float)Pt.y,1.f };
+		const Ray _Ray =
+			FMath::GetRayScreenProjection
+			(Dir, App::Device, App::ClientSize<float>.first, App::ClientSize<float>.second);
+
+		if (auto IsIntersectPoint = RefLandscape.RayIntersectPoint(_Ray);
+			IsIntersectPoint)
+		{
+			for (auto& CurSpawnEditEvent : CurSpawnEditEventList)
+			{
+				if (CurSpawnEditEvent)
+				{
+					Engine::Object::SpawnReturnValue
+						_SpawnObjReturnValue = CurSpawnEditEvent(CurSpawnParam);
+				}
+			}
+		}
+	}
+};
 
 void ObjectEdit::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
-}
+};
 
 void ObjectEdit::Render()&
 {
 	Super::Render();
 };
-
-
 
 void ObjectEdit::DecoratorLoad(Engine::Landscape& Landscape)&
 {

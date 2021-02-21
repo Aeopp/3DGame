@@ -269,6 +269,21 @@ std::weak_ptr<typename Engine::Landscape::DecoInformation>
 	return {};
 }
 
+std::optional<Vector3 > Engine::Landscape::RayIntersectPoint(const Ray WorldRay) const&
+{
+	for (const auto& CurWorldPlane : WorldPlanes)
+	{
+		float t;  Vector3 IntersectPt{};
+		if (FMath::IsTriangleToRay(CurWorldPlane, WorldRay, t, IntersectPt))
+		{
+			return IntersectPt;
+		}
+	}
+
+	return {};
+}
+
+
 
 
 // TODO :: 노말매핑 사용시 버텍스 타입 변경해야 하며. FVF 변경도 고려 해야함 . 

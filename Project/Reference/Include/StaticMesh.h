@@ -61,7 +61,7 @@ inline void Engine::StaticMesh::Load(
 {
 	this->ResourceName = ResourceName;
 	this->Device = Device;
-	AiScene = Engine::Global::AssimpImporter.ReadFile(
+	const aiScene*const AiScene = Engine::Global::AssimpImporter.ReadFile(
 		(FilePath / FileName).string(),
 		aiProcess_MakeLeftHanded |
 		aiProcess_FlipUVs |
