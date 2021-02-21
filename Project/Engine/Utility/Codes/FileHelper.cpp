@@ -14,7 +14,7 @@ Engine::FileHelper::OpenDialogBox()
 		// Create the FileOpenDialog object.
 		Result = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL,
 			IID_IFileOpenDialog, reinterpret_cast<void**>(&FileOpenDiaLog));
-
+		
 		if (SUCCEEDED(Result))
 		{
 			// Show the Open dialog box.

@@ -6,6 +6,7 @@
 #include <map>
 #include <unordered_map>
 #include <unordered_set>
+#include <set>
 
 namespace Engine
 {
@@ -24,10 +25,12 @@ namespace Engine
 	public:
 		void Regist( CollisionTag _Tag,
 			class Collision* const _Collision)&;
-
+		void UnRegist(CollisionTag _Tag,
+			class Collision* const _Collision)&;
 		void Initialize()&;
 		void Update(const float DeltaTime)&;
 	private:
+		std::set<uint32> DeleteCollisionIDs{};
 		std::unordered_map<uint32, class Collision*> CollisionCompIDMap{};
 		std::map<CollisionTag, std::vector<class Collision*> >
 			CollisionCompMap{};

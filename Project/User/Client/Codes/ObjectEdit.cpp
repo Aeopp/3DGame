@@ -330,13 +330,13 @@ void ObjectEdit::CaptureCurrentObjects()&
 								Writer.String(ToA(SaveObjectInstance->GetName()).c_str());
 
 								Writer.Key("PrototypeTag");
-								Writer.String(ToA(SaveObjectInstance->GetName()).c_str());
+								Writer.String(ToA(SaveObjectInstance->PrototypeTag).c_str());
 
 								const Engine::Transform* InstanceTransform =
 									SaveObjectInstance->GetComponent<Engine::Transform>();
 								const bool bCaptureable = InstanceTransform != nullptr;
 
-								Writer.Key("bCapturable");
+								Writer.Key("bCaptureable");
 								Writer.Bool(bCaptureable);
 
 								if (bCaptureable)

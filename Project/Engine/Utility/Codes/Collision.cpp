@@ -39,7 +39,16 @@ void Engine::Collision::Update(Object* const Owner, const float DeltaTime)&
 	Super::Update(Owner, DeltaTime);
 	bCurrentFrameCollision = false;
 	this->Owner = Owner;
-	CollisionSystem::Instance->Regist(_Tag, this);
+
+	if (Owner->IsPendingKill())
+	{
+		CollisionSystem::Instance->UnRegist(_Tag, this);
+	}
+	else
+	{
+		CollisionSystem::Instance->Regist(_Tag, this);
+	}
+	
 	_Geometric->Update( OwnerTransform->GetScale(),
 						OwnerTransform->GetRotation(),
 						OwnerTransform->GetLocation() ,
