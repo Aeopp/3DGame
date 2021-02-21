@@ -14,21 +14,27 @@
 #include "ResourceSystem.h"
 #include "App.h"
 #include "ShaderManager.h"
-
 #include "NormalLayer.h"
 
 void TombStone::Initialize(
-	const Vector3& Scale,
-	const Vector3& Rotation,
+	const std::optional<Vector3>& SpawnScale ,
+	const std::optional<Vector3>& SpawnRotation,
 	const Vector3& SpawnLocation)&
 {
 	Super::Initialize();
 
 	auto _Transform =AddComponent<Engine::Transform>(typeid(TombStone).name() );
 
-	/*_Transform->SetScale(Scale);
-	_Transform->SetRotation(Rotation);
-	_Transform->SetLocation(SpawnLocation);*/
+	if (SpawnScale)
+	{
+		_Transform->SetScale(*SpawnScale);
+	}
+	if (SpawnRotation)
+	{
+		_Transform->SetRotation(*SpawnRotation);
+	}
+	
+	_Transform->SetLocation(SpawnLocation);
 
 	auto _StaticMesh =AddComponent<Engine::StaticMesh>(L"Floor");
 
@@ -194,7 +200,8 @@ std::function<Engine::Object::SpawnReturnValue(const Engine::Object::SpawnParam&
 		{
 			RefManager->NewObject<Engine::NormalLayer, TombStone>
 				(L"Static", L"TombStone_" + std::to_wstring(SpawnID++),
-					SpawnParams.Scale, SpawnParams.Rotation, SpawnParams.Location);
+					std::nullopt, std::nullopt, 
+					SpawnParams.Location);
 
 			return Engine::Object::SpawnReturnValue{};
 		};

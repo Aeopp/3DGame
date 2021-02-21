@@ -1,4 +1,6 @@
 #pragma once
+#include <optional>
+
 #include "RenderObject.h"
 #include "SkeletonMesh.h"
 
@@ -7,8 +9,8 @@ class Player final: public Engine::RenderObject
 public:
 	using Super = Engine::RenderObject;
 public:
-	void Initialize(const Vector3& Scale,
-					const Vector3& Rotation,
+	void Initialize(const std::optional<Vector3>& Scale,
+					const std::optional<Vector3>& Rotation,
 					const Vector3& SpawnLocation)&;
 	void PrototypeInitialize(IDirect3DDevice9*const Device ,
 							 const Engine::RenderInterface::Group _Group)&;
@@ -23,7 +25,8 @@ public:
 		const float CrossAreaScale) & override;
 	virtual void HitEnd(Object* const Target) & override;
 
-	virtual std::function< SpawnReturnValue(const SpawnParam&)> PrototypeEdit() & override;
+	virtual std::function< SpawnReturnValue(const SpawnParam&)> 
+		PrototypeEdit() & override;
 private:
 	IDirect3DDevice9* Device{ nullptr };
 };

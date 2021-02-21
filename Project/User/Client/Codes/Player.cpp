@@ -17,16 +17,24 @@
 #include "NormalLayer.h"
 
 void Player::Initialize(
-	const Vector3& Scale,
-	const Vector3& Rotation,
+	const std::optional<Vector3>& Scale,
+	const std::optional<Vector3>& Rotation,
 	const Vector3& SpawnLocation)&
 {
 	Super::Initialize();
 
 	auto _Transform =AddComponent<Engine::Transform>(typeid(Player).name());
-	/*_Transform->SetScale(Scale);
-	_Transform->SetRotation(Rotation);
-	_Transform->SetLocation(SpawnLocation);*/
+	if (Scale)
+	{
+		_Transform->SetScale(*Scale);
+	}
+
+	if (Rotation)
+	{
+		_Transform->SetRotation(*Rotation);
+	}
+	
+	_Transform->SetLocation(SpawnLocation);
 	
 	auto _SkeletonMesh = AddComponent<Engine::SkeletonMesh>(L"Player");
 
@@ -204,7 +212,9 @@ std::function<Engine::Object::SpawnReturnValue(
 		{
 			RefManager->NewObject<Engine::NormalLayer, Player>
 				(L"Static", L"Player_" + std::to_wstring(SpawnID++),
-					SpawnParams.Scale, SpawnParams.Rotation, SpawnParams.Location);
+					std::nullopt,
+					std::nullopt,
+					SpawnParams.Location);
 
 			return Engine::Object::SpawnReturnValue{};
 		};

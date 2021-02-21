@@ -183,6 +183,25 @@ void ObjectEdit::Update(const float DeltaTime)&
 void ObjectEdit::Render()&
 {
 	Super::Render();
+}
+void ObjectEdit::CaptureCurrentObjects()&
+{
+	auto& Manager = RefManager();
+	for (const auto& [LayerKey, ObjectContainer] : Manager.RefLayers())
+	{
+		LayerKey;
+
+		for (const auto& [ObjectTypeKey,ObjectContainer] : 
+			ObjectContainer->RefObjects())
+		{
+			ObjectTypeKey;
+
+			for (const auto& SaveObjectInstance : ObjectContainer)
+			{
+
+			}
+		}
+	}
 };
 
 void ObjectEdit::DecoratorLoad(Engine::Landscape& Landscape)&
