@@ -186,12 +186,12 @@ void Engine::SkeletonMesh::Render(	const Matrix& World,
 		Device->SetStreamSource(0, CurrentRenderMesh.VertexBuffer, 0, CurrentRenderMesh.Stride);
 		Device->SetIndices(CurrentRenderMesh.IndexBuffer);
 
-		Fx->SetTexture("DiffuseMap", CurrentRenderMesh.MaterialInfo.GetTexture(L"Diffuse"));
-		Fx->SetTexture("NormalMap", CurrentRenderMesh.MaterialInfo.GetTexture(L"Normal"));
-		Fx->SetTexture("CavityMap", CurrentRenderMesh.MaterialInfo.GetTexture(L"Cavity"));
-		Fx->SetTexture("EmissiveMap", CurrentRenderMesh.MaterialInfo.GetTexture(L"Emissive"));
-		Fx->SetTexture("DetailDiffuseMap", CurrentRenderMesh.MaterialInfo.GetTexture(L"DetailDiffuse"));
-		Fx->SetTexture("DetailNormalMap", CurrentRenderMesh.MaterialInfo.GetTexture(L"DetailNormal"));
+		Fx->SetTexture("DiffuseMap", CurrentRenderMesh.MaterialInfo.GetTexture("Diffuse"));
+		Fx->SetTexture("NormalMap", CurrentRenderMesh.MaterialInfo.GetTexture("Normal"));
+		Fx->SetTexture("CavityMap", CurrentRenderMesh.MaterialInfo.GetTexture("Cavity"));
+		Fx->SetTexture("EmissiveMap", CurrentRenderMesh.MaterialInfo.GetTexture("Emissive"));
+		Fx->SetTexture("DetailDiffuseMap", CurrentRenderMesh.MaterialInfo.GetTexture("DetailDiffuse"));
+		Fx->SetTexture("DetailNormalMap", CurrentRenderMesh.MaterialInfo.GetTexture("DetailNormal"));
 
 		Fx->CommitChanges();
 

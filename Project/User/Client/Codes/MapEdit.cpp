@@ -41,6 +41,7 @@
 
 
 
+
 void MapEdit::Initialize(IDirect3DDevice9* const Device)&
 {
      Super::Initialize(Device);
@@ -104,8 +105,9 @@ void MapEdit::Initialize(IDirect3DDevice9* const Device)&
 					RefLandscape.DecoratorLoad(CurPath, FileName);
 
 					const auto PicturePath = (CurPath / L"Converted" / FileName.stem()).wstring() + L".png";
+					static uint32 DecoID = 0u;
 					DecoratorOption LoadDecoOpt;
-
+					LoadDecoOpt.ID = DecoID++;
 					LoadDecoOpt.Picture = ResourceSys.Get<IDirect3DTexture9>(PicturePath);
 
 					if (LoadDecoOpt.Picture)
@@ -125,6 +127,7 @@ void MapEdit::Initialize(IDirect3DDevice9* const Device)&
 						ResourceSys.InsertAny<float>(PicturePath + L"Height", LoadDecoOpt.Height);
 					}
 
+					
 					DecoratorOpts.insert({ FileName  ,LoadDecoOpt });
 				}
 			}
@@ -401,6 +404,7 @@ void MapEdit::Landscape()&
 					if (auto DecoPtr = RefLandscape.GetDecorator(DecoKey);
 						DecoPtr)
 					{
+						uint32 TextureID = 0u;
 						for (auto& CurMesh : DecoPtr->Meshes)
 						{
 							if (ImGui::Button("PropsSave"))
@@ -422,15 +426,34 @@ void MapEdit::Landscape()&
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_DetailScale").c_str(), &CurMesh.MaterialInfo.DetailScale,1.f,100.f);
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_DetailDiffuseIntensity").c_str(), &CurMesh.MaterialInfo.DetailDiffuseIntensity,0.f,2.f);
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_DetailNormalIntensity").c_str(), &CurMesh.MaterialInfo.DetailNormalIntensity, 0.f,2.f);
-
-							++DummyLableID;
-
-							if (ImGui::CollapsingHeader("Textures"))
+							const std::string   CurID = std::to_string(TextureID++);
+							if (ImGui::CollapsingHeader( ("Texture_" + CurID).c_str()))
 							{
-								for (const auto& [TexNameKey, Texture] : CurMesh.MaterialInfo.TextureMap)
+								for (const auto& [TexNameKey, MtTex] : CurMesh.MaterialInfo.MaterialTextureMap)
 								{
-									ImGui::BulletText("%s", ToA(TexNameKey).c_str());
-									ImGui::Image(reinterpret_cast<void**>(Texture), { 1024,1024 });
+									ImGui::BulletText("%s = %s", (TexNameKey).c_str(),
+										MtTex.RegisterBindKey.empty() ? "Not Binding" : MtTex.RegisterBindKey.c_str());
+
+									const std::string TexEditPopupLabel = (CurID + "_" + TexNameKey + "_Bind");
+									if (ImGui::SmallButton(TexEditPopupLabel.c_str()))
+									{
+										ImGui::OpenPopup(TexEditPopupLabel.c_str());
+
+									}
+
+									ImGui::Image(reinterpret_cast<void**>(MtTex.Texture), { 256,256 });
+
+									if (ImGui::BeginPopup(TexEditPopupLabel.c_str()))
+									{
+										static char Buffer[256];
+										ImGui::InputText("", Buffer, 256);
+										ImGui::SameLine();
+										if (ImGui::SmallButton("Apply"))
+										{
+											CurMesh.MaterialInfo.BindingMapping(TexNameKey, Buffer);
+										}
+										ImGui::EndPopup();
+									}
 									ImGui::Separator();
 								}
 							}

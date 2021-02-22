@@ -126,7 +126,8 @@ void Engine::Landscape::DecoratorLoad(
 	DecoratorContainer.insert({ LoadFileName,LoadDecorator } );
 }
 
-std::weak_ptr<typename Engine::Landscape::DecoInformation>  Engine::Landscape::PushDecorator(
+std::weak_ptr<typename Engine::Landscape::DecoInformation>  
+Engine::Landscape::PushDecorator(
 	const std::wstring DecoratorKey, 
 	const Vector3& Scale,
 	const Vector3& Rotation, 
@@ -453,18 +454,17 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 		Fx->SetFloat("DetailDiffuseIntensity", CurMesh.MaterialInfo.DetailDiffuseIntensity);
 		Fx->SetFloat("DetailNormalIntensity", CurMesh.MaterialInfo.DetailNormalIntensity);
 		Fx->SetFloat("CavityCoefficient", CurMesh.MaterialInfo.CavityCoefficient);
-
 		Fx->SetFloat("DetailScale", CurMesh.MaterialInfo.DetailScale);
 	
 		Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
 		Device->SetIndices(CurMesh.IdxBuf);
 
-		Fx->SetTexture("DiffuseMap", CurMesh.MaterialInfo.GetTexture(L"Diffuse"));
-		Fx->SetTexture("NormalMap", CurMesh.MaterialInfo.GetTexture(L"Normal"));
-		Fx->SetTexture("CavityMap", CurMesh.MaterialInfo.GetTexture(L"Cavity"));
-		Fx->SetTexture("EmissiveMap", CurMesh.MaterialInfo.GetTexture(L"Emissive"));
-		Fx->SetTexture("DetailDiffuseMap", CurMesh.MaterialInfo.GetTexture(L"DetailDiffuse"));
-		Fx->SetTexture("DetailNormalMap", CurMesh.MaterialInfo.GetTexture(L"DetailNormal"));
+		Fx->SetTexture("DiffuseMap", CurMesh.MaterialInfo.GetTexture("Diffuse"));
+		Fx->SetTexture("NormalMap", CurMesh.MaterialInfo.GetTexture("Normal"));
+		Fx->SetTexture("CavityMap", CurMesh.MaterialInfo.GetTexture("Cavity"));
+		Fx->SetTexture("EmissiveMap", CurMesh.MaterialInfo.GetTexture("Emissive"));
+		Fx->SetTexture("DetailDiffuseMap", CurMesh.MaterialInfo.GetTexture("DetailDiffuse"));
+		Fx->SetTexture("DetailNormalMap", CurMesh.MaterialInfo.GetTexture("DetailNormal"));
 
 		Fx->CommitChanges();
 
@@ -548,13 +548,17 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 					{
 						Fx->SetVector("AmbientColor", &CurMesh.MaterialInfo.AmbientColor);
 					}
+					
+					/*CurMesh.MaterialInfo.BindingTexture();*/
 
-					Fx->SetTexture("DiffuseMap", CurMesh.MaterialInfo.GetTexture(L"Diffuse"));
-					Fx->SetTexture("NormalMap", CurMesh.MaterialInfo.GetTexture(L"Normal"));
-					Fx->SetTexture("CavityMap", CurMesh.MaterialInfo.GetTexture(L"Cavity"));
-					Fx->SetTexture("EmissiveMap", CurMesh.MaterialInfo.GetTexture(L"Emissive"));
-					Fx->SetTexture("DetailDiffuseMap", CurMesh.MaterialInfo.GetTexture(L"DetailDiffuse"));
-					Fx->SetTexture("DetailNormalMap", CurMesh.MaterialInfo.GetTexture(L"DetailNormal"));
+					 CurMesh.MaterialInfo.BindingTexture(Fx);
+
+					//Fx->SetTexture("DiffuseMap", CurMesh.MaterialInfo.GetTexture("Diffuse"));
+					//Fx->SetTexture("NormalMap", CurMesh.MaterialInfo.GetTexture("Normal"));
+					//Fx->SetTexture("CavityMap", CurMesh.MaterialInfo.GetTexture("Cavity"));
+					//Fx->SetTexture("EmissiveMap", CurMesh.MaterialInfo.GetTexture("Emissive"));
+					//Fx->SetTexture("DetailDiffuseMap", CurMesh.MaterialInfo.GetTexture("DetailDiffuse"));
+					//Fx->SetTexture("DetailNormalMap", CurMesh.MaterialInfo.GetTexture("DetailNormal"));
 
 					Fx->CommitChanges();
 				

@@ -118,7 +118,8 @@ bool Engine::Collision::IsCollision(Collision* const Rhs)&
 				Rhs->OwnerTransform->SetLocation(
 					Rhs->OwnerTransform->GetLocation() + PushDir * CrossArea * 0.5f);
 
-				Rhs->_Geometric->Update(Rhs->OwnerTransform->GetScale(),
+				Rhs->_Geometric->Update(
+					Rhs->OwnerTransform->GetScale(),
 					Rhs->OwnerTransform->GetRotation(),
 					Rhs->OwnerTransform->GetLocation(),
 					Rhs->OffsetMatrix,
@@ -127,7 +128,8 @@ bool Engine::Collision::IsCollision(Collision* const Rhs)&
 				OwnerTransform->SetLocation(
 					OwnerTransform->GetLocation() + -PushDir * CrossArea * 0.5f);
 
-				_Geometric->Update(Rhs->OwnerTransform->GetScale(),
+				_Geometric->Update(
+					OwnerTransform->GetScale(),
 					OwnerTransform->GetRotation(),
 					OwnerTransform->GetLocation(),
 					OffsetMatrix,
@@ -138,7 +140,8 @@ bool Engine::Collision::IsCollision(Collision* const Rhs)&
 				Rhs->OwnerTransform->SetLocation(
 					Rhs->OwnerTransform->GetLocation() + PushDir * CrossArea);
 
-				Rhs->_Geometric->Update(Rhs->OwnerTransform->GetScale(),
+				Rhs->_Geometric->Update(
+					Rhs->OwnerTransform->GetScale(),
 					Rhs->OwnerTransform->GetRotation(),
 					Rhs->OwnerTransform->GetLocation(),
 					Rhs->OffsetMatrix ,

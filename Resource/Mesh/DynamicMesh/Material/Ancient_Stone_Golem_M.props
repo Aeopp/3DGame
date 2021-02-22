@@ -1,11 +1,19 @@
 {
-    "Contract": 1,
-    "RimInnerWidth": 0.0,
-    "RimOuterWidth": 0.0,
-    "Power": 1.0,
-    "SpecularIntencity": 1.0,
+    "RegisterKey": {
+        "Diffuse": "DiffuseMap",
+        "Normal": "NormalMap",
+        "DetailDiffuse": "DetailDiffuseMap",
+        "Cavity": "CavityMap",
+        "Emissive": "EmissiveMap",
+        "DetailNormal": "DetailNormalMap"
+    },
+    "Contract": 4,
+    "RimInnerWidth": 0.003000000026077032,
+    "RimOuterWidth": 0.30000001192092898,
+    "Power": 16.0,
+    "SpecularIntencity": 0.5,
     "DetailScale": 1.0,
-    "CavityCoefficient": 0.8130000233650208,
+    "CavityCoefficient": 1.0,
     "DetailDiffuseIntensity": 1.0,
     "DetailNormalIntensity": 1.0,
     "RimAmtColor": [
@@ -15,9 +23,9 @@
         1.0
     ],
     "AmbientColor": [
-        9.999999974752428e-7,
-        9.999899930335233e-7,
-        9.999899930335233e-7,
+        0.10000000149011612,
+        0.10000000149011612,
+        0.10000000149011612,
         1.0
     ]
 }

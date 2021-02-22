@@ -41,30 +41,34 @@ void Engine::DynamicCamera::Update(const float DeltaTime)&
 		_Transform->RotateAxis(_Transform->GetRight(), Pitch, DeltaTime);*/
 	}
 
-	if (_Control->IsPressing(DIK_W))
+	if (bMoveable)
 	{
-		_Transform->MoveForward(DeltaTime, Speed);
+		if (_Control->IsPressing(DIK_W))
+		{
+			_Transform->MoveForward(DeltaTime, Speed);
+		}
+		if (_Control->IsPressing(DIK_S))
+		{
+			_Transform->MoveForward(DeltaTime, -Speed);
+		}
+		if (_Control->IsPressing(DIK_D))
+		{
+			_Transform->MoveRight(DeltaTime, Speed);
+		}
+		if (_Control->IsPressing(DIK_A))
+		{
+			_Transform->MoveRight(DeltaTime, -Speed);
+		}
+		if (_Control->IsPressing(DIK_Z))
+		{
+			_Transform->MoveUp(DeltaTime, +Speed);
+		}
+		if (_Control->IsPressing(DIK_X))
+		{
+			_Transform->MoveUp(DeltaTime, -Speed);
+		}
 	}
-	if (_Control->IsPressing(DIK_S))
-	{
-		_Transform->MoveForward(DeltaTime, -Speed);
-	}
-	if (_Control->IsPressing(DIK_D))
-	{
-		_Transform->MoveRight(DeltaTime, Speed);
-	}
-	if (_Control->IsPressing(DIK_A))
-	{
-		_Transform->MoveRight(DeltaTime, -Speed);
-	}
-	if (_Control->IsPressing(DIK_Z))
-	{
-		_Transform->MoveUp(DeltaTime, +Speed);
-	}
-	if (_Control->IsPressing(DIK_X))
-	{
-		_Transform->MoveUp(DeltaTime, -Speed);
-	}
+	
 	const float ZDelta = _Control->GetMouseMove(Engine::MouseMove::Z); 
 	if (false==FMath::AlmostEqual(ZDelta, 0.0f))
 	{
@@ -89,9 +93,13 @@ void Engine::DynamicCamera::Event()&
 {
 	Super::Event();
 
-	if (_Control->IsDown(DIK_P))
+	if (_Control->IsDown(DIK_F1))
 	{
 		MouseFixToggle();
+	}
+	if (_Control->IsDown(DIK_F2))
+	{
+		MoveableToggle();
 	}
 	if (Engine::Global::bDebugMode)
 	{
@@ -135,6 +143,10 @@ void Engine::DynamicCamera::MouseFix()&
 	SetCursorPos(FixPosition.x, FixPosition.y);
 };
 
+void Engine::DynamicCamera::MoveableToggle()&
+{
+	bMoveable = !bMoveable;
+};
 void Engine::DynamicCamera::MouseFixToggle()&
 {
 	bMouseFix = !bMouseFix;

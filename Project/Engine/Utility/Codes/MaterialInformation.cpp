@@ -14,7 +14,6 @@
 #include <rapidjson/istreamwrapper.h>
 #include "StringHelper.h"
 
-
 void Engine::MaterialInformation::Load
 (
 	IDirect3DDevice9* const Device,
@@ -33,6 +32,11 @@ void Engine::MaterialInformation::Load
 	{
 		std::getline(MatStream, TexLine);
 		if (TexLine.empty())continue;
+
+		std::erase_if(TexLine,[](const char DeleteSpace) 
+			{
+				return DeleteSpace == L' ';
+			});
 
 		const size_t SeparatorOffset = TexLine.find('=');
 		if (SeparatorOffset == std::wstring::npos)break;
@@ -53,14 +57,14 @@ void Engine::MaterialInformation::Load
 			_Texture = ResourceSys->Insert<IDirect3DTexture9>(TexFileName, _Texture);
 		}
 
-		TextureMap.insert({ TexKey,_Texture });
+		MaterialTexture MtTex{}; 
+		MtTex.Texture = _Texture; 
+		MaterialTextureMap.insert({ ToA(TexKey),std::move(MtTex) });
 
 		TexLine.clear();
 		TexKey.clear();
 		TexFileName.clear();
 	}
-
-
 
 	PropPath = MatFilePath / (MatFileName.stem().wstring() + L".props");
 	PropsLoad(PropPath);
@@ -84,6 +88,13 @@ void Engine::MaterialInformation::PropsLoad(const std::filesystem::path& PropsFi
 			//MessageBox(Engine::Global::Hwnd, L"Json Parse Error", L"Json Parse Error", MB_OK);
 			return;
 		}
+		
+		const auto& RegisterKeyMap = _Document["RegisterKey"];
+		for (auto TexRegisterNameIter = RegisterKeyMap.MemberBegin();
+			TexRegisterNameIter != RegisterKeyMap.MemberEnd(); ++TexRegisterNameIter)
+		{
+			BindingMapping(TexRegisterNameIter->name.GetString(), TexRegisterNameIter->value.GetString());
+		}
 
 		Contract = _Document["Contract"].GetInt();
 		RimInnerWidth = _Document["RimInnerWidth"].GetFloat();
@@ -95,13 +106,13 @@ void Engine::MaterialInformation::PropsLoad(const std::filesystem::path& PropsFi
 		DetailDiffuseIntensity = _Document["DetailDiffuseIntensity"].GetFloat();
 		DetailNormalIntensity = _Document["DetailNormalIntensity"].GetFloat();
 
-		const auto& RimAmtColorArr = _Document["RimAmtColor"].GetArray();
+		const auto&     RimAmtColorArr = _Document["RimAmtColor"].GetArray();
 		RimAmtColor.x = RimAmtColorArr[0].GetFloat();
 		RimAmtColor.y = RimAmtColorArr[1].GetFloat();
 		RimAmtColor.z = RimAmtColorArr[2].GetFloat();
 		RimAmtColor.w = RimAmtColorArr[3].GetFloat();
 
-		const auto& AmbientColorArr =  _Document["AmbientColor"].GetArray();
+		const auto&      AmbientColorArr =  _Document["AmbientColor"].GetArray();
 		AmbientColor.x = AmbientColorArr [0].GetFloat();
 		AmbientColor.y = AmbientColorArr [1].GetFloat();
 		AmbientColor.z = AmbientColorArr [2].GetFloat();
@@ -109,17 +120,28 @@ void Engine::MaterialInformation::PropsLoad(const std::filesystem::path& PropsFi
 	}
 }
 
-IDirect3DTexture9* Engine::MaterialInformation::GetTexture(const std::wstring& TexKey) const&
+IDirect3DTexture9* Engine::MaterialInformation::GetTexture(const std::string& MatTexKey) const&
 {
-	if (auto iter = TextureMap.find(TexKey);
-		iter != std::end(TextureMap))
+	if (auto iter = MaterialTextureMap.find(MatTexKey);
+		iter != std::end(MaterialTextureMap))
 	{
-		return iter->second;
+		return iter->second.Texture;
 	}
 	else
 	{
 		return nullptr;  
 	}
+}
+
+IDirect3DTexture9* Engine::MaterialInformation::GetTextureFromRegisterKey(const std::string& RegisterTexKey) const&
+{
+	for (const auto& MtTex : MaterialTextureMap)
+	{
+		if (MtTex.second.RegisterBindKey == RegisterTexKey)
+			return MtTex.second.Texture;
+	};
+
+	return nullptr; 
 }
 
 void Engine::MaterialInformation::PropSave(std::filesystem::path PropsFilePath)&
@@ -141,6 +163,18 @@ void Engine::MaterialInformation::PropSave(std::filesystem::path PropsFilePath)&
 
 		Writer.StartObject();
 		{
+			Writer.Key("RegisterKey");
+			Writer.StartObject();
+			for (const auto&  [TexKey,MtTexInfo] :MaterialTextureMap)
+			{
+				if (!MtTexInfo.RegisterBindKey.empty())
+				{
+					Writer.Key(TexKey.c_str());
+					Writer.String(MtTexInfo.RegisterBindKey.c_str());
+				}
+			}
+			Writer.EndObject();
+
 			Writer.Key("Contract");
 			Writer.Int(Contract);
 
@@ -191,5 +225,26 @@ void Engine::MaterialInformation::PropSave(std::filesystem::path PropsFilePath)&
 		Writer.EndObject();
 
 		PropStream << StrBuf.GetString();
+	}
+}
+
+void Engine::MaterialInformation::BindingTexture(ID3DXEffect*  _Fx)const &
+{
+	for (const auto& [FxBindKey, _MaterialTex] : MaterialTextureMap)
+	{
+		if (!_MaterialTex.RegisterBindKey.empty())
+		{
+			_Fx->SetTexture(_MaterialTex.RegisterBindKey.c_str(), _MaterialTex.Texture);
+		}
+	}
+}
+
+void Engine::MaterialInformation::BindingMapping(
+							const std::string& TexKey, const std::string& RegisterKey)&
+{
+	if (auto MtTexIter = MaterialTextureMap.find(TexKey);
+		MtTexIter != std::end(MaterialTextureMap))
+	{
+		MtTexIter->second.RegisterBindKey = RegisterKey;
 	}
 }

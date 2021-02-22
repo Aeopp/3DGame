@@ -36,6 +36,7 @@ private:
 	std::wstring SelectDecoKey{};
 	struct DecoratorOption
 	{
+		uint32 ID{ 0u };
 		IDirect3DTexture9* Picture{};
 		float Width;
 		float Height;

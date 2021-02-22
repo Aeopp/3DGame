@@ -73,12 +73,12 @@ void Engine::StaticMesh::Render(const Matrix& World,
 		Device->SetStreamSource(0, CurMesh.VertexBuffer, 0, CurMesh.Stride);
 		Device->SetIndices(CurMesh.IndexBuffer);
 
-		Fx->SetTexture("DiffuseMap", CurMesh.MaterialInfo.GetTexture(L"Diffuse"));
-		Fx->SetTexture("NormalMap", CurMesh.MaterialInfo.GetTexture(L"Normal"));
-		Fx->SetTexture("CavityMap", CurMesh.MaterialInfo.GetTexture(L"Cavity"));
-		Fx->SetTexture("EmissiveMap", CurMesh.MaterialInfo.GetTexture(L"Emissive"));
-		Fx->SetTexture("DetailDiffuseMap", CurMesh.MaterialInfo.GetTexture(L"DetailDiffuse"));
-		Fx->SetTexture("DetailNormalMap", CurMesh.MaterialInfo.GetTexture(L"DetailNormal"));
+		Fx->SetTexture("DiffuseMap", CurMesh.MaterialInfo.GetTexture("Diffuse"));
+		Fx->SetTexture("NormalMap", CurMesh.MaterialInfo.GetTexture("Normal"));
+		Fx->SetTexture("CavityMap", CurMesh.MaterialInfo.GetTexture("Cavity"));
+		Fx->SetTexture("EmissiveMap", CurMesh.MaterialInfo.GetTexture("Emissive"));
+		Fx->SetTexture("DetailDiffuseMap", CurMesh.MaterialInfo.GetTexture("DetailDiffuse"));
+		Fx->SetTexture("DetailNormalMap", CurMesh.MaterialInfo.GetTexture("DetailNormal"));
 
 		Fx->CommitChanges();
 
