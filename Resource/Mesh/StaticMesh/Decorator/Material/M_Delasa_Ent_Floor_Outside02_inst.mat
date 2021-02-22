@@ -1,0 +1,6 @@
+Diffuse=Delasa_Floor_Outer01_2
+Normal=Floor_Center_Outer01_Normals2
+Cavity=base_gray_d
+Emissive=NonWhite
+DetailDiffuse=Delasa_Floor_Inner01
+DetailNormal=Ruins_Detail_01_N

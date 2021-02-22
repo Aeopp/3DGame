@@ -1,0 +1,7 @@
+Diffuse=Delasa_Floor_Inner02
+Normal=Delasa_Floor_Inner_Block01_N
+Cavity=Delasa_Floor_Inner_Block01_C
+Emissive=NonWhite
+DetailDiffuse=Delasa_Basecolor01
+DetailNormal=T_Infil1_Metal_Copper_Shiny_N
+Blend=Delasa_Floor_Inner02_Blend

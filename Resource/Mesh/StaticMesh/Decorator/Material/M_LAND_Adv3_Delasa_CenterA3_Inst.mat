@@ -1,0 +1,7 @@
+Diffuse=Square_TileMap02_Diffuse
+Normal=Square_TileMap02_Normal
+Other[0]=T_Moss01_Diffuse
+Other[1]=T_Moss01_Normal
+Other[2]=blandmask_non
+Other[3]=nomal_non
+Other[4]=rough_non

@@ -1,0 +1,6 @@
+Diffuse=T_Moss01_Diffuse
+Normal=Square_TileMap02_Normal
+Other[0]=Square_TileMap02_Diffuse
+Other[1]=Env_Base_Normal01
+Other[2]=Env_Base_Blend_1
+Other[3]=T_MacroVariation

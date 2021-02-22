@@ -1,0 +1,11 @@
+Normal=Cavewall_Normal
+Other[0]=foam2
+Other[1]=Ocean_Ripple01
+Other[2]=push
+Other[3]=T_Environment_Materials_Wet_FluidNormal01
+Other[4]=T_Noise_Stormy
+Other[5]=T_Ocean_EdgeFoam
+Other[6]=T_Ocean_Foam
+Other[7]=Water_Foam01
+Other[8]=wave_fom
+Other[9]=Island_Sky_HDR_Tod_04

@@ -1,0 +1,10 @@
+Diffuse=Delasa_Prop_FloatingStone_Sub01
+Normal=Delasa_Floating_Stone01_Sub_Normals
+Cavity=Delasa_Floating_Stone01_Sub_Cavity
+Emissive=NonWhite
+DetailDiffuse=T_Cave_Ice_Veins_D
+DetailNormal=nomal_non
+Noise=Delasa_Noise01
+Noise2=T_Aurora01_Noise
+Noise3=T_Cave_Ice_Noise_D
+

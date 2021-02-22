@@ -1,0 +1,7 @@
+Diffuse=Delasa_Floor_Inner02
+Normal=Floor_Center_Inner2_Normals2
+Cavity=base_gray_d
+Emissive=NonWhite
+DetailDiffuse=Ruins_Detail_01_N
+DetailNormal=T_Infil1_Metal_Copper_Shiny_N
+Blend=Delasa_Floor_Inner02_Blend

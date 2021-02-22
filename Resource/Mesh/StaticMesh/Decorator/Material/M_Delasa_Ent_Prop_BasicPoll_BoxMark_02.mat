@@ -1,0 +1,7 @@
+Diffuse=Delasa_Prop_BasicPoll_BoxMark_01_Defeuse
+Normal=Delasa_Prop_BasicPoll_BoxMark_01_normals
+Cavity=Delasa_Prop_BasicPoll_BoxMark_01_Cavity
+Emissive=NonWhite
+DetailDiffuse=DefaultDiffuse
+DetailNormal=Ruins_Detail_01_N
+Blend=Delasa_Prop_BasicPoll_BoxMark_01_Blend

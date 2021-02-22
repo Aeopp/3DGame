@@ -1,0 +1,7 @@
+Diffuse=Outer_Arc_Tilemap
+Normal=Arc_Tilemap01_Normals
+Cavity=base_gray_d
+Emissive=NonWhite
+DetailDiffuse=NonWhite
+DetailNormal=nomal_non
+

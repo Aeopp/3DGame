@@ -1,0 +1,8 @@
+
+Diffuse=Floor_Back_Deco01
+Normal=Floor_Back_Deco01_Normals
+Cavity=base_gray_d
+Emissive=NonWhite
+DetailDiffuse=NonWhite
+DetailNormal=Ruins_Detail_01_N
+
