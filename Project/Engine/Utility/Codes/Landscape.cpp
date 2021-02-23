@@ -144,6 +144,7 @@ Engine::Landscape::PushDecorator(
 		DecoInfoInstance.Scale = Scale;
 		DecoInfoInstance.Rotation = Rotation;
 		DecoInfoInstance.Location = Location;
+		DecoInfoInstance.bLandscapeInclude = bLandscapePolygonInclude;
 
 		if (bLandscapePolygonInclude)
 		{
@@ -187,13 +188,19 @@ Engine::Landscape::PushDecorator(
 std::pair< std::weak_ptr<typename Engine::Landscape::DecoInformation>, std::wstring >
 Engine::Landscape::PushDecorator(const std::wstring DecoratorKey, const Vector3& Scale, const Vector3& Rotation, const Vector3& Location, const bool bLandscapePolygonInclude, const Ray WorldRay)&
 {
+	std::map<float, Vector3> IntersectResults{};
 	for (const auto& CurWorldPlane : WorldPlanes)
 	{
 		float t;  Vector3 IntersectPt{}; 
 		if (FMath::IsTriangleToRay(CurWorldPlane, WorldRay, t, IntersectPt))
 		{
-			return PushDecorator(DecoratorKey,Scale,Rotation,IntersectPt+Location,bLandscapePolygonInclude);
+			IntersectResults[t] = IntersectPt;
 		}
+	}
+	if (false == IntersectResults.empty())
+	{
+		const Vector3 TheMostNearIntersectPoint = IntersectResults.begin()->second;
+		PushDecorator(DecoratorKey, Scale, Rotation, TheMostNearIntersectPoint + Location, bLandscapePolygonInclude);
 	}
 	
 	return  {};
@@ -213,15 +220,10 @@ typename Engine::Landscape::Decorator* Engine::Landscape::GetDecorator(const std
 std::pair<std::weak_ptr<typename Engine::Landscape::DecoInformation>,std::wstring>
 	Engine::Landscape::PickDecoInstance(const Ray WorldRay)&
 {
-	/*std::vector<std::shared_ptr<Engine::Landscape::DecoInformation>>
-		DecoInfoVec{};*/
 	std::map<float, std::pair <std::weak_ptr<Engine::Landscape::DecoInformation>, std::wstring>>
 		PickResults{};
 	for (auto& [Key , CurDeco ] : DecoratorContainer)
 	{
-		/*DecoInfoVec.insert(std::end(DecoInfoVec), 
-			std::begin(CurDeco.Instances), std::end(CurDeco.Instances));*/
-
 		for (auto& CurDecoMesh : CurDeco.Meshes)
 		{
 			const Sphere CurMeshLocalSphere = CurDecoMesh.BoundingSphere;
@@ -269,8 +271,6 @@ std::pair<std::weak_ptr<typename Engine::Landscape::DecoInformation>,std::wstrin
 						if (FMath::IsTriangleToRay(TargetPolygon, WorldRay, t, IntersectPt))
 						{
 							PickResults[t] = { CurInstance,Key };
-					/*		PickDecoInstancePtr = CurInstance.get();
-							return { CurInstance, Key };*/
 						}
 					}
 				}
@@ -280,8 +280,9 @@ std::pair<std::weak_ptr<typename Engine::Landscape::DecoInformation>,std::wstrin
 
 	if (!PickResults.empty())
 	{
-		PickDecoInstancePtr = PickResults.begin()->second.first.lock().get();
-		return PickResults.begin()->second;
+		auto TheMostNearDecoInstanceIter= PickResults.begin();
+		PickDecoInstancePtr = TheMostNearDecoInstanceIter->second.first.lock().get();
+		return TheMostNearDecoInstanceIter->second;
 	}
 	
 	return {};
@@ -289,15 +290,22 @@ std::pair<std::weak_ptr<typename Engine::Landscape::DecoInformation>,std::wstrin
 
 std::optional<Vector3 > Engine::Landscape::RayIntersectPoint(const Ray WorldRay) const&
 {
+	std::map<float, Vector3> IntersectResults{};
 	for (const auto& CurWorldPlane : WorldPlanes)
 	{
 		float t;  Vector3 IntersectPt{};
 		if (FMath::IsTriangleToRay(CurWorldPlane, WorldRay, t, IntersectPt))
 		{
-			return IntersectPt;
+			IntersectResults[t] = IntersectPt;
+			
 		}
 	}
 
+	if (IntersectResults.empty()==false)
+	{
+		return { IntersectResults.begin()->second };
+	}
+	
 	return {};
 }
 
@@ -310,112 +318,16 @@ void Engine::Landscape::Initialize(
 	IDirect3DDevice9* const Device,
 	const Vector3 Scale,
 	const Vector3 Rotation,
-	const Vector3 Location,
-	const std::filesystem::path FilePath,
-	const std::filesystem::path FileName)&
+	const Vector3 Location)&
 {
-	using VertexType = Vertex::LocationTangentUV2D;
 	this->Device = Device;
 	this->Scale = Scale;
 	this->Rotation = Rotation;
 	this->Location = Location;
 
-	auto AiScene = Engine::Global::AssimpImporter.ReadFile(
-		(FilePath / FileName).string(),
-		aiProcess_MakeLeftHanded |
-		aiProcess_FlipUVs |
-		aiProcess_FlipWindingOrder |
-		aiProcess_Triangulate |
-		aiProcess_CalcTangentSpace |
-		aiProcess_ValidateDataStructure |
-		aiProcess_ImproveCacheLocality |
-		aiProcess_RemoveRedundantMaterials |
-		aiProcess_GenUVCoords |
-		aiProcess_TransformUVCoords |
-		aiProcess_FindInstances |
-		aiProcess_GenSmoothNormals |
-		aiProcess_SortByPType |
-		aiProcess_OptimizeMeshes |
-		aiProcess_SplitLargeMeshes
-	);
-
 	const Matrix MapWorld = FMath::WorldMatrix(this->Scale,Rotation, Location);
-
 	auto& ResourceSys = ResourceSystem::Instance;
-
-	if (AiScene)
-	{
-		Meshes.resize(AiScene->mNumMeshes);
-		std::vector<Vector3>   WorldVertexLocation{};
-		for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
-		{
-			std::vector<VertexType> Vertexs;
-			const std::wstring ResourceIDStr = std::to_wstring(StaticMeshResourceID++);
-			aiMesh* AiMesh = AiScene->mMeshes[MeshIdx];
-
-			Meshes[MeshIdx].VtxCount = AiMesh->mNumVertices;
-			Meshes[MeshIdx].Stride = sizeof(VertexType);
-			for (uint32 VerticesIdx = 0u; VerticesIdx < Meshes[MeshIdx].VtxCount; ++VerticesIdx)
-			{
-				Vertexs.emplace_back(VertexType::MakeFromAssimpMesh(AiMesh, VerticesIdx));
-				WorldVertexLocation.push_back(
-					FMath::Mul(FromAssimp(AiMesh->mVertices[VerticesIdx]), MapWorld));
-			};
-
-			const uint32 VtxBufsize = Meshes[MeshIdx].VtxCount * Meshes[MeshIdx].Stride;
-			Device->CreateVertexBuffer(VtxBufsize, D3DUSAGE_WRITEONLY, 0u,
-				D3DPOOL_MANAGED, &Meshes[MeshIdx].VtxBuf, nullptr);
-
-			ResourceSys->Insert<IDirect3DVertexBuffer9>(L"VertexBuffer_Landscape_" + ResourceIDStr, Meshes[MeshIdx].VtxBuf);
-			Meshes[MeshIdx].PrimitiveCount = AiMesh->mNumFaces;
-			VertexType* VtxBufPtr{ nullptr };
-			Meshes[MeshIdx].VtxBuf->Lock(0u, 0u, reinterpret_cast<void**>(&VtxBufPtr), NULL);
-			std::memcpy(VtxBufPtr, Vertexs.data(), VtxBufsize);
-			Meshes[MeshIdx].VtxBuf->Unlock();
-			Meshes[MeshIdx].FVF = 0u;
-
-			// 인덱스 버퍼 파싱. 
-			std::vector<uint32> Indicies{};
-			for (uint32 FaceIdx = 0u; FaceIdx < AiMesh->mNumFaces; ++FaceIdx)
-			{
-				const aiFace  CurrentFace = AiMesh->mFaces[FaceIdx];
-				for (uint32 Idx = 0u; Idx < CurrentFace.mNumIndices; ++Idx)
-				{
-					Indicies.push_back(CurrentFace.mIndices[Idx]);
-				};
-			};
-			const uint32 IdxBufSize = sizeof(uint32) * Indicies.size();
-			Device->CreateIndexBuffer(IdxBufSize, D3DUSAGE_WRITEONLY, D3DFMT_INDEX32,
-				D3DPOOL_MANAGED, &Meshes[MeshIdx].IdxBuf, nullptr);
-			ResourceSys->Insert<IDirect3DIndexBuffer9>(L"IndexBuffer_Landscape_" + ResourceIDStr, Meshes[MeshIdx].IdxBuf);
-			uint32* IdxBufPtr{ nullptr };
-			Meshes[MeshIdx].IdxBuf->Lock(0, 0, reinterpret_cast<void**>(&IdxBufPtr), NULL);
-			std::memcpy(IdxBufPtr, Indicies.data(), IdxBufSize);
-			Meshes[MeshIdx].IdxBuf->Unlock();
-
-			// 머테리얼 파싱 . 
-			aiMaterial* AiMaterial = AiScene->mMaterials[AiMesh->mMaterialIndex];
-
-			const std::wstring
-				MatName = ToW(AiScene->mMaterials[AiMesh->mMaterialIndex]->GetName().C_Str());
-
-			Meshes[MeshIdx].MaterialInfo.Load(Device,
-				FilePath / L"Material", MatName + L".mat", L".tga");
-
-			Meshes[MeshIdx].MaterialInfo.Contract = 1.0f;
-
-		};
-
-		for (uint32 i = 0; i < WorldVertexLocation.size(); i += 3u)
-		{
-			WorldPlanes.push_back(
-				PlaneInfo::Make({ WorldVertexLocation[i]  ,
-					WorldVertexLocation[i + 1]  ,
-					WorldVertexLocation[i + 2] })
-			);
-		}
-	}
-
+	using VertexType = Vertex::LocationTangentUV2D;
 	std::string  VtxTypeName = typeid(VertexType).name();
 	std::wstring VtxTypeWName;
 	VtxTypeWName.assign(std::begin(VtxTypeName), std::end(VtxTypeName));
@@ -449,54 +361,9 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 	auto& Renderer = *Engine::Renderer::Instance;
 	const Matrix MapWorld = FMath::WorldMatrix(Scale, Rotation, Location);
 
-
 	Device->SetVertexDeclaration(VtxDecl);
 
 	auto Fx = _ShaderFx.GetHandle();
-	Fx->SetMatrix("World", &MapWorld);
-	Fx->SetMatrix("View", &View);
-	Fx->SetMatrix("Projection", &Projection);
-	Fx->SetVector("LightDirection", &Renderer.LightDirection);
-	Fx->SetVector("LightColor", &Renderer.LightColor);
-	Fx->SetVector("CameraLocation", &CameraLocation4D); 
-
-	uint32 PassNum = 0u;
-	Fx->Begin(&PassNum, 0);
-	for (auto& CurMesh : Meshes)
-	{
-		Fx->SetVector("RimAmtColor", &CurMesh.MaterialInfo.RimAmtColor);
-		Fx->SetFloat("RimOuterWidth", CurMesh.MaterialInfo.RimOuterWidth);
-		Fx->SetFloat("RimInnerWidth", CurMesh.MaterialInfo.RimInnerWidth);
-		Fx->SetVector("AmbientColor", &CurMesh.MaterialInfo.AmbientColor);
-		Fx->SetFloat("Power", CurMesh.MaterialInfo.Power);
-		Fx->SetFloat("SpecularIntencity", CurMesh.MaterialInfo.SpecularIntencity);
-		Fx->SetFloat("Contract", CurMesh.MaterialInfo.Contract);
-		Fx->SetFloat("DetailDiffuseIntensity", CurMesh.MaterialInfo.DetailDiffuseIntensity);
-		Fx->SetFloat("DetailNormalIntensity", CurMesh.MaterialInfo.DetailNormalIntensity);
-		Fx->SetFloat("CavityCoefficient", CurMesh.MaterialInfo.CavityCoefficient);
-		Fx->SetFloat("DetailScale", CurMesh.MaterialInfo.DetailScale);
-		Fx->SetFloat("AlphaAddtive", CurMesh.MaterialInfo.AlphaAddtive);
-		Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
-		Device->SetIndices(CurMesh.IdxBuf);
-
-		Fx->SetTexture("DiffuseMap", CurMesh.MaterialInfo.GetTexture("Diffuse"));
-		Fx->SetTexture("NormalMap", CurMesh.MaterialInfo.GetTexture("Normal"));
-		Fx->SetTexture("CavityMap", CurMesh.MaterialInfo.GetTexture("Cavity"));
-		Fx->SetTexture("EmissiveMap", CurMesh.MaterialInfo.GetTexture("Emissive"));
-		Fx->SetTexture("DetailDiffuseMap", CurMesh.MaterialInfo.GetTexture("DetailDiffuse"));
-		Fx->SetTexture("DetailNormalMap", CurMesh.MaterialInfo.GetTexture("DetailNormal"));
-
-		Fx->CommitChanges();
-
-		for (uint32 i = 0; i < PassNum; ++i)
-		{
-			Fx->BeginPass(i);
-			Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
-				0u, CurMesh.PrimitiveCount);
-			Fx->EndPass();
-		}
-	}
-	Fx->End();
 
 	if(Engine::Global::bDebugMode)
 		ImGui::Begin("Frustum Culling Log");
@@ -570,17 +437,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 						Fx->SetVector("AmbientColor", &CurMesh.MaterialInfo.AmbientColor);
 					}
 					
-					/*CurMesh.MaterialInfo.BindingTexture();*/
-
 					 CurMesh.MaterialInfo.BindingTexture(Fx);
-
-					//Fx->SetTexture("DiffuseMap", CurMesh.MaterialInfo.GetTexture("Diffuse"));
-					//Fx->SetTexture("NormalMap", CurMesh.MaterialInfo.GetTexture("Normal"));
-					//Fx->SetTexture("CavityMap", CurMesh.MaterialInfo.GetTexture("Cavity"));
-					//Fx->SetTexture("EmissiveMap", CurMesh.MaterialInfo.GetTexture("Emissive"));
-					//Fx->SetTexture("DetailDiffuseMap", CurMesh.MaterialInfo.GetTexture("DetailDiffuse"));
-					//Fx->SetTexture("DetailNormalMap", CurMesh.MaterialInfo.GetTexture("DetailNormal"));
-
 					Fx->CommitChanges();
 				
 
@@ -776,12 +633,53 @@ void Engine::Landscape::Load(const std::filesystem::path& LoadPath)&
 
 void Engine::Landscape::Clear()&
 {
-	std::for_each(std::begin(DecoratorContainer), std::end(DecoratorContainer), 
+	std::for_each(std::begin(DecoratorContainer), std::end(DecoratorContainer),
 		[](decltype(DecoratorContainer)::value_type& DecoKey_Decorator)
 		{
 			DecoKey_Decorator.second.Instances.clear();
 		});
-}
+};
 
+void Engine::Landscape::ReInitWorldPlanes()&
+{
+	WorldPlanes.clear();
 
-// 랜드스케이프 인클루드 해결 해야함.
+	for (const auto& [DecoKey, _Deco] : DecoratorContainer)
+	{
+		std::vector<Matrix> CurDecoInstancesWorld{};
+
+		for (const auto& _CurDecoInstance : _Deco.Instances)
+		{
+			if (_CurDecoInstance->bLandscapeInclude)
+			{
+				CurDecoInstancesWorld.push_back(
+					FMath::WorldMatrix(_CurDecoInstance->Scale,
+						_CurDecoInstance->Rotation,
+						_CurDecoInstance->Location));
+			}
+		}
+
+		for (const auto& CurDecoMesh : _Deco.Meshes)
+		{
+			byte* VtxBufPtr{ nullptr };
+			CurDecoMesh.VtxBuf->Lock(0u, 0u, reinterpret_cast<void**>(&VtxBufPtr), NULL);
+			for (const Matrix& InstanceWorld : CurDecoInstancesWorld)
+			{
+				for (uint32 i = 0; i < CurDecoMesh.VtxCount; i += 3)
+				{
+					std::array<Vector3, 3u> WorldPoints{};
+
+					for (uint32 j = 0; j < WorldPoints.size(); ++j)
+					{
+						WorldPoints[j] =
+							*reinterpret_cast<Vector3*>(VtxBufPtr + ((i + j) * CurDecoMesh.Stride));
+						WorldPoints[j] = FMath::Mul(WorldPoints[j], InstanceWorld);
+					};
+
+					WorldPlanes.push_back(PlaneInfo::Make(WorldPoints));
+				}
+			}
+			CurDecoMesh.VtxBuf->Unlock();
+		}
+	}
+};

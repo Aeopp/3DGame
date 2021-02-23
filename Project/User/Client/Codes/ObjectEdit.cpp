@@ -70,7 +70,7 @@ void ObjectEdit::Initialize(IDirect3DDevice9* const Device)&
 		MapLocation = { 0,0,0 };
 
 		auto& RefLandscape = Renderer.RefLandscape();
-		RefLandscape.Initialize(Device, MapScale, MapRotation, MapLocation, L"", L"");
+		RefLandscape.Initialize(Device, MapScale, MapRotation, MapLocation);
 
 		std::vector<std::filesystem::path>DecoratorPaths
 		{
@@ -384,9 +384,6 @@ void ObjectEdit::CaptureCurrentObjects()&
 
 		PropStream << StrBuf.GetString();
 	}
-
-
-
 };
 
 void ObjectEdit::DecoratorLoad(Engine::Landscape& Landscape)&

@@ -86,7 +86,7 @@ void MapEdit::Initialize(IDirect3DDevice9* const Device)&
 		auto& RefLandscape = Renderer.RefLandscape();
 		/*RefLandscape.Initialize(Device, MapScale, MapRotation,MapLocation, App::ResourcePath /
 			L"Mesh" / L"StaticMesh" / L"Landscape", L"Mountain.fbx");*/
-		RefLandscape.Initialize(Device, MapScale, MapRotation, MapLocation, L"", L"");
+		RefLandscape.Initialize(Device, MapScale, MapRotation, MapLocation);
 		
 		std::vector<std::filesystem::path>DecoratorPaths
 		{
@@ -300,15 +300,22 @@ void MapEdit::NaviMeshTool()&
 			NaviMeshCurrentSelectMarkeyKey = NaviMesh.InsertPointFromMarkers(_Ray);
 			if (NaviMeshCurrentSelectMarkeyKey == 0u)
 			{
+				std::map<float, Vector3> IntersectResults{}; 
 				for (const auto& CurTargetPlane : RefLandscape.GetMapWorldCoordPlanes())
 				{
 					float t = 0.0f;
 					Vector3 IntersectPt;
 					if (FMath::IsTriangleToRay(CurTargetPlane, _Ray, t, IntersectPt))
 					{
-						NaviMeshCurrentSelectMarkeyKey = NaviMesh.InsertPoint(IntersectPt);
+						IntersectResults[t] = IntersectPt; 
 					}
 				}
+				if (false == IntersectResults.empty())
+				{
+					const Vector3 TheMostNearIntersectPt = IntersectResults.begin()->second; 
+					NaviMeshCurrentSelectMarkeyKey = NaviMesh.InsertPoint(TheMostNearIntersectPt);
+				}
+				
 			}
 		}
 		else if (NavigationMeshModeSelect == 1u)
@@ -409,7 +416,7 @@ void MapEdit::Landscape()&
 						uint32 TextureID = 0u;
 						for (auto& CurMesh : DecoPtr->Meshes)
 						{
-							if (ImGui::Button((KeyA+"_PropsSave").c_str()))
+							if (ImGui::Button((CurMesh.MaterialInfo.Name +"_PropsSave").c_str()))
 							{
 								CurMesh.MaterialInfo.PropSave();
 							}
@@ -581,9 +588,17 @@ void MapEdit::Landscape()&
 			{
 				CurEditDecoInstance.first.reset();
 			}
-			if (ImGui::Button("Cleaning!"))
+			if (ImGui::Button("Cleaning!") || RefControl().IsDown(DIK_DELETE))
 			{
-				CurEditDecoSharedInstance->bPendingKill = true;
+				if (CurEditDecoSharedInstance)
+				{
+					if (CurEditDecoSharedInstance->bLandscapeInclude)
+					{
+						CurEditDecoSharedInstance->bLandscapeInclude = false;
+						RefLandscape.ReInitWorldPlanes();
+					}
+					CurEditDecoSharedInstance->bPendingKill = true;
+				}
 			}
 		}
 		ImGui::End();
@@ -604,7 +619,10 @@ void MapEdit::Landscape()&
 				RefLandscape.Clear();
 			}ImGui::SameLine();
 		}
-
+		if (ImGui::Button("World Vertex Information Reconstruction From Decorator"))
+		{
+			RefLandscape.ReInitWorldPlanes();
+		}
 		ImGui::Checkbox("DebugSphereMesh ?", &RefLandscape.bDecoratorSphereMeshRender);
 
 		const auto& DecoSaveInfoStr = RefLandscape.GetDecoratorSaveInfo();

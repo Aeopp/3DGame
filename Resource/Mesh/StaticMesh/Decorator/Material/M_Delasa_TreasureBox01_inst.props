@@ -1,0 +1,32 @@
+{
+    "RegisterKey": {
+        "Other[0]": "NormalMap",
+        "Other[1]": "CavityMap",
+        "Other[2]": "DiffuseMap",
+        "Other[6]": "DetailNormalMap",
+        "DefaultDiffuse": "DetailDiffuseMap",
+        "DefaultDetailDiffuse": "EmissiveMap"
+    },
+    "Contract": 4,
+    "RimInnerWidth": 0.0,
+    "RimOuterWidth": 0.0,
+    "Power": 18.60300064086914,
+    "SpecularIntencity": 1.0,
+    "DetailScale": 96.54000091552735,
+    "CavityCoefficient": 1.1670000553131104,
+    "DetailDiffuseIntensity": 2.0,
+    "DetailNormalIntensity": 2.0,
+    "RimAmtColor": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+    ],
+    "AmbientColor": [
+        0.10000000149011612,
+        0.10000000149011612,
+        0.10000000149011612,
+        1.0
+    ],
+    "AlphaAddtive": 1.0
+}

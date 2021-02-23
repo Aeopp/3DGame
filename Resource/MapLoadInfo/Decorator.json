@@ -58,170 +58,7 @@
         },
         {
             "FileName": "Delasa_Ent_MLiner_Floor02-1.FBX",
-            "InstanceList": [
-                {
-                    "Scale": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
-                    "Rotation": [
-                        1.5707963705062867,
-                        0.0,
-                        0.0
-                    ],
-                    "Location": [
-                        0.0,
-                        641.4461059570313,
-                        -101.47222900390625
-                    ],
-                    "bLandscapeInclude": false
-                },
-                {
-                    "Scale": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
-                    "Rotation": [
-                        1.5707963705062867,
-                        0.0,
-                        0.0
-                    ],
-                    "Location": [
-                        0.0,
-                        -246.7972869873047,
-                        -400.1966857910156
-                    ],
-                    "bLandscapeInclude": false
-                },
-                {
-                    "Scale": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
-                    "Rotation": [
-                        1.5707963705062867,
-                        0.0,
-                        0.0
-                    ],
-                    "Location": [
-                        0.0,
-                        -488.6950988769531,
-                        -400.3892822265625
-                    ],
-                    "bLandscapeInclude": false
-                },
-                {
-                    "Scale": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
-                    "Rotation": [
-                        1.5707963705062867,
-                        0.0,
-                        0.0
-                    ],
-                    "Location": [
-                        0.0,
-                        -820.2958374023438,
-                        -400.6533203125
-                    ],
-                    "bLandscapeInclude": false
-                },
-                {
-                    "Scale": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
-                    "Rotation": [
-                        1.5707963705062867,
-                        0.0,
-                        0.0
-                    ],
-                    "Location": [
-                        0.0,
-                        -1052.5489501953126,
-                        -102.82108306884766
-                    ],
-                    "bLandscapeInclude": false
-                },
-                {
-                    "Scale": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
-                    "Rotation": [
-                        1.5707963705062867,
-                        0.0,
-                        0.0
-                    ],
-                    "Location": [
-                        0.0,
-                        1122.351806640625,
-                        -101.08930206298828
-                    ],
-                    "bLandscapeInclude": false
-                },
-                {
-                    "Scale": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
-                    "Rotation": [
-                        1.5707963705062867,
-                        0.0,
-                        0.0
-                    ],
-                    "Location": [
-                        0.0,
-                        -1260.6453857421876,
-                        -102.98678588867188
-                    ],
-                    "bLandscapeInclude": false
-                },
-                {
-                    "Scale": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
-                    "Rotation": [
-                        1.5707963705062867,
-                        0.0,
-                        0.0
-                    ],
-                    "Location": [
-                        0.0,
-                        -1606.821044921875,
-                        -103.2624282836914
-                    ],
-                    "bLandscapeInclude": false
-                },
-                {
-                    "Scale": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
-                    "Rotation": [
-                        1.5707963705062867,
-                        0.0,
-                        0.0
-                    ],
-                    "Location": [
-                        0.0,
-                        862.3849487304688,
-                        -101.29630279541016
-                    ],
-                    "bLandscapeInclude": false
-                }
-            ]
+            "InstanceList": []
         },
         {
             "FileName": "Delasa_Ent_Side_Floor01.FBX",
@@ -301,44 +138,7 @@
         },
         {
             "FileName": "Delasa_Floor_Back01.FBX",
-            "InstanceList": [
-                {
-                    "Scale": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
-                    "Rotation": [
-                        1.5707963705062867,
-                        0.0,
-                        0.0
-                    ],
-                    "Location": [
-                        0.0,
-                        0.3185034394264221,
-                        -399.9999084472656
-                    ],
-                    "bLandscapeInclude": false
-                },
-                {
-                    "Scale": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
-                    "Rotation": [
-                        1.5707963705062867,
-                        3.1415927410125734,
-                        0.0
-                    ],
-                    "Location": [
-                        0.0,
-                        0.3185034394264221,
-                        -399.9999084472656
-                    ],
-                    "bLandscapeInclude": false
-                }
-            ]
+            "InstanceList": []
         },
         {
             "FileName": "Delasa_Floor_Center_Cylinder_03.FBX",
@@ -418,7 +218,26 @@
         },
         {
             "FileName": "SM_MERGED_Props_Base_Rock02.FBX",
-            "InstanceList": []
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "bLandscapeInclude": true
+                }
+            ]
         },
         {
             "FileName": "Delasa_Floor_CenterInner03_Block.FBX",
@@ -986,7 +805,26 @@
         },
         {
             "FileName": "SM_MERGED_Props_Base_Rock01_1.FBX",
-            "InstanceList": []
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "bLandscapeInclude": true
+                }
+            ]
         }
     ]
 }

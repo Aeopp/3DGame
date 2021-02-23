@@ -46,10 +46,7 @@ namespace Engine
 		void Initialize(IDirect3DDevice9* const Device,
 			const Vector3 Scale,
 			const Vector3 Rotation,
-			const Vector3 Location,
-			const std::filesystem::path FilePath,
-			const std::filesystem::path FileName
-		)&;
+			const Vector3 Location)&;
 
 		void Render(Engine::Frustum& RefFrustum,
 			const Matrix& View, const Matrix& Projection ,const Vector4& CameraLocation)&;
@@ -83,6 +80,9 @@ namespace Engine
 		void Clear()&;
 
 		inline const std::string& GetDecoratorSaveInfo()& { return DecoratorSaveInfo; };
+
+		// 지형으로 인식되는 폴리곤 정보를 삭제후 다시 계산합니다 주로 지형으로 인식되던 스태틱 메시를 삭제 했을경우 유용.
+		void ReInitWorldPlanes()&;
 	private:
 		std::string DecoratorSaveInfo{}; 
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr };
