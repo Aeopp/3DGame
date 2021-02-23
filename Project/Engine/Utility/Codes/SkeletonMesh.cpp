@@ -180,7 +180,7 @@ void Engine::SkeletonMesh::Render(	const Matrix& World,
 		Fx->SetFloat("DetailDiffuseIntensity", CurrentRenderMesh.MaterialInfo.DetailDiffuseIntensity);
 		Fx->SetFloat("DetailNormalIntensity", CurrentRenderMesh.MaterialInfo.DetailNormalIntensity);
 		Fx->SetFloat("CavityCoefficient", CurrentRenderMesh.MaterialInfo.CavityCoefficient);
-
+		Fx->SetFloat("AlphaAddtive", CurrentRenderMesh.MaterialInfo.AlphaAddtive); 
 		Fx->SetFloat("DetailScale", CurrentRenderMesh.MaterialInfo.DetailScale);
 		Device->SetVertexDeclaration(VtxDecl);
 		Device->SetStreamSource(0, CurrentRenderMesh.VertexBuffer, 0, CurrentRenderMesh.Stride);

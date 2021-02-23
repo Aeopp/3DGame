@@ -44,6 +44,8 @@ namespace Engine
 		float DetailDiffuseIntensity = 1.f;
 		float DetailNormalIntensity = 1.f;
 		float SpecularIntencity = 0.5f;
+		float AlphaAddtive = 0.0f;
+
 		Vector4 RimAmtColor{ 1,1,1,1 };
 		Vector4 AmbientColor{ 0.10f,0.10f,0.10f,1.f };
 

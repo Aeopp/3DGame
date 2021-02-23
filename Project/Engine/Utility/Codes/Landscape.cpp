@@ -213,9 +213,16 @@ typename Engine::Landscape::Decorator* Engine::Landscape::GetDecorator(const std
 std::pair<std::weak_ptr<typename Engine::Landscape::DecoInformation>,std::wstring>
 	Engine::Landscape::PickDecoInstance(const Ray WorldRay)&
 {
+	/*std::vector<std::shared_ptr<Engine::Landscape::DecoInformation>>
+		DecoInfoVec{};*/
+	std::map<float, std::pair <std::weak_ptr<Engine::Landscape::DecoInformation>, std::wstring>>
+		PickResults{};
 	for (auto& [Key , CurDeco ] : DecoratorContainer)
 	{
-		for (const auto& CurDecoMesh : CurDeco.Meshes)
+		/*DecoInfoVec.insert(std::end(DecoInfoVec), 
+			std::begin(CurDeco.Instances), std::end(CurDeco.Instances));*/
+
+		for (auto& CurDecoMesh : CurDeco.Meshes)
 		{
 			const Sphere CurMeshLocalSphere = CurDecoMesh.BoundingSphere;
 
@@ -261,13 +268,20 @@ std::pair<std::weak_ptr<typename Engine::Landscape::DecoInformation>,std::wstrin
 						Vector3 IntersectPt{}; 
 						if (FMath::IsTriangleToRay(TargetPolygon, WorldRay, t, IntersectPt))
 						{
-							PickDecoInstancePtr = CurInstance.get();
-							return { CurInstance, Key };
+							PickResults[t] = { CurInstance,Key };
+					/*		PickDecoInstancePtr = CurInstance.get();
+							return { CurInstance, Key };*/
 						}
 					}
 				}
 			}
 		}
+	}
+
+	if (!PickResults.empty())
+	{
+		PickDecoInstancePtr = PickResults.begin()->second.first.lock().get();
+		return PickResults.begin()->second;
 	}
 	
 	return {};
@@ -461,7 +475,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 		Fx->SetFloat("DetailNormalIntensity", CurMesh.MaterialInfo.DetailNormalIntensity);
 		Fx->SetFloat("CavityCoefficient", CurMesh.MaterialInfo.CavityCoefficient);
 		Fx->SetFloat("DetailScale", CurMesh.MaterialInfo.DetailScale);
-	
+		Fx->SetFloat("AlphaAddtive", CurMesh.MaterialInfo.AlphaAddtive);
 		Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
 		Device->SetIndices(CurMesh.IdxBuf);
 
@@ -543,6 +557,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 					Fx->SetFloat("DetailDiffuseIntensity", CurMesh.MaterialInfo.DetailDiffuseIntensity);
 					Fx->SetFloat("DetailNormalIntensity", CurMesh.MaterialInfo.DetailNormalIntensity);
 					Fx->SetFloat("CavityCoefficient", CurMesh.MaterialInfo.CavityCoefficient);
+					Fx->SetFloat("AlphaAddtive", CurMesh.MaterialInfo.AlphaAddtive);
 
 					if (Engine::Global::bDebugMode
 						&& (PickDecoInstancePtr == CurDecoInstance.get()))

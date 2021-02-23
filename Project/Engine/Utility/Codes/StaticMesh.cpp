@@ -67,6 +67,7 @@ void Engine::StaticMesh::Render(const Matrix& World,
 		Fx->SetFloat("DetailDiffuseIntensity", CurMesh.MaterialInfo.DetailDiffuseIntensity);
 		Fx->SetFloat("DetailNormalIntensity", CurMesh.MaterialInfo.DetailNormalIntensity);
 		Fx->SetFloat("CavityCoefficient", CurMesh.MaterialInfo.CavityCoefficient);
+		Fx->SetFloat("AlphaAddtive", CurMesh.MaterialInfo.AlphaAddtive);
 
 		Fx->SetFloat("DetailScale", CurMesh.MaterialInfo.DetailScale);
 

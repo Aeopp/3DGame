@@ -17,6 +17,7 @@ float4 AmbientColor;
 float Contract;
 float DetailDiffuseIntensity;
 float DetailNormalIntensity;
+float AlphaAddtive;
 
 texture DiffuseMap;
 texture NormalMap;
@@ -225,6 +226,7 @@ PS_OUT PS_MAIN(PS_IN In)
     
     Out.Color.rgb  += Ambient;
     Out.Color.rgba += RimAmt * RimAmtColor.rgba;
+    Out.Color.a += AlphaAddtive;
     
 	return Out;
 }

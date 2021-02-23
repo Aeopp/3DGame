@@ -118,6 +118,11 @@ void Engine::MaterialInformation::PropsLoad(const std::filesystem::path& PropsFi
 		DetailDiffuseIntensity = _Document["DetailDiffuseIntensity"].GetFloat();
 		DetailNormalIntensity = _Document["DetailNormalIntensity"].GetFloat();
 
+		if (_Document.HasMember("AlphaAddtive"))
+		{
+			AlphaAddtive = _Document["AlphaAddtive"].GetFloat();
+		}
+
 		const auto&     RimAmtColorArr = _Document["RimAmtColor"].GetArray();
 		RimAmtColor.x = RimAmtColorArr[0].GetFloat();
 		RimAmtColor.y = RimAmtColorArr[1].GetFloat();
@@ -233,6 +238,9 @@ void Engine::MaterialInformation::PropSave(std::filesystem::path PropsFilePath)&
 				Writer.Double(AmbientColor.w);
 			}
 			Writer.EndArray();
+
+			Writer.Key("AlphaAddtive");
+			Writer.Double(AlphaAddtive); 
 		}
 		Writer.EndObject();
 
