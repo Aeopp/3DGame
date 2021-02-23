@@ -58,12 +58,12 @@ namespace Engine
 		void DecoratorLoad(const std::filesystem::path& LoadPath,
 							const std::filesystem::path& LoadFileName)&;
 
-		std::weak_ptr<typename Engine::Landscape::DecoInformation>
+		std::pair< std::weak_ptr<typename Engine::Landscape::DecoInformation>, std::wstring >
 			PushDecorator(const std::wstring DecoratorKey , 
 						    const Vector3& Scale , const Vector3& Rotation, const Vector3& Location,
 							const bool bLandscapePolygonInclude)&; 
 
-		std::weak_ptr<typename Engine::Landscape::DecoInformation>
+		std::pair< std::weak_ptr<typename Engine::Landscape::DecoInformation>, std::wstring >
 			PushDecorator(const std::wstring DecoratorKey,
 				const Vector3& Scale, const Vector3& Rotation, const Vector3& Location,
 				const bool bLandscapePolygonInclude , const Ray WorldRay)&;
@@ -71,7 +71,7 @@ namespace Engine
 		typename Engine::Landscape::Decorator*
 			GetDecorator(const std::wstring DecoratorKey)&;
 
-		std::weak_ptr<DecoInformation> 
+		std::pair<std::weak_ptr<typename Engine::Landscape::DecoInformation>, std::wstring>
 			PickDecoInstance(const Ray WorldRay)&;
 
 		std::optional<Vector3 > RayIntersectPoint(const Ray  WorldRay)const&;

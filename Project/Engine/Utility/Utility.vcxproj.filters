@@ -331,18 +331,4 @@
       <Filter>Layer\Normal</Filter>
     </ClCompile>
   </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="..\..\..\Resource\Shader\SkeletonPS.hlsl">
-      <Filter>Shader\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="..\..\..\Resource\Shader\SkeletonVS.hlsl">
-      <Filter>Shader\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="..\..\..\Resource\Shader\LandscapePS.hlsl">
-      <Filter>Shader\HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="..\..\..\Resource\Shader\LandscapeVS.hlsl">
-      <Filter>Shader\HLSL</Filter>
-    </FxCompile>
-  </ItemGroup>
 </Project>

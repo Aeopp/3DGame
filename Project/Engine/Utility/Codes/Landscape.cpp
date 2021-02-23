@@ -126,7 +126,7 @@ void Engine::Landscape::DecoratorLoad(
 	DecoratorContainer.insert({ LoadFileName,LoadDecorator } );
 }
 
-std::weak_ptr<typename Engine::Landscape::DecoInformation>  
+std::pair< std::weak_ptr<typename Engine::Landscape::DecoInformation>  ,std::wstring >
 Engine::Landscape::PushDecorator(
 	const std::wstring DecoratorKey, 
 	const Vector3& Scale,
@@ -175,14 +175,17 @@ Engine::Landscape::PushDecorator(
 			}
 		}
 
-		return Deco.Instances.emplace_back(
-			std::make_shared<Engine::Landscape::DecoInformation>(DecoInfoInstance));
+		auto SharedDecoInfo=std::make_shared<Engine::Landscape::DecoInformation>(DecoInfoInstance);
+		Deco.Instances.push_back(SharedDecoInfo);
+
+		return { SharedDecoInfo ,Key };
 	}
 
 	return {};
 }
 
-std::weak_ptr<typename Engine::Landscape::DecoInformation> Engine::Landscape::PushDecorator(const std::wstring DecoratorKey, const Vector3& Scale, const Vector3& Rotation, const Vector3& Location, const bool bLandscapePolygonInclude, const Ray WorldRay)&
+std::pair< std::weak_ptr<typename Engine::Landscape::DecoInformation>, std::wstring >
+Engine::Landscape::PushDecorator(const std::wstring DecoratorKey, const Vector3& Scale, const Vector3& Rotation, const Vector3& Location, const bool bLandscapePolygonInclude, const Ray WorldRay)&
 {
 	for (const auto& CurWorldPlane : WorldPlanes)
 	{
@@ -207,7 +210,7 @@ typename Engine::Landscape::Decorator* Engine::Landscape::GetDecorator(const std
 	return {};
 }
 
-std::weak_ptr<typename Engine::Landscape::DecoInformation> 
+std::pair<std::weak_ptr<typename Engine::Landscape::DecoInformation>,std::wstring>
 	Engine::Landscape::PickDecoInstance(const Ray WorldRay)&
 {
 	for (auto& [Key , CurDeco ] : DecoratorContainer)
@@ -259,7 +262,7 @@ std::weak_ptr<typename Engine::Landscape::DecoInformation>
 						if (FMath::IsTriangleToRay(TargetPolygon, WorldRay, t, IntersectPt))
 						{
 							PickDecoInstancePtr = CurInstance.get();
-							return CurInstance;
+							return { CurInstance, Key };
 						}
 					}
 				}
@@ -326,74 +329,77 @@ void Engine::Landscape::Initialize(
 
 	auto& ResourceSys = ResourceSystem::Instance;
 
-	Meshes.resize(AiScene->mNumMeshes);
-	std::vector<Vector3>   WorldVertexLocation{};
-	for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
+	if (AiScene)
 	{
-		std::vector<VertexType> Vertexs;
-		const std::wstring ResourceIDStr = std::to_wstring(StaticMeshResourceID++); 
-		aiMesh* AiMesh = AiScene->mMeshes[MeshIdx];
-		
-		Meshes[MeshIdx].VtxCount = AiMesh->mNumVertices; 
-		Meshes[MeshIdx].Stride = sizeof(VertexType);
-		for (uint32 VerticesIdx = 0u; VerticesIdx < Meshes[MeshIdx].VtxCount; ++VerticesIdx)
+		Meshes.resize(AiScene->mNumMeshes);
+		std::vector<Vector3>   WorldVertexLocation{};
+		for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
 		{
-			Vertexs.emplace_back(VertexType::MakeFromAssimpMesh(AiMesh, VerticesIdx));
-			WorldVertexLocation.push_back(
-				FMath::Mul(FromAssimp(AiMesh->mVertices[VerticesIdx]), MapWorld) );
-		};
-		
-		const uint32 VtxBufsize = Meshes[MeshIdx].VtxCount * Meshes[MeshIdx].Stride;
-		Device->CreateVertexBuffer(VtxBufsize, D3DUSAGE_WRITEONLY, 0u,
-			D3DPOOL_MANAGED, &Meshes[MeshIdx].VtxBuf, nullptr);
+			std::vector<VertexType> Vertexs;
+			const std::wstring ResourceIDStr = std::to_wstring(StaticMeshResourceID++);
+			aiMesh* AiMesh = AiScene->mMeshes[MeshIdx];
 
-		ResourceSys->Insert<IDirect3DVertexBuffer9>(L"VertexBuffer_Landscape_" + ResourceIDStr, Meshes[MeshIdx].VtxBuf);
-		Meshes[MeshIdx].PrimitiveCount = AiMesh->mNumFaces;
-		VertexType* VtxBufPtr{ nullptr }; 
-		Meshes[MeshIdx].VtxBuf->Lock(0u, 0u, reinterpret_cast<void**>( &VtxBufPtr), NULL);
-		std::memcpy(VtxBufPtr, Vertexs.data(), VtxBufsize);
-		Meshes[MeshIdx].VtxBuf->Unlock();
-		Meshes[MeshIdx].FVF = 0u;
-		
-		// ÀÎµ¦½º ¹öÆÛ ÆÄ½Ì. 
-		std::vector<uint32> Indicies{};
-		for (uint32 FaceIdx = 0u; FaceIdx < AiMesh->mNumFaces; ++FaceIdx)
-		{
-			const aiFace  CurrentFace = AiMesh->mFaces[FaceIdx]; 
-			for (uint32 Idx = 0u; Idx < CurrentFace.mNumIndices; ++Idx)
+			Meshes[MeshIdx].VtxCount = AiMesh->mNumVertices;
+			Meshes[MeshIdx].Stride = sizeof(VertexType);
+			for (uint32 VerticesIdx = 0u; VerticesIdx < Meshes[MeshIdx].VtxCount; ++VerticesIdx)
 			{
-				Indicies.push_back(CurrentFace.mIndices[Idx]);
-			}; 
+				Vertexs.emplace_back(VertexType::MakeFromAssimpMesh(AiMesh, VerticesIdx));
+				WorldVertexLocation.push_back(
+					FMath::Mul(FromAssimp(AiMesh->mVertices[VerticesIdx]), MapWorld));
+			};
+
+			const uint32 VtxBufsize = Meshes[MeshIdx].VtxCount * Meshes[MeshIdx].Stride;
+			Device->CreateVertexBuffer(VtxBufsize, D3DUSAGE_WRITEONLY, 0u,
+				D3DPOOL_MANAGED, &Meshes[MeshIdx].VtxBuf, nullptr);
+
+			ResourceSys->Insert<IDirect3DVertexBuffer9>(L"VertexBuffer_Landscape_" + ResourceIDStr, Meshes[MeshIdx].VtxBuf);
+			Meshes[MeshIdx].PrimitiveCount = AiMesh->mNumFaces;
+			VertexType* VtxBufPtr{ nullptr };
+			Meshes[MeshIdx].VtxBuf->Lock(0u, 0u, reinterpret_cast<void**>(&VtxBufPtr), NULL);
+			std::memcpy(VtxBufPtr, Vertexs.data(), VtxBufsize);
+			Meshes[MeshIdx].VtxBuf->Unlock();
+			Meshes[MeshIdx].FVF = 0u;
+
+			// ÀÎµ¦½º ¹öÆÛ ÆÄ½Ì. 
+			std::vector<uint32> Indicies{};
+			for (uint32 FaceIdx = 0u; FaceIdx < AiMesh->mNumFaces; ++FaceIdx)
+			{
+				const aiFace  CurrentFace = AiMesh->mFaces[FaceIdx];
+				for (uint32 Idx = 0u; Idx < CurrentFace.mNumIndices; ++Idx)
+				{
+					Indicies.push_back(CurrentFace.mIndices[Idx]);
+				};
+			};
+			const uint32 IdxBufSize = sizeof(uint32) * Indicies.size();
+			Device->CreateIndexBuffer(IdxBufSize, D3DUSAGE_WRITEONLY, D3DFMT_INDEX32,
+				D3DPOOL_MANAGED, &Meshes[MeshIdx].IdxBuf, nullptr);
+			ResourceSys->Insert<IDirect3DIndexBuffer9>(L"IndexBuffer_Landscape_" + ResourceIDStr, Meshes[MeshIdx].IdxBuf);
+			uint32* IdxBufPtr{ nullptr };
+			Meshes[MeshIdx].IdxBuf->Lock(0, 0, reinterpret_cast<void**>(&IdxBufPtr), NULL);
+			std::memcpy(IdxBufPtr, Indicies.data(), IdxBufSize);
+			Meshes[MeshIdx].IdxBuf->Unlock();
+
+			// ¸ÓÅ×¸®¾ó ÆÄ½Ì . 
+			aiMaterial* AiMaterial = AiScene->mMaterials[AiMesh->mMaterialIndex];
+
+			const std::wstring
+				MatName = ToW(AiScene->mMaterials[AiMesh->mMaterialIndex]->GetName().C_Str());
+
+			Meshes[MeshIdx].MaterialInfo.Load(Device,
+				FilePath / L"Material", MatName + L".mat", L".tga");
+
+			Meshes[MeshIdx].MaterialInfo.Contract = 1.0f;
+
 		};
-		const uint32 IdxBufSize = sizeof(uint32) * Indicies.size();
-		Device->CreateIndexBuffer(IdxBufSize,D3DUSAGE_WRITEONLY,D3DFMT_INDEX32,
-			D3DPOOL_MANAGED, &Meshes[MeshIdx].IdxBuf, nullptr); 
-		ResourceSys->Insert<IDirect3DIndexBuffer9>(L"IndexBuffer_Landscape_" + ResourceIDStr, Meshes[MeshIdx].IdxBuf);
-		uint32* IdxBufPtr{ nullptr }; 
-		Meshes[MeshIdx].IdxBuf->Lock(0, 0, reinterpret_cast<void**>( &IdxBufPtr), NULL);
-		std::memcpy(IdxBufPtr, Indicies.data(), IdxBufSize);
-		Meshes[MeshIdx].IdxBuf->Unlock(); 
 
-		// ¸ÓÅ×¸®¾ó ÆÄ½Ì . 
-		aiMaterial* AiMaterial = AiScene->mMaterials[AiMesh->mMaterialIndex];
-
-		const std::wstring
-			MatName = ToW(AiScene->mMaterials[AiMesh->mMaterialIndex]->GetName().C_Str());
-
-		Meshes[MeshIdx].MaterialInfo.Load(Device,
-			FilePath / L"Material", MatName + L".mat", L".tga");
-
-		Meshes[MeshIdx].MaterialInfo.Contract = 1.0f;
-
-	};
-
-	for (uint32 i = 0; i < WorldVertexLocation.size(); i += 3u)
-	{
-		WorldPlanes.push_back(
-			PlaneInfo::Make({ WorldVertexLocation[i]  ,
-				WorldVertexLocation[i + 1]  , 
-				WorldVertexLocation[i + 2] })
-		); 
+		for (uint32 i = 0; i < WorldVertexLocation.size(); i += 3u)
+		{
+			WorldPlanes.push_back(
+				PlaneInfo::Make({ WorldVertexLocation[i]  ,
+					WorldVertexLocation[i + 1]  ,
+					WorldVertexLocation[i + 2] })
+			);
+		}
 	}
 
 	std::string  VtxTypeName = typeid(VertexType).name();

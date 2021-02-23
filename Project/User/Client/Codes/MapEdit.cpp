@@ -38,7 +38,7 @@
 #include <ostream>
 #include <fstream>
 #include "StringHelper.h"
-
+#include <array>
 
 
 
@@ -79,13 +79,14 @@ void MapEdit::Initialize(IDirect3DDevice9* const Device)&
 	}
 
 	{
-		 MapScale     = { 0.01f , 0.01f, 0.01f };
+		 MapScale     = { 1.f , 1.f, 1.f };
 		 MapRotation = { 3.14f / 2.f,0.f,0.f };
 		 MapLocation = { 0,0,0 };
 
 		auto& RefLandscape = Renderer.RefLandscape();
-		RefLandscape.Initialize(Device, MapScale, MapRotation,MapLocation, App::ResourcePath /
-			L"Mesh" / L"StaticMesh" / L"Landscape", L"Mountain.fbx");
+		/*RefLandscape.Initialize(Device, MapScale, MapRotation,MapLocation, App::ResourcePath /
+			L"Mesh" / L"StaticMesh" / L"Landscape", L"Mountain.fbx");*/
+		RefLandscape.Initialize(Device, MapScale, MapRotation, MapLocation, L"", L"");
 		
 		std::vector<std::filesystem::path>DecoratorPaths
 		{
@@ -351,20 +352,18 @@ void MapEdit::Landscape()&
 		{
 			auto WeakPickDeco = RefLandscape.PushDecorator(SelectDecoKey, SpawnEditScale, SpawnEditRotation, SpawnEditLocation, bLandscapeInclude , _Ray);
 
-			PickSuccess = !WeakPickDeco.expired(); 
+			PickSuccess = !WeakPickDeco.first.expired(); 
 			if (PickSuccess)
 			{
 				CurEditDecoInstance = WeakPickDeco;
 			}
 		}
 
-		if (auto PickSuccess = RefLandscape.PickDecoInstance(_Ray);
-			!PickSuccess.expired())
+		if (!PickSuccess)
 		{
-			CurEditDecoInstance = PickSuccess;
+			CurEditDecoInstance = RefLandscape.PickDecoInstance(_Ray);
 		}
 	}
-	
 	
 	uint32 DummyLableID = 0u;
 
@@ -410,7 +409,7 @@ void MapEdit::Landscape()&
 						uint32 TextureID = 0u;
 						for (auto& CurMesh : DecoPtr->Meshes)
 						{
-							if (ImGui::Button("PropsSave"))
+							if (ImGui::Button((KeyA+"_PropsSave").c_str()))
 							{
 								CurMesh.MaterialInfo.PropSave();
 							}
@@ -442,19 +441,32 @@ void MapEdit::Landscape()&
 									if (ImGui::SmallButton(TexEditPopupLabel.c_str()))
 									{
 										ImGui::OpenPopup(TexEditPopupLabel.c_str());
-
 									}
 
-									ImGui::Image(reinterpret_cast<void**>(MtTex.Texture), { 256,256 });
+									ImGui::Image(reinterpret_cast<void**>(MtTex.Texture), { 128,128});
 
 									if (ImGui::BeginPopup(TexEditPopupLabel.c_str()))
 									{
-										static char Buffer[256];
-										ImGui::InputText("", Buffer, 256);
-										ImGui::SameLine();
-										if (ImGui::SmallButton("Apply"))
+										static std::array<char[256], 9u> InputBuffers
 										{
-											CurMesh.MaterialInfo.BindingMapping(TexNameKey, Buffer);
+											"",
+											"DiffuseMap",
+											"NormalMap",
+											"CavityMap",
+											"DetailDiffuseMap",
+											"DetailNormalMap",
+											"EmissiveMap",
+										};
+										for (uint32 i=0;i< InputBuffers.size();++i)
+										{
+											auto& CurBuf = InputBuffers[i];
+											const std::string IndexStr = std::to_string(i);
+											ImGui::InputText(IndexStr.c_str(), CurBuf, 256);
+											ImGui::SameLine();
+											if (ImGui::SmallButton(("Apply_" + IndexStr).c_str()))
+											{
+												CurMesh.MaterialInfo.BindingMapping(TexNameKey, CurBuf);
+											}
 										}
 										ImGui::EndPopup();
 									}
@@ -506,7 +518,7 @@ void MapEdit::Landscape()&
 		ImGui::Separator();
 
 		ImGui::Begin("SelectObject");
-		if (auto CurEditDecoSharedInstance = CurEditDecoInstance.lock();
+		if (auto CurEditDecoSharedInstance = CurEditDecoInstance.first.lock();
 			CurEditDecoSharedInstance)
 		{
 			if (ImGui::CollapsingHeader("Scale"))
@@ -556,6 +568,16 @@ void MapEdit::Landscape()&
 				CurEditDecoSharedInstance->Location += SliderLocation;
 			}
 			ImGui::Separator();
+			if (ImGui::Button("Copy"))
+			{
+				CurEditDecoInstance=RefLandscape.PushDecorator(CurEditDecoInstance.second,
+					CurEditDecoSharedInstance->Scale, CurEditDecoSharedInstance->Rotation, CurEditDecoSharedInstance->Location,
+					CurEditDecoSharedInstance->bLandscapeInclude);
+			}ImGui::SameLine();
+			if (ImGui::Button("Deselection"))
+			{
+				CurEditDecoInstance.first.reset();
+			}
 			if (ImGui::Button("Cleaning!"))
 			{
 				CurEditDecoSharedInstance->bPendingKill = true;

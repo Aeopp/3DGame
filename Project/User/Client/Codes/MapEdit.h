@@ -58,7 +58,9 @@ private:
 	float InfrontOfScale = 100.f;
 	bool bLandscapeInclude = false;
 
-	std::weak_ptr<typename Engine::Landscape::DecoInformation > CurEditDecoInstance{};
+	// 인스턴스 , 인스턴스 키
+	std::pair< std::weak_ptr<typename Engine::Landscape::DecoInformation >,
+		std::wstring> CurEditDecoInstance{};
 
 	Mode CurrentMode{ Mode::Landscape }; 
 

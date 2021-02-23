@@ -269,9 +269,9 @@ PS_OUT PS_MAIN(PS_IN In)
     DiffuseColor = DiffuseColor * DetailDiffuseColor;
     float4 CavityColor = tex2D(CavitySampler, In.UV);
     CavityColor.rgb *= CavityCoefficient;
-    CavityColor.rgba = clamp(CavityColor, 0.0f, 1.0f);
+    CavityColor.rgba = clamp(CavityColor.rgba, 0.0f, 1.0f);
     float3 SpecularColor = CavityColor.rgb * SpecularIntencity;
-    DiffuseColor *= CavityColor;
+    DiffuseColor.rgb *= CavityColor.rgb;
     
     float3 HalfVec = normalize((-LightDirectionNormal) + (In.ViewDirection));
     Specular = saturate(dot(HalfVec, WorldNormal));

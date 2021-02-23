@@ -201,7 +201,7 @@ PS_OUT PS_MAIN(PS_IN In)
     // ÇÏÇÁ ¶÷¹öÆ®.
     Diffuse = pow(((Diffuse * 0.5) + 0.5), Contract);
     // ¼¿ ½¦ÀÌµù
-    Diffuse = ceil(Diffuse * 10.0) / 10.0f;
+    Diffuse = ceil(Diffuse * 5.0) / 5.0f;
     
     float4 DiffuseColor = tex2D(DiffuseSampler, In.UV);
 	float4 DetailDiffuseColor = tex2D(DetailDiffuseSampler, (In.UV * DetailScale));
@@ -210,9 +210,9 @@ PS_OUT PS_MAIN(PS_IN In)
 	DiffuseColor = DiffuseColor * DetailDiffuseColor;
 	float4 CavityColor = tex2D(CavitySampler, In.UV);
 	CavityColor.rgb *= CavityCoefficient;
-	CavityColor.rgba = clamp(CavityColor, 0.0f, 1.0f);
+	CavityColor.rgba = clamp(CavityColor.rgba, 0.0f, 1.0f);
     float3 SpecularColor = CavityColor.rgb * SpecularIntencity;
-	DiffuseColor *= CavityColor;
+	DiffuseColor.rgb *= CavityColor.rgb;
     
     float3 HalfVec = normalize((-LightDirectionNormal) + (In.ViewDirection));
     Specular = saturate(dot(HalfVec, WorldNormal));

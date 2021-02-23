@@ -65,13 +65,12 @@ void ObjectEdit::Initialize(IDirect3DDevice9* const Device)&
 
 	// 랜드스케이프. 
 	{
-		MapScale    = { 0.01f , 0.01f , 0.01f };
+		MapScale    = { 1.f , 1.f , 1.f };
 		MapRotation = { 3.14f / 2.f,0.f,0.f };
 		MapLocation = { 0,0,0 };
 
 		auto& RefLandscape = Renderer.RefLandscape();
-		RefLandscape.Initialize(Device, MapScale, MapRotation, MapLocation, App::ResourcePath /
-			L"Mesh" / L"StaticMesh" / L"Landscape", L"Mountain.fbx");
+		RefLandscape.Initialize(Device, MapScale, MapRotation, MapLocation, L"", L"");
 
 		std::vector<std::filesystem::path>DecoratorPaths
 		{
