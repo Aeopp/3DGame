@@ -1,7 +1,10 @@
-Diffuse=Delasa_Floor_Inner02
-Normal=Floor_Center_Inner2_Normals2
-Cavity=base_gray_d
-Emissive=NonWhite
-DetailDiffuse=Ruins_Detail_01_N
-DetailNormal=T_Infil1_Metal_Copper_Shiny_N
-Blend=Delasa_Floor_Inner02_Blend
+Normal=blandmask_non
+Other[0]=Floor_Center_Inner2_Normals2
+Other[1]=Delasa_Floor_Inner02
+Other[2]=Ruins_Detail_01_N
+Other[3]=Delasa_Floor_Inner02_Blend
+Other[4]=T_Infil1_Metal_Copper_Shiny_N
+Other[5]=color_non
+Other[6]=img16size
+Other[7]=nomal_non
+Other[8]=rough_non

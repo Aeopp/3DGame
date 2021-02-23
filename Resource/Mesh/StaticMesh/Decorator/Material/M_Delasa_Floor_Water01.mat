@@ -1,7 +1,8 @@
-Diffuse=Delasa_Floor_Water01
-Normal=Floor_Water01_Normals
-Cavity=base_gray_d
-Emissive=NonWhite
-DetailDiffuse=Delasa_Floor_Inner01
-DetailNormal=Ruins_Detail_01_N
-
+Normal=color_non
+Other[0]=Floor_Water01_Normals
+Other[1]=Delasa_Floor_Water01
+Other[2]=Ruins_Detail_01_N
+Other[3]=Delasa_Floor_Inner01
+Other[4]=img16size
+Other[5]=nomal_non
+Other[6]=rough_non

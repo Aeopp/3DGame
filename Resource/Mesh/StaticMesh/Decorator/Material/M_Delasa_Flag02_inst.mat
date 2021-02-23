@@ -1,8 +1,8 @@
-
-
-Diffuse=Delasa_Flag02_Diffuse
-Normal=Delasa_Flag02_Normal
-Cavity=Delasa_Flag02_Cavity
-Emissive=NonWhite
-DetailDiffuse=Delasa_Throne02_C
-DetailNormal=nomal_non
+Normal=color_non
+Other[0]=Delasa_Flag02_Normal
+Other[1]=Delasa_Flag02_Cavity
+Other[2]=Delasa_Flag02_Diffuse
+Other[3]=Delasa_Throne02_C
+Other[4]=img16size
+Other[5]=nomal_non
+Other[6]=rough_non

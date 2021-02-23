@@ -69,18 +69,21 @@ void Engine::DynamicCamera::Update(const float DeltaTime)&
 		}
 	}
 	
-	const float ZDelta = _Control->GetMouseMove(Engine::MouseMove::Z); 
-	if (false==FMath::AlmostEqual(ZDelta, 0.0f))
+	if (bZoomable)
 	{
-		POINT Pt;
-		GetCursorPos(&Pt);
-		ScreenToClient(Engine::Global::Hwnd, &Pt);
-		Vector3 Dir = { (float)Pt.x,(float)Pt.y,1.f };
-		const Ray _Ray =
-			FMath::GetRayScreenProjection
-			(Dir, Device, Engine::Global::ClientSize.first, Engine::Global::ClientSize.second);
+		const float ZDelta = _Control->GetMouseMove(Engine::MouseMove::Z);
+		if (false == FMath::AlmostEqual(ZDelta, 0.0f))
+		{
+			POINT Pt;
+			GetCursorPos(&Pt);
+			ScreenToClient(Engine::Global::Hwnd, &Pt);
+			Vector3 Dir = { (float)Pt.x,(float)Pt.y,1.f };
+			const Ray _Ray =
+				FMath::GetRayScreenProjection
+				(Dir, Device, Engine::Global::ClientSize.first, Engine::Global::ClientSize.second);
 
-		FovY += (-ZDelta/1080.f);
+			FovY += (-ZDelta / 1080.f);
+		}
 	}
 };
 
@@ -101,6 +104,23 @@ void Engine::DynamicCamera::Event()&
 	{
 		MoveableToggle();
 	}
+	if (_Control->IsDown(DIK_F3))
+	{
+		ZoomToggle();
+	}
+	if (_Control->IsDown(DIK_F4))
+	{
+		bMoveable = false;
+		bZoomable = false;
+		bMouseFix = false;
+	}
+	if (_Control->IsDown(DIK_F5))
+	{
+		bMoveable = true;
+		bZoomable = true;
+		bMouseFix = true;
+	}
+	
 	if (Engine::Global::bDebugMode)
 	{
 		if (ImGui::CollapsingHeader("Camera"))
@@ -146,7 +166,13 @@ void Engine::DynamicCamera::MouseFix()&
 void Engine::DynamicCamera::MoveableToggle()&
 {
 	bMoveable = !bMoveable;
-};
+}
+
+void Engine::DynamicCamera::ZoomToggle()&
+{
+	bZoomable = !bZoomable;
+}
+;
 void Engine::DynamicCamera::MouseFixToggle()&
 {
 	bMouseFix = !bMouseFix;

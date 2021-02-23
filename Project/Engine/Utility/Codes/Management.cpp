@@ -18,6 +18,7 @@
 #include "Vertexs.hpp"
 #include "CollisionSystem.h"
 #include "UtilityGlobal.h"
+#include "MaterialInformation.h"
 
 bool DebugMode{ false };
 
@@ -247,6 +248,19 @@ void ImGuiFrameStart()
 
 void Engine::Management::CreateStaticResource()&
 {
+	IDirect3DTexture9* DefaultCavity{ nullptr };
+	D3DXCreateTextureFromFile(Device, (Engine::Global::ResourcePathA / "Texture" / "base_gray_d.tga").c_str(),&DefaultCavity);
+
+	IDirect3DTexture9* DefaultDiffuse{ nullptr };
+	D3DXCreateTextureFromFile(Device, (Engine::Global::ResourcePathA / "Texture" / "base_white_d.tga").c_str(), &DefaultDiffuse);
+
+	IDirect3DTexture9* DefaultNormal{ nullptr };
+	D3DXCreateTextureFromFile(Device, (Engine::Global::ResourcePathA / "Texture" / "Normal_non.tga").c_str(), &DefaultNormal);
+
+	_ResourceSys->Insert<IDirect3DTexture9>(L"Texture_DefaultDiffuse", DefaultDiffuse);
+	_ResourceSys->Insert<IDirect3DTexture9>(L"Texture_DefaultNormal", DefaultNormal);
+	_ResourceSys->Insert<IDirect3DTexture9>(L"Texture_DefaultCavity", DefaultCavity);
+
 	// 큐브용 인덱스 버퍼 로딩.
 	auto Device = _GraphicDevice->GetDevice();
 
@@ -435,6 +449,8 @@ void Engine::Management::CreateStaticResource()&
 			Engine::Global::ResourcePath / L"Shader" / L"SkeletonSkinningDefaultFx.hlsl",
 			L"SkeletonSkinningDefaultFx");
 	}
+
+	Engine::MaterialInformation::SetUpDefaultTexture();
 }
 void Engine::Management::CreateCollisionDebugResource()&
 {

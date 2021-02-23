@@ -1,7 +1,7 @@
-Diffuse=Delasa_Floor_Front02
-Normal=Floor_Front02_Normals
-Cavity=Delasa_Floor_Front02_Cavity
-Emissive=NonWhite
-DetailDiffuse=NonWhite
-DetailNormal=nomal_non
-
+Normal=color_non
+Other[0]=Floor_Front02_Normals
+Other[1]=Delasa_Floor_Front02_Cavity
+Other[2]=Delasa_Floor_Front02
+Other[3]=img16size
+Other[4]=nomal_non
+Other[5]=rough_non

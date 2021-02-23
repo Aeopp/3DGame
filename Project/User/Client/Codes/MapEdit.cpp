@@ -118,13 +118,16 @@ void MapEdit::Initialize(IDirect3DDevice9* const Device)&
 					else
 					{
 						D3DXCreateTextureFromFile(Device, PicturePath.c_str(), &LoadDecoOpt.Picture);
-						ResourceSys.Insert<IDirect3DTexture9>(PicturePath, LoadDecoOpt.Picture);
-						D3DSURFACE_DESC ImageDesc;
-						LoadDecoOpt.Picture->GetLevelDesc(0, &ImageDesc);
-						LoadDecoOpt.Width = static_cast<float> (ImageDesc.Width);
-						LoadDecoOpt.Height = static_cast<float> (ImageDesc.Height);
-						ResourceSys.InsertAny<float>(PicturePath + L"Width", LoadDecoOpt.Width);
-						ResourceSys.InsertAny<float>(PicturePath + L"Height", LoadDecoOpt.Height);
+						if (LoadDecoOpt.Picture)
+						{
+							ResourceSys.Insert<IDirect3DTexture9>(PicturePath, LoadDecoOpt.Picture);
+							D3DSURFACE_DESC ImageDesc;
+							LoadDecoOpt.Picture->GetLevelDesc(0, &ImageDesc);
+							LoadDecoOpt.Width = static_cast<float> (ImageDesc.Width);
+							LoadDecoOpt.Height = static_cast<float> (ImageDesc.Height);
+							ResourceSys.InsertAny<float>(PicturePath + L"Width", LoadDecoOpt.Width);
+							ResourceSys.InsertAny<float>(PicturePath + L"Height", LoadDecoOpt.Height);
+						};
 					}
 
 					
@@ -426,6 +429,7 @@ void MapEdit::Landscape()&
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_DetailScale").c_str(), &CurMesh.MaterialInfo.DetailScale,1.f,100.f);
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_DetailDiffuseIntensity").c_str(), &CurMesh.MaterialInfo.DetailDiffuseIntensity,0.f,2.f);
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_DetailNormalIntensity").c_str(), &CurMesh.MaterialInfo.DetailNormalIntensity, 0.f,2.f);
+							DummyLableID++;
 							const std::string   CurID = std::to_string(TextureID++);
 							if (ImGui::CollapsingHeader( ("Texture_" + CurID).c_str()))
 							{

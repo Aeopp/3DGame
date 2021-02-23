@@ -1,7 +1,6 @@
-Diffuse=Floor_Back_Deco01
-Normal=Floor_Back_Deco01_Normals
-Cavity=base_gray_d
-Emissive=NonWhite
-DetailDiffuse=NonWhite
-DetailNormal=nomal_non
-
+Normal=color_non
+Other[0]=Floor_Back_Deco01_Normals
+Other[1]=Floor_Back_Deco01
+Other[2]=img16size
+Other[3]=nomal_non
+Other[4]=rough_non

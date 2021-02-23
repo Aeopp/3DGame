@@ -1,6 +1,10 @@
-Diffuse=Delasa_Prop_ArciPoll_05_Defuese
-Normal=Delasa_Prop_ArciPoll_05_normals
-Cavity=Delasa_Prop_ArciPoll_05_Cavity
-Emissive=NonWhite
-DetailDiffuse=ground01_C
-DetailNormal=Stone_Detail01
+Normal=color_non
+Other[0]=Delasa_Prop_ArciPoll_05_normals
+Other[1]=Delasa_Prop_ArciPoll_05_Cavity
+Other[2]=Delasa_Prop_ArciPoll_05_Defuese
+Other[3]=Stone_Detail01
+Other[4]=ground01_C
+Other[5]=ground01_N
+Other[6]=img16size
+Other[7]=nomal_non
+Other[8]=rough_non

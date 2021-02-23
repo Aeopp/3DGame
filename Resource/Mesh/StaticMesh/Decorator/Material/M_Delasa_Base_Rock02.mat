@@ -1,7 +1,6 @@
-Diffuse=Delasa_Basecolor01
-Normal=nomal_non
-Cavity=base_gray_d
-Emissive=NonWhite
-DetailDiffuse=NonWhite
-DetailNormal=Ruins_Detail_01_N
-
+Normal=color_non
+Other[0]=Delasa_Basecolor01
+Other[1]=Ruins_Detail_01_N
+Other[2]=img16size
+Other[3]=nomal_non
+Other[4]=rough_non

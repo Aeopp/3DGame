@@ -1,7 +1,9 @@
-Diffuse=Delasa_Ent_Floor_Mid_Liner01_Diffuse
-Normal=Delasa_Ent_Floor_Mid_Liner01_Normal
-Cavity=Delasa_Ent_Floor_Mid_Liner01_Cavity
-Emissive=NonWhite
-DetailDiffuse=Delasa_Floor_Inner01
-DetailNormal=Ruins_Detail_01_N
-
+Normal=color_non
+Other[0]=Delasa_Ent_Floor_Mid_Liner01_Normal
+Other[1]=Delasa_Ent_Floor_Mid_Liner01_Cavity
+Other[2]=Delasa_Ent_Floor_Mid_Liner01_Diffuse
+Other[3]=Ruins_Detail_01_N
+Other[4]=Delasa_Floor_Inner01
+Other[5]=img16size
+Other[6]=nomal_non
+Other[7]=rough_non

@@ -1,7 +1,10 @@
-Diffuse=Delasa_Throne02_C
-Normal=Delasa_Throne02_N
-Cavity=Delasa_Throne02_Cavity
-Emissive=NonWhite
-DetailDiffuse=NonWhite
-DetailNormal=nomal_non
-CMask=Delasa_Throne01_C_Mask
+Normal=blandmask_non
+Other[0]=Delasa_Chain_Chain02_Diffuse
+Other[1]=Delasa_Throne01_C_Mask
+Other[2]=Delasa_Throne02_Cavity
+Other[3]=Delasa_Throne02_C
+Other[4]=Delasa_Throne02_N
+Other[5]=color_non
+Other[6]=img16size
+Other[7]=nomal_non
+Other[8]=rough_non

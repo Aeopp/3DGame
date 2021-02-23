@@ -1,7 +1,8 @@
-Diffuse=Delasa_FloatingObject01_D
-Normal=Delasa_FloatingObject01_N
-Cavity=Delasa_FloatingObject01_C
-Emissive=NonWhite
-DetailDiffuse=NonWhite
-DetailNormal=Ruins_Detail_01_N
-
+Normal=color_non
+Other[0]=Delasa_FloatingObject01_N
+Other[1]=Delasa_FloatingObject01_C
+Other[2]=Delasa_FloatingObject01_D
+Other[3]=Ruins_Detail_01_N
+Other[4]=img16size
+Other[5]=nomal_non
+Other[6]=rough_non

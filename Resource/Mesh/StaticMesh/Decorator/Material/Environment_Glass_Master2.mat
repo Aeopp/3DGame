@@ -1,7 +1,3 @@
 Diffuse=T_Environment_Utility_Window_Depth
 Normal=nomal_non
-Cavity=base_gray_d
-Emissive=NonWhite
-DetailDiffuse=NonWhite
-DetailNormal=nomal_non
-
+Other[0]=DS360_075_Ref

@@ -1,9 +1,7 @@
-
-
-Diffuse=Delasa_FloorSide01_Gem_D
-Normal=Delasa_FloorSide01_Gem_N
-Cavity=base_gray_d
-Emissive=NonWhite
-DetailDiffuse=Ruins_Detail_01_N
-DetailNormal=nomal_non
-
+Normal=color_non
+Other[0]=Delasa_FloorSide01_Gem_N
+Other[1]=Delasa_FloorSide01_Gem_D
+Other[2]=Ruins_Detail_01_N
+Other[3]=img16size
+Other[4]=nomal_non
+Other[5]=rough_non

@@ -14,6 +14,7 @@
 #include <rapidjson/istreamwrapper.h>
 #include "StringHelper.h"
 
+
 void Engine::MaterialInformation::Load
 (
 	IDirect3DDevice9* const Device,
@@ -54,7 +55,10 @@ void Engine::MaterialInformation::Load
 		if (_Texture == nullptr)
 		{
 			D3DXCreateTextureFromFile(Device, (MatFilePath / L"Texture" / TexFileName).c_str(), &_Texture);
-			_Texture = ResourceSys->Insert<IDirect3DTexture9>(TexFileName, _Texture);
+			if (_Texture)
+			{
+				_Texture = ResourceSys->Insert<IDirect3DTexture9>(TexFileName, _Texture);
+			}
 		}
 
 		MaterialTexture MtTex{}; 
@@ -65,6 +69,14 @@ void Engine::MaterialInformation::Load
 		TexKey.clear();
 		TexFileName.clear();
 	}
+
+	MaterialTextureMap["DefaultDiffuse"].Texture  = DefaultTextures["DiffuseMap"];
+	MaterialTextureMap["DefaultNormal"].Texture   = DefaultTextures["NormalMap"];
+	MaterialTextureMap["DefaultCavity"].Texture   = DefaultTextures["CavityMap"];
+
+	MaterialTextureMap["DefaultDetailDiffuse"].Texture = DefaultTextures["DetailDiffuseMap"];
+	MaterialTextureMap["DefaultDetailNormal"].Texture = DefaultTextures["DetailNormalMap"];
+	MaterialTextureMap["DefaultEmissive"].Texture = DefaultTextures["DetailDiffuseMap"];
 
 	PropPath = MatFilePath / (MatFileName.stem().wstring() + L".props");
 	PropsLoad(PropPath);
@@ -247,4 +259,17 @@ void Engine::MaterialInformation::BindingMapping(
 	{
 		MtTexIter->second.RegisterBindKey = RegisterKey;
 	}
+}
+
+void Engine::MaterialInformation::SetUpDefaultTexture()
+{
+	auto& _ResourceSys=ResourceSystem::Instance;
+		
+	IDirect3DTexture9* DefaultDiffuse =_ResourceSys->Get<IDirect3DTexture9>(L"Texture_DefaultDiffuse");
+	IDirect3DTexture9* DefaultNormal = _ResourceSys->Get<IDirect3DTexture9>(L"Texture_DefaultNormal");
+	IDirect3DTexture9* DefaultCavity = _ResourceSys->Get<IDirect3DTexture9>(L"Texture_DefaultCavity");
+
+	DefaultTextures["EmissiveMap"]  = DefaultTextures ["DetailDiffuseMap"] = 	DefaultTextures["DiffuseMap"] = DefaultDiffuse;
+	DefaultTextures["DetailNormalMap"] = DefaultTextures["NormalMap"] = DefaultNormal;
+	DefaultTextures["CavityMap"] = DefaultCavity;
 }

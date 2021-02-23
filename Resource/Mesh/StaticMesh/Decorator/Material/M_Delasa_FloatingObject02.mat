@@ -1,6 +1,8 @@
-Diffuse=Delasa_FloatingObject_Crystal_D
-Normal=Delasa_FloatingObject_Crystal_N
-Cavity=base_gray_d
-Emissive=Delasa_FloatingObject_Crystal_E
-DetailDiffuse=DefaultDiffuse
-DetailNormal=nomal_non
+Normal=color_non
+Other[0]=Delasa_FloatingObject_Crystal_N
+Other[1]=Delasa_FloatingObject_Crystal_E
+Other[2]=Delasa_FloatingObject_Crystal_D
+Other[3]=DefaultDiffuse
+Other[4]=img16size
+Other[5]=nomal_non
+Other[6]=rough_non

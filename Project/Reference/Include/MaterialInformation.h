@@ -18,7 +18,6 @@ namespace Engine
 			std::string RegisterBindKey{};
 		};
 	public:
-		
 		void Load(IDirect3DDevice9* const Device, 
 				const std::filesystem::path& MatFilePath,
 			const std::filesystem::path& MatFileName,
@@ -30,6 +29,7 @@ namespace Engine
 		void BindingTexture(ID3DXEffect*   _Fx)const&;
 		void BindingMapping(const std::string& TexKey,
 							const std::string& RegisterKey)&;
+		static void SetUpDefaultTexture();
 	public:
 		std::string Name{"Material"};
 		/// <summary>
@@ -52,6 +52,7 @@ namespace Engine
 		//// 에디터에서 런타임에 수정가능한 쉐이더 레지스터와 텍스쳐를 매핑 . 
 		/*std::unordered_map<std::string, IDirect3DTexture9*> BindingTextureMap{}; */
 	private:
+		static inline std::unordered_map<std::string, IDirect3DTexture9*> DefaultTextures{};
 		std::filesystem::path PropPath{};
 	};
 	

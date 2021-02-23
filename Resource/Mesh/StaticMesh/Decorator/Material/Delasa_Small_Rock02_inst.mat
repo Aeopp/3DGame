@@ -1,8 +1,8 @@
-Diffuse=NonWhite
-Normal=Small_Rock02_Normal
-Cavity=Small_Rock02_Cavity
-Emissive=NonWhite
-DetailDiffuse=Rocks_Detail_01_C
-DetailNormal=Stone_Detail01
-
-
+Normal=color_non
+Other[0]=Small_Rock02_Normal
+Other[1]=Small_Rock02_Cavity
+Other[2]=Rocks_Detail_01_C
+Other[3]=Stone_Detail01
+Other[4]=img16size
+Other[5]=nomal_non
+Other[6]=rough_non

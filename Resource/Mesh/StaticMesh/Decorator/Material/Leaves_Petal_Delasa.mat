@@ -1,7 +1,4 @@
 Diffuse=Sakura_Petal_Toon
 Normal=Sakura_Petal_Toon_Normal
-Cavity=base_gray_d
-Emissive=NonWhite
-DetailDiffuse=Oak
-DetailNormal=Oak_N
-
+Other[0]=Oak
+Other[1]=Oak_N

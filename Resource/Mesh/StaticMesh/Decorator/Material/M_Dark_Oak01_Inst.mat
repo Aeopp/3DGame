@@ -1,6 +1,8 @@
-Diffuse=barreld_C_02
-Normal=barreld_N_01
-Cavity=barreld_cavity_02
-Emissive=NonWhite
-DetailDiffuse=NonWhite
-DetailNormal=nomal_non
+Normal=blandmask_non
+Other[0]=barreld_N_01
+Other[1]=barreld_cavity_02
+Other[2]=barreld_C_02
+Other[3]=color_non
+Other[4]=img16size
+Other[5]=nomal_non
+Other[6]=rough_non

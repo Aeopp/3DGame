@@ -1,8 +1,7 @@
-
-Diffuse=Outer_Arc_Tilemap
-Normal=Arc_Tilemap01_Normals
-Cavity=base_gray_d
-Emissive=NonWhite
-DetailDiffuse=Delasa_Floor_Inner01
-DetailNormal=nomal_non
-
+Normal=color_non
+Other[0]=Outer_Arc_Tilemap
+Other[1]=Arc_Tilemap01_Normals
+Other[2]=Delasa_Floor_Inner01
+Other[3]=img16size
+Other[4]=nomal_non
+Other[5]=rough_non
