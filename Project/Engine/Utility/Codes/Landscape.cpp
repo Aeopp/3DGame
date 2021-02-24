@@ -364,7 +364,11 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 	Device->SetVertexDeclaration(VtxDecl);
 
 	auto Fx = _ShaderFx.GetHandle();
-
+	Fx->SetMatrix("View", &View);
+	Fx->SetMatrix("Projection", &Projection);
+	Fx->SetVector("LightDirection", &Renderer.LightDirection);
+	Fx->SetVector("LightColor", &Renderer.LightColor);
+	Fx->SetVector("CameraLocation", &CameraLocation4D);
 	if(Engine::Global::bDebugMode)
 		ImGui::Begin("Frustum Culling Log");
 

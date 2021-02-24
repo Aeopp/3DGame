@@ -227,6 +227,7 @@ PS_OUT PS_MAIN(PS_IN In)
     Out.Color.rgb += Ambient;
     Out.Color.rgba += RimAmt * RimAmtColor.rgba;
     Out.Color.a += AlphaAddtive;
+    Out.Color.a = saturate(Out.Color.a);
     
     return Out;
 }

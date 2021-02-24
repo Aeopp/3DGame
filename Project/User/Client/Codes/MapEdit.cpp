@@ -379,10 +379,16 @@ void MapEdit::Landscape()&
 	{
 		if (ImGui::CollapsingHeader("Decoratos"))
 		{
+			static char FilterFbxNameBuffer[MAX_PATH];
+			ImGui::InputText("Filter Model Name", FilterFbxNameBuffer, MAX_PATH);
 			for (auto& [DecoKey, DecoOpt] : DecoratorOpts)
 			{
 				std::string KeyA;
 				KeyA.assign(std::begin(DecoKey), std::end(DecoKey));
+				if (KeyA.find(FilterFbxNameBuffer)==std::string::npos && strlen(FilterFbxNameBuffer)!=0)
+				{
+					continue;
+				}
 
 				if ( ImGui::ImageButton(reinterpret_cast<void**>
 					(DecoOpt.Picture), ImVec2{ 256,256 }))
@@ -440,14 +446,14 @@ void MapEdit::Landscape()&
 
 							DummyLableID++;
 							const std::string   CurID = std::to_string(TextureID++);
-							if (ImGui::CollapsingHeader( ("Texture_" + CurID).c_str()))
+							if (ImGui::CollapsingHeader( (KeyA+"_Texture_" + CurID).c_str()))
 							{
 								for (const auto& [TexNameKey, MtTex] : CurMesh.MaterialInfo.MaterialTextureMap)
 								{
 									ImGui::BulletText("%s = %s", (TexNameKey).c_str(),
 										MtTex.RegisterBindKey.empty() ? "Not Binding" : MtTex.RegisterBindKey.c_str());
 
-									const std::string TexEditPopupLabel = (CurID + "_" + TexNameKey + "_Bind");
+									const std::string TexEditPopupLabel = (KeyA+CurID + "_" + TexNameKey + "_Bind");
 									if (ImGui::SmallButton(TexEditPopupLabel.c_str()))
 									{
 										ImGui::OpenPopup(TexEditPopupLabel.c_str());
@@ -505,16 +511,23 @@ void MapEdit::Landscape()&
 			if (ImGui::CollapsingHeader("Scale"))
 			{
 				ImGui::SliderFloat3("Scale", (float*)&(SpawnEditScale), 0.01f, +100.f);
+				ImGui::InputFloat3("_Scale", (float*)(SpawnEditScale));
 			}
 			if (ImGui::CollapsingHeader("Rotation"))
 			{
 				ImGui::SliderAngle("Yaw", &(SpawnEditRotation.y));
 				ImGui::SliderAngle("Pitch", &(SpawnEditRotation.x));
 				ImGui::SliderAngle("Roll", &(SpawnEditRotation.z));
+				Vector3 RotationDeg = FMath::ToDegree(SpawnEditRotation);
+				if (ImGui::InputFloat3("_Rotation", (float*)RotationDeg, "%.f Deg"))
+				{
+					SpawnEditRotation = FMath::ToRadian(RotationDeg);
+				}
 			}
 			if (ImGui::CollapsingHeader("Location"))
 			{
 				ImGui::SliderFloat3("Location", (float*)&(SpawnEditLocation), -10000.f, +10000.f);
+				ImGui::InputFloat3("_Location", (float*)SpawnEditLocation);
 			}
 
 			switch (SpawnTransformComboSelectItem)
@@ -531,6 +544,8 @@ void MapEdit::Landscape()&
 		if (auto CurEditDecoSharedInstance = CurEditDecoInstance.first.lock();
 			CurEditDecoSharedInstance)
 		{
+			ImGui::BulletText(ToA(CurEditDecoInstance.second).c_str());
+			ImGui::Checkbox("bLandscapeInclude", &CurEditDecoSharedInstance->bLandscapeInclude);
 			if (ImGui::CollapsingHeader("Scale"))
 			{
 				static float Width = 10.f;
@@ -580,7 +595,8 @@ void MapEdit::Landscape()&
 			ImGui::Separator();
 			if (ImGui::Button("Copy"))
 			{
-				CurEditDecoInstance=RefLandscape.PushDecorator(CurEditDecoInstance.second,
+				CurEditDecoInstance=
+					RefLandscape.PushDecorator(CurEditDecoInstance.second,
 					CurEditDecoSharedInstance->Scale, CurEditDecoSharedInstance->Rotation, CurEditDecoSharedInstance->Location,
 					CurEditDecoSharedInstance->bLandscapeInclude);
 			}ImGui::SameLine();
