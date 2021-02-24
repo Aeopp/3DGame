@@ -200,7 +200,7 @@ Engine::Landscape::PushDecorator(const std::wstring DecoratorKey, const Vector3&
 	if (false == IntersectResults.empty())
 	{
 		const Vector3 TheMostNearIntersectPoint = IntersectResults.begin()->second;
-		PushDecorator(DecoratorKey, Scale, Rotation, TheMostNearIntersectPoint + Location, bLandscapePolygonInclude);
+		return PushDecorator(DecoratorKey, Scale, Rotation, TheMostNearIntersectPoint + Location, bLandscapePolygonInclude);
 	}
 	
 	return  {};

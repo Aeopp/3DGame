@@ -26,7 +26,7 @@ namespace Engine
 		void MoveableToggle()&;
 		void ZoomToggle()&;
 	public:
-		float Speed = 100.f;
+		float Speed = 1.f;
 	private:
 		void MouseFix()&;
 		void MouseFixToggle()&;

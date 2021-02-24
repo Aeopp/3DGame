@@ -3,19 +3,19 @@
         "Other[3]": "DetailNormalMap",
         "Other[0]": "NormalMap",
         "Other[1]": "CavityMap",
-        "Other[2]": "DiffuseMap",
-        "DefaultDiffuse": "DetailDiffuseMap",
+        "Other[2]": "DetailDiffuseMap",
+        "DefaultDiffuse": "DiffuseMap",
         "DefaultCavity": "CavityMap",
         "DefaultDetailDiffuse": "EmissiveMap"
     },
     "Contract": 1,
     "RimInnerWidth": 0.0,
     "RimOuterWidth": 0.0,
-    "Power": 18.135000228881837,
-    "SpecularIntencity": 1.0,
+    "Power": 1.0,
+    "SpecularIntencity": 0.0,
     "DetailScale": 1.0,
-    "CavityCoefficient": 1.1419999599456788,
-    "DetailDiffuseIntensity": 1.00600004196167,
+    "CavityCoefficient": 2.200000047683716,
+    "DetailDiffuseIntensity": 2.0,
     "DetailNormalIntensity": 2.0,
     "RimAmtColor": [
         1.0,
@@ -29,5 +29,5 @@
         0.10000000149011612,
         1.0
     ],
-    "AlphaAddtive": 1.0
+    "AlphaAddtive": 0.0
 }

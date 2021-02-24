@@ -65,7 +65,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 
 		Manager.NewObject<Engine::NormalLayer, Engine::DynamicCamera>(
 			L"Static", L"Camera",
-			FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 10.f, &Control);
+			FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 1.f, &Control);
 	}
 
 	MapScale = { 1.f , 1.f, 1.f };

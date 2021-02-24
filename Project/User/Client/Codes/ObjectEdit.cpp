@@ -60,7 +60,7 @@ void ObjectEdit::Initialize(IDirect3DDevice9* const Device)&
 
 		Manager.NewObject<Engine::NormalLayer, Engine::DynamicCamera>(
 			L"Static", L"Camera",
-			FMath::PI / 3.f, 0.1f, 10000.f, Aspect, 1000.f, &Control);
+			FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 1.f, &Control);
 	}
 
 	// 랜드스케이프. 
