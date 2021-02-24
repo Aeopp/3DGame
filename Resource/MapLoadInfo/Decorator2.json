@@ -1,0 +1,1865 @@
+{
+    "Decorators": [
+        {
+            "FileName": "Delasa_Center_Chain_Ani.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.7853981852531433,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        2.4010002613067629,
+                        -3015.35205078125
+                    ],
+                    "bLandscapeInclude": false
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Floor_Back_Deco03_Des.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Blocks02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Banana_Flag01.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        1.5707963705062867,
+                        0.0
+                    ],
+                    "Location": [
+                        8328.1103515625,
+                        656.411376953125,
+                        26.481813430786134
+                    ],
+                    "bLandscapeInclude": false
+                },
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        1.7976891994476319,
+                        0.0
+                    ],
+                    "Location": [
+                        -4584.54833984375,
+                        807.5196533203125,
+                        -486.913818359375
+                    ],
+                    "bLandscapeInclude": false
+                },
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        -944.5042724609375,
+                        4723.33544921875,
+                        -1133.5009765625
+                    ],
+                    "bLandscapeInclude": false
+                },
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        -2998.9892578125,
+                        -1270.81298828125
+                    ],
+                    "bLandscapeInclude": false
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Ent_Floor_Outside01.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        -72.99996948242188,
+                        15000.1953125,
+                        -235.61029052734376
+                    ],
+                    "bLandscapeInclude": false
+                },
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        -8640.8994140625,
+                        -91.86874389648438,
+                        -114.10734558105469
+                    ],
+                    "bLandscapeInclude": false
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Blocks01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Ent_Gate_Floor01.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.34977322816848757,
+                        -439.2708435058594
+                    ],
+                    "bLandscapeInclude": true
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Outer_Line02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Side02_Des2.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Ent_Floor01.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        -1.5707963705062867,
+                        0.0
+                    ],
+                    "Location": [
+                        -52.000003814697269,
+                        10930.6865234375,
+                        246.12188720703126
+                    ],
+                    "bLandscapeInclude": false
+                },
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        4.71238899230957,
+                        0.0
+                    ],
+                    "Location": [
+                        -1530.989990234375,
+                        11414.9892578125,
+                        -191.64178466796876
+                    ],
+                    "bLandscapeInclude": false
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Outer_Line01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Ent_Floor02.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        1.5707963705062867,
+                        0.0
+                    ],
+                    "Location": [
+                        -52.000003814697269,
+                        10131.8115234375,
+                        -221.9326629638672
+                    ],
+                    "bLandscapeInclude": false
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Floor_CenterInner04_Block.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Back01_Des.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Ent_MLiner_Floor02-1.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        1.5707963705062867,
+                        0.0
+                    ],
+                    "Location": [
+                        -70.85514068603516,
+                        15000.169921875,
+                        -203.6045379638672
+                    ],
+                    "bLandscapeInclude": false
+                },
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        1.5707963705062867,
+                        0.0
+                    ],
+                    "Location": [
+                        -70.85514068603516,
+                        11989.6884765625,
+                        -206.001708984375
+                    ],
+                    "bLandscapeInclude": false
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Ent_Side_Floor01.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        8931.6669921875,
+                        385.086181640625,
+                        -32.186363220214847
+                    ],
+                    "bLandscapeInclude": true
+                },
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        4.71238899230957,
+                        0.0
+                    ],
+                    "Location": [
+                        -73.30325317382813,
+                        15000.181640625,
+                        -218.05613708496095
+                    ],
+                    "bLandscapeInclude": true
+                }
+            ]
+        },
+        {
+            "FileName": "SM_MERGED_Delasa03_BGIsland01_1.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        5.497786998748779,
+                        0.0
+                    ],
+                    "Location": [
+                        -5018.05810546875,
+                        5952.962890625,
+                        599.0114135742188
+                    ],
+                    "bLandscapeInclude": true
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Ent_Side_Floor02.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        -123.95115661621094,
+                        -8744.9912109375,
+                        -6.963274955749512
+                    ],
+                    "bLandscapeInclude": true
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Prop_EnArch_Parts03.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Inner03_Des2.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Props_Base_Rock02_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_FloatingStone_Sub01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_FloatingStone_Entrance01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "MERGED_Delasa_Rock_03.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Side01_Des2.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Outer01_Des4.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_FloatingStone_Sub02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_CenterInner02_Block2.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_FloatingStone_Sub02_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Side02_Des.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        -2.478367567062378,
+                        0.0
+                    ],
+                    "Location": [
+                        -84.71517181396485,
+                        -8065.3251953125,
+                        -167.70022583007813
+                    ],
+                    "bLandscapeInclude": false
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Outer01_Des5.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_FloatingStone_Sub03.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Outer01_Des2.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_FloatingStone_Sub04.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Back01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Cylinder_03.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_RoundStair02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_RoundStair01_Entrance.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        -0.7853981852531433,
+                        0.0
+                    ],
+                    "Location": [
+                        -7483.82470703125,
+                        4930.744140625,
+                        -22.32271957397461
+                    ],
+                    "bLandscapeInclude": false
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Floating_Stone01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Prop_Delasa_Floor_OuterLine01_Block2.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Inner02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Back_Deco01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Inner02_Des.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.12342004477977753,
+                        -154.99989318847657
+                    ],
+                    "bLandscapeInclude": true
+                },
+                {
+                    "Scale": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.7853981852531433,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.12342004477977753,
+                        -154.99989318847657
+                    ],
+                    "bLandscapeInclude": true
+                },
+                {
+                    "Scale": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        1.5707963705062867,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.12342004477977753,
+                        -154.99989318847657
+                    ],
+                    "bLandscapeInclude": true
+                },
+                {
+                    "Scale": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        2.356194496154785,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.12342004477977753,
+                        -154.99989318847657
+                    ],
+                    "bLandscapeInclude": true
+                },
+                {
+                    "Scale": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        3.1415927410125734,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.12342004477977753,
+                        -154.99989318847657
+                    ],
+                    "bLandscapeInclude": true
+                },
+                {
+                    "Scale": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        3.9269907474517824,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.12342004477977753,
+                        -154.99989318847657
+                    ],
+                    "bLandscapeInclude": true
+                },
+                {
+                    "Scale": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        4.71238899230957,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.12342004477977753,
+                        -154.99989318847657
+                    ],
+                    "bLandscapeInclude": true
+                },
+                {
+                    "Scale": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        5.497786998748779,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.12342004477977753,
+                        -154.99989318847657
+                    ],
+                    "bLandscapeInclude": true
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Floor_Back_Deco01_Des.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Outer_Line02_Des.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Prop_Delasa_Floor_OuterLine01_Block1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Inner01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Back_Deco02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Back_Deco03.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Inner01_Symbol.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_CenterInner02_Block1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Inner04_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_EnArch_Parts05.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Inner03_Des4.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        1.1693706512451172,
+                        0.0
+                    ],
+                    "Location": [
+                        555.9239501953125,
+                        1530.3433837890626,
+                        -242.57412719726563
+                    ],
+                    "bLandscapeInclude": false
+                },
+                {
+                    "Scale": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        4.363323211669922,
+                        0.0
+                    ],
+                    "Location": [
+                        -1237.9095458984376,
+                        -3058.6884765625,
+                        -244.87554931640626
+                    ],
+                    "bLandscapeInclude": false
+                }
+            ]
+        },
+        {
+            "FileName": "SM_MERGED_Props_Base_Rock02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_CenterInner03_Block.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Cylinder_01.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        6.0,
+                        6.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        -0.12862087786197663,
+                        161.53152465820313
+                    ],
+                    "bLandscapeInclude": false
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Cylinder_02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Inner01_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Inner01_Des.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Inner01_Des2.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Outer01_Des.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Prop_Delasa_Floor_OuterLine01_Block3.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Inner03.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        3.0,
+                        3.0,
+                        3.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.7853981852531433,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.1353638768196106,
+                        -169.9999542236328
+                    ],
+                    "bLandscapeInclude": true
+                },
+                {
+                    "Scale": [
+                        3.0,
+                        3.0,
+                        3.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        2.356194496154785,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.1353638768196106,
+                        -169.9999542236328
+                    ],
+                    "bLandscapeInclude": true
+                },
+                {
+                    "Scale": [
+                        3.0,
+                        3.0,
+                        3.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        3.9269907474517824,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.1353638768196106,
+                        -169.9999542236328
+                    ],
+                    "bLandscapeInclude": true
+                },
+                {
+                    "Scale": [
+                        3.0,
+                        3.0,
+                        3.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        5.497786998748779,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.1353638768196106,
+                        -169.9999542236328
+                    ],
+                    "bLandscapeInclude": true
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Inner03_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Inner03_Des.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Outer01_Des6.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_EnArch_Parts02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Inner03_Des3.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Inner04.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Inner04_Des.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        3.0,
+                        3.0,
+                        3.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.13370101153850556,
+                        -167.91160583496095
+                    ],
+                    "bLandscapeInclude": true
+                },
+                {
+                    "Scale": [
+                        3.0,
+                        3.0,
+                        3.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        -3.1415927410125734,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.1353638768196106,
+                        -169.9999542236328
+                    ],
+                    "bLandscapeInclude": true
+                },
+                {
+                    "Scale": [
+                        3.0,
+                        3.0,
+                        3.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        -1.5707963705062867,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.1353638768196106,
+                        -169.9999542236328
+                    ],
+                    "bLandscapeInclude": true
+                },
+                {
+                    "Scale": [
+                        3.0,
+                        3.0,
+                        3.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        -4.71238899230957,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.1353638768196106,
+                        -169.9999542236328
+                    ],
+                    "bLandscapeInclude": true
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Outer_Line01_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Inner04_Des2.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_EnArch_Parts10.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Outer01.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.01592516154050827,
+                        -19.9999942779541
+                    ],
+                    "bLandscapeInclude": true
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Outer01_B.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.01592516154050827,
+                        -19.9999942779541
+                    ],
+                    "bLandscapeInclude": true
+                },
+                {
+                    "Scale": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        1.5707963705062867,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.01592516154050827,
+                        -19.9999942779541
+                    ],
+                    "bLandscapeInclude": true
+                },
+                {
+                    "Scale": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        2.356194496154785,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.01592516154050827,
+                        -19.9999942779541
+                    ],
+                    "bLandscapeInclude": true
+                },
+                {
+                    "Scale": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        3.1415927410125734,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.01592516154050827,
+                        -19.9999942779541
+                    ],
+                    "bLandscapeInclude": true
+                },
+                {
+                    "Scale": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        4.71238899230957,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.01592516154050827,
+                        -19.9999942779541
+                    ],
+                    "bLandscapeInclude": true
+                },
+                {
+                    "Scale": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        3.9269907474517824,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.01592516154050827,
+                        -19.9999942779541
+                    ],
+                    "bLandscapeInclude": true
+                },
+                {
+                    "Scale": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        5.497786998748779,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.01592516154050827,
+                        -19.9999942779541
+                    ],
+                    "bLandscapeInclude": true
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Outer01_B_Des.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_Base_Chain01_Lod1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Outer01_Des3.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_TreasureBox_Open.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Outer_Line01_2.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Delasa01_BrokenRuinSet07_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Outer_Line01_Des.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Outer_Line03.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Prop_Delasa_Throne01.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        3.0,
+                        3.0,
+                        3.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        4.71238899230957,
+                        0.0
+                    ],
+                    "Location": [
+                        -9336.2880859375,
+                        75.60768127441406,
+                        -463.239013671875
+                    ],
+                    "bLandscapeInclude": false
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Slope01_01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Center_Water01.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.08087201416492462,
+                        -101.56504821777344
+                    ],
+                    "bLandscapeInclude": true
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Platform_Rock_Base_1_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Front01.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        -6983.97509765625,
+                        -6834.84033203125,
+                        35.867252349853519
+                    ],
+                    "bLandscapeInclude": true
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Floor_Front02.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        -1.5707963705062867,
+                        0.0
+                    ],
+                    "Location": [
+                        -8619.39453125,
+                        -55.540992736816409,
+                        -114.07832336425781
+                    ],
+                    "bLandscapeInclude": true
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Floor_Side01.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        4999.998046875,
+                        1.7386298179626465,
+                        -2183.498779296875
+                    ],
+                    "bLandscapeInclude": false
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Floor_Side01_Des.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Floor_Side02.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        5157.70556640625,
+                        68.21614074707031,
+                        -2192.966552734375
+                    ],
+                    "bLandscapeInclude": false
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Prop_EntranceArch01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Platform_Rock_Base.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_StandSpear02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_Altar01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_Altar01_Lod1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_Altar_Wings01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Road_Liner01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_ArciPoll_01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_ArciPoll_02-1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_ArciPoll_02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_ArciPoll_02_Cracked01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Delasa02_TreasureSet02_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_ArciPoll_02_Cracked02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_ArciPoll_02_Cracked03.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Waterfall01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_ArciPoll_02_Cracked04.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_ArciPoll_02_Cracked05.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_Pillar_Wing01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_ArciPoll_02_Cracked06.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_ArciPoll_03.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_Chain_Connect01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_ArciPoll_04.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_ArciPoll_05.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_ArciPoll_05_Broken01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_ArciPoll_05_Broken02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_Base_Chain01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_Base_Chain02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_BasicPoll_01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_BasicPoll_01_Broken.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_BasicPoll_01_Lod1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_BasicPoll_02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_BasicPoll_BoxMark01_Des.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "GolemAnim.fbx",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_BasicPoll_BoxMark_01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_BasicPoll_Cracked01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_BasicPoll_Cracked02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_BasicPoll_Cracked03.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_BasicPoll_Cracked04.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_BasicPoll_StoneMark_01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_BasicPoll_StoneMark_02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_CenterChain01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_Chain_Base01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_Chain_Base02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Drop_WaterFall_Lean01.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "bLandscapeInclude": false
+                }
+            ]
+        },
+        {
+            "FileName": "Delasa_Prop_Chain_MainFix01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_Chain_Restrict02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Eltheca_Crystal_Gate01_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_EnArch_Parts01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_EnArch_Parts03_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_EnArch_Parts04.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_EnArch_Parts06.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_EnArch_Parts07.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_EnArch_Parts08.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_EnArch_Parts09.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_EnArch_Wing01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Props_Base_Rock03.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_EntranceArch02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_Ent_Chain01.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        2.864243268966675,
+                        -3597.12841796875
+                    ],
+                    "bLandscapeInclude": false
+                }
+            ]
+        },
+        {
+            "FileName": "SM_MERGED_Delasa_Prop_Chain_Base02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_FlowerPot01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_FlowerPot01_Des.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_Gold_a.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_Gold_b.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_Gold_c.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_Gold_d.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_LongChain01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_StandSpear01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Prop_TreasureBox_Close.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Rock_05_A.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Rock_05_B.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_Rock_05_C.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Delasa_RoundStair01.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        -1.6057028770446778,
+                        0.0
+                    ],
+                    "Location": [
+                        -3236.169677734375,
+                        3723.8837890625,
+                        -890.3099975585938
+                    ],
+                    "bLandscapeInclude": false
+                },
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        0.0,
+                        0.0
+                    ],
+                    "Location": [
+                        0.0,
+                        4042.19384765625,
+                        -1676.861572265625
+                    ],
+                    "bLandscapeInclude": false
+                }
+            ]
+        },
+        {
+            "FileName": "DM_Open_barrel_01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Delasa02_BGIslandSet02_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Drop_WaterFall_Lean02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Props_Base_Rock01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Props_Base_Rock02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Props_Base_Rock03.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Prop_Delasa_FloatingObject01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Prop_Delasa_FloatingObject01_Des2.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Prop_Delasa_FloatingObject01_Water.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Prop_Delasa_FloatingObject02.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Prop_Delasa_Floor_CenterOuter01_Block1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Prop_Delasa_Floor_CenterOuter01_Block2.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Prop_Delasa_Pillar001.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Prop_Delasa_PillarCrack004.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "Prop_Wood_Vase01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Delasa01_BrokenRuinSet01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Delasa01_BrokenRuinSet01_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Delasa01_BrokenRuinSet02_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Delasa01_BrokenRuinSet03_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Delasa01_BrokenRuinSet04_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Delasa01_BrokenRuinSet05_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Delasa01_BrokenRuinSet06_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Delasa02_BGIslandSet01_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Delasa02_BGIslandSet01_2.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Delasa02_TreasureSet01_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Delasa03_TreasureSet01_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Delasa03_TreasureSet02_1.FBX",
+            "InstanceList": [
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        3.682645082473755,
+                        0.0
+                    ],
+                    "Location": [
+                        -7896.29638671875,
+                        -204.05210876464845,
+                        -471.19244384765627
+                    ],
+                    "bLandscapeInclude": false
+                },
+                {
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Rotation": [
+                        1.5707963705062867,
+                        5.183628082275391,
+                        0.0
+                    ],
+                    "Location": [
+                        -373.2411804199219,
+                        15000.1552734375,
+                        -185.71749877929688
+                    ],
+                    "bLandscapeInclude": false
+                }
+            ]
+        },
+        {
+            "FileName": "SM_MERGED_Delasa03_TreasureSet03_1.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Delasa_Prop_Chain_Base01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Delasa_Prop_EnArch01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Props_Base_Rock01.FBX",
+            "InstanceList": []
+        },
+        {
+            "FileName": "SM_MERGED_Props_Base_Rock01_1.FBX",
+            "InstanceList": []
+        }
+    ]
+}
