@@ -4,8 +4,8 @@
         "Other[0]": "NormalMap",
         "Other[1]": "CavityMap",
         "Other[2]": "DetailDiffuseMap",
-        "DefaultDetailDiffuse": "DiffuseMap",
-        "DefaultEmissive": "EmissiveMap"
+        "DefaultDiffuse": "DiffuseMap",
+        "DefaultDetailDiffuse": "EmissiveMap"
     },
     "Contract": 1,
     "RimInnerWidth": 0.0,

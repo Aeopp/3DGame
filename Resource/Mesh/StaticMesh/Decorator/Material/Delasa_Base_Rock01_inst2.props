@@ -12,7 +12,7 @@
     "RimOuterWidth": 0.0,
     "Power": 31.979999542236329,
     "SpecularIntencity": 0.5049999952316284,
-    "DetailScale": 0.5049999952316284,
+    "DetailScale": 1.0,
     "CavityCoefficient": 2.200000047683716,
     "DetailDiffuseIntensity": 2.0,
     "DetailNormalIntensity": 2.0,
