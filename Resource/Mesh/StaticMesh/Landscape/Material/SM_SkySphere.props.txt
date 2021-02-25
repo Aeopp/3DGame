@@ -1,0 +1,26 @@
+Materials[1] =
+{
+    Materials[0] = Material3'/Engine/EngineSky/M_Sky_Panning_Clouds2.M_Sky_Panning_Clouds2'
+}
+SourceModels[0] = {}
+StaticMaterials[1] =
+{
+    StaticMaterials[0] =
+    {
+        MaterialInterface = Material3'/Engine/EngineSky/M_Sky_Panning_Clouds2.M_Sky_Panning_Clouds2'
+        MaterialSlotName = M_Sky_Panning_Clouds2
+        UVChannelData =
+        {
+            bInitialized = true
+            bOverrideDensities = false
+            LocalUVDensities[4] = { 10800.8, 17127.5, 0, 0 }
+        }
+    }
+}
+Sockets[0] = {}
+ExtendedBounds =
+{
+    Origin = { X=0, Y=0, Z=0 }
+    BoxExtent = { X=4096, Y=4096, Z=4096 }
+    SphereRadius = 4096
+}

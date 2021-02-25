@@ -3,8 +3,8 @@
         "Other[0]": "NormalMap",
         "Other[2]": "DiffuseMap",
         "Other[5]": "DetailNormalMap",
+        "Other[6]": "CavityMap",
         "DefaultDiffuse": "DetailDiffuseMap",
-        "DefaultCavity": "CavityMap",
         "DefaultDetailDiffuse": "EmissiveMap"
     },
     "Contract": 1,

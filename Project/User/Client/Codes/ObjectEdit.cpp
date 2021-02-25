@@ -76,6 +76,7 @@ void ObjectEdit::Initialize(IDirect3DDevice9* const Device)&
 		{
 			{ Engine::Global::ResourcePath / L"Mesh" / L"StaticMesh" / L"Decorator" / L""} ,
 			{ Engine::Global::ResourcePath / L"Mesh" / L"StaticMesh" / L""},
+	
 			{ Engine::Global::ResourcePath / L"Mesh" / L"DynamicMesh" / L""}
 		};
 

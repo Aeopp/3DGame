@@ -92,7 +92,8 @@ void MapEdit::Initialize(IDirect3DDevice9* const Device)&
 		{
 			{ Engine::Global::ResourcePath / L"Mesh" / L"StaticMesh" / L"Decorator" / L""} ,
 			{ Engine::Global::ResourcePath / L"Mesh" / L"StaticMesh" / L""},
-			{ Engine::Global::ResourcePath / L"Mesh" / L"DynamicMesh" /  L""}
+			{ Engine::Global::ResourcePath / L"Mesh" / L"DynamicMesh" /  L""},
+			{ Engine::Global::ResourcePath / L"Mesh" / L"StaticMesh" / L"Landscape" / L""}
 		};
 
 		for (const auto& CurPath : DecoratorPaths)

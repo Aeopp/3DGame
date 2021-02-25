@@ -113,7 +113,7 @@ void Engine::MaterialInformation::PropsLoad(const std::filesystem::path& PropsFi
 		RimOuterWidth = _Document["RimOuterWidth"].GetFloat();
 		Power = _Document["Power"].GetFloat();
 		SpecularIntencity = _Document["SpecularIntencity"].GetFloat();
-		DetailScale = _Document["SpecularIntencity"].GetFloat();
+		DetailScale = _Document["DetailScale"].GetFloat();
 		CavityCoefficient = _Document["CavityCoefficient"].GetFloat();
 		DetailDiffuseIntensity = _Document["DetailDiffuseIntensity"].GetFloat();
 		DetailNormalIntensity = _Document["DetailNormalIntensity"].GetFloat();
