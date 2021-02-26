@@ -8,6 +8,8 @@
 #include "Vertexs.hpp"
 #include "ShaderManager.h"
 #include "Renderer.h"
+#include "Timer.h"
+
 
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/writer.h>
@@ -22,6 +24,27 @@
 
 static uint32 StaticMeshResourceID = 0u;
 static Engine::Landscape::DecoInformation* PickDecoInstancePtr{ nullptr };
+
+
+
+static bool IsFloatingDecorator(const std::wstring& DecoratorKey)
+{
+	static std::array<std::wstring, 3u> FloatingDecoratorNames
+	{
+	 L"Floating",
+	 L"Rock",
+	 L"BGIslandSet01"
+	};
+	for (const auto& FloatingDecoName : FloatingDecoratorNames)
+	{
+		if (DecoratorKey.find(FloatingDecoName) != std::string::npos)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
 
 void Engine::Landscape::DecoratorLoad(
 	const std::filesystem::path& LoadPath,
@@ -49,6 +72,11 @@ void Engine::Landscape::DecoratorLoad(
 	);
 
 	Decorator LoadDecorator{};
+	if (IsFloatingDecorator(LoadFileName))
+	{
+		LoadDecorator._Option = Engine::Landscape::Decorator::Option::Floating;
+	}
+
 
 	auto& ResourceSys = ResourceSystem::Instance;
 
@@ -126,6 +154,8 @@ void Engine::Landscape::DecoratorLoad(
 	DecoratorContainer.insert({ LoadFileName,LoadDecorator } );
 }
 
+
+
 std::pair< std::weak_ptr<typename Engine::Landscape::DecoInformation>  ,std::wstring >
 Engine::Landscape::PushDecorator(
 	const std::wstring DecoratorKey, 
@@ -145,6 +175,13 @@ Engine::Landscape::PushDecorator(
 		DecoInfoInstance.Rotation = Rotation;
 		DecoInfoInstance.Location = Location;
 		DecoInfoInstance.bLandscapeInclude = bLandscapePolygonInclude;
+		
+		if (Deco._Option == Engine::Landscape::Decorator::Option::Floating)
+		{
+			Engine::Landscape::FloatingInformation  _FloatValue{};
+			_FloatValue.Initialize();
+			DecoInfoInstance.OptionValue = _FloatValue;
+		}
 
 		if (bLandscapePolygonInclude)
 		{
@@ -347,6 +384,19 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 	const Matrix& View, const Matrix& Projection,
 	const Vector4& CameraLocation4D)&
 {
+	if (Engine::Global::bDebugMode)
+	{
+		ImGui::Begin("Floating") ; 
+		if (ImGui::Button("FloatingDecoInstancesReInit"))
+		{
+			FloatingDecoInstancesReInit();
+		}
+		Engine::Landscape::FloatingInformation::RangeEdit();
+		ImGui::End();
+		
+	}
+	
+
 	for (auto& [DecoKey, CurDeco] : DecoratorContainer)
 	{
 		CurDeco.Instances.erase(std::remove_if(std::begin(CurDeco.Instances), std::end(CurDeco.Instances),
@@ -359,6 +409,9 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 		return;
 
 	auto& Renderer = *Engine::Renderer::Instance;
+	auto& _Timer = Engine::Timer::Instance;
+	const float CurDeltaTime = _Timer->GetDelta();
+
 	const Matrix MapWorld = FMath::WorldMatrix(Scale, Rotation, Location);
 	
 	Device->SetVertexDeclaration(VtxDecl);
@@ -374,10 +427,17 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 
 	for (const auto& [DecoKey, CurDeco] : DecoratorContainer)
 	{
+		const bool IsFloatingDeco = CurDeco._Option == Engine::Landscape::Decorator::Option::Floating;
+
 		for (const auto& CurDecoInstance : CurDeco.Instances)
 		{
 			const Vector3 DecoTfmScale = CurDecoInstance->Scale;
-			const Vector3 DecoTfmLocation = CurDecoInstance->Location;
+			const Vector3 DecoTfmLocation = IsFloatingDeco ? 
+				std::any_cast<Engine::Landscape::FloatingInformation&>(CurDecoInstance->OptionValue).
+				Floating(CurDeltaTime, CurDecoInstance->Location) 
+				: 
+				CurDecoInstance->Location;
+
 			const Vector3 DecoTfmRotation = CurDecoInstance->Rotation;
 
 			const Matrix DecoWorld = 
@@ -686,4 +746,24 @@ void Engine::Landscape::ReInitWorldPlanes()&
 			CurDecoMesh.VtxBuf->Unlock();
 		}
 	}
+}
+void Engine::Landscape::FloatingDecoInstancesReInit()&
+{
+	for (auto& [Key, Deco] : DecoratorContainer)
+	{
+		if (Deco._Option == Engine::Landscape::Decorator::Option::Floating)
+		{
+			for (auto& CurDecoInstance : Deco.Instances)
+			{
+				std::any_cast<Engine::Landscape::FloatingInformation&>(CurDecoInstance->OptionValue).Initialize();
+			}
+		}
+	}
 };
+
+void Engine::Landscape::FloatingInformation::RangeEdit()
+{
+	ImGui::SliderFloat2("VibrationWidthRange", (float*)&VibrationWidthRange, 1.f, 100.f);
+	ImGui::SliderFloat2("RotationAccRange", (float*)&RotationAccRange, 0.001f, 1.f);
+	ImGui::SliderFloat2("VibrationAccRange", (float*)&VibrationAccRange, 0.001f, 5.f);
+}

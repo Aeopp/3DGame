@@ -10,7 +10,7 @@
 #include <unordered_map>
 #include "MaterialInformation.h"
 #include <optional>
-
+#include <any>
 
 namespace Engine
 {
@@ -29,6 +29,42 @@ namespace Engine
 			Engine::MaterialInformation MaterialInfo{};
 			Sphere BoundingSphere{};
 		};
+		struct FloatingInformation
+		{
+			static inline std::pair<float, float> VibrationWidthRange{ 0.f,100.f };
+			static inline std::pair<float, float > RotationAccRange  { 0.0f,0.015f };
+			static inline std::pair<float, float>  VibrationAccRange  { 0.0f,1.f };
+			
+			static void RangeEdit();
+			void Initialize()&
+			{
+				VibrationWidth=FMath::Random(VibrationWidthRange.first, VibrationWidthRange.second);
+				RotationAcc = FMath::Random(RotationAccRange.first, RotationAccRange.second);
+				VibrationAcc = FMath::Random(VibrationAccRange.first, VibrationAccRange.second);
+				RotationFactorSign = static_cast <float>(FMath::Random(0u, 1u));
+				RotationFactorSign = RotationFactorSign * 2.f - 1.f;
+				VibrationT = 0.0f;
+				Radian = 0.0f;
+			}
+			// 부유하는 물체들 운동시킨 이후의 위치를 계산합니다. 
+			Vector3 Floating(const float DeltaTime, 
+				const Vector3& BeforeApplyingLocation /*떠다니는 운동 적용 전 기준 위치를 넘겨주세요.*/)&
+			{
+				VibrationT += (DeltaTime * VibrationAcc);
+				Radian += (RotationAcc * DeltaTime) * RotationFactorSign;
+				Vector3 ApplyFloatingLocation = FMath::RotationVecCoord(BeforeApplyingLocation, { 0,1,0 }, Radian);
+				ApplyFloatingLocation.y += std::sinf(VibrationT) * VibrationWidth;
+				return ApplyFloatingLocation;
+			}
+			// 상하 운동
+			float VibrationT{ 0.0f };
+			float VibrationWidth{ 1.f };
+			float VibrationAcc{ 1.f };
+			// 자전 월드 원점 기준 Yaw
+			float Radian{ 0.0f };
+			float RotationAcc{ 1.f };
+			float RotationFactorSign{ 1.f };
+		};
 		struct DecoInformation
 		{
 			bool bLandscapeInclude = false;
@@ -36,11 +72,18 @@ namespace Engine
 			Vector3 Scale{ 1,1,1 };
 			Vector3 Rotation{ 0,0,0 };
 			Vector3 Location{ 0,0,0 };
+			std::any OptionValue{}; 
 		};
 		struct Decorator
 		{
+			enum class Option :uint8
+			{
+				None,
+				Floating,
+			};
 			std::vector<std::shared_ptr<DecoInformation>> Instances{};
 			std::vector<Mesh> Meshes{};
+			Option _Option{ Option::None };
 		};
 	public :
 		void Initialize(IDirect3DDevice9* const Device,
@@ -83,6 +126,8 @@ namespace Engine
 
 		// 지형으로 인식되는 폴리곤 정보를 삭제후 다시 계산합니다 주로 지형으로 인식되던 스태틱 메시를 삭제 했을경우 유용.
 		void ReInitWorldPlanes()&;
+
+		void FloatingDecoInstancesReInit()&;
 	private:
 		std::string DecoratorSaveInfo{}; 
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr };

@@ -22,7 +22,7 @@ namespace Engine
 		void Initialize(const std::filesystem::path& FullPath , IDirect3DDevice9* const Device)&;
 		void Render(const Vector3& CameraLocation , IDirect3DDevice9* const Device)&;
 	private:
-		float RotationAcc{ 1.f };
+		float RotationAcc{ 0.03f };
 		float Rotation{ 0.f };
 		SkyMesh _SkyMesh{}; 		
 	};

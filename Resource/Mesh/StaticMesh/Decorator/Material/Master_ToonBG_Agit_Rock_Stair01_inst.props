@@ -10,10 +10,10 @@
     "Contract": 1,
     "RimInnerWidth": 0.0,
     "RimOuterWidth": 0.0,
-    "Power": 1.0,
-    "SpecularIntencity": 0.6060000061988831,
+    "Power": 16.190000534057618,
+    "SpecularIntencity": 0.46799999475479128,
     "DetailScale": 1.0,
-    "CavityCoefficient": 1.0850000381469727,
+    "CavityCoefficient": 1.0679999589920045,
     "DetailDiffuseIntensity": 2.0,
     "DetailNormalIntensity": 2.0,
     "RimAmtColor": [
