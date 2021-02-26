@@ -20,7 +20,6 @@ void App::Initialize(const HWND _Hwnd, const HINSTANCE HInstance)&
 		HInstance,
 		false,
 		ClientSize<uint32>,
-		D3DMULTISAMPLE_NONE,
 		1.f/20.f,
 		ResourcePath);
 

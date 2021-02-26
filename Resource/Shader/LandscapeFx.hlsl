@@ -40,54 +40,66 @@ sampler DiffuseSampler  = sampler_state
 {
     texture = DiffuseMap;
 
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
+
 };
 
 sampler CavitySampler = sampler_state
 {
     texture = CavityMap;
 
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
+
 };
 
 sampler NormalSampler = sampler_state
 {
     texture = NormalMap;
 
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
+
 };
 
 sampler EmissiveSampler = sampler_state
 {
     texture = EmissiveMap;
 
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
+
 };
 
 sampler DetailDiffuseSampler = sampler_state
 {
     texture = DetailDiffuseMap;
 
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
+
 };
 
 sampler DetailNormalSampler = sampler_state
 {
     texture = DetailNormalMap;
 
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
+
 };
 
 struct VS_IN

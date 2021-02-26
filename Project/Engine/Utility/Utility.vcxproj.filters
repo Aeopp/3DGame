@@ -109,6 +109,12 @@
     <Filter Include="Render\Renderer\Sky">
       <UniqueIdentifier>{ae10dc87-fc9a-4c03-99e3-a2b1070a6a0b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="RenderTarget">
+      <UniqueIdentifier>{9d565af1-1c1b-4f50-9b8d-a72a0e63b605}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DeferredPass">
+      <UniqueIdentifier>{9cff8fc2-ad3a-4d52-b815-1ebe7c1b4fad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
@@ -222,6 +228,12 @@
     </ClInclude>
     <ClInclude Include="Codes\Sky.h">
       <Filter>Render\Renderer\Sky</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\RenderTarget.h">
+      <Filter>RenderTarget</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\DeferredPass.h">
+      <Filter>DeferredPass</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -339,5 +351,16 @@
     <ClCompile Include="Codes\Sky.cpp">
       <Filter>Render\Renderer\Sky</Filter>
     </ClCompile>
+    <ClCompile Include="Codes\RenderTarget.cpp">
+      <Filter>RenderTarget</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\DeferredPass.cpp">
+      <Filter>DeferredPass</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\..\Resource\Shader\DeferredDefaultFx.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

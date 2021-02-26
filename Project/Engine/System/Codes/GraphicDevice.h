@@ -12,8 +12,7 @@ namespace Engine
 	{
 	public:
 		void Initialize(HWND Hwnd, const bool bFullScreen,
-			const std::pair<uint32,uint32>ScreenSize,
-			const D3DMULTISAMPLE_TYPE Anti_Aliasing)&;
+			const std::pair<uint32,uint32>ScreenSize)&;
 		void Begin() & noexcept;
 		void End() & noexcept;
 		inline DX::SharedPtr<IDirect3DDevice9> GetDevice()& { return _Device; };

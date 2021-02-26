@@ -11,6 +11,8 @@
 #include "Frustum.h"
 #include "Landscape.h"
 #include "Sky.h"
+#include "DeferredPass.h"
+
 
 namespace Engine
 {
@@ -25,6 +27,8 @@ namespace Engine
 		Vector4 LightDirection{ 0.707f, -0.707f  ,0.f  ,0.f};
 		Vector4 LightColor{ 1,1,1,1 }; 
 		void SkyInitialize(const std::filesystem::path& FullPath)&;
+
+		inline DeferredPass& RefDeferredPass()& { return _DeferredPass; };
 	private:
 		void RenderLandscape(Frustum& RefFrustum, const Matrix& View, const Matrix& Projection ,
 			                                       const Vector4 & CameraLocation)&;
@@ -39,6 +43,7 @@ namespace Engine
 
 		
 	private:
+		DeferredPass _DeferredPass{};
 		Sky _Sky{};
 		Landscape CurrentLandscape{};
 		std::map<RenderInterface::Group, std::vector<std::reference_wrapper<RenderInterface>>>RenderObjects;

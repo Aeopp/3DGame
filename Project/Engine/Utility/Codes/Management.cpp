@@ -87,7 +87,6 @@ void Engine::Management::Initialize(
 	const HINSTANCE HInstance,
 	const bool bFullScreen,
 	const std::pair<uint32, uint32> ClientSize,
-	const D3DMULTISAMPLE_TYPE MultiSample,
 	const float DeltaMax,
 	const std::filesystem::path& ResourcePath)&
 {
@@ -98,8 +97,8 @@ void Engine::Management::Initialize(
 	_GraphicDevice = Engine::GraphicDevice::Init(
 		_Hwnd,
 		bFullScreen,
-		ClientSize,
-		MultiSample);
+		ClientSize
+		);
 
 	_Timer = Engine::Timer::Init(
 		DeltaMax,
@@ -440,6 +439,8 @@ void Engine::Management::CreateStaticResource()&
 	{
 		// 상위 셰이더 로딩
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"LandscapeFx.hlsl", L"LandscapeFx");
+
+		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"DeferredDefaultFx.hlsl", L"DeferredDefaultFx");
 
 		Engine::ShaderFx::Load(Device.get(), 
 			Engine::Global::ResourcePath / L"Shader" / L"DefaultFx.hlsl", 

@@ -17,7 +17,6 @@ namespace Engine
 			const HINSTANCE HInstance,
 			const bool bFullScreen,
 			const std::pair<uint32, uint32> ClientSize,
-			const D3DMULTISAMPLE_TYPE MultiSample,
 			const float DeltaMax,
 			const std::filesystem::path& ResourcePath)&;
 	public:

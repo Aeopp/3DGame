@@ -196,6 +196,7 @@
     <ClCompile Include="Codes\Bone.cpp" />
     <ClCompile Include="Codes\Camera.cpp" />
     <ClCompile Include="Codes\Cell.cpp" />
+    <ClCompile Include="Codes\DeferredPass.cpp" />
     <ClCompile Include="Codes\FileHelper.cpp" />
     <ClCompile Include="Codes\Geometric.cpp" />
     <ClCompile Include="Codes\Collision.cpp" />
@@ -221,6 +222,7 @@
     <ClCompile Include="Codes\PrototypeManager.cpp" />
     <ClCompile Include="Codes\Renderer.cpp" />
     <ClCompile Include="Codes\RenderInterface.cpp" />
+    <ClCompile Include="Codes\RenderTarget.cpp" />
     <ClCompile Include="Codes\Scene.cpp" />
     <ClCompile Include="Codes\Shader.cpp" />
     <ClCompile Include="Codes\ShaderFx.cpp" />
@@ -238,6 +240,7 @@
     <ClInclude Include="Codes\Bone.h" />
     <ClInclude Include="Codes\Camera.h" />
     <ClInclude Include="Codes\Cell.h" />
+    <ClInclude Include="Codes\DeferredPass.h" />
     <ClInclude Include="Codes\FileHelper.h" />
     <ClInclude Include="Codes\Geometric.h" />
     <ClInclude Include="Codes\Collision.h" />
@@ -257,6 +260,7 @@
     <ClInclude Include="Codes\PrototypeManager.h" />
     <ClInclude Include="Codes\Renderer.h" />
     <ClInclude Include="Codes\RenderInterface.h" />
+    <ClInclude Include="Codes\RenderTarget.h" />
     <ClInclude Include="Codes\Scene.h" />
     <ClInclude Include="Codes\Shader.h" />
     <ClInclude Include="Codes\ShaderFx.h" />
@@ -286,6 +290,11 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Resource\Shader\SkeletonSkinningDefaultFx.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">3.0</ShaderModel>
+      <FileType>Document</FileType>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Resource\Shader\DeferredDefaultFx.hlsl">
       <FileType>Document</FileType>
     </ClInclude>
   </ItemGroup>

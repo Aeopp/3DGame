@@ -5,6 +5,13 @@
 
 namespace Vertex
 {
+	struct Screen
+	{
+		Vector4 Homogeneous4D{ 0.f,0.f,0.f,1.f };
+		Vector2 UV2D{ 0,0 };
+		static const DWORD FVF = D3DFVF_XYZRHW | D3DFVF_TEX1;
+	};
+
 	struct Skeleton
 	{
 		Vector3 Location{ 0,0,0 };

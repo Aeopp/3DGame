@@ -375,8 +375,9 @@ void Engine::Landscape::Initialize(
 		VtxDecl = VertexType::GetVertexDecl(Device);
 		ResourceSys->Insert<IDirect3DVertexDeclaration9>(VtxTypeWName , VtxDecl);
 	}
-
-	_ShaderFx.Initialize(L"LandscapeFx");
+	_ShaderFx.Initialize(L"DeferredDefaultFx");
+	
+	//_ShaderFx.Initialize(L"LandscapeFx");
 }
 
 

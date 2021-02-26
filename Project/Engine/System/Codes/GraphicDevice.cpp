@@ -4,8 +4,7 @@
 void Engine::GraphicDevice::Initialize(
 	HWND Hwnd, 
 	const bool bFullScreen,
-	const std::pair<uint32, uint32> ScreenSize,
-	const D3DMULTISAMPLE_TYPE Anti_Aliasing)&
+	const std::pair<uint32, uint32> ScreenSize)&
 {
 	_SDK = DX::MakeShared(Direct3DCreate9(D3D_SDK_VERSION));
 	ZeroMemory(&DeviceCaps, sizeof(D3DCAPS9));
@@ -22,15 +21,28 @@ void Engine::GraphicDevice::Initialize(
 
 	D3DPRESENT_PARAMETERS PresentParameter;
 	ZeroMemory(&PresentParameter, sizeof(D3DPRESENT_PARAMETERS));
-	
+
+	PresentParameter.MultiSampleType = D3DMULTISAMPLE_NONE;
+	PresentParameter.MultiSampleQuality = 0u;
+
+	//for (uint32 i = 0; i <= 16; ++i)
+	//{
+	//	DWORD QualtyLevel{};
+	//	if (SUCCEEDED(_SDK->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT,
+	//		D3DDEVTYPE_HAL, D3DFMT_R8G8B8, FALSE, static_cast<_D3DMULTISAMPLE_TYPE>(i), &QualtyLevel)))
+	//	{
+	//		PresentParameter.MultiSampleType = static_cast<_D3DMULTISAMPLE_TYPE>(i);
+	//		PresentParameter.MultiSampleQuality = QualtyLevel;
+	//	}
+	//}
+
 
 	PresentParameter.BackBufferWidth = 0u; 
 	PresentParameter.BackBufferHeight = 0u; 
 	PresentParameter.BackBufferFormat = D3DFMT_A8R8G8B8;
 	PresentParameter.BackBufferCount = 1;
 
-	PresentParameter.MultiSampleType = Anti_Aliasing;
-	PresentParameter.MultiSampleQuality = 0;
+	
 	PresentParameter.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	PresentParameter.hDeviceWindow = Hwnd;
 

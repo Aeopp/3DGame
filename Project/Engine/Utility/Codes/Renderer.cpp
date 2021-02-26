@@ -8,6 +8,7 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 {
 	this->Device = Device;
 	_Frustum.Initialize();
+	_DeferredPass.Initialize(Device.get());
 };
 
 void Engine::Renderer::Render()&
@@ -25,9 +26,35 @@ void Engine::Renderer::Render()&
 	const Vector4  CameraLocation = FMath::ConvertVector4(CameraLocation3D, 1.f);
 	
 	_Frustum.Make(CameraWorld, Projection);
+	// 디퍼드 
+	{
+		IDirect3DSurface9* CurBackBufSurface{ nullptr };
+		Device->GetRenderTarget(0u, &CurBackBufSurface);
+
+		_DeferredPass.Albedo.BindGraphicDevice(1u);
+		_DeferredPass.Normal.BindGraphicDevice(2u);
+		_DeferredPass.WorldLocations.BindGraphicDevice(3u);
+
+		CurBackBufSurface->Release();
+	};
+
 	_Sky.Render(CameraLocation3D, Device.get());
 	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	RenderLandscape(_Frustum, View  , Projection , CameraLocation);
+
+	{
+		RenderLandscape(_Frustum, View, Projection, CameraLocation);
+		RenderLandscape(_Frustum, View, Projection, CameraLocation);
+		RenderLandscape(_Frustum, View, Projection, CameraLocation);
+		RenderLandscape(_Frustum, View, Projection, CameraLocation);
+		RenderLandscape(_Frustum, View, Projection, CameraLocation);
+		RenderLandscape(_Frustum, View, Projection, CameraLocation);
+		RenderLandscape(_Frustum, View, Projection, CameraLocation);
+		RenderLandscape(_Frustum, View, Projection, CameraLocation);
+		RenderLandscape(_Frustum, View, Projection, CameraLocation);
+	};
+	
+	
 	RenderEnviroment(View, Projection, CameraLocation);
 	RenderNoAlpha(View,Projection,CameraLocation  );
 	if (Engine::Global::bDebugMode)
@@ -39,6 +66,12 @@ void Engine::Renderer::Render()&
 	
 	RenderUI(View, Projection, CameraLocation);
 	
+	
+	_DeferredPass.Albedo.RenderDebugBuffer();
+	_DeferredPass.Normal.RenderDebugBuffer();
+	_DeferredPass.WorldLocations.RenderDebugBuffer();
+	
+
 	RenderObjects.clear();
 
 	if (Engine::Global::bDebugMode)
