@@ -21,8 +21,12 @@ void Engine::Renderer::Render()&
 	Device->GetTransform(D3DTS_VIEW, &View);
 	Device->GetTransform(D3DTS_PROJECTION, &Projection);
 	CameraWorld = FMath::Inverse(View);
-	const Vector4  CameraLocation = { CameraWorld._41,CameraWorld._42,CameraWorld._43 ,1.f };
+	const Vector3 CameraLocation3D{ CameraWorld._41,CameraWorld._42,CameraWorld._43 };
+	const Vector4  CameraLocation = FMath::ConvertVector4(CameraLocation3D, 1.f);
+	
 	_Frustum.Make(CameraWorld, Projection);
+	_Sky.Render(CameraLocation3D, Device.get());
+	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	RenderLandscape(_Frustum, View  , Projection , CameraLocation);
 	RenderEnviroment(View, Projection, CameraLocation);
 	RenderNoAlpha(View,Projection,CameraLocation  );
@@ -30,8 +34,11 @@ void Engine::Renderer::Render()&
 	{
 		RenderDebugCollision(View, Projection, CameraLocation);
 	}
+	
 	_Frustum.Render(Device.get());
+	
 	RenderUI(View, Projection, CameraLocation);
+	
 	RenderObjects.clear();
 
 	if (Engine::Global::bDebugMode)
@@ -262,6 +269,8 @@ void Engine::Renderer::RenderUI(const Matrix& View, const Matrix& Projection,
 	}
 	Futures.clear();
 }
+
+
 #else
 	if (auto iter = RenderObjects.find(RenderInterface::Group::UI);
 		iter != std::end(RenderObjects))
@@ -273,4 +282,9 @@ void Engine::Renderer::RenderUI(const Matrix& View, const Matrix& Projection,
 		}
 	}
 #endif
+};
+
+void Engine::Renderer::SkyInitialize(const std::filesystem::path& FullPath)&
+{
+	_Sky.Initialize(FullPath, Device.get() );
 }

@@ -360,7 +360,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 
 	auto& Renderer = *Engine::Renderer::Instance;
 	const Matrix MapWorld = FMath::WorldMatrix(Scale, Rotation, Location);
-
+	
 	Device->SetVertexDeclaration(VtxDecl);
 
 	auto Fx = _ShaderFx.GetHandle();

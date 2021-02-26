@@ -106,6 +106,9 @@
     <Filter Include="Layer\Normal">
       <UniqueIdentifier>{192cec08-80c1-4b86-b4e0-bbe3b9bf9771}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Render\Renderer\Sky">
+      <UniqueIdentifier>{ae10dc87-fc9a-4c03-99e3-a2b1070a6a0b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
@@ -216,6 +219,9 @@
     </ClInclude>
     <ClInclude Include="Codes\NormalLayer.h">
       <Filter>Layer\Normal</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\Sky.h">
+      <Filter>Render\Renderer\Sky</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -329,6 +335,9 @@
     </ClCompile>
     <ClCompile Include="Codes\NormalLayer.cpp">
       <Filter>Layer\Normal</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Sky.cpp">
+      <Filter>Render\Renderer\Sky</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

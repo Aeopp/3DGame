@@ -75,7 +75,7 @@ void MapEdit::Initialize(IDirect3DDevice9* const Device)&
 
 		Manager.NewObject<Engine::NormalLayer, Engine::DynamicCamera>(
 			L"Static", L"Camera",
-			FMath::PI / 3.f, 0.1f, 1000.f, Aspect, 1.f, &Control);
+			FMath::PI / 3.f, 0.1f, 20000.f, Aspect, 333.f, &Control);
 	}
 
 	{
@@ -141,6 +141,9 @@ void MapEdit::Initialize(IDirect3DDevice9* const Device)&
 
 	D3DXCreateLine(Device, &LinearSpace);
 	ResourceSys.Insert<ID3DXLine>(L"DebugLinearSpace", LinearSpace);
+
+	Renderer.SkyInitialize(App::ResourcePath / L"Mesh" / L"StaticMesh" / L"SKy" / L"SM_SkySphere.FBX");
+
 };
 
 void MapEdit::Event() & 
