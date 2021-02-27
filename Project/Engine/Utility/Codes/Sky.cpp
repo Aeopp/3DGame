@@ -9,6 +9,8 @@
 #include "Timer.h"
 #include "Vertexs.hpp"
 
+
+
 void Engine::Sky::Initialize(const std::filesystem::path& FullPath  , IDirect3DDevice9* const Device)&
 {
 	using VertexType = Vertex::LocationUV2D;
@@ -66,16 +68,16 @@ void Engine::Sky::Initialize(const std::filesystem::path& FullPath  , IDirect3DD
 						NULL, NULL, NULL) == AI_SUCCESS)
 					{
 						const std::wstring LoadFilePathW = ToW(SkyTexPath.C_Str());
-						using ResourceType = std::remove_pointer_t<decltype(_SkyMesh.Texture)>;
-						_SkyMesh.Texture = ResourceSys->Get<ResourceType>(LoadFilePathW);
-						if (nullptr == _SkyMesh.Texture)
+						using ResourceType = std::remove_pointer_t<decltype(_SkyMesh.DiffuseTexture)>;
+						_SkyMesh.DiffuseTexture = ResourceSys->Get<ResourceType>(LoadFilePathW);
+						if (nullptr == _SkyMesh.DiffuseTexture)
 						{
 							
 							D3DXCreateTextureFromFile(Device,
-								(FullPath.parent_path() / LoadFilePathW).c_str(), &_SkyMesh.Texture);
-							if (_SkyMesh.Texture)
+								(FullPath.parent_path() / LoadFilePathW).c_str(), &_SkyMesh.DiffuseTexture);
+							if (_SkyMesh.DiffuseTexture)
 							{
-								ResourceSys->Insert< ResourceType>(LoadFilePathW, _SkyMesh.Texture);
+								ResourceSys->Insert< ResourceType>(LoadFilePathW, _SkyMesh.DiffuseTexture);
 							}
 						}
 					}
@@ -115,50 +117,59 @@ void Engine::Sky::Initialize(const std::filesystem::path& FullPath  , IDirect3DD
 			std::memcpy(IdxBufPtr, IndicesArr.data(), IdxBufSize);
 			_SkyMesh.IdxBufs[MeshIdx]->Unlock();
 		};
+
+		const std::wstring VtxDeclName = ToW(typeid(VertexType).name()); 
+		_SkyMesh.VtxDecl  = ResourceSys->Get<IDirect3DVertexDeclaration9>(VtxDeclName);
+		if ( nullptr == _SkyMesh.VtxDecl )
+		{
+			_SkyMesh.VtxDecl = VertexType::GetVertexDecl(Device); 
+			ResourceSys->Insert<IDirect3DVertexDeclaration9>(VtxDeclName , _SkyMesh.VtxDecl);
+		}
 	}
+
+	SkyShaderFx.Initialize(L"SkyFx");
 }
 
-void Engine::Sky::Render(const Vector3& CameraLocation , IDirect3DDevice9* const Device)&
+void Engine::Sky::Render(Engine::Frustum& RefFrustum,
+	const Matrix& View, const Matrix& Projection,
+	const Vector4& CameraLocation4D,
+	IDirect3DDevice9* const Device ,
+	IDirect3DTexture9* DepthTexture)&
 {
 	Rotation += Timer::Instance->GetDelta() * RotationAcc;
 
-	ImGui::Begin("Sky");
-	static bool bRender{ true };
-	ImGui::Checkbox("bRender", &bRender); 
-	ImGui::End();
-	const Matrix SkyLocation = FMath::WorldMatrix(0.1f, { FMath::ToRadian(90.f),0,Rotation }, CameraLocation);
-	if (bRender)
+
+	auto Fx = SkyShaderFx.GetHandle();
+	const Matrix SkyLocation = FMath::WorldMatrix(0.1f,
+		{ FMath::ToRadian(90.f),0,Rotation }, { CameraLocation4D.x,CameraLocation4D.y ,CameraLocation4D.z } );
+	if (Fx)
 	{
-		Device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
-		Device->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL);
-		Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-		DWORD PrevLightFlag{ false };
-		Device->GetRenderState(D3DRS_LIGHTING, &PrevLightFlag);
-		Device->SetRenderState(D3DRS_LIGHTING, FALSE);
+		Fx->SetMatrix("World", &SkyLocation);
+		Fx->SetMatrix("View", &View);
+		Fx->SetMatrix("Projection", &Projection);
+		Device->SetVertexDeclaration(_SkyMesh.VtxDecl);
 
-
-		Device->SetTransform(D3DTS_WORLD, &SkyLocation);
-		Device->SetTexture(0u, _SkyMesh.Texture);
-		/*IDirect3DSurface9* DepthBuf{ nullptr };
-		Device->GetDepthStencilSurface(&DepthBuf);
-		D3DVIEWPORT9 ViewPort{};
-		Device->GetViewport(&ViewPort);
-		Device->CreateTexture(ViewPort.Width, ViewPort.Height,1u,D3DUSAGE_)*/
-		const uint32 SubSetCount = _SkyMesh.VtxBufs.size();
-		for (uint32 i = 0; i < SubSetCount; ++i)
+		uint32 Pass;
+		Fx->Begin(&Pass, 0);
+		for (uint32 i = 0; i < Pass; ++i)
 		{
-			Device->SetIndices(_SkyMesh.IdxBufs[i]);
-			Device->SetStreamSource(0u, _SkyMesh.VtxBufs[i], 0u, _SkyMesh.Stride);
-			Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, _SkyMesh.VertexCounts[i], 0u, _SkyMesh.PrimCount[i]);
+			Fx->BeginPass(i);
+			const uint32 SubSetCount = _SkyMesh.VtxBufs.size();
+			for (uint32 i = 0; i < SubSetCount; ++i)
+			{
+				Fx->SetTexture("DiffuseMap", _SkyMesh.DiffuseTexture);
+				Fx->SetTexture("WorldLocationDepth", DepthTexture);
+				Fx->CommitChanges();
+
+				Device->SetIndices(_SkyMesh.IdxBufs[i]);
+				Device->SetStreamSource(0u, _SkyMesh.VtxBufs[i], 0u, _SkyMesh.Stride);
+				Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, _SkyMesh.VertexCounts[i], 0u, _SkyMesh.PrimCount[i]);
+			}
+			Fx->EndPass();
 		}
-		Device->SetRenderState(D3DRS_LIGHTING, PrevLightFlag);
-		Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
-		Device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
-		Device->SetRenderState(D3DRS_ZENABLE, TRUE);
-		Device->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL);
+		Fx->End();
 	}
 	
-
-	//DepthBuf->Release();
+	
 }
 

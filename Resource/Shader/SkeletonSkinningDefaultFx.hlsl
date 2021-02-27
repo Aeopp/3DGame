@@ -230,6 +230,7 @@ PS_OUT PS_MAIN(PS_IN In)
 
     float3 DetailTangentNormal = tex2D(DetailNormalSampler, (In.UV * DetailScale)).xyz;
     DetailTangentNormal = normalize((DetailTangentNormal * 2.0) - 1.0);
+    DetailTangentNormal.y *= -1.f;
     DetailTangentNormal *= DetailNormalIntensity;
     
     TangentNormal = normalize(float3(TangentNormal.xy + DetailTangentNormal.xy, TangentNormal.z));
@@ -244,7 +245,7 @@ PS_OUT PS_MAIN(PS_IN In)
     
     float3 ToCamera = normalize(CameraLocation.xyz - In.WorldLocation.xyz);
     
-    float Rim = max(0.0, dot(In.Normal, ToCamera));
+    float Rim = max(0.0, dot(normalize(In.Normal), ToCamera));
     
     float RimAmtOuter = abs(1.f - Rim);
     float RimAmtInner = abs(0.f - Rim);
@@ -304,9 +305,13 @@ technique Default_Device
 {
     pass
     {
-        alphablendenable = false;
-        //srcblend = srcalpha;
-        //destblend = invsrcalpha;
+        alphablendenable = true;
+        srcblend = srcalpha;
+        destblend = invsrcalpha;
+        zenable = true;
+        zwriteenable = true;
+        cullmode = ccw;
+        fillmode = solid;
 
         vertexshader = compile vs_3_0 VS_MAIN();
         pixelshader = compile ps_3_0 PS_MAIN();

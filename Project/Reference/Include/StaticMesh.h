@@ -46,7 +46,7 @@ namespace Engine
 	public:
 		std::vector       <MeshElement>                          MeshContainer{};
 	private:
-		Engine::ShaderFx _ShaderFx{}; 
+		Engine::ShaderFx ForwardShaderFx{}; 
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr };
 	};
 	

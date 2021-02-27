@@ -95,7 +95,7 @@ namespace Engine
 		std::string RootBoneName{}; 
 		std::shared_ptr<std::set<std::string>> BoneNameSet{}; 
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr }; 
-		Engine::ShaderFx _ShaderFx{};
+		Engine::ShaderFx ForwardShaderFx{};
 		double PrevAnimAcceleration = 1.f;
 		double Acceleration = 1.f;
 

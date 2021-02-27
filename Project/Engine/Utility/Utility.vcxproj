@@ -211,6 +211,7 @@
     <ClCompile Include="Codes\ImGui\imgui_tables.cpp" />
     <ClCompile Include="Codes\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Codes\Landscape.cpp" />
+    <ClCompile Include="Codes\Light.cpp" />
     <ClCompile Include="Codes\MaterialInformation.cpp" />
     <ClCompile Include="Codes\Mesh.cpp" />
     <ClCompile Include="Codes\NavigationMesh.cpp" />
@@ -249,6 +250,7 @@
     <ClInclude Include="Codes\DynamicCamera.h" />
     <ClInclude Include="Codes\ExportUtility.hpp" />
     <ClInclude Include="Codes\Landscape.h" />
+    <ClInclude Include="Codes\Light.h" />
     <ClInclude Include="Codes\MaterialInformation.h" />
     <ClInclude Include="Codes\Mesh.h" />
     <ClInclude Include="Codes\NavigationMesh.h" />
@@ -295,6 +297,26 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Resource\Shader\DeferredDefaultFx.hlsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Resource\Shader\DeferredAlbedoNormalWorldPosDepthSpecularFx.hlsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Resource\Shader\DeferredRimFx.hlsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Resource\Shader\SkyFx.hlsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Resource\Shader\DeferredLightFx.hlsl">
       <FileType>Document</FileType>
     </ClInclude>
   </ItemGroup>

@@ -302,11 +302,11 @@ inline Vector3 FMath::Normalize(const Vector3& Lhs)
 
 Vector3 FMath::ProjectionPointFromFace(const D3DXPLANE _Plane, const Vector3& Point)
 {
-	Vector3 Normal = { _Plane.a,_Plane.b,_Plane.c };
-	Normal = FMath::Normalize(Normal);
-	const float distance = FMath::Dot(Normal, Point) + _Plane.d;
-	Normal = -Normal;
-	return Point + (Normal * distance);
+	Vector3 Normal3_Power1 = { _Plane.a,_Plane.b,_Plane.c };
+	Normal3_Power1 = FMath::Normalize(Normal3_Power1);
+	const float distance = FMath::Dot(Normal3_Power1, Point) + _Plane.d;
+	Normal3_Power1 = -Normal3_Power1;
+	return Point + (Normal3_Power1 * distance);
 }
 
 std::array<Segment, 3ul> FMath::MakeSegmentFromFace(const std::array<Vector3, 3ul>& Face)
@@ -497,18 +497,18 @@ inline bool FMath::IsTriangleToRay(
 	const Ray& Rhs,
 	float& t, Vector3& IntersectPoint)
 {
-	const Vector3 Normal = FMath::Normalize({ Lhs._Plane.a ,
+	const Vector3 Normal3_Power1 = FMath::Normalize({ Lhs._Plane.a ,
 												Lhs._Plane.b,
 												Lhs._Plane.c });
 
-	const float Dot = FMath::Dot(Normal, Rhs.Direction);
+	const float Dot = FMath::Dot(Normal3_Power1, Rhs.Direction);
 
 	if (FMath::AlmostEqual(Dot, 0.f))
 	{
 		return false;
 	}
 
-	float NQ_D = -(FMath::Dot(Normal, Rhs.Start) + Lhs._Plane.d);
+	float NQ_D = -(FMath::Dot(Normal3_Power1, Rhs.Start) + Lhs._Plane.d);
 
 	t = NQ_D / Dot;
 
@@ -539,9 +539,9 @@ bool FMath::IsPlaneToSphere(
 	const Sphere& Rhs,
 	float& CrossingArea)
 {
-	Vector3 Normal = { Lhs._Plane.a, Lhs._Plane.b,Lhs._Plane.c };
+	Vector3 Normal3_Power1 = { Lhs._Plane.a, Lhs._Plane.b,Lhs._Plane.c };
 	const float d = Lhs._Plane.d;
-	const float Fomula = FMath::Dot(Normal, Rhs.Center) + d;
+	const float Fomula = FMath::Dot(Normal3_Power1, Rhs.Center) + d;
 	Vector3 ToPlaneCenter = Lhs.Center - Rhs.Center;
 
 	if (Fomula <= Rhs.Radius && Fomula >= 0)

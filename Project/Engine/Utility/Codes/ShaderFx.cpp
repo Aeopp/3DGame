@@ -14,8 +14,8 @@ Engine::ShaderFx* Engine::ShaderFx::Load(
 	const std::filesystem::path Path,
 	const std::wstring& ResourceName)
 {
-	std::shared_ptr<ShaderFx> _ShaderFx = std::make_shared<ShaderFx >();
-	_ShaderFx->Device = Device;
+	std::shared_ptr<ShaderFx> ForwardShaderFx = std::make_shared<ShaderFx >();
+	ForwardShaderFx->Device = Device;
 	// Effect 성공 ErrMsg 실패 -> 정상적 컴파일
 	// Effect 실패 ErrMsg 실패 -> 컴파일 실패
 	// Effect 성공 ErrMsg 성공 -> 컴파일 성공 그러나 경고상태.
@@ -39,9 +39,9 @@ Engine::ShaderFx* Engine::ShaderFx::Load(
 		ErrMsgBufInstance->Release();
 	}
 
-	_ShaderFx->EffectFx = DX::MakeShared<ID3DXEffect>(EffectInstance);
+	ForwardShaderFx->EffectFx = DX::MakeShared<ID3DXEffect>(EffectInstance);
 	auto& ResourceSys = Engine::ResourceSystem::Instance;
-	ResourceSys->InsertAny<std::shared_ptr<Engine::ShaderFx>>(ResourceName, _ShaderFx);
+	ResourceSys->InsertAny<std::shared_ptr<Engine::ShaderFx>>(ResourceName, ForwardShaderFx);
 
-	return _ShaderFx.get();
+	return ForwardShaderFx.get();
 }

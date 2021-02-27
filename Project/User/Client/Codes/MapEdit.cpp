@@ -656,9 +656,10 @@ void MapEdit::Landscape()&
 	ImGui::End();
 
 	ImGui::Begin("DirectionalLight");
-	ImGui::DragFloat3("Direction", (float*)&Renderer.LightDirection, 0.1f, -1.f, 1.f);
-	D3DXVec4Normalize(&Renderer.LightDirection, &Renderer.LightDirection);
-	ImGui::ColorEdit4("Color", (float*)&Renderer.LightColor);
+	ImGui::DragFloat4
+	("Direction", (float*)&Renderer._DirectionalLight._LightInfo.Direction, 0.1f, -1.f, 1.f);
+	D3DXVec4Normalize(&Renderer._DirectionalLight._LightInfo.Direction, &Renderer._DirectionalLight._LightInfo.Direction);
+	ImGui::ColorEdit4("Color", (float*)&Renderer._DirectionalLight._LightInfo.LightColor);
 	ImGui::End();
 }
 

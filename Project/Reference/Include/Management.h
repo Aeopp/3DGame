@@ -44,8 +44,6 @@ namespace Engine
 		auto NewObject(const std::wstring& PrototypeTag,
 							std::wstring ObjectName, 
 							Params&&... _Params)&;
-
-
 		
 		Engine::Object*  NewObject(
 			const std::string& LayerSubTypeName,

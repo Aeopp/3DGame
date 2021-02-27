@@ -20,7 +20,7 @@ void Engine::StaticMesh::Initialize(
 	uint32 BackupID = ID; 
 	this->operator=(*ProtoStaticMesh);
 	ID = BackupID; 
-	_ShaderFx.Initialize(L"DefaultFx");
+	ForwardShaderFx.Initialize(L"DefaultFx");
 }
 
 void Engine::StaticMesh::Event(Object* Owner)&
@@ -44,12 +44,12 @@ void Engine::StaticMesh::Render(const Matrix& World,
 
 
 	Device->SetVertexDeclaration(VtxDecl);
-	auto Fx = _ShaderFx.GetHandle();
+	auto Fx = ForwardShaderFx.GetHandle();
 	Fx->SetMatrix("World", &World);
 	Fx->SetMatrix("View", &View);
 	Fx->SetMatrix("Projection", &Projection);
-	Fx->SetVector("LightDirection", &Renderer.LightDirection);
-	Fx->SetVector("LightColor", &Renderer.LightColor);
+	Fx->SetVector("LightDirection", &Renderer._DirectionalLight._LightInfo.Direction);
+	Fx->SetVector("LightColor", &Renderer._DirectionalLight._LightInfo.LightColor);
 	Fx->SetVector("CameraLocation", &CameraLocation4D);
 
 	uint32 PassNum = 0u;
@@ -75,7 +75,7 @@ void Engine::StaticMesh::Render(const Matrix& World,
 		Device->SetIndices(CurMesh.IndexBuffer);
 
 		Fx->SetTexture("DiffuseMap", CurMesh.MaterialInfo.GetTexture("Diffuse"));
-		Fx->SetTexture("NormalMap", CurMesh.MaterialInfo.GetTexture("Normal"));
+		Fx->SetTexture("NormalMap", CurMesh.MaterialInfo.GetTexture("Normal3_Power1"));
 		Fx->SetTexture("CavityMap", CurMesh.MaterialInfo.GetTexture("Cavity"));
 		Fx->SetTexture("EmissiveMap", CurMesh.MaterialInfo.GetTexture("Emissive"));
 		Fx->SetTexture("DetailDiffuseMap", CurMesh.MaterialInfo.GetTexture("DetailDiffuse"));

@@ -9,13 +9,25 @@ namespace Vertex
 	{
 		Vector4 Homogeneous4D{ 0.f,0.f,0.f,1.f };
 		Vector2 UV2D{ 0,0 };
+		static IDirect3DVertexDeclaration9* GetVertexDecl(IDirect3DDevice9* const Device)
+		{
+			D3DVERTEXELEMENT9 Decl[] =
+			{
+				{ 0, 0,   D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITIONT, 0 },
+				{ 0, 16,  D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0 }  , 
+				D3DDECL_END()
+			};
+			IDirect3DVertexDeclaration9* VertexDeclaration{ nullptr };
+			Device->CreateVertexDeclaration(Decl, &VertexDeclaration);
+			return VertexDeclaration;
+		};
 		static const DWORD FVF = D3DFVF_XYZRHW | D3DFVF_TEX1;
 	};
 
 	struct Skeleton
 	{
 		Vector3 Location{ 0,0,0 };
-		Vector3 Normal{ 0 , 0,  0 };
+		Vector3 Normal3_Power1{ 0 , 0,  0 };
 		Vector2 UV{ 0,0 };
 		static inline Skeleton MakeFromAssimpMesh(const aiMesh* const AiMesh,const uint32 CurrentIdx)
 		{
@@ -32,7 +44,7 @@ namespace Vertex
 	struct LocationNormalUV2D
 	{
 		Vector3 Location{ 0,0,0 };
-		Vector3 Normal{ 0 , 0,  0 };
+		Vector3 Normal3_Power1{ 0 , 0,  0 };
 		Vector2 UV{ 0,0 };
 		static inline LocationNormalUV2D MakeFromAssimpMesh(const aiMesh* const AiMesh,
 			const uint32 CurrentIdx)
@@ -64,6 +76,20 @@ namespace Vertex
 	{
 		Vector3 Location{ 0,0,0 };
 		Vector2 UV{ 0,0 };
+
+		static IDirect3DVertexDeclaration9* GetVertexDecl(IDirect3DDevice9* const Device)
+		{
+			D3DVERTEXELEMENT9 Decl[] =
+			{
+				{ 0, 0,  D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
+				{ 0, 12, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD,  0 },
+				D3DDECL_END()
+			};
+			IDirect3DVertexDeclaration9* VertexDeclaration{ nullptr };
+			Device->CreateVertexDeclaration(Decl, &VertexDeclaration);
+			return VertexDeclaration;
+		};
+
 		static inline LocationUV2D MakeFromAssimpMesh(const aiMesh* const AiMesh,
 			const uint32 CurrentIdx)
 		{
@@ -79,7 +105,7 @@ namespace Vertex
 	struct LocationNormal
 	{
 		Vector3 Location{ 0,0,0 };
-		Vector3 Normal{ 0 , 0,  0 };
+		Vector3 Normal3_Power1{ 0 , 0,  0 };
 		static inline LocationNormal MakeFromAssimpMesh(const aiMesh* const AiMesh,
 			const uint32 CurrentIdx)
 		{
@@ -115,7 +141,7 @@ namespace Vertex
 	struct Animation
 	{
 		Vector3 Location{}; 
-		Vector3 Normal{}; 
+		Vector3 Normal3_Power1{}; 
 		Vector2 UV{}; 
 		Vector4 BoneIds{0,0,0,0};
 		Vector4 BoneWeights{0,0,0,0};
@@ -132,7 +158,7 @@ namespace Vertex
 	struct Texture
 	{
 		Vector3 Location;
-		Vector3 Normal;
+		Vector3 Normal3_Power1;
 		Vector2 TexCoord;
 		static const DWORD FVF = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1;
 		static IDirect3DVertexDeclaration9* const
@@ -148,7 +174,7 @@ namespace Vertex
 	struct TextureTangent
 	{
 		Vector3 Location;
-		Vector3 Normal;
+		Vector3 Normal3_Power1;
 		Vector3 Tangent;
 		Vector3 BiNormal;
 		Vector2 TexCoord;
@@ -159,7 +185,7 @@ namespace Vertex
 	struct OnlyLocationTangent
 	{
 		Vector3 Location;
-		Vector3 Normal;
+		Vector3 Normal3_Power1;
 		Vector3 Tangent;
 		Vector3 BiNormal;
 		Vector2 TexCoord;
@@ -170,7 +196,7 @@ namespace Vertex
 	struct Location3DUVTangent
 	{
 		Vector3 Location;
-		Vector3 Normal;
+		Vector3 Normal3_Power1;
 		Vector3 Tangent;
 		Vector3 BiNormal;
 		Vector2 TexCoord;
@@ -183,7 +209,7 @@ namespace Vertex
 		using VtxType = LocationTangentUV2D;
 
 		Vector3 Location;
-		Vector3 Normal;
+		Vector3 Normal3_Power1;
 		Vector3 Tangent;
 		Vector3 BiNormal;
 		Vector2 TexCoord;
@@ -222,7 +248,7 @@ namespace Vertex
 		using VtxType = LocationTangentUV2DSkinning;
 
 		Vector3 Location;
-		Vector3 Normal;
+		Vector3 Normal3_Power1;
 		Vector3 Tangent;
 		Vector3 BiNormal;
 		Vector2 TexCoord;

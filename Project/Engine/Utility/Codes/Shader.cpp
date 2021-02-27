@@ -15,8 +15,8 @@ Engine::Shader Engine::Shader::Create(
 	return _Shader;
 }
 
-void 
-Engine::Shader::CompileAndCreate(
+
+void  Engine::Shader::CompileAndCreate(
 	const std::wstring& ShaderFileName, 
 	IDirect3DDevice9* const Device)
 {

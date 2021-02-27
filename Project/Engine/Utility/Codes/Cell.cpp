@@ -127,7 +127,7 @@ Engine::Cell::Compare(const Vector3& EndPosition) const&
 	auto IsOutLine = [EndPosition2D,this](const Segment2DAndNormal& TargetSegment)
 	{
 		const Vector2 ToEnd = EndPosition2D - TargetSegment.Begin;
-		const float d = D3DXVec2Dot(&TargetSegment.Normal, &ToEnd);
+		const float d = D3DXVec2Dot(&TargetSegment.Normal3_Power1, &ToEnd);
 		return (d >= 0.0f); 
 	};
 

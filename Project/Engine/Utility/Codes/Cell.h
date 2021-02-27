@@ -15,7 +15,7 @@ namespace Engine
 			Vector2 Begin; 
 			Vector2 End; 
 			Vector2 ToEnd{}; 
-			Vector2 Normal; 
+			Vector2 Normal3_Power1; 
 		};
 	public:
 		enum class CompareType :uint8  {Moving,Stop,End};
@@ -66,7 +66,7 @@ Engine::Cell::Segment2DAndNormal::Make(const Vector2 Begin, const Vector2 End)
 	_Target.Begin = Begin;
 	_Target.End = End;
 	_Target.ToEnd = End - Begin;
-	_Target.Normal = (Vector2(_Target.ToEnd.y * -1.f, _Target.ToEnd.x));
-	D3DXVec2Normalize(&_Target.Normal, &_Target.Normal);
+	_Target.Normal3_Power1 = (Vector2(_Target.ToEnd.y * -1.f, _Target.ToEnd.x));
+	D3DXVec2Normalize(&_Target.Normal3_Power1, &_Target.Normal3_Power1);
 	return _Target;
 };

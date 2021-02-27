@@ -51,7 +51,7 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 		RootBone->Childrens.push_back(MakeHierarchyClone(RootBone, ProtoBoneChildren));
 	}
 
-	_ShaderFx.Initialize(L"SkeletonSkinningDefaultFx");
+	ForwardShaderFx.Initialize(L"SkeletonSkinningDefaultFx");
 	InitTextureForVertexTextureFetch();
 }
 
@@ -154,14 +154,14 @@ void Engine::SkeletonMesh::Render(	const Matrix& World,
 	std::memcpy(LockRect.pBits, RenderBoneMatricies.data(), RenderBoneMatricies.size() * sizeof(Matrix) );
 	BoneAnimMatrixInfo->UnlockRect(0u);
 
-	auto Fx = _ShaderFx.GetHandle();
+	auto Fx = ForwardShaderFx.GetHandle();
 	auto& Renderer = *Engine::Renderer::Instance;
 
 	Fx->SetMatrix("World", &World);
 	Fx->SetMatrix("View", &View);
 	Fx->SetMatrix("Projection", &Projection);
-	Fx->SetVector("LightDirection", &Renderer.LightDirection);
-	Fx->SetVector("LightColor", &Renderer.LightColor);
+	Fx->SetVector("LightDirection", &Renderer._DirectionalLight._LightInfo.Direction);
+	Fx->SetVector("LightColor", &Renderer._DirectionalLight._LightInfo.LightColor);
 	Fx->SetVector("CameraLocation", &CameraLocation4D);
 	Fx->SetTexture("VTF", BoneAnimMatrixInfo);
 	Fx->SetInt("VTFPitch", VTFPitch);
@@ -187,7 +187,7 @@ void Engine::SkeletonMesh::Render(	const Matrix& World,
 		Device->SetIndices(CurrentRenderMesh.IndexBuffer);
 
 		Fx->SetTexture("DiffuseMap", CurrentRenderMesh.MaterialInfo.GetTexture("Diffuse"));
-		Fx->SetTexture("NormalMap", CurrentRenderMesh.MaterialInfo.GetTexture("Normal"));
+		Fx->SetTexture("NormalMap", CurrentRenderMesh.MaterialInfo.GetTexture("Normal3_Power1"));
 		Fx->SetTexture("CavityMap", CurrentRenderMesh.MaterialInfo.GetTexture("Cavity"));
 		Fx->SetTexture("EmissiveMap", CurrentRenderMesh.MaterialInfo.GetTexture("Emissive"));
 		Fx->SetTexture("DetailDiffuseMap", CurrentRenderMesh.MaterialInfo.GetTexture("DetailDiffuse"));

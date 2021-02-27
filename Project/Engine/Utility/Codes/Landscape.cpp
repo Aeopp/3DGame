@@ -375,9 +375,39 @@ void Engine::Landscape::Initialize(
 		VtxDecl = VertexType::GetVertexDecl(Device);
 		ResourceSys->Insert<IDirect3DVertexDeclaration9>(VtxTypeWName , VtxDecl);
 	}
-	_ShaderFx.Initialize(L"DeferredDefaultFx");
-	
-	//_ShaderFx.Initialize(L"LandscapeFx");
+	ForwardShaderFx.Initialize(L"LandscapeFx");
+	DeferredAlbedoNormalWorldPosDepthSpecular.Initialize(L"DeferredAlbedoNormalWorldPosDepthSpecularFx");
+	DeferredRimFx.Initialize(L"DeferredRimFx");
+}
+
+void Engine::Landscape::Update(const float DeltaTime)&
+{
+
+	if (Engine::Global::bDebugMode)
+	{
+		for (auto& [DecoKey, CurDeco] : DecoratorContainer)
+		{
+			CurDeco.Instances.erase(std::remove_if(std::begin(CurDeco.Instances), std::end(CurDeco.Instances),
+				[](auto& TargetInstance) {
+					return TargetInstance->bPendingKill;
+				}), std::end(CurDeco.Instances));
+		}
+	}
+
+	for ( auto& [DecoKey, CurDeco] : DecoratorContainer)
+	{
+		const bool IsFloatingDeco = CurDeco._Option == Engine::Landscape::Decorator::Option::Floating;
+
+		for ( auto& CurDecoInstance : CurDeco.Instances)
+		{
+			if (IsFloatingDeco)
+			{
+				CurDecoInstance->Location = 
+					std::any_cast<Engine::Landscape::FloatingInformation&>
+					(CurDecoInstance->OptionValue).Floating(DeltaTime, CurDecoInstance->Location);
+			}
+		};
+	};
 }
 
 
@@ -387,44 +417,29 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 {
 	if (Engine::Global::bDebugMode)
 	{
-		ImGui::Begin("Floating") ; 
+		ImGui::Begin("Floating");
 		if (ImGui::Button("FloatingDecoInstancesReInit"))
 		{
 			FloatingDecoInstancesReInit();
 		}
 		Engine::Landscape::FloatingInformation::RangeEdit();
 		ImGui::End();
-		
-	}
-	
+	};
 
-	for (auto& [DecoKey, CurDeco] : DecoratorContainer)
-	{
-		CurDeco.Instances.erase(std::remove_if(std::begin(CurDeco.Instances), std::end(CurDeco.Instances),
-			[](auto& TargetInstance) {
-				return TargetInstance->bPendingKill;
-			}) ,std::end(CurDeco.Instances) );
-		
-	}
 	if (nullptr == Device)
 		return;
 
 	auto& Renderer = *Engine::Renderer::Instance;
-	auto& _Timer = Engine::Timer::Instance;
-	const float CurDeltaTime = _Timer->GetDelta();
-
 	const Matrix MapWorld = FMath::WorldMatrix(Scale, Rotation, Location);
 	
-	Device->SetVertexDeclaration(VtxDecl);
 
-	auto Fx = _ShaderFx.GetHandle();
+	auto Fx = ForwardShaderFx.GetHandle();
 	Fx->SetMatrix("View", &View);
 	Fx->SetMatrix("Projection", &Projection);
-	Fx->SetVector("LightDirection", &Renderer.LightDirection);
-	Fx->SetVector("LightColor", &Renderer.LightColor);
+	Fx->SetVector("LightDirection", &Renderer._DirectionalLight._LightInfo.Direction);
+	Fx->SetVector("LightColor", &Renderer._DirectionalLight._LightInfo.LightColor);
 	Fx->SetVector("CameraLocation", &CameraLocation4D);
-	if(Engine::Global::bDebugMode)
-		ImGui::Begin("Frustum Culling Log");
+	Device->SetVertexDeclaration(VtxDecl);
 
 	for (const auto& [DecoKey, CurDeco] : DecoratorContainer)
 	{
@@ -433,12 +448,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 		for (const auto& CurDecoInstance : CurDeco.Instances)
 		{
 			const Vector3 DecoTfmScale = CurDecoInstance->Scale;
-			const Vector3 DecoTfmLocation = IsFloatingDeco ? 
-				std::any_cast<Engine::Landscape::FloatingInformation&>(CurDecoInstance->OptionValue).
-				Floating(CurDeltaTime, CurDecoInstance->Location) 
-				: 
-				CurDecoInstance->Location;
-
+			const Vector3 DecoTfmLocation = CurDecoInstance->Location;
 			const Vector3 DecoTfmRotation = CurDecoInstance->Rotation;
 
 			const Matrix DecoWorld = 
@@ -446,39 +456,18 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 					DecoTfmScale, 
 					DecoTfmRotation, DecoTfmLocation);
 
-			Device->SetVertexDeclaration(VtxDecl);
-			Fx->SetMatrix("World", &DecoWorld);
-			Fx->SetMatrix("View", &View);
-			Fx->SetMatrix("Projection", &Projection);
-			Fx->SetVector("CameraLocation", &CameraLocation4D);
-
 			uint32 PassNum = 0u;
 			Fx->Begin(&PassNum, 0);
-
+		
 			for (auto& CurMesh : CurDeco.Meshes)
 			{
-				Sphere CurDecoMeshBoundingSphere;
-				CurDecoMeshBoundingSphere.Center = FMath::Mul(CurMesh.BoundingSphere.Center, DecoWorld);
-				CurDecoMeshBoundingSphere.Radius = (CurMesh.BoundingSphere.Radius * FMath::MaxScala(DecoTfmScale));
-				const bool bRender = RefFrustum.IsIn(CurDecoMeshBoundingSphere);
-
-				if (Engine::Global::bDebugMode)
-				{
-					if (bRender)
-					{
-						ImGui::TextColored(ImVec4{ 1.f,107.f / 255.f,181.f / 255.f,0.5f }, "Draw : %s", CurMesh.Name.c_str());
-					}
-					else
-					{
-						ImGui::TextColored(ImVec4{ 158.f / 255.f,158.f / 255.f,255.f,0.5f }, "Culling : %s", CurMesh.Name.c_str());
-					}
-				}
+				const bool bRender = CurDecoInstance->CurRenderIDSet.contains(CurMesh.ID);
 
 				if (bRender)
 				{
-					
 					Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
 					Device->SetIndices(CurMesh.IdxBuf);
+					Fx->SetMatrix("World", &DecoWorld);
 					Fx->SetVector("RimAmtColor", &CurMesh.MaterialInfo.RimAmtColor);
 					Fx->SetFloat("RimOuterWidth", CurMesh.MaterialInfo.RimOuterWidth);
 					Fx->SetFloat("RimInnerWidth", CurMesh.MaterialInfo.RimInnerWidth);
@@ -503,8 +492,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 					}
 					
 					 CurMesh.MaterialInfo.BindingTexture(Fx);
-					Fx->CommitChanges();
-				
+					 Fx->CommitChanges();
 
 					for (uint32 i = 0; i < PassNum; ++i)
 					{
@@ -519,9 +507,6 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 			Fx->End();
 		}
 	}
-
-	if (Engine::Global::bDebugMode)
-		ImGui::End();
 	
 	if (Engine::Global::bDebugMode && bDecoratorSphereMeshRender)
 	{
@@ -531,30 +516,214 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 
 		for (const auto& [DecoKey, CurDeco] : DecoratorContainer)
 		{
-			for (const auto& CurDecoTransform : CurDeco.Instances)
+			for (const auto& CurDecoInstance : CurDeco.Instances)
 			{
-				const Vector3 DecoTfmScale    = CurDecoTransform->Scale;
-				const Vector3 DecoTfmLocation = CurDecoTransform->Location;
-				const Vector3  DecoTfmRotation = CurDecoTransform->Rotation;
+				const Vector3 DecoTfmScale    = CurDecoInstance->Scale;
+				const Vector3 DecoTfmLocation = CurDecoInstance->Location;
+				const Vector3  DecoTfmRotation = CurDecoInstance->Rotation;
 
 				for (const auto& _Mesh :CurDeco.Meshes)
 				{
-					const Matrix SphereLocalMatrix = FMath::WorldMatrix(
-						_Mesh.BoundingSphere.Radius 
-						, { 0,0,0 },
-						_Mesh.BoundingSphere.Center);
+					const bool bRender = CurDecoInstance->CurRenderIDSet.contains(_Mesh.ID); 
+					if (bRender)
+					{
+						const Matrix SphereLocalMatrix = FMath::WorldMatrix(
+							_Mesh.BoundingSphere.Radius
+							, { 0,0,0 },
+							_Mesh.BoundingSphere.Center);
 
-					const Matrix DecoWorld=SphereLocalMatrix* FMath::WorldMatrix(
-						FMath::MaxScala( DecoTfmScale )  ,
-						DecoTfmRotation, DecoTfmLocation);
+						const Matrix DecoWorld = SphereLocalMatrix * FMath::WorldMatrix(
+							FMath::MaxScala(DecoTfmScale),
+							DecoTfmRotation, DecoTfmLocation);
 
-					Device->SetTransform(D3DTS_WORLD, &DecoWorld);
-					DebugSphere->DrawSubset(0u);
+						Device->SetTransform(D3DTS_WORLD, &DecoWorld);
+						DebugSphere->DrawSubset(0u);
+					}
 				}
 			}
 		}
 
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	}
+}
+
+void Engine::Landscape::FrustumCullingCheck(Engine::Frustum& RefFrustum)&
+{
+	if (Engine::Global::bDebugMode)
+		ImGui::Begin("Frustum Culling Log");
+
+	for ( auto& [DecoKey, CurDeco] : DecoratorContainer)
+	{
+		for (auto& CurDecoInstance : CurDeco.Instances)
+		{
+			CurDecoInstance->CurRenderIDSet.clear();
+
+			const Vector3 DecoTfmScale = CurDecoInstance->Scale;
+			const Vector3 DecoTfmLocation = CurDecoInstance->Location;
+			const Vector3 DecoTfmRotation = CurDecoInstance->Rotation;
+
+			const Matrix DecoWorld =
+				FMath::WorldMatrix(
+					DecoTfmScale,
+					DecoTfmRotation, DecoTfmLocation);
+
+			for (auto& CurMesh : CurDeco.Meshes)
+			{
+				Sphere CurDecoMeshBoundingSphere;
+				CurDecoMeshBoundingSphere.Center = FMath::Mul(CurMesh.BoundingSphere.Center, DecoWorld);
+				CurDecoMeshBoundingSphere.Radius = (CurMesh.BoundingSphere.Radius * FMath::MaxScala(DecoTfmScale));
+
+				const bool bRender = RefFrustum.IsIn(CurDecoMeshBoundingSphere); 
+				if (bRender)
+				{
+					CurDecoInstance->CurRenderIDSet.insert(CurMesh.ID);
+				}
+
+				if (Engine::Global::bDebugMode)
+				{
+					if (bRender)
+					{
+						ImGui::TextColored(ImVec4{ 1.f,107.f / 255.f,181.f / 255.f,0.5f }, "Draw : %s", CurMesh.Name.c_str());
+					}
+					else
+					{
+						ImGui::TextColored(ImVec4{ 158.f / 255.f,158.f / 255.f,255.f,0.5f }, "Culling : %s", CurMesh.Name.c_str());
+					}
+				}
+			}
+		}
+	}
+
+	if (Engine::Global::bDebugMode)
+		ImGui::End();
+
+}
+
+void Engine::Landscape::RenderDeferredAlbedoNormalWorldPosDepthSpecular(Engine::Frustum& RefFrustum, const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation)&
+{
+	if (nullptr == Device)
+		return;
+
+	auto& Renderer = *Engine::Renderer::Instance;
+	const Matrix MapWorld = FMath::WorldMatrix(Scale, Rotation, Location);
+
+	Device->SetVertexDeclaration(VtxDecl);
+	
+	auto Fx = DeferredAlbedoNormalWorldPosDepthSpecular.GetHandle();
+	Fx->SetMatrix("View", &View);
+	Fx->SetMatrix("Projection", &Projection);
+
+	for (const auto& [DecoKey, CurDeco] : DecoratorContainer)
+	{
+		for (const auto& CurDecoInstance : CurDeco.Instances)
+		{
+			const Vector3 DecoTfmScale = CurDecoInstance->Scale;
+			const Vector3 DecoTfmLocation = CurDecoInstance->Location;
+
+			const Vector3 DecoTfmRotation = CurDecoInstance->Rotation;
+
+			const Matrix DecoWorld =
+				FMath::WorldMatrix(
+					DecoTfmScale,
+					DecoTfmRotation, DecoTfmLocation);
+
+			uint32 PassNum = 0u;
+			Fx->Begin(&PassNum, 0);
+
+			for (auto& CurMesh : CurDeco.Meshes)
+			{
+				const bool bRender = CurDecoInstance->CurRenderIDSet.contains(CurMesh.ID);
+
+				if (bRender)
+				{
+
+					Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
+					Device->SetIndices(CurMesh.IdxBuf);
+					Fx->SetFloat("DetailScale", CurMesh.MaterialInfo.DetailScale);
+					Fx->SetFloat("Contract", CurMesh.MaterialInfo.Contract);
+					Fx->SetMatrix("World", &DecoWorld);
+					Fx->SetFloat("Power", CurMesh.MaterialInfo.Power);
+					Fx->SetFloat("SpecularIntencity", CurMesh.MaterialInfo.SpecularIntencity);
+					Fx->SetFloat("DetailDiffuseIntensity", CurMesh.MaterialInfo.DetailDiffuseIntensity);
+					Fx->SetFloat("DetailNormalIntensity", CurMesh.MaterialInfo.DetailNormalIntensity);
+					Fx->SetFloat("CavityCoefficient", CurMesh.MaterialInfo.CavityCoefficient);
+
+					CurMesh.MaterialInfo.BindingTexture(Fx);
+					Fx->CommitChanges();
+
+					for (uint32 i = 0; i < PassNum; ++i)
+					{
+						Fx->BeginPass(i);
+						Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
+							0u, CurMesh.PrimitiveCount);
+						Fx->EndPass();
+					}
+				}
+			}
+
+			Fx->End();
+		}
+	}
+}
+
+void Engine::Landscape::RenderDeferredRim(Engine::Frustum& RefFrustum,
+	const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation)&
+{
+	if (nullptr == Device)
+		return;
+
+	auto& Renderer = *Engine::Renderer::Instance;
+	const Matrix MapWorld = FMath::WorldMatrix(Scale, Rotation, Location);
+
+	Device->SetVertexDeclaration(VtxDecl);
+
+	auto Fx = DeferredRimFx.GetHandle();
+	Fx->SetMatrix("View", &View);
+	Fx->SetMatrix("Projection", &Projection);
+
+	for (const auto& [DecoKey, CurDeco] : DecoratorContainer)
+	{
+		for (const auto& CurDecoInstance : CurDeco.Instances)
+		{
+			const Vector3 DecoTfmScale = CurDecoInstance->Scale;
+			const Vector3 DecoTfmLocation = CurDecoInstance->Location;
+
+			const Vector3 DecoTfmRotation = CurDecoInstance->Rotation;
+
+			const Matrix DecoWorld =
+				FMath::WorldMatrix(
+					DecoTfmScale,
+					DecoTfmRotation, DecoTfmLocation);
+
+			uint32 PassNum = 0u;
+			Fx->Begin(&PassNum, 0);
+
+			for (auto& CurMesh : CurDeco.Meshes)
+			{
+				const bool bRender = CurDecoInstance->CurRenderIDSet.contains(CurMesh.ID);
+				if (bRender)
+				{
+					Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
+					Device->SetIndices(CurMesh.IdxBuf);
+					Fx->SetMatrix("World", &DecoWorld);
+					Fx->SetFloat("RimOuterWidth", CurMesh.MaterialInfo.RimOuterWidth);
+					Fx->SetFloat("RimInnerWidth", CurMesh.MaterialInfo.RimInnerWidth);
+					Fx->SetVector("RimAmtColor",&CurMesh.MaterialInfo.RimAmtColor);
+
+					Fx->CommitChanges();
+
+					for (uint32 i = 0; i < PassNum; ++i)
+					{
+						Fx->BeginPass(i);
+						Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
+							0u, CurMesh.PrimitiveCount);
+						Fx->EndPass();
+					}
+				}
+			}
+
+			Fx->End();
+		}
 	}
 }
 
@@ -767,4 +936,10 @@ void Engine::Landscape::FloatingInformation::RangeEdit()
 	ImGui::SliderFloat2("VibrationWidthRange", (float*)&VibrationWidthRange, 1.f, 100.f);
 	ImGui::SliderFloat2("RotationAccRange", (float*)&RotationAccRange, 0.001f, 1.f);
 	ImGui::SliderFloat2("VibrationAccRange", (float*)&VibrationAccRange, 0.001f, 5.f);
+}
+
+Engine::Landscape::Mesh::Mesh() 
+{
+	static uint32 CurrentID = 0u;
+	ID = CurrentID++;
 }

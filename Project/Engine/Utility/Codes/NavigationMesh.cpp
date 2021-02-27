@@ -546,7 +546,7 @@ void Engine::NavigationMesh::Initialize(IDirect3DDevice9* Device)&
 {
 	this->Device = Device;
 
-	_ShaderFx=Engine::ShaderFx::Load(Device, Engine::Global::ResourcePath / L"Shader" / L"NaviMeshFx.hlsl", L"NaviMeshFx");
+	ForwardShaderFx=Engine::ShaderFx::Load(Device, Engine::Global::ResourcePath / L"Shader" / L"NaviMeshFx.hlsl", L"NaviMeshFx");
 	VtxDecl = Engine::ResourceSystem::Instance->Insert <IDirect3DVertexDeclaration9>(L"VertexDecl_LocationColor",
 		Vertex::LocationColor::GetVertexDecl(Device));
 
@@ -613,7 +613,7 @@ void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 		Matrix Projection, View;
 		Device->GetTransform(D3DTS_PROJECTION, &Projection);
 		Device->GetTransform(D3DTS_VIEW, &View);
-		ID3DXEffect* Fx = _ShaderFx->GetHandle();
+		ID3DXEffect* Fx = ForwardShaderFx->GetHandle();
 		Fx->SetMatrix("World", &World);
 		Fx->SetMatrix("View", &View);
 		Fx->SetMatrix("Projection", &Projection);

@@ -106,7 +106,7 @@ void Engine::Management::Initialize(
 		[this](const float DeltaTime) {Update(DeltaTime); },
 		[this]() {Render(); },
 		[this]() {LastEvent(); });
-
+	_ResourceSys = Engine::ResourceSystem::Init();
 	_Sound = Engine::Sound::Init(ResourcePath / L"Sound");
 	_Controller = Engine::Controller::Init(HInstance, _Hwnd);
 	_CollisionSys = Engine::CollisionSystem::Init();
@@ -115,7 +115,7 @@ void Engine::Management::Initialize(
 	_ShaderManager = Engine::ShaderManager::Init(SharedDevice);
 	_PrototypeManager = Engine::PrototypeManager::Init();
 	_FontManager = Engine::FontManager::Init();
-	_ResourceSys = Engine::ResourceSystem::Init();
+	
 	_Renderer = Engine::Renderer::Init(SharedDevice);
 	_NaviMesh = Engine::NavigationMesh::Init(Device);
 
@@ -168,6 +168,7 @@ void Engine::Management::Event()&
 void Engine::Management::Update(const float DeltaTime)&
 {
 	_CurrentScene->Update(DeltaTime);
+	_Renderer->Update(DeltaTime);
 	_CollisionSys->Update(DeltaTime);
 }
 
@@ -247,6 +248,7 @@ void ImGuiFrameStart()
 
 void Engine::Management::CreateStaticResource()&
 {
+
 	IDirect3DTexture9* DefaultCavity{ nullptr };
 	D3DXCreateTextureFromFile(Device, (Engine::Global::ResourcePathA / "Texture" / "base_gray_d.tga").c_str(),&DefaultCavity);
 
@@ -440,6 +442,10 @@ void Engine::Management::CreateStaticResource()&
 		// 상위 셰이더 로딩
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"LandscapeFx.hlsl", L"LandscapeFx");
 
+		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"DeferredAlbedoNormalWorldPosDepthSpecularFx.hlsl", L"DeferredAlbedoNormalWorldPosDepthSpecularFx");
+
+		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"DeferredRimFx.hlsl", L"DeferredRimFx");
+
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"DeferredDefaultFx.hlsl", L"DeferredDefaultFx");
 
 		Engine::ShaderFx::Load(Device.get(), 
@@ -447,9 +453,15 @@ void Engine::Management::CreateStaticResource()&
 			L"DefaultFx");
 
 		Engine::ShaderFx::Load(Device.get(),
+			Engine::Global::ResourcePath / L"Shader" / L"SkyFx.hlsl",
+			L"SkyFx");
+
+
+		Engine::ShaderFx::Load(Device.get(),
 			Engine::Global::ResourcePath / L"Shader" / L"SkeletonSkinningDefaultFx.hlsl",
 			L"SkeletonSkinningDefaultFx");
 	}
+	
 
 	Engine::MaterialInformation::SetUpDefaultTexture();
 }

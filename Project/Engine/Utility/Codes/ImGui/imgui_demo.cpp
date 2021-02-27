@@ -2306,7 +2306,7 @@ static void ShowDemoWindowLayout()
 
         // Button
         ImGui::AlignTextToFramePadding();
-        ImGui::Text("Normal buttons"); ImGui::SameLine();
+        ImGui::Text("Normal3_Power1 buttons"); ImGui::SameLine();
         ImGui::Button("Banana"); ImGui::SameLine();
         ImGui::Button("Apple"); ImGui::SameLine();
         ImGui::Button("Corniflower");

@@ -3,6 +3,7 @@
 #include "DllHelper.H"
 #include "Object.h"
 #include <filesystem>
+#include <set>
 #include <string>
 #include "Frustum.h"
 #include "FMath.hpp"
@@ -19,8 +20,14 @@ namespace Engine
 	public:
 		struct Mesh
 		{
+			Mesh(); 
+			Mesh(const Mesh&) = default;
+			Mesh(Mesh&&)noexcept = default;
+			Mesh&operator=(Mesh&&)noexcept = default;
+			Mesh&operator=(const Mesh&) = default;
 			IDirect3DVertexBuffer9* VtxBuf{ nullptr };
 			IDirect3DIndexBuffer9* IdxBuf{ nullptr };
+			uint32 ID = 0u;
 			uint32 VtxCount{ 0u };
 			uint32 Stride{ 0u };
 			uint32 PrimitiveCount{ 0u };
@@ -31,9 +38,9 @@ namespace Engine
 		};
 		struct FloatingInformation
 		{
-			static inline std::pair<float, float> VibrationWidthRange{ 0.f,100.f };
-			static inline std::pair<float, float > RotationAccRange  { 0.0f,0.015f };
-			static inline std::pair<float, float>  VibrationAccRange  { 0.0f,1.f };
+			static inline std::pair<float, float> VibrationWidthRange{ 0.f,1.f };
+			static inline std::pair<float, float > RotationAccRange  { 0.0f,0.000015f };
+			static inline std::pair<float, float>  VibrationAccRange  { 0.0f,0.01f };
 			
 			static void RangeEdit();
 			void Initialize()&
@@ -72,6 +79,7 @@ namespace Engine
 			Vector3 Scale{ 1,1,1 };
 			Vector3 Rotation{ 0,0,0 };
 			Vector3 Location{ 0,0,0 };
+			std::set<uint32> CurRenderIDSet{};
 			std::any OptionValue{}; 
 		};
 		struct Decorator
@@ -91,8 +99,19 @@ namespace Engine
 			const Vector3 Rotation,
 			const Vector3 Location)&;
 
+		void Update(const float DeltaTime)&;
+
 		void Render(Engine::Frustum& RefFrustum,
 			const Matrix& View, const Matrix& Projection ,const Vector4& CameraLocation)&;
+
+		void FrustumCullingCheck(Engine::Frustum& RefFrustum)&;
+
+		void RenderDeferredAlbedoNormalWorldPosDepthSpecular(Engine::Frustum& RefFrustum,
+			const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation)&;
+
+		void RenderDeferredRim(Engine::Frustum& RefFrustum,
+			const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation)&;
+
 		inline const std::vector<PlaneInfo>& GetMapWorldCoordPlanes()const&;
 
 		void DecoratorLoad(const std::filesystem::path& LoadPath,
@@ -131,7 +150,9 @@ namespace Engine
 	private:
 		std::string DecoratorSaveInfo{}; 
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr };
-		Engine::ShaderFx _ShaderFx{};
+		Engine::ShaderFx ForwardShaderFx{};
+		Engine::ShaderFx DeferredAlbedoNormalWorldPosDepthSpecular{};
+		Engine::ShaderFx DeferredRimFx{};
 		Vector3 Scale{1,1,1};
 		Vector3 Rotation{0,0,0};
 		Vector3 Location{0,0,0}; 

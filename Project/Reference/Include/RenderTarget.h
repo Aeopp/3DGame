@@ -48,6 +48,8 @@ namespace Engine
 						const std::string& ConstantTableName)&;
 
 		void RenderDebugBuffer()&;
+
+		IDirect3DTexture9* GetTexture()const& { return TargetTexture;  };
 	private:
 		uint32 Stride = 0u;
 		DWORD FVF = 0u;

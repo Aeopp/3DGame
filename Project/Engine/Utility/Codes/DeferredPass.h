@@ -18,9 +18,12 @@ namespace Engine
 		void Initialize(IDirect3DDevice9* const Device)&;
 		void DefaultInitialize()&;
 	public:
-		RenderTarget Albedo{};
-		RenderTarget Normal{};
-		RenderTarget WorldLocations{};
+		RenderTarget Albedo3_Contract1{};
+		RenderTarget Normal3_Power1{};
+		RenderTarget WorldLocation3_Depth1{};
+		RenderTarget CavityRGB1_CavityAlpha1_NULL1_NULL1{};
+
+		RenderTarget RimRGB1_InnerWidth1_OuterWidth1_NULL1{};
 	private:
 		IDirect3DDevice9* Device{ nullptr };
 	};

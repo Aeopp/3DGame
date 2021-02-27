@@ -18,15 +18,23 @@ void Engine::DeferredPass::DefaultInitialize()&
 
 	static constexpr std::pair<uint32,uint32> RenderTargetDebugRenderSize{ 200,200 };
 
-	Albedo.Initialize(Device, CurViewPort.Width, CurViewPort.Height, DefaultFormat,
+	Albedo3_Contract1.Initialize(Device, CurViewPort.Width, CurViewPort.Height, DefaultFormat,
 		D3DXCOLOR(0.f, 0.f, 0.f, 1.f));
-	Albedo.DebugBufferInitialize({ 0.f,0.f }, { RenderTargetDebugRenderSize.first,RenderTargetDebugRenderSize .second});
+	Albedo3_Contract1.DebugBufferInitialize({ 0.f,0.f }, { RenderTargetDebugRenderSize.first,RenderTargetDebugRenderSize .second});
 
-	Normal.Initialize(Device, CurViewPort.Width, CurViewPort.Height, DefaultFormat,
+	Normal3_Power1.Initialize(Device, CurViewPort.Width, CurViewPort.Height, DefaultFormat,
 			D3DXCOLOR(0.f, 0.f, 0.f, 1.f));
-	Normal.DebugBufferInitialize({ 0.f,200.f }, { RenderTargetDebugRenderSize.first,RenderTargetDebugRenderSize.second });
+	Normal3_Power1.DebugBufferInitialize({ 0.f,200.f }, { RenderTargetDebugRenderSize.first,RenderTargetDebugRenderSize.second });
 
-	WorldLocations.Initialize(Device, CurViewPort.Width, CurViewPort.Height, DefaultFormat,
+	WorldLocation3_Depth1.Initialize(Device, CurViewPort.Width, CurViewPort.Height, DefaultFormat,
 		D3DXCOLOR(0.f, 0.f, 0.f, 1.f));
-	WorldLocations.DebugBufferInitialize({ 0.f,400.f }, { RenderTargetDebugRenderSize.first,RenderTargetDebugRenderSize.second });
+	WorldLocation3_Depth1.DebugBufferInitialize({ 0.f,400.f }, { RenderTargetDebugRenderSize.first,RenderTargetDebugRenderSize.second });
+
+	CavityRGB1_CavityAlpha1_NULL1_NULL1.Initialize(Device, CurViewPort.Width, CurViewPort.Height, DefaultFormat,
+		D3DXCOLOR(0.f, 0.f, 0.f, 1.f));
+	CavityRGB1_CavityAlpha1_NULL1_NULL1.DebugBufferInitialize({ 0.f,600.f }, { RenderTargetDebugRenderSize.first,RenderTargetDebugRenderSize.second });
+
+	RimRGB1_InnerWidth1_OuterWidth1_NULL1.Initialize(Device, CurViewPort.Width, CurViewPort.Height, DefaultFormat,
+		D3DXCOLOR(0.f, 0.f, 0.f, 1.f));
+	RimRGB1_InnerWidth1_OuterWidth1_NULL1.DebugBufferInitialize({ 0.f,800.f }, { RenderTargetDebugRenderSize.first,RenderTargetDebugRenderSize.second });
 }

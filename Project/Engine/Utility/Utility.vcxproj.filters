@@ -235,6 +235,19 @@
     <ClInclude Include="Codes\DeferredPass.h">
       <Filter>DeferredPass</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\Light.h">
+      <Filter>DeferredPass</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Resource\Shader\DeferredAlbedoNormalWorldPosDepthSpecularFx.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Resource\Shader\DeferredDefaultFx.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Resource\Shader\DeferredRimFx.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Resource\Shader\SkyFx.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">
@@ -357,9 +370,12 @@
     <ClCompile Include="Codes\DeferredPass.cpp">
       <Filter>DeferredPass</Filter>
     </ClCompile>
+    <ClCompile Include="Codes\Light.cpp">
+      <Filter>DeferredPass</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\..\..\Resource\Shader\DeferredDefaultFx.hlsl">
+    <FxCompile Include="..\..\..\Resource\Shader\DeferredLight.hlsl">
       <Filter>Shader\HLSL</Filter>
     </FxCompile>
   </ItemGroup>

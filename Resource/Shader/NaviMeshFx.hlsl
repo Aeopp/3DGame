@@ -57,6 +57,10 @@ technique Default_Device
 		alphablendenable = true;
 		srcblend = srcalpha;
 		destblend = invsrcalpha;
+        zenable = true;
+        zwriteenable = true;
+        cullmode = ccw;
+        fillmode = solid;
 
 		vertexshader = compile vs_3_0 VS_MAIN();
 		pixelshader = compile ps_3_0 PS_MAIN();

@@ -55,7 +55,7 @@ namespace Engine
 		Vector4 DefaultColor{ 0.307f,0.648f,0.920f,0.309f };
 	private:
 		Matrix World = FMath::Identity();
-		Engine::ShaderFx* _ShaderFx { nullptr };
+		Engine::ShaderFx* ForwardShaderFx { nullptr };
 		uint32 CurSelectCellKey{ 0u };
 		uint32 CurSelectMarkerKey{ 0u };
 		std::string NaviMeshInfoString{};

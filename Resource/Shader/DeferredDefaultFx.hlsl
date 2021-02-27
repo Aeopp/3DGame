@@ -237,7 +237,7 @@ PS_OUT PS_MAIN(PS_IN In)
     
     Out.Color.rgb += Ambient;
     Out.Color.rgba += RimAmt * RimAmtColor.rgba;
-    Out.Color.a += AlphaAddtive;
+  //  Out.Color.a += AlphaAddtive;
     Out.Color.a = saturate(Out.Color.a);
     Out.Albedo = Out.Color;
     Out.Normal = Out.Color;
@@ -250,8 +250,10 @@ technique Default_Device
     pass
     {
         alphablendenable = false;
-        //srcblend = srcalpha;
-        //destblend = invsrcalpha;
+        zenable = true;
+        zwriteenable = true;
+        cullmode = ccw;
+        fillmode = solid;
 
         vertexshader = compile vs_3_0 VS_MAIN();
         pixelshader = compile ps_3_0 PS_MAIN();

@@ -172,6 +172,7 @@ PS_OUT PS_MAIN(PS_IN In)
     
     float3 DetailTangentNormal = tex2D(DetailNormalSampler, (In.UV * DetailScale)).xyz;
     DetailTangentNormal = normalize((DetailTangentNormal * 2.0) - 1.0);
+    DetailTangentNormal.y *= -1.f;
     DetailTangentNormal *= DetailNormalIntensity;
     
     TangentNormal = normalize(float3(TangentNormal.xy + DetailTangentNormal.xy, TangentNormal.z));
@@ -247,9 +248,14 @@ technique Default_Device
 {
     pass
     {
-        alphablendenable = false;
-        //srcblend = srcalpha;
-        //destblend = invsrcalpha;
+        alphablendenable = true;
+        srcblend = srcalpha;
+        destblend = invsrcalpha;
+
+        zenable = true;
+        zwriteenable = true;
+        cullmode = ccw;
+        fillmode = solid;
 
         vertexshader = compile vs_3_0 VS_MAIN();
         pixelshader = compile ps_3_0 PS_MAIN();

@@ -3,21 +3,36 @@
 #include "FMath.hpp"
 #include "imgui.h"
 #include "UtilityGlobal.h"
+#include "ResourceSystem.h"
+#include "Vertexs.hpp"
+
+
 
 void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)&
 {
 	this->Device = Device;
+	CreateStaticLightResource();
+
 	_Frustum.Initialize();
 	_DeferredPass.Initialize(Device.get());
+
+	Engine::Light::LightInformation LightInfo{};
+	LightInfo.Direction = { 0,-1,0 , 0 };
+	LightInfo.Location = { 0,0,0 , 1};
+
+	LightInfo._LightOpt = Engine::Light::LightOption::Directional;
+	_DirectionalLight.Initialize(Device.get(), LightInfo);
+};
+
+void Engine::Renderer::Update(const float DeltaTime)&
+{
+	CurrentLandscape.Update(DeltaTime);
+	_DirectionalLight;
+
 };
 
 void Engine::Renderer::Render()&
 {
-	if (Engine::Global::bDebugMode)
-	{
-		// ImGui::TreeNode("Frustum Culling");
-	}
-
 	Matrix View, Projection, CameraWorld;
 	Device->GetTransform(D3DTS_VIEW, &View);
 	Device->GetTransform(D3DTS_PROJECTION, &Projection);
@@ -26,58 +41,68 @@ void Engine::Renderer::Render()&
 	const Vector4  CameraLocation = FMath::ConvertVector4(CameraLocation3D, 1.f);
 	
 	_Frustum.Make(CameraWorld, Projection);
-	// 디퍼드 
+	CurrentLandscape.FrustumCullingCheck(_Frustum);
+	IDirect3DSurface9* CurBackBufSurface{ nullptr };
+	Device->GetRenderTarget(0u, &CurBackBufSurface);
+
+	_DeferredPass.Albedo3_Contract1.Clear();
+	_DeferredPass.Normal3_Power1.Clear();
+	_DeferredPass.WorldLocation3_Depth1.Clear();
+	_DeferredPass.CavityRGB1_CavityAlpha1_NULL1_NULL1.Clear();
+	_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.Clear();
+
+	// 디퍼드  1 Pass
 	{
-		IDirect3DSurface9* CurBackBufSurface{ nullptr };
-		Device->GetRenderTarget(0u, &CurBackBufSurface);
+		 _DeferredPass.Albedo3_Contract1.BindGraphicDevice(0u);
+		 _DeferredPass.Normal3_Power1.BindGraphicDevice(1u);
+		 _DeferredPass.WorldLocation3_Depth1.BindGraphicDevice(2u);
+		 _DeferredPass.CavityRGB1_CavityAlpha1_NULL1_NULL1.BindGraphicDevice(3u);
 
-		_DeferredPass.Albedo.BindGraphicDevice(1u);
-		_DeferredPass.Normal.BindGraphicDevice(2u);
-		_DeferredPass.WorldLocations.BindGraphicDevice(3u);
-
-		CurBackBufSurface->Release();
+		 CurrentLandscape.RenderDeferredAlbedoNormalWorldPosDepthSpecular(_Frustum, View, Projection, CameraLocation);
 	};
 
-	_Sky.Render(CameraLocation3D, Device.get());
-	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	RenderLandscape(_Frustum, View  , Projection , CameraLocation);
+	// 디퍼드 2 Pass
+	{
+		_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.BindGraphicDevice(0u);
 
-	//{
-	//	RenderLandscape(_Frustum, View, Projection, CameraLocation);
-	//	RenderLandscape(_Frustum, View, Projection, CameraLocation);
-	//	RenderLandscape(_Frustum, View, Projection, CameraLocation);
-	//	RenderLandscape(_Frustum, View, Projection, CameraLocation);
-	//	RenderLandscape(_Frustum, View, Projection, CameraLocation);
-	//	RenderLandscape(_Frustum, View, Projection, CameraLocation);
-	//	RenderLandscape(_Frustum, View, Projection, CameraLocation);
-	//	RenderLandscape(_Frustum, View, Projection, CameraLocation);
-	//	RenderLandscape(_Frustum, View, Projection, CameraLocation);
-	//};
-	
-	
+		CurrentLandscape.RenderDeferredRim(_Frustum, View, Projection, CameraLocation);
+	};
+
+
+	Device->SetRenderTarget(0u, CurBackBufSurface);
+
+	_DirectionalLight.Render(Device.get(),
+		CameraLocation3D, View,Projection, _DeferredPass.Albedo3_Contract1.GetTexture(),
+		_DeferredPass.Normal3_Power1.GetTexture(),
+		_DeferredPass.WorldLocation3_Depth1.GetTexture(),
+		_DeferredPass.CavityRGB1_CavityAlpha1_NULL1_NULL1.GetTexture(),
+		_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.GetTexture());
+
+	//CurrentLandscape.Render(_Frustum, View, Projection, CameraLocation);
 	RenderEnviroment(View, Projection, CameraLocation);
-	RenderNoAlpha(View,Projection,CameraLocation  );
+	RenderNoAlpha(View, Projection, CameraLocation);
 	if (Engine::Global::bDebugMode)
 	{
 		RenderDebugCollision(View, Projection, CameraLocation);
 	}
-	
 	_Frustum.Render(Device.get());
-	
 	RenderUI(View, Projection, CameraLocation);
-	
-	
-	_DeferredPass.Albedo.RenderDebugBuffer();
-	_DeferredPass.Normal.RenderDebugBuffer();
-	_DeferredPass.WorldLocations.RenderDebugBuffer();
-	
+
+	_Sky.Render(_Frustum, View, Projection, CameraLocation, Device.get(),
+		_DeferredPass.WorldLocation3_Depth1.GetTexture());
+
+
+
+	_DeferredPass.Albedo3_Contract1.RenderDebugBuffer();
+	_DeferredPass.Normal3_Power1.RenderDebugBuffer();
+	_DeferredPass.WorldLocation3_Depth1.RenderDebugBuffer();
+	_DeferredPass.CavityRGB1_CavityAlpha1_NULL1_NULL1.RenderDebugBuffer();
+
+	_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.RenderDebugBuffer();
+
+	CurBackBufSurface->Release();
 
 	RenderObjects.clear();
-
-	if (Engine::Global::bDebugMode)
-	{
-		// ImGui::TreePop();
-	}
 };
 
 void Engine::Renderer::Regist(RenderInterface* const Target)
@@ -90,17 +115,72 @@ Engine::Landscape& Engine::Renderer::RefLandscape()&
 	return   CurrentLandscape;
 };
 
-void Engine::Renderer::RenderLandscape(
-	Frustum& RefFrustum,
-	const Matrix& View,const Matrix& Projection ,
-	const Vector4& CameraLocation4D)&
+
+void Engine::Renderer::CreateStaticLightResource()&
 {
-	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
-	Device->SetRenderState(D3DRS_ZENABLE, TRUE);
-	Device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
-	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
-	CurrentLandscape.Render(RefFrustum , View, Projection , CameraLocation4D);
+	Engine::ShaderFx::Load(Device.get(), 
+		Engine::Global::ResourcePath / L"Shader" / L"DeferredLightFx.hlsl", L"DeferredLightFx");
+
+	static std::wstring LightVertexBufferTag = L"LightVertexBuffer";
+	auto& ResourceSys = ResourceSystem::Instance;
+
+	IDirect3DVertexBuffer9* LightVtxBuf{ nullptr };
+	Device->CreateVertexBuffer(sizeof(Vertex::Screen) * 4,
+		D3DUSAGE_WRITEONLY, Vertex::Screen::FVF, D3DPOOL_MANAGED,
+		&LightVtxBuf, nullptr);
+
+	ResourceSys->Insert<IDirect3DVertexBuffer9>(LightVertexBufferTag,
+		LightVtxBuf);
+
+	IDirect3DIndexBuffer9* LightIdxBuf{};
+	Device->CreateIndexBuffer(sizeof(uint32) * 6u,
+		D3DUSAGE_WRITEONLY,
+		D3DFMT_INDEX32,
+		D3DPOOL_MANAGED,
+		&LightIdxBuf, nullptr);
+
+	static std::wstring LightIndexBufferTag = L"LightIndexBuffer";
+
+	ResourceSys->Insert<IDirect3DIndexBuffer9>(LightIndexBufferTag, LightIdxBuf);
+
+	static std::wstring LightVertexDeclTag = L"LightVertexDecl";
+	ResourceSys->Insert<IDirect3DVertexDeclaration9>(LightVertexDeclTag,
+		Vertex::Screen::GetVertexDecl(Device.get()));
+
+	D3DVIEWPORT9 ViewPort;
+	Device->GetViewport(&ViewPort);
+
+	Vertex::Screen* VtxBufPtr{ nullptr };
+	LightVtxBuf->Lock(0, 0, reinterpret_cast<void**>(&VtxBufPtr), NULL);
+
+	VtxBufPtr[0].Homogeneous4D = { 0.f, 0.f, 0.f, 1.f };
+	VtxBufPtr[0].UV2D = { 0.f, 0.f };
+
+	VtxBufPtr[1].Homogeneous4D = { (float)ViewPort.Width, 0.f, 0.f, 1.f };
+	VtxBufPtr[1].UV2D = { 1.f, 0.f };
+
+	VtxBufPtr[2].Homogeneous4D = { (float)ViewPort.Width, (float)ViewPort.Height, 0.f, 1.f };
+	VtxBufPtr[2].UV2D =  { 1.f, 1.f}  ;
+
+	VtxBufPtr[3].Homogeneous4D = { 0.f, (float)ViewPort.Height, 0.f, 1.f };
+	VtxBufPtr[3].UV2D = { 0.f, 1.f };  
+
+	LightVtxBuf->Unlock(); 
+
+
+	uint32* IdxBufPtr = NULL;
+
+	LightIdxBuf->Lock(0, 0, (void**)&IdxBufPtr, 0);
+
+	IdxBufPtr[0]= 0u;
+	IdxBufPtr[2]= 1u;
+	IdxBufPtr[3]= 2u;
+				   
+	IdxBufPtr[4]= 0u;
+	IdxBufPtr[5]= 2u;
+	IdxBufPtr[6]= 3u;
+
+	LightIdxBuf->Unlock();
 }
 
 void Engine::Renderer::RenderDebugCollision(const Matrix& View, const Matrix& Projection,

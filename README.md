@@ -11,7 +11,11 @@ https://store.steampowered.com/app/844870/KurtzPel/?l=koreana
 https://gall.dcinside.com/mgallery/board/view/?id=lovebeat&no=319
 https://gall.dcinside.com/mgallery/board/view/?id=kurtzpel&no=6898&page=1
 
-
+## 도큐먼트
+* 이펙트 상태
+https://docs.microsoft.com/en-us/windows/win32/direct3d9/effect-states
+* 버텍스 선언식과 FVF 매핑
+https://docs.microsoft.com/en-us/windows/win32/direct3d9/mapping-fvf-codes-to-a-directx-9-declaration
 교점  =( (구체중심 - 광선시작점 ) dot 광선 방향 ) 광선방향 + 광선 시작점
 if | 교점 - 구체 중심 | < 구체 반지름 ? 충돌 !
 else 충돌 아님
