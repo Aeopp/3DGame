@@ -164,12 +164,9 @@ PS_OUT PS_MAIN(PS_IN In)
 {
 	PS_OUT		Out = (PS_OUT)0;
 	
-    float3 Normal  = normalize(In.Normal);
-    float3 Tangent = normalize(In.Tangent);
-    float3 BiNormal = normalize(In.BiNormal);
-    
     float3 TangentNormal = tex2D(NormalSampler, In.UV).xyz;
     TangentNormal = normalize((TangentNormal * 2.0) - 1.0);
+    TangentNormal.y *= -1.f;
 
 	float3 DetailTangentNormal = tex2D(DetailNormalSampler, (In.UV * DetailScale)).xyz;
 	DetailTangentNormal = normalize ((DetailTangentNormal * 2.0) - 1.0);
@@ -181,14 +178,14 @@ PS_OUT PS_MAIN(PS_IN In)
                             normalize(In.BiNormal),
                             normalize(In.Normal));
     
-    TBN = transpose(TBN);
-    float3 WorldNormal = normalize(mul(TBN, TangentNormal));
+    
+    float3 WorldNormal = normalize(mul(TangentNormal , TBN ));
     
     In.ViewDirection = normalize(In.ViewDirection);
     
     float3 ToCamera = normalize(CameraLocation.xyz - In.WorldLocation.xyz);
     
-    float Rim = max(0.0, dot(Normal, ToCamera));
+    float Rim = max(0.0, dot(In.Normal, ToCamera));
     
     float RimAmtOuter = abs(1.f - Rim);
     float RimAmtInner = abs(0.f - Rim);

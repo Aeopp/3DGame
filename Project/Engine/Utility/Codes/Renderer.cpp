@@ -42,17 +42,17 @@ void Engine::Renderer::Render()&
 	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	RenderLandscape(_Frustum, View  , Projection , CameraLocation);
 
-	{
-		RenderLandscape(_Frustum, View, Projection, CameraLocation);
-		RenderLandscape(_Frustum, View, Projection, CameraLocation);
-		RenderLandscape(_Frustum, View, Projection, CameraLocation);
-		RenderLandscape(_Frustum, View, Projection, CameraLocation);
-		RenderLandscape(_Frustum, View, Projection, CameraLocation);
-		RenderLandscape(_Frustum, View, Projection, CameraLocation);
-		RenderLandscape(_Frustum, View, Projection, CameraLocation);
-		RenderLandscape(_Frustum, View, Projection, CameraLocation);
-		RenderLandscape(_Frustum, View, Projection, CameraLocation);
-	};
+	//{
+	//	RenderLandscape(_Frustum, View, Projection, CameraLocation);
+	//	RenderLandscape(_Frustum, View, Projection, CameraLocation);
+	//	RenderLandscape(_Frustum, View, Projection, CameraLocation);
+	//	RenderLandscape(_Frustum, View, Projection, CameraLocation);
+	//	RenderLandscape(_Frustum, View, Projection, CameraLocation);
+	//	RenderLandscape(_Frustum, View, Projection, CameraLocation);
+	//	RenderLandscape(_Frustum, View, Projection, CameraLocation);
+	//	RenderLandscape(_Frustum, View, Projection, CameraLocation);
+	//	RenderLandscape(_Frustum, View, Projection, CameraLocation);
+	//};
 	
 	
 	RenderEnviroment(View, Projection, CameraLocation);

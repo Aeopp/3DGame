@@ -1,6 +1,5 @@
 #include "GraphicDevice.h"
 
-/// TODO:: 현재 안티엘리어싱 적용시 디바이스 생성이 되지 않는 이슈.
 void Engine::GraphicDevice::Initialize(
 	HWND Hwnd, 
 	const bool bFullScreen,
@@ -25,16 +24,17 @@ void Engine::GraphicDevice::Initialize(
 	PresentParameter.MultiSampleType = D3DMULTISAMPLE_NONE;
 	PresentParameter.MultiSampleQuality = 0u;
 
-	//for (uint32 i = 0; i <= 16; ++i)
-	//{
-	//	DWORD QualtyLevel{};
-	//	if (SUCCEEDED(_SDK->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT,
-	//		D3DDEVTYPE_HAL, D3DFMT_R8G8B8, FALSE, static_cast<_D3DMULTISAMPLE_TYPE>(i), &QualtyLevel)))
-	//	{
-	//		PresentParameter.MultiSampleType = static_cast<_D3DMULTISAMPLE_TYPE>(i);
-	//		PresentParameter.MultiSampleQuality = QualtyLevel;
-	//	}
-	//}
+	// 안티앨리어싱을 최고 퀄리티로 설정.
+	for (uint32 i = 1; i <= 16; ++i)
+	{
+		DWORD QualtyLevel{};
+		if (SUCCEEDED(_SDK->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT,
+			D3DDEVTYPE_HAL, D3DFMT_R8G8B8, FALSE, static_cast<_D3DMULTISAMPLE_TYPE>(i), &QualtyLevel)))
+		{
+			PresentParameter.MultiSampleType = static_cast<_D3DMULTISAMPLE_TYPE>(i);
+			PresentParameter.MultiSampleQuality = QualtyLevel;
+		}
+	}
 
 
 	PresentParameter.BackBufferWidth = 0u; 

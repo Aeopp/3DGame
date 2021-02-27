@@ -28,7 +28,7 @@ void Engine::RenderTarget::Initialize(
 
 	// 생성한 텍스쳐로부터 
 	TargetTexture->GetSurfaceLevel(0u, &TargetSurface);
-
+	
 	const std::wstring RenderTargetUniqueResourceName =
 		std::to_wstring(UniqueResourceID);
 
@@ -54,28 +54,14 @@ void Engine::RenderTarget::BindGraphicDevice(const uint32 Index)&
 		MessageBox(Engine::Global::Hwnd,__FUNCTIONW__,__FUNCTIONW__,
 			MB_OK);
 	}
-	//Device->GetRenderTarget(Index, &PrevTargetSurface);
 	Device->SetRenderTarget(Index, TargetSurface);
 }
 
-//void Engine::RenderTarget::UnBindGraphicDevice(const uint32 Index)&
-//{
-//	if (Index > MaxDeviceRenderTargetIndex)
-//	{
-//		MessageBox(Engine::Global::Hwnd, __FUNCTIONW__, __FUNCTIONW__,
-//			MB_OK);
-//	}
-//	//Device->SetRenderTarget(Index, PrevTargetSurface);
-//	//PrevTargetSurface->Release();
-//}
 
 void Engine::RenderTarget::Clear()&
 {
-	// Device->GetRenderTarget(0, &PrevTargetSurface);
 	Device->SetRenderTarget(0, TargetSurface);
 	Device->Clear(0, NULL, D3DCLEAR_TARGET, ClearColor, 1.f, 0);
-	//Device->SetRenderTarget(0, &PrevTargetSurface);
-	//PrevTargetSurface->Release(); 
 }
 
 void Engine::RenderTarget::DebugBufferInitialize(

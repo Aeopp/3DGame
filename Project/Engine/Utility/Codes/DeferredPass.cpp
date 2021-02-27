@@ -13,6 +13,7 @@ void Engine::DeferredPass::DefaultInitialize()&
 {
 	D3DVIEWPORT9 CurViewPort{};
 	Device->GetViewport(&CurViewPort);
+
 	static constexpr D3DFORMAT DefaultFormat = D3DFMT_A32B32G32R32F;
 
 	static constexpr std::pair<uint32,uint32> RenderTargetDebugRenderSize{ 200,200 };
