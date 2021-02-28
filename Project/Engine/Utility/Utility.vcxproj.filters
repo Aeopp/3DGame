@@ -247,7 +247,12 @@
     <ClInclude Include="..\..\..\Resource\Shader\DeferredRimFx.hlsl">
       <Filter>Shader\HLSL</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Resource\Shader\SkyFx.hlsl" />
+    <ClInclude Include="..\..\..\Resource\Shader\DeferredLightFx.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Resource\Shader\SkyFx.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">
@@ -373,10 +378,5 @@
     <ClCompile Include="Codes\Light.cpp">
       <Filter>DeferredPass</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="..\..\..\Resource\Shader\DeferredLight.hlsl">
-      <Filter>Shader\HLSL</Filter>
-    </FxCompile>
   </ItemGroup>
 </Project>
