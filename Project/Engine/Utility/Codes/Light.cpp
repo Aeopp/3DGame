@@ -39,11 +39,10 @@ void Engine::Light::Render(IDirect3DDevice9* const Device, const Vector3& Camera
 	Fx->SetMatrix("View", &View);
 	Fx->SetMatrix("Projection", &Projection);
 	const Vector4 CameraLocation4D = FMath::ConvertVector4(CameraLocation, 1.f);
-	
+
 	Fx->SetVector("CameraLocation", &CameraLocation4D);
 	Fx->SetVector("LightDirection", &_LightInfo.Direction);
-	Fx->SetVector("LightColor ",  &_LightInfo.LightColor);
-	
+	Fx->SetVector("LightColor",  &_LightInfo.LightColor);
 
 	for (uint32 i = 0; i < Pass; ++i)
 	{
@@ -56,8 +55,7 @@ void Engine::Light::Render(IDirect3DDevice9* const Device, const Vector3& Camera
 		Fx->CommitChanges();
 		Device->SetIndices(IdxBuf);
 		Device->SetStreamSource(0u, VtxBuf, 0u, sizeof(Vertex::Screen));
-		Device->SetVertexDeclaration(VtxDecl);
-		Device->SetFVF(Vertex::Screen::FVF);
+		 Device->SetVertexDeclaration(VtxDecl);
 		Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, 4u, 0u, 2u);
 		Fx->EndPass();
 	};

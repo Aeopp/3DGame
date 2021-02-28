@@ -45,7 +45,7 @@ namespace Engine
 								   const Vector2& Size)&; 
 		// 사용 쉐이더와 상수테이블 문자열을 매핑하여주세요.
 		void BindShaderTexture(ID3DXEffect* const Fx,
-						const std::string& ConstantTableName)&;
+								const std::string& ConstantTableName)&;
 
 		void RenderDebugBuffer()&;
 
@@ -59,7 +59,6 @@ namespace Engine
 		IDirect3DTexture9* TargetTexture{ nullptr };
 		// 화면 단위 텍스쳐 . 
 		IDirect3DSurface9* TargetSurface{ nullptr };
-		// IDirect3DSurface9* PrevTargetSurface{ nullptr };
 		D3DXCOLOR ClearColor{};
 		IDirect3DVertexBuffer9* VtxBuf{ nullptr };
 		IDirect3DIndexBuffer9* IdxBuf{ nullptr };

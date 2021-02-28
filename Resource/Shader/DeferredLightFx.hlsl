@@ -4,7 +4,7 @@ float4x4 Projection;
 float4 CameraLocation;
 float4 LightDirection;
 
-float4 LightColor = float4(1, 1, 1,1);
+float4 LightColor; 
 float3 AmbientColor = float3(0.1, 0.1, 0.1);
 
 texture Albedo3_Contract1;
@@ -61,6 +61,26 @@ sampler RimRGB1_InnerWidth1_OuterWidth1Sampler = sampler_state
     
 };
 
+//struct VS_IN
+//{
+//    vector Position : POSITION;
+//    float2 UV : TEXCOORD0;
+//};
+//struct VS_OUT
+//{
+//    vector Position : POSITION;
+//    float2 UV : TEXCOORD0;
+//};
+
+//VS_OUT VS_MAIN(VS_IN In)
+//{
+//    VS_OUT Out;
+//    Out.UV = In.UV;
+//    Out.Position = float4(In.Position.xyz, 1.f);
+    
+//    return Out;
+//}
+
 struct PS_IN
 {
     float2 UV : TEXCOORD0; 
@@ -114,6 +134,7 @@ PS_OUT PS_MAIN(PS_IN In)
     
     Out.Color = float4(Albedo *LightColor.rgb* Diffuse +AmbientColor,1.f);
     
+    // Out.Color = float4(1, 0, 0, 1);
     
     
     //// ?? 
@@ -128,9 +149,9 @@ PS_OUT PS_MAIN(PS_IN In)
 
 
 
-technique Default_Device
+technique DeferredLight
 {
-    pass
+    pass DeferredLightPass
     {
         zwriteenable = false;
         alphablendenable = false;
@@ -138,7 +159,8 @@ technique Default_Device
         zenable = false;
         cullmode = ccw;
 
-        vertexshader = NULL;
+        // vertexshader = compile vs_3_0 VS_MAIN();
+        Vertexshader = NULL; 
         pixelshader = compile ps_3_0 PS_MAIN();
     }
 }

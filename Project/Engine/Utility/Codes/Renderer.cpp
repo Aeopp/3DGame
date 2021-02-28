@@ -71,14 +71,7 @@ void Engine::Renderer::Render()&
 
 	Device->SetRenderTarget(0u, CurBackBufSurface);
 
-	_DirectionalLight.Render(Device.get(),
-		CameraLocation3D, View,Projection, _DeferredPass.Albedo3_Contract1.GetTexture(),
-		_DeferredPass.Normal3_Power1.GetTexture(),
-		_DeferredPass.WorldLocation3_Depth1.GetTexture(),
-		_DeferredPass.CavityRGB1_CavityAlpha1_NULL1_NULL1.GetTexture(),
-		_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.GetTexture());
-
-	//CurrentLandscape.Render(_Frustum, View, Projection, CameraLocation);
+	CurrentLandscape.Render(_Frustum, View, Projection, CameraLocation);
 	RenderEnviroment(View, Projection, CameraLocation);
 	RenderNoAlpha(View, Projection, CameraLocation);
 	if (Engine::Global::bDebugMode)
@@ -90,6 +83,15 @@ void Engine::Renderer::Render()&
 
 	_Sky.Render(_Frustum, View, Projection, CameraLocation, Device.get(),
 		_DeferredPass.WorldLocation3_Depth1.GetTexture());
+
+
+	_DirectionalLight.Render(Device.get(),
+		CameraLocation3D, View, Projection, _DeferredPass.Albedo3_Contract1.GetTexture(),
+		_DeferredPass.Normal3_Power1.GetTexture(),
+		_DeferredPass.WorldLocation3_Depth1.GetTexture(),
+		_DeferredPass.CavityRGB1_CavityAlpha1_NULL1_NULL1.GetTexture(),
+		_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.GetTexture());
+
 
 
 
@@ -126,7 +128,7 @@ void Engine::Renderer::CreateStaticLightResource()&
 
 	IDirect3DVertexBuffer9* LightVtxBuf{ nullptr };
 	Device->CreateVertexBuffer(sizeof(Vertex::Screen) * 4,
-		D3DUSAGE_WRITEONLY, Vertex::Screen::FVF, D3DPOOL_MANAGED,
+		D3DUSAGE_WRITEONLY, NULL, D3DPOOL_MANAGED,
 		&LightVtxBuf, nullptr);
 
 	ResourceSys->Insert<IDirect3DVertexBuffer9>(LightVertexBufferTag,
@@ -153,17 +155,17 @@ void Engine::Renderer::CreateStaticLightResource()&
 	Vertex::Screen* VtxBufPtr{ nullptr };
 	LightVtxBuf->Lock(0, 0, reinterpret_cast<void**>(&VtxBufPtr), NULL);
 
-	VtxBufPtr[0].Homogeneous4D = { 0.f, 0.f, 0.f, 1.f };
-	VtxBufPtr[0].UV2D = { 0.f, 0.f };
+	VtxBufPtr[0].Homogeneous4D= { 0.0f, 0.0f, 0.0f,1.f };
+	VtxBufPtr[0].UV2D= { 0.f, 0.f };
 
-	VtxBufPtr[1].Homogeneous4D = { (float)ViewPort.Width, 0.f, 0.f, 1.f };
+	VtxBufPtr[1].Homogeneous4D = { (float)ViewPort.Width, 0.0f, 0.0f,1.f };
 	VtxBufPtr[1].UV2D = { 1.f, 0.f };
 
-	VtxBufPtr[2].Homogeneous4D = { (float)ViewPort.Width, (float)ViewPort.Height, 0.f, 1.f };
+	VtxBufPtr[2].Homogeneous4D = { (float)ViewPort.Width, (float)ViewPort.Height, 0.0f,1.f };
 	VtxBufPtr[2].UV2D =  { 1.f, 1.f}  ;
 
-	VtxBufPtr[3].Homogeneous4D = { 0.f, (float)ViewPort.Height, 0.f, 1.f };
-	VtxBufPtr[3].UV2D = { 0.f, 1.f };  
+	VtxBufPtr[3].Homogeneous4D = { 0.0f , (float)ViewPort.Height, 0.0f,1.f };
+	VtxBufPtr[3].UV2D = { 0.f, 1.f };
 
 	LightVtxBuf->Unlock(); 
 
@@ -173,12 +175,12 @@ void Engine::Renderer::CreateStaticLightResource()&
 	LightIdxBuf->Lock(0, 0, (void**)&IdxBufPtr, 0);
 
 	IdxBufPtr[0]= 0u;
-	IdxBufPtr[2]= 1u;
-	IdxBufPtr[3]= 2u;
+	IdxBufPtr[1]= 1u;
+	IdxBufPtr[2]= 2u;
 				   
-	IdxBufPtr[4]= 0u;
-	IdxBufPtr[5]= 2u;
-	IdxBufPtr[6]= 3u;
+	IdxBufPtr[3]= 0u;
+	IdxBufPtr[4]= 2u;
+	IdxBufPtr[5]= 3u;
 
 	LightIdxBuf->Unlock();
 }
