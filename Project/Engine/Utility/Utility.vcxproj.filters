@@ -241,9 +241,6 @@
     <ClInclude Include="..\..\..\Resource\Shader\DeferredAlbedoNormalWorldPosDepthSpecularFx.hlsl">
       <Filter>Shader\HLSL</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Resource\Shader\DeferredDefaultFx.hlsl">
-      <Filter>Shader\HLSL</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Resource\Shader\DeferredRimFx.hlsl">
       <Filter>Shader\HLSL</Filter>
     </ClInclude>

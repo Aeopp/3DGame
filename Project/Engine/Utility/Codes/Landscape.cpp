@@ -461,9 +461,11 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 		
 			for (auto& CurMesh : CurDeco.Meshes)
 			{
+				if (false == CurMesh.MaterialInfo.bForwardRender)continue;
+
 				const bool bRender = CurDecoInstance->CurRenderIDSet.contains(CurMesh.ID);
 
-				if (bRender)
+				if (bRender )
 				{
 					Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
 					Device->SetIndices(CurMesh.IdxBuf);
@@ -632,6 +634,8 @@ void Engine::Landscape::RenderDeferredAlbedoNormalWorldPosDepthSpecular(Engine::
 
 			for (auto& CurMesh : CurDeco.Meshes)
 			{
+				if (true == CurMesh.MaterialInfo.bForwardRender)continue;
+
 				const bool bRender = CurDecoInstance->CurRenderIDSet.contains(CurMesh.ID);
 
 				if (bRender)

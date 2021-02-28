@@ -210,12 +210,15 @@ technique Default_Device
 {
     pass AlbedoNormalWorldPosDepthSpecular
     {
-        zwriteenable = true;
+        zwriteenable     = true;
         alphablendenable = false;
         fillmode = solid;
-        zenable = true;
+        zenable  = true;
         cullmode = ccw;
-
+        StencilEnable = true;
+        StencilFunc = always;
+        StencilPass = replace;
+        StencilRef = 1;
         vertexshader = compile vs_3_0 VS_MAIN();
         pixelshader = compile ps_3_0 AlbedoNormalWorldPosDepthSpecular();
     }

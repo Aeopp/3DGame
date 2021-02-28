@@ -62,9 +62,8 @@ technique Default_Device
 {
     pass 
     {
-        
         alphablendenable = false;
-        zenable = true;
+        zenable      = true;
         zwriteenable = true;
         cullmode = ccw;
         fillmode = solid;

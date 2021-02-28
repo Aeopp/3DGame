@@ -5,7 +5,7 @@ float4 CameraLocation;
 float4 LightDirection;
 
 float4 LightColor; 
-float3 AmbientColor = float3(0.1, 0.1, 0.1);
+float3 AmbientColor = float3(0.01, 0.01, 0.01);
 
 texture Albedo3_Contract1;
 texture Normal3_Power1;
@@ -61,26 +61,6 @@ sampler RimRGB1_InnerWidth1_OuterWidth1Sampler = sampler_state
     
 };
 
-//struct VS_IN
-//{
-//    vector Position : POSITION;
-//    float2 UV : TEXCOORD0;
-//};
-//struct VS_OUT
-//{
-//    vector Position : POSITION;
-//    float2 UV : TEXCOORD0;
-//};
-
-//VS_OUT VS_MAIN(VS_IN In)
-//{
-//    VS_OUT Out;
-//    Out.UV = In.UV;
-//    Out.Position = float4(In.Position.xyz, 1.f);
-    
-//    return Out;
-//}
-
 struct PS_IN
 {
     float2 UV : TEXCOORD0; 
@@ -112,36 +92,52 @@ PS_OUT PS_MAIN(PS_IN In)
     float Power = Normal3_Power1.a;
     
     float3 WorldLocation = WorldPos3_Depth1.rgb;
-    WorldLocation *= 2.0f;
-    WorldLocation -= 1.f;
-    float Depth = WorldPos3_Depth1.a;
+    float  Depth = WorldPos3_Depth1.a;
     
     float3 CavityColor = CavityRGB1_CavityAlpha1.rrr;
     float  CavityAlpha = CavityRGB1_CavityAlpha1.g;
     
-    float3 RimLightColor = RimRGB1_InnerWidth1_OuterWidth1.aaa;
-    float RimInnerWidth  = RimRGB1_InnerWidth1_OuterWidth1.g;
-    float RimOuterWidth  = RimRGB1_InnerWidth1_OuterWidth1.b;
+    float3 RimLightColor  = RimRGB1_InnerWidth1_OuterWidth1.rrr;
+    float  RimInnerWidth  = RimRGB1_InnerWidth1_OuterWidth1.g;
+    float  RimOuterWidth  = RimRGB1_InnerWidth1_OuterWidth1.b;
     
-    // float3 ViewDirection = CameraLocation.xyz - WorldLocation.xyz;
-    // float Rim = max(0.0, dot(normalize(Normal), ViewDirection)));
+    float3 ViewDirection = normalize(CameraLocation.xyz - WorldLocation.xyz);
+    
+    float Rim = max(0.0f, dot(normalize(Normal), ViewDirection));
+    
+    float RimAmtOuter = abs(1.f - Rim);
+    float RimAmtInner = abs(0.f-  Rim);
+    
+    float RimAmt = 0.f;
+    
+    if (RimAmtOuter > RimAmtInner)
+    {
+        RimAmt = RimAmtOuter;
+        RimAmt = smoothstep(1.0f - saturate(RimOuterWidth), 1.f, RimAmt);
+    }
+    else
+    {
+        RimAmt = RimAmtInner;
+        RimAmt = smoothstep(1.0f - saturate(RimInnerWidth), 1.f, RimAmt);
+    }
     
     float3 LightDirectionNormal = normalize(LightDirection.xyz);
-    float Specular = 0.f;
-    float Diffuse = saturate(dot(-LightDirectionNormal.xyz, Normal));
+    
+    float Specular = 0.0f;
+    
+    float Diffuse = saturate(dot(-LightDirectionNormal, Normal));
     Diffuse = pow(((Diffuse * 0.5) + 0.5), Contract);
     Diffuse = ceil(Diffuse * 5.0) / 5.0f;
     
-    Out.Color = float4(Albedo *LightColor.rgb* Diffuse +AmbientColor,1.f);
+    float3 HalfVec = normalize((-LightDirectionNormal) + ViewDirection);
+    Specular = saturate(dot(HalfVec, Normal));
+    Specular = pow(abs(Specular), abs(Power));
     
-    // Out.Color = float4(1, 0, 0, 1);
+    Out.Color = float4(   Albedo.rgb * LightColor.rgb * Diffuse +
+                         CavityColor.rgb * LightColor.rgb * Specular, 1.0f);
     
-    
-    //// ?? 
-    //Out.Color = float4(Albedo, 1.f);
-    
-    //Out.Color = float4(1, 1, 1, 1);
-    
+    Out.Color.rgb += AmbientColor.rgb;
+    Out.Color.rgb += RimAmt * RimLightColor.rgb;
     
     return Out;
 }
@@ -155,11 +151,12 @@ technique DeferredLight
     {
         zwriteenable = false;
         alphablendenable = false;
+        srcblend = srcalpha;
+        destblend = invsrcalpha;
         fillmode = solid;
         zenable = false;
         cullmode = ccw;
 
-        // vertexshader = compile vs_3_0 VS_MAIN();
         Vertexshader = NULL; 
         pixelshader = compile ps_3_0 PS_MAIN();
     }

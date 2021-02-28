@@ -253,7 +253,10 @@ technique Default_Device
         zwriteenable = true; 
         cullmode = ccw;
         fillmode = solid;
-
+        StencilEnable = true;
+        StencilFunc = always;
+        StencilPass = replace;
+        StencilRef = 1;
         vertexshader = compile vs_3_0 VS_MAIN();
         pixelshader = compile ps_3_0 PS_MAIN();
     }

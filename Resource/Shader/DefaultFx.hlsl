@@ -181,7 +181,6 @@ PS_OUT PS_MAIN(PS_IN In)
                             normalize(In.BiNormal),
                             normalize(In.Normal));
     
-    
     float3 WorldNormal = normalize(mul(TangentNormal, TBN));
     
     In.ViewDirection = normalize(In.ViewDirection);

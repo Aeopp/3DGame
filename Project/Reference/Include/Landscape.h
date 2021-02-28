@@ -35,12 +35,13 @@ namespace Engine
 			std::string Name{};
 			Engine::MaterialInformation MaterialInfo{};
 			Sphere BoundingSphere{};
+			
 		};
 		struct FloatingInformation
 		{
 			static inline std::pair<float, float> VibrationWidthRange{ 0.f,1.f };
-			static inline std::pair<float, float > RotationAccRange  { 0.0f,0.000015f };
-			static inline std::pair<float, float>  VibrationAccRange  { 0.0f,0.01f };
+			static inline std::pair<float, float > RotationAccRange  { 0.0f,0.000003f };
+			static inline std::pair<float, float>  VibrationAccRange  { 0.0f,0.1f };
 			
 			static void RangeEdit();
 			void Initialize()&

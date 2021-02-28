@@ -123,6 +123,11 @@ void Engine::MaterialInformation::PropsLoad(const std::filesystem::path& PropsFi
 			AlphaAddtive = _Document["AlphaAddtive"].GetFloat();
 		}
 
+		if (_Document.HasMember("bForwardRender"))
+		{
+			bForwardRender = _Document["bForwardRender"].GetBool();
+		}
+
 		const auto&     RimAmtColorArr = _Document["RimAmtColor"].GetArray();
 		RimAmtColor.x = RimAmtColorArr[0].GetFloat();
 		RimAmtColor.y = RimAmtColorArr[1].GetFloat();
@@ -241,6 +246,9 @@ void Engine::MaterialInformation::PropSave(std::filesystem::path PropsFilePath)&
 
 			Writer.Key("AlphaAddtive");
 			Writer.Double(AlphaAddtive); 
+
+			Writer.Key("bForwardRender");
+			Writer.Bool(bForwardRender);
 		}
 		Writer.EndObject();
 

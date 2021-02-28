@@ -9,8 +9,8 @@
     },
     "Contract": 1,
     "RimInnerWidth": 0.0,
-    "RimOuterWidth": 0.13199999928474427,
-    "Power": 15.475000381469727,
+    "RimOuterWidth": 0.0,
+    "Power": 26.78499984741211,
     "SpecularIntencity": 0.4860000014305115,
     "DetailScale": 1.0,
     "CavityCoefficient": 2.200000047683716,
@@ -28,5 +28,6 @@
         0.10000000149011612,
         1.0
     ],
-    "AlphaAddtive": 0.0
+    "AlphaAddtive": 0.0,
+    "bForwardRender": true
 }

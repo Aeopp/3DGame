@@ -437,7 +437,6 @@ void MapEdit::Landscape()&
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_Power").c_str(), &CurMesh.MaterialInfo.Power, 1.f, 100.f);
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_CavityCoefficient").c_str(), &CurMesh.MaterialInfo.CavityCoefficient, 0.f, 2.2f);
 							
-							
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_SpecularIntencity").c_str(), &CurMesh.MaterialInfo.SpecularIntencity, 0.f, 1.f);
 							ImGui::ColorEdit4((std::to_string(DummyLableID) + "_RimAmtColor").c_str(), CurMesh.MaterialInfo.RimAmtColor);
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_RimOuterWidth").c_str(),&CurMesh.MaterialInfo.RimOuterWidth,0.f,1.f);
@@ -447,6 +446,8 @@ void MapEdit::Landscape()&
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_DetailNormalIntensity").c_str(), &CurMesh.MaterialInfo.DetailNormalIntensity, 0.f,2.f);
 							ImGui::SliderFloat((std::to_string(DummyLableID) + "_AlphaAddtive").c_str(),
 								&CurMesh.MaterialInfo.AlphaAddtive, 0.0f, 1.0f);
+							ImGui::Checkbox((std::to_string(DummyLableID) + "_bForwardRender").c_str(),
+								&CurMesh.MaterialInfo.bForwardRender);
 
 							DummyLableID++;
 							const std::string   CurID = std::to_string(TextureID++);

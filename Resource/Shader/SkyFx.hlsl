@@ -20,11 +20,9 @@ sampler WorldLocationDepthSampler = sampler_state
 {
     texture = WorldLocationDepth;
 
-    minfilter = anisotropic;
-    magfilter = anisotropic;
-    mipfilter = anisotropic;
-
-    MaxAnisotropy = 16;
+    minfilter = point;
+    magfilter = point;
+    mipfilter = point;
 };
 
 
@@ -77,10 +75,10 @@ PS_OUT PS_MAIN(PS_IN In)
     In.ClipPosition.xy = In.ClipPosition.xy * 0.5f + 0.5f;
     In.ClipPosition.y *= -1.f;
     
-    if (tex2D(WorldLocationDepthSampler, In.ClipPosition.xy).w !=1.f)
-    {
-        discard;
-    }
+    //if (tex2D(WorldLocationDepthSampler, In.ClipPosition.xy).w != 1.f)
+    //{
+    //    discard;
+    //}
     
     return Out;
 }
@@ -93,9 +91,10 @@ technique Default_Device
         zwriteenable     = false;
         cullmode = ccw;
         zenable = false;
-        zwriteenable = false;
         fillmode = solid;
-
+        StencilEnable = true;
+        StencilRef = 1;
+        StencilFunc = notequal;
         vertexshader = compile vs_3_0 VS_MAIN();
         pixelshader = compile ps_3_0 PS_MAIN();
     }

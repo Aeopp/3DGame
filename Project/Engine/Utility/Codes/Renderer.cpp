@@ -44,7 +44,7 @@ void Engine::Renderer::Render()&
 	CurrentLandscape.FrustumCullingCheck(_Frustum);
 	IDirect3DSurface9* CurBackBufSurface{ nullptr };
 	Device->GetRenderTarget(0u, &CurBackBufSurface);
-
+	
 	_DeferredPass.Albedo3_Contract1.Clear();
 	_DeferredPass.Normal3_Power1.Clear();
 	_DeferredPass.WorldLocation3_Depth1.Clear();
@@ -58,7 +58,8 @@ void Engine::Renderer::Render()&
 		 _DeferredPass.WorldLocation3_Depth1.BindGraphicDevice(2u);
 		 _DeferredPass.CavityRGB1_CavityAlpha1_NULL1_NULL1.BindGraphicDevice(3u);
 
-		 CurrentLandscape.RenderDeferredAlbedoNormalWorldPosDepthSpecular(_Frustum, View, Projection, CameraLocation);
+		 CurrentLandscape.RenderDeferredAlbedoNormalWorldPosDepthSpecular(
+			 _Frustum, View, Projection, CameraLocation);
 	};
 
 	// 디퍼드 2 Pass
@@ -68,8 +69,14 @@ void Engine::Renderer::Render()&
 		CurrentLandscape.RenderDeferredRim(_Frustum, View, Projection, CameraLocation);
 	};
 
-
 	Device->SetRenderTarget(0u, CurBackBufSurface);
+	
+	_DirectionalLight.Render(Device.get(),
+		CameraLocation3D, View, Projection, _DeferredPass.Albedo3_Contract1.GetTexture(),
+		_DeferredPass.Normal3_Power1.GetTexture(),
+		_DeferredPass.WorldLocation3_Depth1.GetTexture(),
+		_DeferredPass.CavityRGB1_CavityAlpha1_NULL1_NULL1.GetTexture(),
+		_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.GetTexture());
 
 	CurrentLandscape.Render(_Frustum, View, Projection, CameraLocation);
 	RenderEnviroment(View, Projection, CameraLocation);
@@ -81,19 +88,11 @@ void Engine::Renderer::Render()&
 	_Frustum.Render(Device.get());
 	RenderUI(View, Projection, CameraLocation);
 
+
+	
+
 	_Sky.Render(_Frustum, View, Projection, CameraLocation, Device.get(),
 		_DeferredPass.WorldLocation3_Depth1.GetTexture());
-
-
-	_DirectionalLight.Render(Device.get(),
-		CameraLocation3D, View, Projection, _DeferredPass.Albedo3_Contract1.GetTexture(),
-		_DeferredPass.Normal3_Power1.GetTexture(),
-		_DeferredPass.WorldLocation3_Depth1.GetTexture(),
-		_DeferredPass.CavityRGB1_CavityAlpha1_NULL1_NULL1.GetTexture(),
-		_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.GetTexture());
-
-
-
 
 	_DeferredPass.Albedo3_Contract1.RenderDebugBuffer();
 	_DeferredPass.Normal3_Power1.RenderDebugBuffer();

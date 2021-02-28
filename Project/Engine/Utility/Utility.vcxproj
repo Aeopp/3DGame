@@ -296,11 +296,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Resource\Shader\DeferredDefaultFx.hlsl">
-      <FileType>Document</FileType>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\..\..\Resource\Shader\DeferredAlbedoNormalWorldPosDepthSpecularFx.hlsl">
       <FileType>Document</FileType>
     </ClInclude>
