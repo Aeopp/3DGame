@@ -15,9 +15,10 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 	_DeferredPass.Initialize(Device.get());
 
 	Engine::Light::LightInformation LightInfo{};
-	LightInfo.Direction = { -0.532f,-0.819f,0.214f, 0 };
-	LightInfo.Location = { 4404.762f,6782.715f,-119.f, 1};
-
+	LightInfo.Direction = { 0.042f,-0.990f,-0.131f, 0 };
+	LightInfo.Location = { 0.0f,1768.707f,0.0f, 1};
+	LightInfo.ShadowFar = 1933.962f;
+	LightInfo.ShadowDepthBias = 13.f;
 	LightInfo._LightOpt = Engine::Light::LightOption::Directional;
 	_DirectionalLight.Initialize(Device.get(), LightInfo);
 };

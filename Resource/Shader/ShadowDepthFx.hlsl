@@ -9,7 +9,7 @@ struct VS_IN
 struct VS_OUT
 {
     vector Position : POSITION;
-    vector ClipPosition : TEXCOORD0;
+    vector WorldPosition : TEXCOORD0;
 };
 
 // ¡§¡° Ω¶¿Ã¥ı
@@ -20,14 +20,14 @@ VS_OUT VS_MAIN(VS_IN In)
     matrix WVP = mul(World, LightViewProjection);
     
     Out.Position = mul(vector(In.Position.xyz, 1.f), WVP);
-    Out.ClipPosition = Out.Position;
+    Out.WorldPosition = mul(float4(In.Position.xyz, 1.f), World);
     
     return Out;
 }
 
 struct PS_IN
 {
-    vector ClipPosition : TEXCOORD0;
+    vector WorldPosition : TEXCOORD0;
 };
 
 struct PS_OUT
@@ -39,8 +39,9 @@ PS_OUT PS_MAIN(PS_IN In)
 {
     PS_OUT Out = (PS_OUT) 0;
     
-    float3 Depth = In.ClipPosition.xyz / In.ClipPosition.w;
-    Out.ShadowDepth = float4(Depth.xyz, 1.f);
+    float4 Depth = mul(In.WorldPosition, LightViewProjection);
+    
+    Out.ShadowDepth = float4(Depth.zzz, 1.f);
     
     return Out;
 }

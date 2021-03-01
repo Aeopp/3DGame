@@ -106,6 +106,7 @@ struct PS_OUT
     vector Color : COLOR0;
 };
 
+
 PS_OUT PS_MAIN(PS_IN In)
 {
     PS_OUT Out = (PS_OUT) 0;
@@ -174,28 +175,19 @@ PS_OUT PS_MAIN(PS_IN In)
     Out.Color.rgb += RimAmt * RimLightColor.rgb;
   
     float4 LightClipPosition=mul(float4(WorldLocation, 1.f), LightViewProjection);
-    LightClipPosition.xyz =    LightClipPosition.xyz / LightClipPosition.w;
+    LightClipPosition.xy =    LightClipPosition.xy / LightClipPosition.w;
     LightClipPosition.y *= -1.f;
     LightClipPosition.xy *= 0.5f;
     LightClipPosition.xy += 0.5f;
     
-    //float CurrentDepth = LightClipPosition.z;
-    //float ShadowDepth = tex2D(ShadowDepthSampler, LightClipPosition.xy).z;
     
-    //if (CurrentDepth > (ShadowDepth + ShadowDepthBias))
-    //{
-    //    Out.Color.rgb *= 0.1f;
-    //}
+    float CurrentDepth = LightClipPosition.z;
+   
+    float ShadowDepth = tex2D(ShadowDepthSampler, LightClipPosition.xy).x;
     
-    if (LightClipPosition.x >= 0.0f && LightClipPosition.x <= 1.0f)
+    if (CurrentDepth > (ShadowDepth + ShadowDepthBias))
     {
-        float CurrentDepth = LightClipPosition.z;
-        float ShadowDepth = tex2D(ShadowDepthSampler, LightClipPosition.xy).z;
-    
-        if (CurrentDepth > (ShadowDepth + ShadowDepthBias))
-        {
-            Out.Color.rgb *= 0.1f;
-        }
+        Out.Color.rgb *= 0.1f;
     }
     
     
