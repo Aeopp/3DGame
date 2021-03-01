@@ -30,6 +30,7 @@ namespace Engine
 			Vector4 Location{ 0,0,0 ,1}; 
 			Vector4 Direction{ 0,-1,0,0 };
 			Vector4 LightColor{ 1,1,1 ,1}; 
+			float ShadowDepthBias = { 0.0f };
 			float ShadowFar{10000.f};
 		};
 		void Initialize(IDirect3DDevice9* const Device,

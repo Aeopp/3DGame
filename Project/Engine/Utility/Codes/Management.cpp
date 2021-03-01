@@ -458,6 +458,8 @@ void Engine::Management::CreateStaticResource()&
 			Engine::Global::ResourcePath / L"Shader" / L"SkyFx.hlsl",
 			L"SkyFx");
 
+		
+
 
 		Engine::ShaderFx::Load(Device.get(),
 			Engine::Global::ResourcePath / L"Shader" / L"SkeletonSkinningDefaultFx.hlsl",

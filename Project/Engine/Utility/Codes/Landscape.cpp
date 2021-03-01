@@ -684,17 +684,7 @@ void Engine::Landscape::RenderShadowDepth(
 	Device->SetVertexDeclaration(VtxDecl);
 
 	auto Fx = ShadowDepthFx.GetHandle();
-
-
-	Matrix View, Projection;
-	Device->GetTransform(D3DTS_VIEW, &View);
-	Device->GetTransform(D3DTS_PROJECTION, &Projection);
-	Matrix ViewProjection = View* Projection;
-
-
-	Fx->SetMatrix("LightViewProjection", &ViewProjection);
-
-
+	Fx->SetMatrix("LightViewProjection", &LightViewProjection);
 
 	for (const auto& [DecoKey, CurDeco] : DecoratorContainer)
 	{

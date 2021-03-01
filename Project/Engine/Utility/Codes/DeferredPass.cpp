@@ -16,34 +16,34 @@ void Engine::DeferredPass::DefaultInitialize()&
 
 	static constexpr D3DFORMAT DefaultFormat = D3DFMT_A32B32G32R32F;
 
-	static constexpr std::pair<uint32,uint32> RenderTargetDebugRenderSize{ 200,200 };
+	static const Vector2 RenderTargetDebugRenderSize{ 100.f,100.f};
 	
 	Albedo3_Contract1.Initialize(Device, CurViewPort.Width, CurViewPort.Height, D3DFMT_A16B16G16R16F,
 		D3DXCOLOR(0.f, 0.f, 0.f, 1.f));
-	Albedo3_Contract1.DebugBufferInitialize({ 0.f,0.f }, { RenderTargetDebugRenderSize.first,RenderTargetDebugRenderSize .second});
+	Albedo3_Contract1.DebugBufferInitialize({ -860.f,+440.f}, RenderTargetDebugRenderSize);
 
 	Normal3_Power1.Initialize(Device, CurViewPort.Width, CurViewPort.Height, D3DFMT_A16B16G16R16F,
 			D3DXCOLOR(0.f, 0.f, 0.f, 1.f));
-	Normal3_Power1.DebugBufferInitialize({ 0.f,200.f }, { RenderTargetDebugRenderSize.first,RenderTargetDebugRenderSize.second });
+	Normal3_Power1.DebugBufferInitialize({ -860.f,+240.f}, RenderTargetDebugRenderSize);
 
 	WorldLocation3_Depth1.Initialize(Device, CurViewPort.Width, CurViewPort.Height, D3DFMT_A32B32G32R32F,
 		D3DXCOLOR(0.f, 0.f, 0.f, 1.f));
-	WorldLocation3_Depth1.DebugBufferInitialize({ 0.f,400.f }, { RenderTargetDebugRenderSize.first,RenderTargetDebugRenderSize.second });
+	WorldLocation3_Depth1.DebugBufferInitialize({ -860.f,40.f}, { RenderTargetDebugRenderSize });
 
 	CavityRGB1_CavityAlpha1_NULL_NULL1.Initialize(Device, CurViewPort.Width, CurViewPort.Height, D3DFMT_A16B16G16R16F,
 		D3DXCOLOR(0.f, 0.f, 0.f, 1.f));
-	CavityRGB1_CavityAlpha1_NULL_NULL1.DebugBufferInitialize({ 0.f,600.f }, { RenderTargetDebugRenderSize.first,RenderTargetDebugRenderSize.second });
+	CavityRGB1_CavityAlpha1_NULL_NULL1.DebugBufferInitialize({ -860.f,-160.f}, RenderTargetDebugRenderSize);
 	
-	RimRGB1_InnerWidth1_OuterWidth1_NULL1.Initialize(Device, CurViewPort.Width, CurViewPort.Height, D3DFMT_A16B16G16R16F,
+	RimRGB1_InnerWidth1_OuterWidth1_NULL1.Initialize(Device, 
+		CurViewPort.Width, CurViewPort.Height, D3DFMT_A16B16G16R16F,
 		D3DXCOLOR(0.f, 0.f, 0.f, 1.f));
-	RimRGB1_InnerWidth1_OuterWidth1_NULL1.DebugBufferInitialize({ 0.f,800.f }, { RenderTargetDebugRenderSize.first,RenderTargetDebugRenderSize.second });
+	RimRGB1_InnerWidth1_OuterWidth1_NULL1.DebugBufferInitialize({ -860.f,-360.f },
+		RenderTargetDebugRenderSize);
 
 	ShadowDepth.Initialize(Device, CurViewPort.Width,
-		CurViewPort.Height, 
-		D3DFMT_A16B16G16R16F,
-		D3DXCOLOR(0.f, 0.f, 0.f, 1.f));
+		CurViewPort.Height,
+		D3DFMT_R32F,
+		D3DXCOLOR(1.f, 1.f, 1.f, 1.f));
 	ShadowDepth.DepthStencilInitialize(Device, CurViewPort.Width, CurViewPort.Height, D3DFMT_D24X8);
-	ShadowDepth.DebugBufferInitialize({ 200.f,0.f }, { RenderTargetDebugRenderSize.first,RenderTargetDebugRenderSize.second });
-		
-
+	ShadowDepth.DebugBufferInitialize({ -660.f,440.f }, RenderTargetDebugRenderSize);
 }

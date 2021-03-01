@@ -6,6 +6,7 @@
 #include <string>
 #include <map>
 #include <optional>
+#include "ShaderFx.h"
 
 namespace Engine
 {
@@ -43,8 +44,8 @@ namespace Engine
 		void Clear()&;
 		void ClearWithDepthStencil(const DWORD Flags)&;
 
-		// 뷰포트의 좌상단 기준 텍스쳐 시작 좌표와 뷰포트기준 사이즈를 입력해주세요.
-		void DebugBufferInitialize(const Vector2& ViewPortLeftTopAnchor,
+		// NDC 좌표계 기준 LeftTop 위치와 사이즈를 입력해주세요
+		void DebugBufferInitialize(const Vector2& LeftTopAnchor,
 								   const Vector2& Size)&; 
 		// 사용 쉐이더와 상수테이블 문자열을 매핑하여주세요.
 		void BindShaderTexture(ID3DXEffect* const Fx,
@@ -57,8 +58,11 @@ namespace Engine
 		uint32 Width = 0u;
 		uint32 Height = 0u;
 	private:
+		Engine::ShaderFx _DebugBufferFx{};
+		Vector2 ScreenSize{0,0};
+		Vector2 ScreenPos{ 0,0 };
 		uint32 Stride = 0u;
-		DWORD FVF = 0u;
+		
 		const uint32 UniqueResourceID = 0u;
 		IDirect3DDevice9* Device{ nullptr };
 		// 렌더타겟용 텍스쳐 .
@@ -67,6 +71,7 @@ namespace Engine
 		IDirect3DSurface9* TargetSurface{ nullptr };
 		// 깊이 스텐실
 		IDirect3DSurface9* TargetDepthStencil{ nullptr };
+		IDirect3DVertexDeclaration9* DebugBufVtxDecl{ nullptr };
 		D3DXCOLOR ClearColor{};
 		IDirect3DVertexBuffer9* VtxBuf{ nullptr };
 		IDirect3DIndexBuffer9* IdxBuf{ nullptr };

@@ -253,6 +253,9 @@
     <ClInclude Include="..\..\..\Resource\Shader\ShadowDepthFx.hlsl">
       <Filter>Shader\HLSL</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Resource\Shader\DebugBufferRenderFx.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">

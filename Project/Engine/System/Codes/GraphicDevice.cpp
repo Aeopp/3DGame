@@ -37,8 +37,8 @@ void Engine::GraphicDevice::Initialize(
 	}
 
 
-	PresentParameter.BackBufferWidth = 0u; 
-	PresentParameter.BackBufferHeight = 0u; 
+	PresentParameter.BackBufferWidth = ScreenSize.first;
+	PresentParameter.BackBufferHeight = ScreenSize.second;
 	PresentParameter.BackBufferFormat = D3DFMT_A8R8G8B8;
 	PresentParameter.BackBufferCount = 1;
 

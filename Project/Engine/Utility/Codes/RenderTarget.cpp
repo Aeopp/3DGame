@@ -3,6 +3,7 @@
 #include "UtilityGlobal.h"
 #include "ResourceSystem.h"
 #include "Vertexs.hpp"
+#include "StringHelper.h"
 
 
 static uint32 RenderTargetUniqueResourceID = 0u;
@@ -42,6 +43,8 @@ void Engine::RenderTarget::Initialize(
 		ResourceSystem::Instance->Insert<IDirect3DSurface9>
 			(L"RenderTargetSurface_"+RenderTargetUniqueResourceName, TargetSurface);
 	}
+
+	_DebugBufferFx.Initialize(L"DebugBufferRenderFx");
 }
 
 void Engine::RenderTarget::DepthStencilInitialize(IDirect3DDevice9* Device, const uint32 Width, const uint32 Height, const D3DFORMAT Format)
@@ -93,15 +96,16 @@ void Engine::RenderTarget::ClearWithDepthStencil(const DWORD Flags )&
 }
 
 void Engine::RenderTarget::DebugBufferInitialize(
-	const Vector2& ViewPortLeftTopAnchor,
-	const Vector2& Size)&
+	const Vector2& ScreenPos, const Vector2& ScreenSize)&
 {
+	this->ScreenSize = ScreenSize;
+	this->ScreenPos = ScreenPos;
 	Stride = sizeof(Vertex::Screen);
-	FVF = Vertex::Screen::FVF;
+	
 
 	Device->CreateVertexBuffer(
 		Stride * 4u,
-		D3DUSAGE_WRITEONLY, FVF,
+		D3DUSAGE_WRITEONLY, NULL,
 		D3DPOOL_MANAGED,
 		&VtxBuf, nullptr);
 
@@ -114,6 +118,20 @@ void Engine::RenderTarget::DebugBufferInitialize(
 	auto& ResourceSys =ResourceSystem::Instance;
 	const std::wstring UniqueResourceName = 
 		std::to_wstring(UniqueResourceID);
+
+	const std::wstring VertexName = ToW(typeid(Vertex::Screen).name());
+
+
+	DebugBufVtxDecl = ResourceSys->Get<IDirect3DVertexDeclaration9>(VertexName);
+
+	if (nullptr == DebugBufVtxDecl)
+	{
+		DebugBufVtxDecl = Vertex::Screen::GetVertexDecl(Device);
+		ResourceSys->Insert<IDirect3DVertexDeclaration9>(VertexName,
+			DebugBufVtxDecl);
+	}
+
+
 	if (VtxBuf)
 	{
 		ResourceSys->Insert<IDirect3DVertexBuffer9>(
@@ -132,32 +150,23 @@ void Engine::RenderTarget::DebugBufferInitialize(
 
 	VtxBuf->Lock(0, 0, reinterpret_cast<void**>(&VtxBufPtr), 0);
 
-	const float ViewPortLeft = ViewPortLeftTopAnchor.x;
-	const float ViewPortTop = ViewPortLeftTopAnchor.y;
+	VtxBufPtr[0].NDC ={-1.f ,+1.f,0.f };
+	VtxBufPtr[0].UV2D = { 0.f,0.f };
 
-	VtxBufPtr[0].Homogeneous4D = 
-				{ ViewPortLeft - 0.5f,ViewPortTop - 0.5f,0.f,1.f };
-	VtxBufPtr[0].UV2D = {0.f,0.f };
+	VtxBufPtr[1].NDC = { +1.f, +1.f,0.f };
+	VtxBufPtr[1].UV2D = { 1.f,0.f };
 
-
-	VtxBufPtr[1].Homogeneous4D = { ViewPortLeft + Size.x - 0.5f,
-								  ViewPortTop - 0.5f,0.f,1.f };
-	VtxBufPtr[1].UV2D = {1.f,0.f};
-
-
-	VtxBufPtr[2].Homogeneous4D = { ViewPortLeft + Size.x - 0.5f,
-									ViewPortTop  + Size.y - 0.5f,0.f,1.f };
+	VtxBufPtr[2].NDC = { +1.f,-1.f,0.f };
 	VtxBufPtr[2].UV2D = { 1.f,1.f };
 
-
-	VtxBufPtr[3].Homogeneous4D = { ViewPortLeft- 0.5f,
-							  ViewPortTop  +Size.y - 0.5f,0.f,1.f };
-		VtxBufPtr[3].UV2D = {0.f,1.f};
+	VtxBufPtr[3].NDC = {-1.f,-1.f,0.f };
+	VtxBufPtr[3].UV2D = { 0.f,1.f };
 
 	VtxBuf->Unlock();
 
 	uint32* IdxBufPtr{ nullptr };
 	IdxBuf->Lock(0u, 0u, reinterpret_cast<void**>(&IdxBufPtr), 0u);
+
 	IdxBufPtr[0] = 0u;
 	IdxBufPtr[1] = 1u;
 	IdxBufPtr[2] = 2u;
@@ -165,6 +174,7 @@ void Engine::RenderTarget::DebugBufferInitialize(
 	IdxBufPtr[3] = 0u;
 	IdxBufPtr[4] = 2u;
 	IdxBufPtr[5] = 3u;
+
 	IdxBuf->Unlock();
 }
 
@@ -176,11 +186,30 @@ void Engine::RenderTarget::BindShaderTexture(
 
 void Engine::RenderTarget::RenderDebugBuffer()&
 {
-	Device->SetTexture(0, TargetTexture);
-	Device->SetStreamSource(0, VtxBuf, 0u, Stride);
-	Device->SetFVF(FVF);
-	Device->SetIndices(IdxBuf);
-	Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 4u, 0u, 2u);
+	auto Fx = _DebugBufferFx.GetHandle();
+	Fx->SetTexture("BaseTexture", TargetTexture);
+	Matrix Ortho;
+	const Matrix ScreenMatrix=FMath::WorldMatrix({ ScreenSize.x,ScreenSize.y,0 }, { 0,0,0 }, { ScreenPos.x,ScreenPos.y,0 });
+	D3DXMatrixOrthoLH(&Ortho, Engine::Global::ClientSize.first,
+		Engine::Global::ClientSize.second, 0.0f, 1.f);
+	Fx->SetMatrix("Ortho", &Ortho);
+	Fx->SetMatrix("ScreenMatrix", &ScreenMatrix);
+
+	Fx->CommitChanges();
+	uint32 Pass = 0u;
+	Fx->Begin(&Pass, NULL);
+	for (uint32 i = 0; i < Pass; ++i)
+	{
+		Fx->BeginPass(i);
+		{
+			Device->SetStreamSource(0, VtxBuf, 0u, Stride);
+			Device->SetVertexDeclaration(DebugBufVtxDecl);
+			Device->SetIndices(IdxBuf);
+			Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 4u, 0u, 2u);
+		}
+		Fx->EndPass();
+	}
+	Fx->End();
 }
 
 

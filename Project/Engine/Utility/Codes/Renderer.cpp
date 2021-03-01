@@ -6,8 +6,6 @@
 #include "ResourceSystem.h"
 #include "Vertexs.hpp"
 
-
-
 void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)&
 {
 	this->Device = Device;
@@ -17,8 +15,8 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 	_DeferredPass.Initialize(Device.get());
 
 	Engine::Light::LightInformation LightInfo{};
-	LightInfo.Direction = { 0,-1,0 , 0 };
-	LightInfo.Location = { 0,0,0 , 1};
+	LightInfo.Direction = { -0.532f,-0.819f,0.214f, 0 };
+	LightInfo.Location = { 4404.762f,6782.715f,-119.f, 1};
 
 	LightInfo._LightOpt = Engine::Light::LightOption::Directional;
 	_DirectionalLight.Initialize(Device.get(), LightInfo);
@@ -83,15 +81,14 @@ void Engine::Renderer::Render()&
 
 	// 후처리 쉐도우
 	{
-		
-		/*D3DVIEWPORT9 ShadowViewPort{};
+		D3DVIEWPORT9 ShadowViewPort{};
 		ShadowViewPort.Height = _DeferredPass.ShadowDepth.Height;
 		ShadowViewPort.Width= _DeferredPass.ShadowDepth.Width;
 		ShadowViewPort.X = 0u;
 		ShadowViewPort.Y = 0u;
 		ShadowViewPort.MinZ = 0.0f;
 		ShadowViewPort.MaxZ = 1.0f;
-		Device->SetViewport(&ShadowViewPort);*/
+		Device->SetViewport(&ShadowViewPort);
 		_DeferredPass.ShadowDepth.BindGraphicDevice(0u);
 		_DeferredPass.ShadowDepth.BindDepthStencil();
 		
@@ -194,22 +191,19 @@ void Engine::Renderer::CreateStaticLightResource()&
 	ResourceSys->Insert<IDirect3DVertexDeclaration9>(LightVertexDeclTag,
 		Vertex::Screen::GetVertexDecl(Device.get()));
 
-	D3DVIEWPORT9 ViewPort;
-	Device->GetViewport(&ViewPort);
-
 	Vertex::Screen* VtxBufPtr{ nullptr };
 	LightVtxBuf->Lock(0, 0, reinterpret_cast<void**>(&VtxBufPtr), NULL);
 
-	VtxBufPtr[0].Homogeneous4D= { 0.0f, 0.0f, 0.0f,1.f };
+	VtxBufPtr[0].NDC= { -1.f, 1.f, 0.0f };
 	VtxBufPtr[0].UV2D= { 0.f, 0.f };
 
-	VtxBufPtr[1].Homogeneous4D = { (float)ViewPort.Width, 0.0f, 0.0f,1.f };
+	VtxBufPtr[1].NDC = { 1.f, 1.f, 0.0f};
 	VtxBufPtr[1].UV2D = { 1.f, 0.f };
 
-	VtxBufPtr[2].Homogeneous4D = { (float)ViewPort.Width, (float)ViewPort.Height, 0.0f,1.f };
+	VtxBufPtr[2].NDC = { 1.f, -1.f, 0.0f};
 	VtxBufPtr[2].UV2D =  { 1.f, 1.f}  ;
 
-	VtxBufPtr[3].Homogeneous4D = { 0.0f , (float)ViewPort.Height, 0.0f,1.f };
+	VtxBufPtr[3].NDC = { -1.f, -1.f, 0.0f};
 	VtxBufPtr[3].UV2D = { 0.f, 1.f };
 
 	LightVtxBuf->Unlock(); 
@@ -228,6 +222,11 @@ void Engine::Renderer::CreateStaticLightResource()&
 	IdxBufPtr[5]= 3u;
 
 	LightIdxBuf->Unlock();
+
+
+	Engine::ShaderFx::Load(Device.get(),
+		Engine::Global::ResourcePath / L"Shader" / L"DebugBufferRenderFx.hlsl",
+		L"DebugBufferRenderFx");
 }
 
 void Engine::Renderer::RenderDebugCollision(const Matrix& View, const Matrix& Projection,

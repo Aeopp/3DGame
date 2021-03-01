@@ -38,10 +38,9 @@ struct PS_OUT
 PS_OUT PS_MAIN(PS_IN In)
 {
     PS_OUT Out = (PS_OUT) 0;
-    float Depth = In.ClipPosition.z;
-    Depth /= In.ClipPosition.w;
     
-    Out.ShadowDepth = float4(Depth, 0.f, 0.f, 1.f);
+    float3 Depth = In.ClipPosition.xyz / In.ClipPosition.w;
+    Out.ShadowDepth = float4(Depth.xyz, 1.f);
     
     return Out;
 }

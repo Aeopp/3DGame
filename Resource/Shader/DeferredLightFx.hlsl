@@ -9,6 +9,9 @@ float4 LightDirection;
 float4 LightColor; 
 float3 AmbientColor = float3(0.01, 0.01, 0.01);
 
+float ShadowDepthBias;
+
+
 texture Albedo3_Contract1;
 texture Normal3_Power1;
 texture WorldPos3_Depth1;
@@ -70,6 +73,27 @@ sampler ShadowDepthSampler = sampler_state
     magfilter = point;
     mipfilter = point;
 };
+
+struct VS_IN
+{
+    vector Position : POSITION;
+    float2 UV : TEXCOORD0;
+};
+
+struct VS_OUT
+{
+    vector Position : POSITION; 
+    float2 UV : TEXCOORD0;
+};
+
+VS_OUT VS_MAIN(VS_IN In) 
+{
+    VS_OUT Out = (VS_OUT)0;
+    Out.Position = In.Position;
+    Out.Position.w = 1.f;
+    Out.UV = In.UV;
+    return Out;
+}
 
 struct PS_IN
 {
@@ -148,11 +172,31 @@ PS_OUT PS_MAIN(PS_IN In)
     
     Out.Color.rgb += AmbientColor.rgb;
     Out.Color.rgb += RimAmt * RimLightColor.rgb;
+  
+    float4 LightClipPosition=mul(float4(WorldLocation, 1.f), LightViewProjection);
+    LightClipPosition.xyz =    LightClipPosition.xyz / LightClipPosition.w;
+    LightClipPosition.y *= -1.f;
+    LightClipPosition.xy *= 0.5f;
+    LightClipPosition.xy += 0.5f;
     
-    //matrix LightViewProjection = mul(LightView, LightProjection);
-    //float4 LightClipPosition = mul(float4(WorldLocation, 1.f), LightViewProjection);
-    //LightClipPosition.xy / LightClipPosition.w;
-    //float aa = tex2D(ShadowDepthSampler, LightClipPosition.xy);
+    //float CurrentDepth = LightClipPosition.z;
+    //float ShadowDepth = tex2D(ShadowDepthSampler, LightClipPosition.xy).z;
+    
+    //if (CurrentDepth > (ShadowDepth + ShadowDepthBias))
+    //{
+    //    Out.Color.rgb *= 0.1f;
+    //}
+    
+    if (LightClipPosition.x >= 0.0f && LightClipPosition.x <= 1.0f)
+    {
+        float CurrentDepth = LightClipPosition.z;
+        float ShadowDepth = tex2D(ShadowDepthSampler, LightClipPosition.xy).z;
+    
+        if (CurrentDepth > (ShadowDepth + ShadowDepthBias))
+        {
+            Out.Color.rgb *= 0.1f;
+        }
+    }
     
     
     return Out;
@@ -173,7 +217,7 @@ technique DeferredLight
         zenable = false;
         cullmode = ccw;
 
-        Vertexshader = NULL; 
+        Vertexshader = compile vs_3_0 VS_MAIN();
         pixelshader = compile ps_3_0 PS_MAIN();
     }
 }

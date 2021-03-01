@@ -43,8 +43,12 @@ void Engine::Light::Render(
 	Fx->SetMatrix("Projection", &Projection);
 
 	const Matrix LightViewProjection =CalcLightViewProjection();
-
-	Fx->SetMatrix("LightViewProjection",&LightViewProjection);
+	//// 테스트코드
+	//Matrix ViewProjection = View * Projection;
+	Fx->SetMatrix("LightViewProjection", &LightViewProjection);
+	Fx->SetFloat("ShadowDepthBias", _LightInfo.ShadowDepthBias);
+	
+	///
 	Fx->SetVector("LightLocation",&_LightInfo.Location);
 
 	const Vector4 CameraLocation4D = FMath::ConvertVector4(CameraLocation, 1.f);
@@ -82,10 +86,14 @@ Matrix Engine::Light::CalcLightViewProjection() const&
 	const  Vector3 LightDirection3D =
 	{ _LightInfo.Direction.x,_LightInfo.Direction.y,_LightInfo.Direction.z };
 	const Vector3 At = LightLocation3D + LightDirection3D;
+
 	D3DXMatrixLookAtLH(&LightView, &LightLocation3D, &At, &Up);
 
-	D3DXMatrixPerspectiveFovLH(&LightProjection, FMath::ToRadian(45.f), 1.f,
-		0.01f, _LightInfo.ShadowFar);	
+	float Aspect = 1920.f / 1080.f;
+
+	D3DXMatrixPerspectiveFovLH(&LightProjection, FMath::PI*0.5f, 
+		Aspect,
+		1.f, _LightInfo.ShadowFar);	
 
 	return LightView * LightProjection;
 };
