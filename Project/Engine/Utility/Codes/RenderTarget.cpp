@@ -20,11 +20,10 @@ void Engine::RenderTarget::Initialize(
 	this->Device = Device;
 	ClearColor = Color;
 	static constexpr uint32 DefaultMipLevels = 1u;
-	if (FAILED(D3DXCreateTexture(Device, Width, Height, DefaultMipLevels, D3DUSAGE_RENDERTARGET,
-		Format, D3DPOOL_DEFAULT, &TargetTexture)))
-	{
-		throw std::exception(__FUNCTION__);
-	}
+	this->Width = Width;
+	this->Height = Height; 
+	Device->CreateTexture(Width,Height, DefaultMipLevels, D3DUSAGE_RENDERTARGET,
+		Format, D3DPOOL_DEFAULT, &TargetTexture, nullptr);
 
 	// 생성한 텍스쳐로부터 
 	TargetTexture->GetSurfaceLevel(0u, &TargetSurface);
@@ -45,6 +44,21 @@ void Engine::RenderTarget::Initialize(
 	}
 }
 
+void Engine::RenderTarget::DepthStencilInitialize(IDirect3DDevice9* Device, const uint32 Width, const uint32 Height, const D3DFORMAT Format)
+{
+	Device->CreateDepthStencilSurface(Width, Height,
+		Format, D3DMULTISAMPLE_NONE, 0, TRUE ,  &TargetDepthStencil, nullptr);
+
+	const std::wstring RenderTargetUniqueResourceName =
+		std::to_wstring(UniqueResourceID);
+
+	if (TargetDepthStencil)
+	{
+		ResourceSystem::Instance->Insert<IDirect3DSurface9>
+			(L"RenderTargetDepthStencilSurface_" + RenderTargetUniqueResourceName, TargetDepthStencil);
+	}
+}
+
 static constexpr uint8 MaxDeviceRenderTargetIndex = 3u;
 
 void Engine::RenderTarget::BindGraphicDevice(const uint32 Index)&
@@ -57,11 +71,25 @@ void Engine::RenderTarget::BindGraphicDevice(const uint32 Index)&
 	Device->SetRenderTarget(Index, TargetSurface);
 }
 
+void Engine::RenderTarget::BindDepthStencil()&
+{
+	Device->SetDepthStencilSurface(TargetDepthStencil);
+}
+
 
 void Engine::RenderTarget::Clear()&
 {
 	Device->SetRenderTarget(0, TargetSurface);
 	Device->Clear(0, NULL, D3DCLEAR_TARGET, ClearColor, 1.f, 0);
+}
+
+void Engine::RenderTarget::ClearWithDepthStencil(const DWORD Flags )&
+{
+	Device->SetRenderTarget(0, TargetSurface);
+	Device->SetDepthStencilSurface(TargetDepthStencil);
+
+	Device->Clear(0, nullptr, Flags,
+		ClearColor, 1.f, 0);
 }
 
 void Engine::RenderTarget::DebugBufferInitialize(

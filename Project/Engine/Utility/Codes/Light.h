@@ -30,18 +30,22 @@ namespace Engine
 			Vector4 Location{ 0,0,0 ,1}; 
 			Vector4 Direction{ 0,-1,0,0 };
 			Vector4 LightColor{ 1,1,1 ,1}; 
+			float ShadowFar{10000.f};
 		};
 		void Initialize(IDirect3DDevice9* const Device,
 			const LightInformation& SetLightInformation)&;
 		
 		void Render(IDirect3DDevice9* const Device   ,
-					const Vector3& CameraLocation,
+					const Vector3& CameraLocation, 
 					const Matrix& View, const Matrix& Projection,
 					IDirect3DTexture9* Albedo3_Contract1,
 					IDirect3DTexture9* Normal3_Power1,
 					IDirect3DTexture9* WorldPos3_Depth1,
 					IDirect3DTexture9* CavityRGB1_CavityAlpha1,
-					IDirect3DTexture9* RimRGB1_InnerWidth1_OuterWidth1)&;
+					IDirect3DTexture9* RimRGB1_InnerWidth1_OuterWidth1 ,
+					IDirect3DTexture9* ShadowDepth)&;
+
+		Matrix CalcLightViewProjection()const&;
 
 		LightInformation _LightInfo{};
 	private:		

@@ -198,6 +198,7 @@ PS_OUT AlbedoNormalWorldPosDepthSpecular(PS_IN In)
     float NULL1 = 1.f;
     float NULL2 = 1.f;
     
+    
     Out.Cavity1_CavityAlpha1_NULL1_NULL1 = float4(CavityColor.r, CavityColor.a, NULL1, NULL2);
     
     return Out;

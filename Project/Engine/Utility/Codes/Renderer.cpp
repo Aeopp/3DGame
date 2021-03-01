@@ -27,36 +27,49 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 void Engine::Renderer::Update(const float DeltaTime)&
 {
 	CurrentLandscape.Update(DeltaTime);
-	_DirectionalLight;
+	
 
 };
 
 void Engine::Renderer::Render()&
 {
-	Matrix View, Projection, CameraWorld;
-	Device->GetTransform(D3DTS_VIEW, &View);
-	Device->GetTransform(D3DTS_PROJECTION, &Projection);
-	CameraWorld = FMath::Inverse(View);
-	const Vector3 CameraLocation3D{ CameraWorld._41,CameraWorld._42,CameraWorld._43 };
-	const Vector4  CameraLocation = FMath::ConvertVector4(CameraLocation3D, 1.f);
-	
-	_Frustum.Make(CameraWorld, Projection);
-	CurrentLandscape.FrustumCullingCheck(_Frustum);
-	IDirect3DSurface9* CurBackBufSurface{ nullptr };
-	Device->GetRenderTarget(0u, &CurBackBufSurface);
-	
-	_DeferredPass.Albedo3_Contract1.Clear();
-	_DeferredPass.Normal3_Power1.Clear();
-	_DeferredPass.WorldLocation3_Depth1.Clear();
-	_DeferredPass.CavityRGB1_CavityAlpha1_NULL1_NULL1.Clear();
-	_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.Clear();
+		Matrix View, Projection, CameraWorld;
+		Device->GetTransform(D3DTS_VIEW, &View);
+		Device->GetTransform(D3DTS_PROJECTION, &Projection);
+		CameraWorld = FMath::Inverse(View);
+		const Vector3 CameraLocation3D{ CameraWorld._41,CameraWorld._42,CameraWorld._43 };
+		const Vector4  CameraLocation = FMath::ConvertVector4(CameraLocation3D, 1.f);
 
+		_Frustum.Make(CameraWorld, Projection);
+		CurrentLandscape.FrustumCullingCheck(_Frustum);
+	
+	IDirect3DSurface9* CurBackBufSurface{ nullptr };
+	IDirect3DSurface9* CurBackDepthStencil{ nullptr };
+	D3DVIEWPORT9 CurViewPort{}; 
+	{
+		Device->GetRenderTarget(0u, &CurBackBufSurface);
+		Device->GetDepthStencilSurface(&CurBackDepthStencil);
+		Device->GetViewport(&CurViewPort);
+	};
+
+	{
+		_DeferredPass.ShadowDepth.ClearWithDepthStencil(D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER);
+		_DeferredPass.Albedo3_Contract1.Clear();
+		_DeferredPass.Normal3_Power1.Clear();
+		_DeferredPass.WorldLocation3_Depth1.Clear();
+		_DeferredPass.CavityRGB1_CavityAlpha1_NULL_NULL1.Clear();
+		_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.Clear();
+	};
+
+	{
+		Device->SetDepthStencilSurface(CurBackDepthStencil);
+	}
 	// 디퍼드  1 Pass
 	{
 		 _DeferredPass.Albedo3_Contract1.BindGraphicDevice(0u);
 		 _DeferredPass.Normal3_Power1.BindGraphicDevice(1u);
 		 _DeferredPass.WorldLocation3_Depth1.BindGraphicDevice(2u);
-		 _DeferredPass.CavityRGB1_CavityAlpha1_NULL1_NULL1.BindGraphicDevice(3u);
+		 _DeferredPass.CavityRGB1_CavityAlpha1_NULL_NULL1.BindGraphicDevice(3u);
 
 		 CurrentLandscape.RenderDeferredAlbedoNormalWorldPosDepthSpecular(
 			 _Frustum, View, Projection, CameraLocation);
@@ -65,43 +78,76 @@ void Engine::Renderer::Render()&
 	// 디퍼드 2 Pass
 	{
 		_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.BindGraphicDevice(0u);
-
 		CurrentLandscape.RenderDeferredRim(_Frustum, View, Projection, CameraLocation);
 	};
 
-	Device->SetRenderTarget(0u, CurBackBufSurface);
-	
-	_DirectionalLight.Render(Device.get(),
-		CameraLocation3D, View, Projection, _DeferredPass.Albedo3_Contract1.GetTexture(),
-		_DeferredPass.Normal3_Power1.GetTexture(),
-		_DeferredPass.WorldLocation3_Depth1.GetTexture(),
-		_DeferredPass.CavityRGB1_CavityAlpha1_NULL1_NULL1.GetTexture(),
-		_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.GetTexture());
-
-	CurrentLandscape.Render(_Frustum, View, Projection, CameraLocation);
-	RenderEnviroment(View, Projection, CameraLocation);
-	RenderNoAlpha(View, Projection, CameraLocation);
-	if (Engine::Global::bDebugMode)
+	// 후처리 쉐도우
 	{
-		RenderDebugCollision(View, Projection, CameraLocation);
-	}
-	_Frustum.Render(Device.get());
-	RenderUI(View, Projection, CameraLocation);
+		
+		/*D3DVIEWPORT9 ShadowViewPort{};
+		ShadowViewPort.Height = _DeferredPass.ShadowDepth.Height;
+		ShadowViewPort.Width= _DeferredPass.ShadowDepth.Width;
+		ShadowViewPort.X = 0u;
+		ShadowViewPort.Y = 0u;
+		ShadowViewPort.MinZ = 0.0f;
+		ShadowViewPort.MaxZ = 1.0f;
+		Device->SetViewport(&ShadowViewPort);*/
+		_DeferredPass.ShadowDepth.BindGraphicDevice(0u);
+		_DeferredPass.ShadowDepth.BindDepthStencil();
+		
+		CurrentLandscape.
+			RenderShadowDepth(_DirectionalLight.CalcLightViewProjection());
+	};
 
+	{
+		Device->SetRenderTarget(0u, CurBackBufSurface);
+		Device->SetDepthStencilSurface(CurBackDepthStencil);
+		Device->SetViewport(&CurViewPort);
+	};
 
+	{
+		_DirectionalLight.Render(Device.get(),
+			CameraLocation3D, View, Projection, _DeferredPass.Albedo3_Contract1.GetTexture(),
+			_DeferredPass.Normal3_Power1.GetTexture(),
+			_DeferredPass.WorldLocation3_Depth1.GetTexture(),
+			_DeferredPass.CavityRGB1_CavityAlpha1_NULL_NULL1.GetTexture(),
+			_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.GetTexture(),
+			_DeferredPass.ShadowDepth.GetTexture());
+	};
 	
 
-	_Sky.Render(_Frustum, View, Projection, CameraLocation, Device.get(),
-		_DeferredPass.WorldLocation3_Depth1.GetTexture());
+	{
+		CurrentLandscape.Render(_Frustum, View, Projection, CameraLocation);
+		RenderEnviroment(View, Projection, CameraLocation);
+		RenderNoAlpha(View, Projection, CameraLocation);
+		if (Engine::Global::bDebugMode)
+		{
+			RenderDebugCollision(View, Projection, CameraLocation);
+		}
+		_Frustum.Render(Device.get());
+		RenderUI(View, Projection, CameraLocation);
 
-	_DeferredPass.Albedo3_Contract1.RenderDebugBuffer();
-	_DeferredPass.Normal3_Power1.RenderDebugBuffer();
-	_DeferredPass.WorldLocation3_Depth1.RenderDebugBuffer();
-	_DeferredPass.CavityRGB1_CavityAlpha1_NULL1_NULL1.RenderDebugBuffer();
+		_Sky.Render(_Frustum, View, Projection, CameraLocation, Device.get(),
+			_DeferredPass.WorldLocation3_Depth1.GetTexture());
+	};
+	
 
-	_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.RenderDebugBuffer();
+	{
+		_DeferredPass.Albedo3_Contract1.RenderDebugBuffer();
+		_DeferredPass.Normal3_Power1.RenderDebugBuffer();
+		_DeferredPass.WorldLocation3_Depth1.RenderDebugBuffer();
+		_DeferredPass.CavityRGB1_CavityAlpha1_NULL_NULL1.RenderDebugBuffer();
 
-	CurBackBufSurface->Release();
+		_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.RenderDebugBuffer();
+
+		_DeferredPass.ShadowDepth.RenderDebugBuffer();
+	};
+	
+	{
+		CurBackBufSurface->Release();
+		CurBackDepthStencil->Release();
+	};
+	
 
 	RenderObjects.clear();
 };

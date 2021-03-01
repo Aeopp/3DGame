@@ -1,5 +1,7 @@
 float4x4 View;
 float4x4 Projection;
+float4x4 LightViewProjection;
+float4   LightLocation;
 
 float4 CameraLocation;
 float4 LightDirection;
@@ -12,6 +14,7 @@ texture Normal3_Power1;
 texture WorldPos3_Depth1;
 texture CavityRGB1_CavityAlpha1;
 texture RimRGB1_InnerWidth1_OuterWidth1;
+texture ShadowDepth;
 
 sampler Albedo3_Contract1Sampler= sampler_state
 {
@@ -20,7 +23,6 @@ sampler Albedo3_Contract1Sampler= sampler_state
     minfilter = point;
     magfilter = point;
     mipfilter = point;
-    MaxAnisotropy = 16;
 };
 
 sampler Normal3_Power1Sampler = sampler_state
@@ -58,7 +60,15 @@ sampler RimRGB1_InnerWidth1_OuterWidth1Sampler = sampler_state
     minfilter = point;
     magfilter = point;
     mipfilter = point;
-    
+};
+
+sampler ShadowDepthSampler = sampler_state
+{
+    texture = ShadowDepth;
+
+    minfilter = point;
+    magfilter = point;
+    mipfilter = point;
 };
 
 struct PS_IN
@@ -138,6 +148,12 @@ PS_OUT PS_MAIN(PS_IN In)
     
     Out.Color.rgb += AmbientColor.rgb;
     Out.Color.rgb += RimAmt * RimLightColor.rgb;
+    
+    //matrix LightViewProjection = mul(LightView, LightProjection);
+    //float4 LightClipPosition = mul(float4(WorldLocation, 1.f), LightViewProjection);
+    //LightClipPosition.xy / LightClipPosition.w;
+    //float aa = tex2D(ShadowDepthSampler, LightClipPosition.xy);
+    
     
     return Out;
 }

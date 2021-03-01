@@ -137,13 +137,14 @@ void MapEdit::Initialize(IDirect3DDevice9* const Device)&
 				}
 			}
 		}
+
+		RefLandscape.Load(App::ResourcePath / L"MapLoadInfo" / "DecoratorBig.json");
 	}
 
 	D3DXCreateLine(Device, &LinearSpace);
 	ResourceSys.Insert<ID3DXLine>(L"DebugLinearSpace", LinearSpace);
 
 	Renderer.SkyInitialize(App::ResourcePath / L"Mesh" / L"StaticMesh" / L"SKy" / L"SM_SkySphere.FBX");
-
 };
 
 void MapEdit::Event() & 
@@ -660,6 +661,9 @@ void MapEdit::Landscape()&
 	ImGui::DragFloat4
 	("Direction", (float*)&Renderer._DirectionalLight._LightInfo.Direction, 0.1f, -1.f, 1.f);
 	D3DXVec4Normalize(&Renderer._DirectionalLight._LightInfo.Direction, &Renderer._DirectionalLight._LightInfo.Direction);
+	ImGui::SliderFloat3("Location", (float*)&Renderer._DirectionalLight._LightInfo.Location, -10000.f, 10000.f);
+	ImGui::SliderFloat("Shadow Distance", (float*)&Renderer._DirectionalLight._LightInfo.ShadowFar, 1000.f, 100000.f);
+	
 	ImGui::ColorEdit4("Color", (float*)&Renderer._DirectionalLight._LightInfo.LightColor);
 	ImGui::End();
 }

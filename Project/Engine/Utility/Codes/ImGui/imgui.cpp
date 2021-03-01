@@ -9992,7 +9992,7 @@ void ImGui::LogButtons()
     const bool log_to_clipboard = Button("Log To Clipboard"); SameLine();
     PushAllowKeyboardFocus(false);
     SetNextItemWidth(80.0f);
-    SliderInt("Default CavityRGB1_CavityAlpha1_NULL1_NULL1", &g.LogDepthToExpandDefault, 0, 9, NULL);
+    SliderInt("Default CavityRGB1_CavityAlpha1_NULL_NULL1", &g.LogDepthToExpandDefault, 0, 9, NULL);
     PopAllowKeyboardFocus();
     PopID();
 

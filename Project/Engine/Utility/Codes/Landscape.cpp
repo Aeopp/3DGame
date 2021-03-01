@@ -31,9 +31,9 @@ static bool IsFloatingDecorator(const std::wstring& DecoratorKey)
 {
 	static std::array<std::wstring, 3u> FloatingDecoratorNames
 	{
-	 L"Floating",
-	 L"Rock",
-	 L"BGIslandSet01"
+		 L"Floating",
+		L"Rock",
+		L"BGIslandSet01"
 	};
 	for (const auto& FloatingDecoName : FloatingDecoratorNames)
 	{
@@ -375,9 +375,12 @@ void Engine::Landscape::Initialize(
 		VtxDecl = VertexType::GetVertexDecl(Device);
 		ResourceSys->Insert<IDirect3DVertexDeclaration9>(VtxTypeWName , VtxDecl);
 	}
+
+
 	ForwardShaderFx.Initialize(L"LandscapeFx");
 	DeferredAlbedoNormalWorldPosDepthSpecular.Initialize(L"DeferredAlbedoNormalWorldPosDepthSpecularFx");
 	DeferredRimFx.Initialize(L"DeferredRimFx");
+	ShadowDepthFx.Initialize(L"ShadowDepthFx");
 }
 
 void Engine::Landscape::Update(const float DeltaTime)&
@@ -611,6 +614,7 @@ void Engine::Landscape::RenderDeferredAlbedoNormalWorldPosDepthSpecular(Engine::
 
 	Device->SetVertexDeclaration(VtxDecl);
 	
+
 	auto Fx = DeferredAlbedoNormalWorldPosDepthSpecular.GetHandle();
 	Fx->SetMatrix("View", &View);
 	Fx->SetMatrix("Projection", &Projection);
@@ -663,6 +667,66 @@ void Engine::Landscape::RenderDeferredAlbedoNormalWorldPosDepthSpecular(Engine::
 						Fx->EndPass();
 					}
 				}
+			}
+
+			Fx->End();
+		}
+	}
+}
+
+void Engine::Landscape::RenderShadowDepth(
+	const Matrix& LightViewProjection)&
+{
+	if (nullptr == Device)
+		return;
+
+	auto& Renderer = *Engine::Renderer::Instance;
+	Device->SetVertexDeclaration(VtxDecl);
+
+	auto Fx = ShadowDepthFx.GetHandle();
+
+
+	Matrix View, Projection;
+	Device->GetTransform(D3DTS_VIEW, &View);
+	Device->GetTransform(D3DTS_PROJECTION, &Projection);
+	Matrix ViewProjection = View* Projection;
+
+
+	Fx->SetMatrix("LightViewProjection", &ViewProjection);
+
+
+
+	for (const auto& [DecoKey, CurDeco] : DecoratorContainer)
+	{
+		for (const auto& CurDecoInstance : CurDeco.Instances)
+		{
+			const Vector3 DecoTfmScale = CurDecoInstance->Scale;
+			const Vector3 DecoTfmLocation = CurDecoInstance->Location;
+			const Vector3 DecoTfmRotation = CurDecoInstance->Rotation;
+
+			const Matrix DecoWorld =
+				FMath::WorldMatrix(
+					DecoTfmScale,
+					DecoTfmRotation, DecoTfmLocation);
+
+			uint32 PassNum = 0u;
+			Fx->Begin(&PassNum, 0);
+
+			for (auto& CurMesh : CurDeco.Meshes)
+			{
+					Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
+					Device->SetIndices(CurMesh.IdxBuf);
+					Fx->SetMatrix("World", &DecoWorld);
+
+					Fx->CommitChanges();
+
+					for (uint32 i = 0; i < PassNum; ++i)
+					{
+						Fx->BeginPass(i);
+						Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
+							0u, CurMesh.PrimitiveCount);
+						Fx->EndPass();
+					}
 			}
 
 			Fx->End();

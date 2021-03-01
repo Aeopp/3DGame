@@ -110,6 +110,9 @@ namespace Engine
 		void RenderDeferredAlbedoNormalWorldPosDepthSpecular(Engine::Frustum& RefFrustum,
 			const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation)&;
 
+		void RenderShadowDepth(
+			const Matrix& LightViewProjection)&;
+
 		void RenderDeferredRim(Engine::Frustum& RefFrustum,
 			const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation)&;
 
@@ -154,6 +157,7 @@ namespace Engine
 		Engine::ShaderFx ForwardShaderFx{};
 		Engine::ShaderFx DeferredAlbedoNormalWorldPosDepthSpecular{};
 		Engine::ShaderFx DeferredRimFx{};
+		Engine::ShaderFx ShadowDepthFx{};
 		Vector3 Scale{1,1,1};
 		Vector3 Rotation{0,0,0};
 		Vector3 Location{0,0,0}; 

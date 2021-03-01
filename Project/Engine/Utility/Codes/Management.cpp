@@ -444,6 +444,8 @@ void Engine::Management::CreateStaticResource()&
 
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"DeferredAlbedoNormalWorldPosDepthSpecularFx.hlsl", L"DeferredAlbedoNormalWorldPosDepthSpecularFx");
 
+		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"ShadowDepthFx.hlsl", L"ShadowDepthFx");
+
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"DeferredRimFx.hlsl", L"DeferredRimFx");
 
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"DeferredDefaultFx.hlsl", L"DeferredDefaultFx");

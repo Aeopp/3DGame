@@ -21,9 +21,10 @@ namespace Engine
 		RenderTarget Albedo3_Contract1{};
 		RenderTarget Normal3_Power1{};
 		RenderTarget WorldLocation3_Depth1{};
-		RenderTarget CavityRGB1_CavityAlpha1_NULL1_NULL1{};
+		RenderTarget CavityRGB1_CavityAlpha1_NULL_NULL1{};
 
 		RenderTarget RimRGB1_InnerWidth1_OuterWidth1_NULL1{};
+		RenderTarget ShadowDepth{};
 	private:
 		IDirect3DDevice9* Device{ nullptr };
 	};
