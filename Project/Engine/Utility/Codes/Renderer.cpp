@@ -5,6 +5,7 @@
 #include "UtilityGlobal.h"
 #include "ResourceSystem.h"
 #include "Vertexs.hpp"
+#include "Timer.h"
 
 void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)&
 {
@@ -18,30 +19,32 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 	LightInfo.Direction = { 0.042f,-0.990f,-0.131f, 0 };
 	LightInfo.Location = { 0.0f,1768.707f,0.0f, 1};
 	LightInfo.ShadowFar = 1933.962f;
-	LightInfo.ShadowDepthBias = 13.f;
+	LightInfo.ShadowDepthBias = 1.f;
 	LightInfo._LightOpt = Engine::Light::LightOption::Directional;
+	LightInfo.ShadowDepthMapSize = _DeferredPass.ShadowDepth.Width;
+	
 	_DirectionalLight.Initialize(Device.get(), LightInfo);
 };
 
 void Engine::Renderer::Update(const float DeltaTime)&
 {
-	CurrentLandscape.Update(DeltaTime);
 	
-
 };
 
 void Engine::Renderer::Render()&
 {
-		Matrix View, Projection, CameraWorld;
-		Device->GetTransform(D3DTS_VIEW, &View);
-		Device->GetTransform(D3DTS_PROJECTION, &Projection);
-		CameraWorld = FMath::Inverse(View);
-		const Vector3 CameraLocation3D{ CameraWorld._41,CameraWorld._42,CameraWorld._43 };
-		const Vector4  CameraLocation = FMath::ConvertVector4(CameraLocation3D, 1.f);
+	Matrix View, Projection, CameraWorld;
+	Device->GetTransform(D3DTS_VIEW, &View);
+	Device->GetTransform(D3DTS_PROJECTION, &Projection);
+	CameraWorld = FMath::Inverse(View);
+	const Vector3 CameraLocation3D{ CameraWorld._41,CameraWorld._42,CameraWorld._43 };
+	const Vector4  CameraLocation = FMath::ConvertVector4(CameraLocation3D, 1.f);
+	auto& _Timer = Timer::Instance;
 
-		_Frustum.Make(CameraWorld, Projection);
-		CurrentLandscape.FrustumCullingCheck(_Frustum);
-	
+	_Frustum.Make(CameraWorld, Projection);
+	CurrentLandscape.FrustumCullingCheck(_Frustum);
+	CurrentLandscape.Tick(_Timer->GetTick());
+
 	IDirect3DSurface9* CurBackBufSurface{ nullptr };
 	IDirect3DSurface9* CurBackDepthStencil{ nullptr };
 	D3DVIEWPORT9 CurViewPort{}; 
@@ -80,6 +83,8 @@ void Engine::Renderer::Render()&
 		CurrentLandscape.RenderDeferredRim(_Frustum, View, Projection, CameraLocation);
 	};
 
+	const Matrix LightViewProjection = _DirectionalLight.CalcLightViewProjection();
+
 	// 후처리 쉐도우
 	{
 		D3DVIEWPORT9 ShadowViewPort{};
@@ -94,7 +99,7 @@ void Engine::Renderer::Render()&
 		_DeferredPass.ShadowDepth.BindDepthStencil();
 		
 		CurrentLandscape.
-			RenderShadowDepth(_DirectionalLight.CalcLightViewProjection());
+			RenderShadowDepth(LightViewProjection);
 	};
 
 	{
@@ -115,7 +120,10 @@ void Engine::Renderer::Render()&
 	
 
 	{
-		CurrentLandscape.Render(_Frustum, View, Projection, CameraLocation);
+		CurrentLandscape.Render(_Frustum, View, Projection, CameraLocation ,
+			_DeferredPass.ShadowDepth.GetTexture() , LightViewProjection ,
+			_DirectionalLight._LightInfo.ShadowDepthMapSize,
+			_DirectionalLight._LightInfo.ShadowDepthBias);
 		RenderEnviroment(View, Projection, CameraLocation);
 		RenderNoAlpha(View, Projection, CameraLocation);
 		if (Engine::Global::bDebugMode)

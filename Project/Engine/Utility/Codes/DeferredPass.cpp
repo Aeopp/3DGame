@@ -40,10 +40,12 @@ void Engine::DeferredPass::DefaultInitialize()&
 	RimRGB1_InnerWidth1_OuterWidth1_NULL1.DebugBufferInitialize({ -860.f,-360.f },
 		RenderTargetDebugRenderSize);
 
-	ShadowDepth.Initialize(Device,4096,
-		4096,
+	uint32 ShadowDepthMapSize = 2048;
+
+	ShadowDepth.Initialize(Device, ShadowDepthMapSize,
+		ShadowDepthMapSize,
 		D3DFMT_R32F,
 		D3DXCOLOR(1.f, 1.f, 1.f, 1.f));
-	ShadowDepth.DepthStencilInitialize(Device, 4096, 4096, D3DFMT_D24X8);
+	ShadowDepth.DepthStencilInitialize(Device, ShadowDepthMapSize, ShadowDepthMapSize, D3DFMT_D24X8);
 	ShadowDepth.DebugBufferInitialize({ -660.f,440.f }, RenderTargetDebugRenderSize);
 }

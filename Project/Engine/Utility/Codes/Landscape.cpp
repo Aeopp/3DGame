@@ -383,9 +383,8 @@ void Engine::Landscape::Initialize(
 	ShadowDepthFx.Initialize(L"ShadowDepthFx");
 }
 
-void Engine::Landscape::Update(const float DeltaTime)&
+void Engine::Landscape::Tick(const float Tick)&
 {
-
 	if (Engine::Global::bDebugMode)
 	{
 		for (auto& [DecoKey, CurDeco] : DecoratorContainer)
@@ -407,7 +406,7 @@ void Engine::Landscape::Update(const float DeltaTime)&
 			{
 				CurDecoInstance->Location = 
 					std::any_cast<Engine::Landscape::FloatingInformation&>
-					(CurDecoInstance->OptionValue).Floating(DeltaTime, CurDecoInstance->Location);
+					(CurDecoInstance->OptionValue).Floating(Tick, CurDecoInstance->Location);
 			}
 		};
 	};
@@ -416,7 +415,11 @@ void Engine::Landscape::Update(const float DeltaTime)&
 
 void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 	const Matrix& View, const Matrix& Projection,
-	const Vector4& CameraLocation4D)&
+	const Vector4& CameraLocation4D ,
+	IDirect3DTexture9* const ShadowDepthMap  ,
+	const Matrix& LightViewProjection,
+	const float ShadowDepthMapSize,
+	const float ShadowDepthBias)&
 {
 	if (Engine::Global::bDebugMode)
 	{
@@ -434,7 +437,6 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 
 	auto& Renderer = *Engine::Renderer::Instance;
 	const Matrix MapWorld = FMath::WorldMatrix(Scale, Rotation, Location);
-	
 
 	auto Fx = ForwardShaderFx.GetHandle();
 	Fx->SetMatrix("View", &View);
@@ -442,6 +444,12 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 	Fx->SetVector("LightDirection", &Renderer._DirectionalLight._LightInfo.Direction);
 	Fx->SetVector("LightColor", &Renderer._DirectionalLight._LightInfo.LightColor);
 	Fx->SetVector("CameraLocation", &CameraLocation4D);
+	Fx->SetTexture("ShadowDepthMap", ShadowDepthMap);
+	Fx->SetMatrix("LightViewProjection", &LightViewProjection);
+	Fx->SetFloat("ShadowDepthMapSize", ShadowDepthMapSize);
+	Fx->SetFloat("ShadowDepthBias", ShadowDepthBias);
+
+
 	Device->SetVertexDeclaration(VtxDecl);
 
 	for (const auto& [DecoKey, CurDeco] : DecoratorContainer)
@@ -704,19 +712,19 @@ void Engine::Landscape::RenderShadowDepth(
 
 			for (auto& CurMesh : CurDeco.Meshes)
 			{
-					Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
-					Device->SetIndices(CurMesh.IdxBuf);
-					Fx->SetMatrix("World", &DecoWorld);
+				Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
+				Device->SetIndices(CurMesh.IdxBuf);
+				Fx->SetMatrix("World", &DecoWorld);
 
-					Fx->CommitChanges();
+				Fx->CommitChanges();
 
-					for (uint32 i = 0; i < PassNum; ++i)
-					{
-						Fx->BeginPass(i);
-						Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
-							0u, CurMesh.PrimitiveCount);
-						Fx->EndPass();
-					}
+				for (uint32 i = 0; i < PassNum; ++i)
+				{
+					Fx->BeginPass(i);
+					Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
+						0u, CurMesh.PrimitiveCount);
+					Fx->EndPass();
+				}
 			}
 
 			Fx->End();

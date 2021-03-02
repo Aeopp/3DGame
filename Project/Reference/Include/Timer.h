@@ -32,6 +32,7 @@ namespace Engine
 		void NotificationCheck()&;
 	public:
 		void TimeInfoRenderToggle()&;
+		float GetTick()const&;
 		float GetDelta();
 		float GetT();
 		void SetDelta(const float DeltaTime)&;
@@ -54,7 +55,10 @@ namespace Engine
 		
 		bool bTimeInfoRender = true;
 		uint32 _FPSCount{ 0 };
+		// 현재 업데이트 타임 (물리,수학 사용)
 		float DeltaTime{ 0.f };
+		// 이전에 마킹한 타임에서 현재 업데이트 타이밍 시간 (무조건 한프레임당 한번 할 연산의 경우)
+		float Tick = 0.0f;
 		float _T{ 0.f };
 		float TimeScale{ 1.f };
 		uint32 FPS{ 0 };
@@ -68,6 +72,11 @@ namespace Engine
 inline void Engine::Timer::TimeInfoRenderToggle()&
 {
 	bTimeInfoRender = !bTimeInfoRender;
+}
+
+inline float Engine::Timer::GetTick() const&
+{
+	return Tick;
 }
 
 inline float Engine::Timer::GetDelta()

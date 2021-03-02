@@ -33,6 +33,7 @@ void Engine::Timer::Update()
 	SecCheck += Delta;
 
 	DeltaTime = (Delta.count() * 0.001f) * TimeScale;
+	Tick = DeltaTime;
 	float Accumulator = DeltaTime;
 
 	if (ApplicationEvent)

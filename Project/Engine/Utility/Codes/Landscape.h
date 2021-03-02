@@ -40,7 +40,7 @@ namespace Engine
 		struct FloatingInformation
 		{
 			static inline std::pair<float, float> VibrationWidthRange{ 0.f,1.f };
-			static inline std::pair<float, float > RotationAccRange  { 0.0f,0.000003f };
+			static inline std::pair<float, float > RotationAccRange  { 0.0f,0.0003f };
 			static inline std::pair<float, float>  VibrationAccRange  { 0.0f,0.1f };
 			
 			static void RangeEdit();
@@ -100,10 +100,14 @@ namespace Engine
 			const Vector3 Rotation,
 			const Vector3 Location)&;
 
-		void Update(const float DeltaTime)&;
+		void Tick(const float Tick)&;
 
 		void Render(Engine::Frustum& RefFrustum,
-			const Matrix& View, const Matrix& Projection ,const Vector4& CameraLocation)&;
+			const Matrix& View, const Matrix& Projection ,const Vector4& CameraLocation,
+			IDirect3DTexture9* const ShadowDepthMap ,
+			const Matrix& LightViewProjection,
+			const float ShadowDepthMapSize,
+			const float ShadowDepthBias)&;
 
 		void FrustumCullingCheck(Engine::Frustum& RefFrustum)&;
 

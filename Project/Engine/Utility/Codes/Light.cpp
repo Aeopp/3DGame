@@ -43,8 +43,8 @@ void Engine::Light::Render(
 	Fx->SetMatrix("Projection", &Projection);
 
 	const Matrix LightViewProjection =CalcLightViewProjection();
-	//// 테스트코드
-	//Matrix ViewProjection = View * Projection;
+	Fx->SetFloat("ShadowDepthMapSize", _LightInfo.ShadowDepthMapSize);
+	
 	Fx->SetMatrix("LightViewProjection", &LightViewProjection);
 	Fx->SetFloat("ShadowDepthBias", _LightInfo.ShadowDepthBias);
 	
