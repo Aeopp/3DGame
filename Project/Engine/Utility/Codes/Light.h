@@ -32,7 +32,8 @@ namespace Engine
 			Vector4 LightColor{ 1,1,1 ,1}; 
 			float ShadowDepthBias = { 0.0f };
 			float ShadowFar{10000.f};
-			float ShadowDepthMapSize = 4096.f;
+			float ShadowDepthMapSize = 2048.f;
+			float OrthoProjectionSize = ShadowDepthMapSize * 1.5f;
 		};
 		void Initialize(IDirect3DDevice9* const Device,
 			const LightInformation& SetLightInformation)&;

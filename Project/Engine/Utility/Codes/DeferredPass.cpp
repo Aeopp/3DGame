@@ -40,7 +40,7 @@ void Engine::DeferredPass::DefaultInitialize()&
 	RimRGB1_InnerWidth1_OuterWidth1_NULL1.DebugBufferInitialize({ -860.f,-360.f },
 		RenderTargetDebugRenderSize);
 
-	uint32 ShadowDepthMapSize = 2048;
+	uint32 ShadowDepthMapSize = 4096u;
 
 	ShadowDepth.Initialize(Device, ShadowDepthMapSize,
 		ShadowDepthMapSize,

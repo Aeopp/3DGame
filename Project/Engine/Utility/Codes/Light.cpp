@@ -92,11 +92,8 @@ Matrix Engine::Light::CalcLightViewProjection() const&
 
 	D3DXMatrixLookAtLH(&LightView, &LightLocation3D, &At, &Up);
 
-	
-	float Aspect = 1.f;
-	D3DXMatrixPerspectiveFovLH(&LightProjection, FMath::PI*0.5f, 
-		Aspect,
-		1.f, _LightInfo.ShadowFar);	
+	D3DXMatrixOrthoLH(&LightProjection, _LightInfo.OrthoProjectionSize, _LightInfo.OrthoProjectionSize,
+		0.1f, _LightInfo.ShadowFar);
 
 	return LightView * LightProjection;
 };

@@ -122,6 +122,10 @@ sampler DetailNormalSampler = sampler_state
     mipfilter = anisotropic;
     MaxAnisotropy = 16;
 
+    addressu = border;
+    addressv = border;
+    bordercolor = 0xffffffff;
+
 };
 
 struct VS_IN
@@ -205,10 +209,9 @@ PS_OUT PS_MAIN(PS_IN In)
     
     float ShadowFactor = 1.15f;
     
-    if (LightClipPosition.x >= 0.0f && LightClipPosition.x <= 1.0f
-         && LightClipPosition.y >= 0.0f && LightClipPosition.y <= 1.0f)
+    if (saturate(LightClipPosition.z) == LightClipPosition.z)
     {
-        float LookUpCount = (PCFCount * 2 + 1) * (PCFCount * 2 + 1);
+        float LookUpCount = (PCFCount * 2.0f + 1) * (PCFCount * 2.0f + 1);
         
         float Shadow = 0.0;
         float2 TexelSize = 1.0 / ShadowDepthMapSize;
@@ -216,13 +219,15 @@ PS_OUT PS_MAIN(PS_IN In)
         {
             for (int y = -PCFCount; y <= PCFCount; ++y)
             {
-                float pcfDepth = tex2D(ShadowDepthSampler, LightClipPosition.xy + float2(x, y) * TexelSize).r;
-                Shadow += LightClipPosition.z > (pcfDepth + ShadowDepthBias) ? 1.0 : 0.0;
+                float pcfDepth = tex2D(ShadowDepthSampler, LightClipPosition.xy + float2(x, y) * TexelSize).x;
+                if (LightClipPosition.z > (pcfDepth + ShadowDepthBias))
+                {
+                    Shadow += 1.0f;
+                }
             }
         }
         Shadow /= LookUpCount;
         ShadowFactor -= Shadow;
-        return Out;
     }
     
     float3 TangentNormal = tex2D(NormalSampler, In.UV).xyz;

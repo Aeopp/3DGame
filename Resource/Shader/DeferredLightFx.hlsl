@@ -77,12 +77,15 @@ sampler RimRGB1_InnerWidth1_OuterWidth1Sampler = sampler_state
 sampler ShadowDepthSampler = sampler_state
 {
     texture = ShadowDepth;
-
   
     minfilter = anisotropic;
     magfilter = anisotropic;
     mipfilter = anisotropic;
     MaxAnisotropy = 16;
+
+    addressu = border;
+    addressv = border;
+    bordercolor = 0xffffffff;
 };
 
 struct VS_IN
@@ -135,10 +138,9 @@ PS_OUT PS_MAIN(PS_IN In)
     
     float ShadowFactor = 1.15f;
     
-    if (LightClipPosition.x >= 0.0f && LightClipPosition.x <= 1.0f
-         && LightClipPosition.y >= 0.0f && LightClipPosition.y <= 1.0f)
+    if (saturate(LightClipPosition.z) == LightClipPosition.z)
     {
-        float LookUpCount = (PCFCount * 2.0f + 1) * (PCFCount * 2.0f+ 1);
+        float LookUpCount = (PCFCount * 2.0f + 1) * (PCFCount * 2.0f + 1);
         
         float Shadow = 0.0;
         float2 TexelSize = 1.0 / ShadowDepthMapSize;
@@ -157,6 +159,7 @@ PS_OUT PS_MAIN(PS_IN In)
         ShadowFactor -= Shadow;
     }
     
+   
     float4 Normal3_Power1 = tex2D(Normal3_Power1Sampler, In.UV);
     float4 CavityRGB1_CavityAlpha1 = tex2D(CavityRGB1_CavityAlpha1Sampler, In.UV);
     float4 RimRGB1_InnerWidth1_OuterWidth1 = tex2D(RimRGB1_InnerWidth1_OuterWidth1Sampler, In.UV);

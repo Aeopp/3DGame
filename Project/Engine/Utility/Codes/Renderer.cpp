@@ -16,10 +16,11 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 	_DeferredPass.Initialize(Device.get());
 
 	Engine::Light::LightInformation LightInfo{};
-	LightInfo.Direction = { 0.043f,-0.999f,-0.021f, 0 };
-	LightInfo.Location = { 0.0f,2312.925f,0.0f, 1};
-	LightInfo.ShadowFar = 3000.f;
-	LightInfo.ShadowDepthBias = 0.00000015f;
+	LightInfo.Direction = { 0.031f,-0.796f,-0.604f, 0 };
+	LightInfo.Location = { 0.0f,2201.835f,1545.454f, 1};
+	LightInfo.ShadowFar = 20000.f;
+	LightInfo.ShadowDepthBias = 0.0003f;
+	LightInfo.OrthoProjectionSize = 10000.f;
 	LightInfo._LightOpt = Engine::Light::LightOption::Directional;
 	LightInfo.ShadowDepthMapSize = _DeferredPass.ShadowDepth.Width;
 	
