@@ -15,6 +15,11 @@ float  Power;
 float  SpecularIntencity;
 float  CavityCoefficient;
 
+
+float3 FogColor = float3(1.f, 1.f, 1.f);
+float FogDistance = 10000.f;
+
+
 float ShadowDepthBias; 
 float ShadowDepthMapSize;
 #define PCFCount 3
@@ -47,9 +52,10 @@ sampler ShadowDepthSampler = sampler_state
 {
     texture = ShadowDepthMap;
 
-    minfilter = point;
-    magfilter = point;
-    mipfilter = point;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
 };
 
 sampler DiffuseSampler  = sampler_state
@@ -283,6 +289,10 @@ PS_OUT PS_MAIN(PS_IN In)
     Out.Color.rgb += AmbientColor.xyz;
     Out.Color.a += AlphaAddtive;
     Out.Color.a = saturate(Out.Color.a);
+    
+    float Distance = length(In.WorldLocation.xyz - CameraLocation.xyz);
+    float FogFactor = saturate((FogDistance - Distance) / FogDistance);
+    Out.Color.rgb += (FogFactor * FogColor);
 
 	return Out;
 }

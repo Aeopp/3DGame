@@ -41,8 +41,8 @@ PS_OUT PS_MAIN(PS_IN In)
     
     float4 Depth = mul(In.WorldPosition, LightViewProjection);
     
-    Out.ShadowDepth = float4(Depth.zzz, 1.f);
-    
+      Out.ShadowDepth = float4(Depth.zzz, 1.f);
+    // Out.ShadowDepth = float4(Depth.xyz, 1.f);
     return Out;
 }
 

@@ -16,10 +16,10 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 	_DeferredPass.Initialize(Device.get());
 
 	Engine::Light::LightInformation LightInfo{};
-	LightInfo.Direction = { 0.042f,-0.990f,-0.131f, 0 };
-	LightInfo.Location = { 0.0f,1768.707f,0.0f, 1};
-	LightInfo.ShadowFar = 1933.962f;
-	LightInfo.ShadowDepthBias = 1.f;
+	LightInfo.Direction = { 0.043f,-0.999f,-0.021f, 0 };
+	LightInfo.Location = { 0.0f,2312.925f,0.0f, 1};
+	LightInfo.ShadowFar = 3000.f;
+	LightInfo.ShadowDepthBias = 0.0f;
 	LightInfo._LightOpt = Engine::Light::LightOption::Directional;
 	LightInfo.ShadowDepthMapSize = _DeferredPass.ShadowDepth.Width;
 	
@@ -115,7 +115,9 @@ void Engine::Renderer::Render()&
 			_DeferredPass.WorldLocation3_Depth1.GetTexture(),
 			_DeferredPass.CavityRGB1_CavityAlpha1_NULL_NULL1.GetTexture(),
 			_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.GetTexture(),
-			_DeferredPass.ShadowDepth.GetTexture());
+			_DeferredPass.ShadowDepth.GetTexture() ,
+			FogColor,
+			FogDistance );
 	};
 	
 
@@ -123,7 +125,9 @@ void Engine::Renderer::Render()&
 		CurrentLandscape.Render(_Frustum, View, Projection, CameraLocation ,
 			_DeferredPass.ShadowDepth.GetTexture() , LightViewProjection ,
 			_DirectionalLight._LightInfo.ShadowDepthMapSize,
-			_DirectionalLight._LightInfo.ShadowDepthBias);
+			_DirectionalLight._LightInfo.ShadowDepthBias  ,
+			FogColor,
+			FogDistance);
 		RenderEnviroment(View, Projection, CameraLocation);
 		RenderNoAlpha(View, Projection, CameraLocation);
 		if (Engine::Global::bDebugMode)

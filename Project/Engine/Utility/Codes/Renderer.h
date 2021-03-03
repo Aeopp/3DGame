@@ -45,7 +45,9 @@ namespace Engine
 		void RenderUI(const Matrix& View, const Matrix& Projection,
 			const Vector4& CameraLocation)&;
 
-		
+	public:
+		Vector3 FogColor{ 0.1f,0.1f,0.1f };
+		float FogDistance = 10000.f;
 	private:
 	
 		DeferredPass _DeferredPass{};

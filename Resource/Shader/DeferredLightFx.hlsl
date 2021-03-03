@@ -8,6 +8,8 @@ float4 LightDirection;
 
 float4 LightColor; 
 float3 AmbientColor = float3(0.01, 0.01, 0.01);
+float3 FogColor = float3(1.f, 1.f, 1.f);
+float  FogDistance = 10000.f;
 
 float ShadowDepthBias;
 
@@ -25,18 +27,20 @@ sampler Albedo3_Contract1Sampler= sampler_state
 {
     texture = Albedo3_Contract1;
 
-    minfilter = point;
-    magfilter = point;
-    mipfilter = point;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
 };
 
 sampler Normal3_Power1Sampler = sampler_state
 {
     texture = Normal3_Power1;
 
-    minfilter = point;
-    magfilter = point;
-    mipfilter = point;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
     
 };
 
@@ -44,27 +48,30 @@ sampler WorldPos3_Depth1Sampler = sampler_state
 {
     texture = WorldPos3_Depth1;
 
-    minfilter = point;
-    magfilter = point;
-    mipfilter = point;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
 };
 
 sampler CavityRGB1_CavityAlpha1Sampler = sampler_state
 {
     texture = CavityRGB1_CavityAlpha1;
 
-    minfilter = point;
-    magfilter = point;
-    mipfilter = point;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
 };
 
 sampler RimRGB1_InnerWidth1_OuterWidth1Sampler = sampler_state
 {
     texture = RimRGB1_InnerWidth1_OuterWidth1;
 
-    minfilter = point;
-    magfilter = point;
-    mipfilter = point;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
 };
 
 sampler ShadowDepthSampler = sampler_state
@@ -72,9 +79,10 @@ sampler ShadowDepthSampler = sampler_state
     texture = ShadowDepth;
 
   
-    minfilter = point;
-    magfilter = point;
-    mipfilter = point;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
 };
 
 struct VS_IN
@@ -209,6 +217,12 @@ PS_OUT PS_MAIN(PS_IN In)
     ShadowFactor = saturate(ShadowFactor);
     Out.Color.rgb *= ShadowFactor;
     Out.Color.rgb += AmbientColor.rgb;
+    
+    float Distance =  length(WorldLocation.xyz - CameraLocation.xyz);
+    // 가까우면 1 멀면 0 
+    float FogFactor = saturate((FogDistance - Distance) / FogDistance);
+    
+    Out.Color.rgb += (FogFactor * FogColor);
     
     return Out;
 }

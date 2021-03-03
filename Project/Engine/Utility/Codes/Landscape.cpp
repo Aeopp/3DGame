@@ -419,7 +419,9 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 	IDirect3DTexture9* const ShadowDepthMap  ,
 	const Matrix& LightViewProjection,
 	const float ShadowDepthMapSize,
-	const float ShadowDepthBias)&
+	const float ShadowDepthBias ,
+	const Vector3& FogColor ,
+	const float FogDistance )&
 {
 	if (Engine::Global::bDebugMode)
 	{
@@ -439,6 +441,8 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 	const Matrix MapWorld = FMath::WorldMatrix(Scale, Rotation, Location);
 
 	auto Fx = ForwardShaderFx.GetHandle();
+	Fx->SetFloat("FogDistance", FogDistance);
+	Fx->SetFloatArray("FogColor", FogColor, 3u);
 	Fx->SetMatrix("View", &View);
 	Fx->SetMatrix("Projection", &Projection);
 	Fx->SetVector("LightDirection", &Renderer._DirectionalLight._LightInfo.Direction);

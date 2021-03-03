@@ -39,9 +39,9 @@ namespace Engine
 		};
 		struct FloatingInformation
 		{
-			static inline std::pair<float, float> VibrationWidthRange{ 0.f,1.f };
-			static inline std::pair<float, float > RotationAccRange  { 0.0f,0.0003f };
-			static inline std::pair<float, float>  VibrationAccRange  { 0.0f,0.1f };
+			static inline std::pair<float, float> VibrationWidthRange{ 0.f,10.f };
+			static inline std::pair<float, float > RotationAccRange  { 0.0f,0.00003f };
+			static inline std::pair<float, float>  VibrationAccRange  { 0.0f,1.f };
 			
 			static void RangeEdit();
 			void Initialize()&
@@ -107,7 +107,9 @@ namespace Engine
 			IDirect3DTexture9* const ShadowDepthMap ,
 			const Matrix& LightViewProjection,
 			const float ShadowDepthMapSize,
-			const float ShadowDepthBias)&;
+			const float ShadowDepthBias ,
+			const Vector3& FogColor,
+			const float FogDistance)&;
 
 		void FrustumCullingCheck(Engine::Frustum& RefFrustum)&;
 

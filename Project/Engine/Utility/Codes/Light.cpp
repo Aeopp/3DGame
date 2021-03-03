@@ -34,7 +34,9 @@ void Engine::Light::Render(
 	IDirect3DDevice9* const Device, const Vector3& CameraLocation, 
 	const Matrix& View, const Matrix& Projection, 
 	IDirect3DTexture9* Albedo3_Contract1, IDirect3DTexture9* Normal3_Power1, IDirect3DTexture9* WorldPos3_Depth1, IDirect3DTexture9* CavityRGB1_CavityAlpha1, IDirect3DTexture9* RimRGB1_InnerWidth1_OuterWidth1 , 
-	IDirect3DTexture9* ShadowDepth)&
+	IDirect3DTexture9* ShadowDepth ,
+	const Vector3& FogColor,
+	const float FogDistance)&
 {
 	auto Fx = _DeferredLight.GetHandle();
 	uint32 Pass = 0u;
@@ -44,7 +46,8 @@ void Engine::Light::Render(
 
 	const Matrix LightViewProjection =CalcLightViewProjection();
 	Fx->SetFloat("ShadowDepthMapSize", _LightInfo.ShadowDepthMapSize);
-	
+	Fx->SetFloatArray("FogColor", FogColor,3u);
+	Fx->SetFloat("FogDistance", FogDistance);
 	Fx->SetMatrix("LightViewProjection", &LightViewProjection);
 	Fx->SetFloat("ShadowDepthBias", _LightInfo.ShadowDepthBias);
 	

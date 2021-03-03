@@ -20,9 +20,10 @@ sampler WorldLocationDepthSampler = sampler_state
 {
     texture = WorldLocationDepth;
 
-    minfilter = point;
-    magfilter = point;
-    mipfilter = point;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
 };
 
 

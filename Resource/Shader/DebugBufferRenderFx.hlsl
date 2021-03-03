@@ -2,6 +2,11 @@
 texture BaseTexture;
 matrix Ortho;
 matrix ScreenMatrix;
+
+#define ShadowDepthBuffer 3
+
+int Flag = 0;
+
 sampler BaseSampler = sampler_state
 {
     texture = BaseTexture;
@@ -49,6 +54,7 @@ PS_OUT PS_MAIN(PS_IN In)
 {
     PS_OUT Out = (PS_OUT) 0;
     Out.COLOR = tex2D(BaseSampler, In.UV); 
+    
     return Out;
 }
 

@@ -657,15 +657,22 @@ void MapEdit::Landscape()&
 
 	ImGui::End();
 
-	ImGui::Begin("DirectionalLight");
-	ImGui::DragFloat4
-	("Direction", (float*)&Renderer._DirectionalLight._LightInfo.Direction, 0.1f, -1.f, 1.f);
-	D3DXVec4Normalize(&Renderer._DirectionalLight._LightInfo.Direction, &Renderer._DirectionalLight._LightInfo.Direction);
-	ImGui::SliderFloat3("Location", (float*)&Renderer._DirectionalLight._LightInfo.Location, -10000.f, 10000.f);
-	ImGui::SliderFloat("Shadow Distance", (float*)&Renderer._DirectionalLight._LightInfo.ShadowFar, 1000.f, 100000.f);
-	ImGui::InputFloat("Shadow Depth Bias",
-		&Renderer._DirectionalLight._LightInfo.ShadowDepthBias);
-	ImGui::ColorEdit4("Color", (float*)&Renderer._DirectionalLight._LightInfo.LightColor);
+	ImGui::Begin("RenderOption");
+	ImGui::SliderFloat("FogDistance", &Renderer.FogDistance, 0.0f, 100000.f);
+	ImGui::ColorEdit3("FogColor", (float*)&Renderer.FogColor );
+	if (ImGui::TreeNode("DirectionalLight"))
+	{
+		ImGui::DragFloat4
+		("Direction", (float*)&Renderer._DirectionalLight._LightInfo.Direction, 0.1f, -1.f, 1.f);
+		D3DXVec4Normalize(&Renderer._DirectionalLight._LightInfo.Direction, &Renderer._DirectionalLight._LightInfo.Direction);
+		ImGui::SliderFloat3("Location", (float*)&Renderer._DirectionalLight._LightInfo.Location, -10000.f, 10000.f);
+		ImGui::SliderFloat("Shadow Distance", (float*)&Renderer._DirectionalLight._LightInfo.ShadowFar, 1000.f, 100000.f);
+		ImGui::InputFloat("Shadow Depth Bias",
+			&Renderer._DirectionalLight._LightInfo.ShadowDepthBias);
+		ImGui::ColorEdit4("Color", (float*)&Renderer._DirectionalLight._LightInfo.LightColor);
+		ImGui::TreePop();
+	}
+	
 	ImGui::End();
 }
 
