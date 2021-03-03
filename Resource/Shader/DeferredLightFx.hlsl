@@ -167,9 +167,8 @@ PS_OUT PS_MAIN(PS_IN In)
     float Contract = Albedo3_Contract1.a;
         
     float3 Normal = Normal3_Power1.rgb;
-    Normal *= 2.0f;
-    Normal -= 1.f;
     float Power = Normal3_Power1.a;
+    
     
        
     float Depth = WorldPos3_Depth1.a;

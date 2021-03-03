@@ -184,8 +184,6 @@ PS_OUT AlbedoNormalWorldPosDepthSpecular(PS_IN In)
                             normalize(In.Normal));
     
     float3 WorldNormal = normalize(mul(TangentNormal, TBN));
-    WorldNormal = (WorldNormal * 0.5f)  + 0.5f;
-    
     Out.Normal3_Power1 = float4(WorldNormal.xyz, Power);
     
     ///
