@@ -19,7 +19,7 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 	LightInfo.Direction = { 0.043f,-0.999f,-0.021f, 0 };
 	LightInfo.Location = { 0.0f,2312.925f,0.0f, 1};
 	LightInfo.ShadowFar = 3000.f;
-	LightInfo.ShadowDepthBias = 0.0f;
+	LightInfo.ShadowDepthBias = 0.00000015f;
 	LightInfo._LightOpt = Engine::Light::LightOption::Directional;
 	LightInfo.ShadowDepthMapSize = _DeferredPass.ShadowDepth.Width;
 	

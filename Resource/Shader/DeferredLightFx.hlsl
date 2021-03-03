@@ -128,7 +128,7 @@ PS_OUT PS_MAIN(PS_IN In)
     float3 Albedo   = Albedo3_Contract1.rgb;
     
     float4 LightClipPosition = mul(float4(WorldLocation, 1.f), LightViewProjection);
-    LightClipPosition.xy = LightClipPosition.xy / LightClipPosition.w;
+    LightClipPosition.xyz = LightClipPosition.xyz / LightClipPosition.w;
     LightClipPosition.y *= -1.f;
     LightClipPosition.xy *= 0.5f;
     LightClipPosition.xy += 0.5f;
@@ -146,7 +146,7 @@ PS_OUT PS_MAIN(PS_IN In)
         {
             for (int y = -PCFCount; y <= PCFCount; ++y)
             {
-                float pcfDepth = tex2D(ShadowDepthSampler, LightClipPosition.xy + float2(x, y) * TexelSize).r;
+                float pcfDepth = tex2D(ShadowDepthSampler, LightClipPosition.xy + float2(x, y) * TexelSize).x;
                 if (LightClipPosition.z > (pcfDepth + ShadowDepthBias))
                 {
                     Shadow += 1.0f;
