@@ -26,7 +26,7 @@ void Engine::DeferredPass::DefaultInitialize()&
 			D3DXCOLOR(0.f, 0.f, 0.f, 1.f));
 	Normal3_Power1.DebugBufferInitialize({ -860.f,+240.f}, RenderTargetDebugRenderSize);
 
-	WorldLocation3_Depth1.Initialize(Device, CurViewPort.Width, CurViewPort.Height, D3DFMT_A16B16G16R16F,
+	WorldLocation3_Depth1.Initialize(Device, CurViewPort.Width, CurViewPort.Height, D3DFMT_A32B32G32R32F,
 		D3DXCOLOR(0.f, 0.f, 0.f, 1.f));
 	WorldLocation3_Depth1.DebugBufferInitialize({ -860.f,40.f}, { RenderTargetDebugRenderSize });
 
@@ -44,7 +44,7 @@ void Engine::DeferredPass::DefaultInitialize()&
 
 	ShadowDepth.Initialize(Device, ShadowDepthMapSize,
 		ShadowDepthMapSize,
-		D3DFMT_R32F,
+		D3DFMT_A32B32G32R32F,
 		D3DXCOLOR(1.f, 1.f, 1.f, 1.f));
 	ShadowDepth.DepthStencilInitialize(Device, ShadowDepthMapSize, ShadowDepthMapSize, D3DFMT_D24X8);
 	ShadowDepth.DebugBufferInitialize({ -660.f,440.f }, RenderTargetDebugRenderSize);
