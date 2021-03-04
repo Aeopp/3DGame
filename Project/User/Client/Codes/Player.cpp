@@ -42,11 +42,6 @@ void Player::Initialize(
 						(Device, Engine::CollisionTag::Decorator, _Transform,
 							typeid(Player).name());
 
-	/*for (auto& VV : *_SkeletonMesh->LocalVertexLocations)
-	{
-		const Matrix ToRoot = _SkeletonMesh->GetBone("Root")->ToRoot; 
-		VV= FMath::Mul(VV, ToRoot);
-	}*/
 	// 바운딩 박스.
 	{
 		Vector3  BoundingBoxMin{}, BoundingBoxMax{};

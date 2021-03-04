@@ -14,7 +14,6 @@
 #include <rapidjson/istreamwrapper.h>
 #include "StringHelper.h"
 
-
 void Engine::MaterialInformation::Load
 (
 	IDirect3DDevice9* const Device,
