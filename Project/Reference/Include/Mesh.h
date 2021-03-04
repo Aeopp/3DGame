@@ -27,10 +27,6 @@ namespace Engine
 	public:
 		void Initialize(IDirect3DDevice9* const Device)&;
 		virtual void Event(class Object* Owner) & override;
-		virtual void Render(const Matrix& World,
-			const Matrix& View,
-			const Matrix& Projection,
-			const Vector4& CameraLocation4D)&;
 	public:
 		static const inline Property TypeProperty = Property::Render;
 		std::shared_ptr<std::vector<Vector3>> LocalVertexLocations;

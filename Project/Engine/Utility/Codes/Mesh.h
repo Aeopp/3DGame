@@ -27,15 +27,27 @@ namespace Engine
 	public:
 		void Initialize(IDirect3DDevice9* const Device)&;
 		virtual void Event(class Object* Owner) & override;
-		virtual void Render(const Matrix& World,
-			const Matrix& View,
-			const Matrix& Projection,
-			const Vector4& CameraLocation4D)&;
+
+		virtual void RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engine::Frustum& RefFrustum,
+			const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation)&;
+		virtual void RenderShadowDepth(
+			const Matrix& LightViewProjection)&;
+		virtual void RenderDeferredAfter(Engine::Frustum& RefFrustum,
+			const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation,
+			IDirect3DTexture9* const ShadowDepthMap,
+			const Matrix& LightViewProjection,
+			const float ShadowDepthMapSize,
+			const float ShadowDepthBias,
+			const Vector3& FogColor,
+			const float FogDistance)&;
+
+		virtual void RenderReady(Engine::Frustum& RefFrustum) &;
 	public:
 		static const inline Property TypeProperty = Property::Render;
 		std::shared_ptr<std::vector<Vector3>> LocalVertexLocations;
 	protected:
 		std::wstring ResourceName{ };  
 		IDirect3DDevice9* Device{ nullptr };
+
 	};
 }

@@ -379,7 +379,7 @@ void Engine::Landscape::Initialize(
 
 	ForwardShaderFx.Initialize(L"LandscapeFx");
 	DeferredAlbedoNormalWorldPosDepthSpecular.Initialize(L"DeferredAlbedoNormalWorldPosDepthSpecularFx");
-	DeferredRimFx.Initialize(L"DeferredRimFx");
+	
 	ShadowDepthFx.Initialize(L"ShadowDepthFx");
 }
 
@@ -616,7 +616,7 @@ void Engine::Landscape::FrustumCullingCheck(Engine::Frustum& RefFrustum)&
 
 }
 
-void Engine::Landscape::RenderDeferredAlbedoNormalWorldPosDepthSpecular(Engine::Frustum& RefFrustum, const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation)&
+void Engine::Landscape::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engine::Frustum& RefFrustum, const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation)&
 {
 	if (nullptr == Device)
 		return;
@@ -667,6 +667,9 @@ void Engine::Landscape::RenderDeferredAlbedoNormalWorldPosDepthSpecular(Engine::
 					Fx->SetFloat("DetailDiffuseIntensity", CurMesh.MaterialInfo.DetailDiffuseIntensity);
 					Fx->SetFloat("DetailNormalIntensity", CurMesh.MaterialInfo.DetailNormalIntensity);
 					Fx->SetFloat("CavityCoefficient", CurMesh.MaterialInfo.CavityCoefficient);
+					Fx->SetFloat("RimOuterWidth", CurMesh.MaterialInfo.RimOuterWidth);
+					Fx->SetFloat("RimInnerWidth", CurMesh.MaterialInfo.RimInnerWidth);
+					Fx->SetVector("RimAmtColor", &CurMesh.MaterialInfo.RimAmtColor);
 
 					CurMesh.MaterialInfo.BindingTexture(Fx);
 					Fx->CommitChanges();
@@ -719,7 +722,7 @@ void Engine::Landscape::RenderShadowDepth(
 				Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
 				Device->SetIndices(CurMesh.IdxBuf);
 				Fx->SetMatrix("World", &DecoWorld);
-
+			
 				Fx->CommitChanges();
 
 				for (uint32 i = 0; i < PassNum; ++i)
@@ -736,66 +739,7 @@ void Engine::Landscape::RenderShadowDepth(
 	}
 }
 
-void Engine::Landscape::RenderDeferredRim(Engine::Frustum& RefFrustum,
-	const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation)&
-{
-	if (nullptr == Device)
-		return;
 
-	auto& Renderer = *Engine::Renderer::Instance;
-	const Matrix MapWorld = FMath::WorldMatrix(Scale, Rotation, Location);
-
-	Device->SetVertexDeclaration(VtxDecl);
-
-	auto Fx = DeferredRimFx.GetHandle();
-	Fx->SetMatrix("View", &View);
-	Fx->SetMatrix("Projection", &Projection);
-
-	for (const auto& [DecoKey, CurDeco] : DecoratorContainer)
-	{
-		for (const auto& CurDecoInstance : CurDeco.Instances)
-		{
-			const Vector3 DecoTfmScale = CurDecoInstance->Scale;
-			const Vector3 DecoTfmLocation = CurDecoInstance->Location;
-
-			const Vector3 DecoTfmRotation = CurDecoInstance->Rotation;
-
-			const Matrix DecoWorld =
-				FMath::WorldMatrix(
-					DecoTfmScale,
-					DecoTfmRotation, DecoTfmLocation);
-
-			uint32 PassNum = 0u;
-			Fx->Begin(&PassNum, 0);
-
-			for (auto& CurMesh : CurDeco.Meshes)
-			{
-				const bool bRender = CurDecoInstance->CurRenderIDSet.contains(CurMesh.ID);
-				if (bRender)
-				{
-					Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
-					Device->SetIndices(CurMesh.IdxBuf);
-					Fx->SetMatrix("World", &DecoWorld);
-					Fx->SetFloat("RimOuterWidth", CurMesh.MaterialInfo.RimOuterWidth);
-					Fx->SetFloat("RimInnerWidth", CurMesh.MaterialInfo.RimInnerWidth);
-					Fx->SetVector("RimAmtColor",&CurMesh.MaterialInfo.RimAmtColor);
-
-					Fx->CommitChanges();
-
-					for (uint32 i = 0; i < PassNum; ++i)
-					{
-						Fx->BeginPass(i);
-						Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
-							0u, CurMesh.PrimitiveCount);
-						Fx->EndPass();
-					}
-				}
-			}
-
-			Fx->End();
-		}
-	}
-}
 
 
 void Engine::Landscape::Save(const std::filesystem::path& SavePath

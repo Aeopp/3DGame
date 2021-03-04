@@ -95,7 +95,7 @@ void Player::PrototypeInitialize(IDirect3DDevice9* const Device,
 
 	_SkeletonMeshProto->Load<Vertex::LocationTangentUV2DSkinning>(Device,
 		App::ResourcePath/L"Mesh"/L"DynamicMesh"/L"",
-		L"GolemAnim.fbx", L"Player");
+		L"PlayerNoAnimation.fbx", L"Player");
 
 	RefResourceSys().InsertAny<decltype(_SkeletonMeshProto)>(L"Player", _SkeletonMeshProto);
 }
@@ -114,7 +114,7 @@ void Player::Render(const Matrix& View,
 	Super::Render(View ,Projection ,CameraLocation);
 	auto _SkeletonMeshComponent = GetComponent<Engine::SkeletonMesh>();
 	const Matrix& World = GetComponent<Engine::Transform>()->UpdateWorld();
-	_SkeletonMeshComponent->Render(World ,View ,Projection, CameraLocation);
+	/*_SkeletonMeshComponent->Render(World ,View ,Projection, CameraLocation);*/
 }
 
 void Player::Update(const float DeltaTime)&

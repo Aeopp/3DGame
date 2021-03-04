@@ -54,10 +54,8 @@ namespace Engine
 		void  Initialize(const std::wstring& ResourceName)&;
 		void  Event(class Object* Owner) & override;
 
-		void  Render(const Matrix& World,
-					const Matrix& View,
-					const Matrix& Projection,
-					const Vector4& CameraLocation4D) & override;
+		/*void Render(Engine::Frustum& RefFrustum, const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation, IDirect3DTexture9* const ShadowDepthMap, const Matrix& LightViewProjection, const float ShadowDepthMapSize, const float ShadowDepthBias, const Vector3& FogColor, const float FogDistance)&;*/
+
 		void  Update(Object* const Owner, const float DeltaTime)&;
 		Engine::Bone*
 			MakeHierarchy(Bone* BoneParent, const aiNode* const AiNode);

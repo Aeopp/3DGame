@@ -10,7 +10,9 @@ float SpecularIntencity;
 float CavityCoefficient;
 float DetailDiffuseIntensity;
 float DetailNormalIntensity;
-
+float RimInnerWidth;
+float RimOuterWidth;
+vector RimAmtColor;
 
 texture DiffuseMap;
 texture NormalMap;
@@ -137,7 +139,7 @@ struct PS_IN
     float3 BiNormal : TEXCOORD2;
     float2 UV : TEXCOORD3;
     float3 WorldLocation : TEXCOORD4;
-    float Depth : TEXCOORD5;
+    float  Depth : TEXCOORD5;
 };
 
 
@@ -146,7 +148,7 @@ struct PS_OUT
     vector Albedo3_Contract1 : COLOR0;
     vector Normal3_Power1: COLOR1;
     vector WorldLocation3_Depth1 : COLOR2;
-    vector Cavity1_CavityAlpha1_NULL1_NULL1 : COLOR3;
+    vector CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1Sampler : COLOR3;
 };
 
 PS_OUT AlbedoNormalWorldPosDepthSpecular(PS_IN In)
@@ -186,18 +188,11 @@ PS_OUT AlbedoNormalWorldPosDepthSpecular(PS_IN In)
     float3 WorldNormal = normalize(mul(TangentNormal, TBN));
     Out.Normal3_Power1 = float4(WorldNormal.xyz, Power);
     
-    ///
-    
     // 월드 위치와 NDC 깊이 패킹
     Out.WorldLocation3_Depth1 = float4(In.WorldLocation.xyz, In.Depth);
-    ///
   
     CavityColor.rgb *= SpecularIntencity;
-    float NULL1 = 1.f;
-    float NULL2 = 1.f;
-    
-    
-    Out.Cavity1_CavityAlpha1_NULL1_NULL1 = float4(CavityColor.r, CavityColor.a, NULL1, NULL2);
+    Out.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1Sampler = float4(CavityColor.r, RimColor.r, RimInnerWidth, RimOuterWidth);
     
     return Out;
 }

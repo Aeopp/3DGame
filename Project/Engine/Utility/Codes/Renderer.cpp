@@ -10,10 +10,8 @@
 
 void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)&
 {
-
 	this->Device = Device;
 	CreateStaticLightResource();
-
 
 	_Frustum.Initialize();
 	_DeferredPass.Initialize(Device.get());
@@ -63,8 +61,7 @@ void Engine::Renderer::Render()&
 		_DeferredPass.Albedo3_Contract1.Clear();
 		_DeferredPass.Normal3_Power1.Clear();
 		_DeferredPass.WorldLocation3_Depth1.Clear();
-		_DeferredPass.CavityRGB1_CavityAlpha1_NULL_NULL1.Clear();
-		_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.Clear();
+		_DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.Clear();
 	};
 
 	{
@@ -75,16 +72,11 @@ void Engine::Renderer::Render()&
 		 _DeferredPass.Albedo3_Contract1.BindGraphicDevice(0u);
 		 _DeferredPass.Normal3_Power1.BindGraphicDevice(1u);
 		 _DeferredPass.WorldLocation3_Depth1.BindGraphicDevice(2u);
-		 _DeferredPass.CavityRGB1_CavityAlpha1_NULL_NULL1.BindGraphicDevice(3u);
+		 _DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.BindGraphicDevice(3u);
 
-		 CurrentLandscape.RenderDeferredAlbedoNormalWorldPosDepthSpecular(
+		 CurrentLandscape.RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(
 			 _Frustum, View, Projection, CameraLocation);
-	};
-
-	// 디퍼드 2 Pass
-	{
-		_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.BindGraphicDevice(0u);
-		CurrentLandscape.RenderDeferredRim(_Frustum, View, Projection, CameraLocation);
+		 CurrentLandscape.RenderDeferredRim(_Frustum, View, Projection, CameraLocation);
 	};
 
 	const Matrix LightViewProjection = _DirectionalLight.CalcLightViewProjection();
@@ -118,8 +110,7 @@ void Engine::Renderer::Render()&
 			CameraLocation3D, View, Projection, _DeferredPass.Albedo3_Contract1.GetTexture(),
 			_DeferredPass.Normal3_Power1.GetTexture(),
 			_DeferredPass.WorldLocation3_Depth1.GetTexture(),
-			_DeferredPass.CavityRGB1_CavityAlpha1_NULL_NULL1.GetTexture(),
-			_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.GetTexture(),
+			_DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.GetTexture(),
 			_DeferredPass.ShadowDepth.GetTexture() ,
 			FogColor,
 			FogDistance );
@@ -151,7 +142,7 @@ void Engine::Renderer::Render()&
 		_DeferredPass.Albedo3_Contract1.RenderDebugBuffer();
 		_DeferredPass.Normal3_Power1.RenderDebugBuffer();
 		_DeferredPass.WorldLocation3_Depth1.RenderDebugBuffer();
-		_DeferredPass.CavityRGB1_CavityAlpha1_NULL_NULL1.RenderDebugBuffer();
+		_DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.RenderDebugBuffer();
 
 		_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.RenderDebugBuffer();
 		_DeferredPass.ShadowDepth.RenderDebugBuffer();

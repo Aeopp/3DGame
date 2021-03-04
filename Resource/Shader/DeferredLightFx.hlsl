@@ -19,8 +19,7 @@ float ShadowDepthMapSize;
 texture Albedo3_Contract1;
 texture Normal3_Power1;
 texture WorldPos3_Depth1;
-texture CavityRGB1_CavityAlpha1;
-texture RimRGB1_InnerWidth1_OuterWidth1;
+texture CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1;
 texture ShadowDepth;
 
 sampler Albedo3_Contract1Sampler= sampler_state
@@ -54,19 +53,9 @@ sampler WorldPos3_Depth1Sampler = sampler_state
     MaxAnisotropy = 16;
 };
 
-sampler CavityRGB1_CavityAlpha1Sampler = sampler_state
+sampler CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1Sampler = sampler_state
 {
-    texture = CavityRGB1_CavityAlpha1;
-
-    minfilter = anisotropic;
-    magfilter = anisotropic;
-    mipfilter = anisotropic;
-    MaxAnisotropy = 16;
-};
-
-sampler RimRGB1_InnerWidth1_OuterWidth1Sampler = sampler_state
-{
-    texture = RimRGB1_InnerWidth1_OuterWidth1;
+    texture = CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1;
 
     minfilter = anisotropic;
     magfilter = anisotropic;
@@ -161,24 +150,20 @@ PS_OUT PS_MAIN(PS_IN In)
     
    
     float4 Normal3_Power1 = tex2D(Normal3_Power1Sampler, In.UV);
-    float4 CavityRGB1_CavityAlpha1 = tex2D(CavityRGB1_CavityAlpha1Sampler, In.UV);
-    float4 RimRGB1_InnerWidth1_OuterWidth1 = tex2D(RimRGB1_InnerWidth1_OuterWidth1Sampler, In.UV);
+    float4 _CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1 = tex2D(CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1Sampler, In.UV);
         
     float Contract = Albedo3_Contract1.a;
         
     float3 Normal = Normal3_Power1.rgb;
     float Power = Normal3_Power1.a;
-    
-    
        
     float Depth = WorldPos3_Depth1.a;
     
-    float3 CavityColor = CavityRGB1_CavityAlpha1.rrr;
-    float CavityAlpha = CavityRGB1_CavityAlpha1.g;
+    float3 CavityColor = _CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.rrr;
     
-    float3 RimLightColor = RimRGB1_InnerWidth1_OuterWidth1.rrr;
-    float RimInnerWidth = RimRGB1_InnerWidth1_OuterWidth1.g;
-    float RimOuterWidth = RimRGB1_InnerWidth1_OuterWidth1.b;
+    float3 RimLightColor = _CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.ggg;
+    float RimInnerWidth = _CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.b;
+    float RimOuterWidth = _CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.a;
     
     float3 ViewDirection = normalize(CameraLocation.xyz - WorldLocation.xyz);
     
@@ -210,7 +195,7 @@ PS_OUT PS_MAIN(PS_IN In)
     
     float3 HalfVec = normalize((-LightDirectionNormal) + ViewDirection);
     Specular = saturate(dot(HalfVec, Normal));
-    Specular = pow(abs(Specular), abs(Power));
+    Specular = pow((Specular),(Power));
     
     Out.Color = float4(Albedo.rgb * LightColor.rgb * Diffuse +
                        CavityColor.rgb * LightColor.rgb * Specular, 1.0f);

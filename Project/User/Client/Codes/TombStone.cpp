@@ -109,7 +109,7 @@ void TombStone::Render(const Matrix& View, const Matrix& Projection,
 	Super::Render( View ,Projection ,CameraLocation);
 	const Matrix& World = GetComponent<Engine::Transform>()->UpdateWorld();
 	auto _StaticMesh = GetComponent<Engine::StaticMesh>();
-	_StaticMesh->Render(World , View ,Projection ,CameraLocation);
+	//_StaticMesh->Render(World , View ,Projection ,CameraLocation);
 }
 
 void TombStone::Update(const float DeltaTime)&

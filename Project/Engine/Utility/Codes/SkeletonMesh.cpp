@@ -53,6 +53,10 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 
 	ForwardShaderFx.Initialize(L"SkeletonSkinningDefaultFx");
 	InitTextureForVertexTextureFetch();
+
+	ShadowDepthSkeletonFx.Initialize(L"ShadowDepthSkeletonFx");
+	DeferredAlbedoNormalWorldPosDepthSpecularRimSkeletonFx.Initialize(
+	L"DeferredAlbedoNormalWorldPosDepthSpecularRimSkeletonFx");
 }
 
 void Engine::SkeletonMesh::Event(Object* Owner)&
@@ -63,7 +67,7 @@ void Engine::SkeletonMesh::Event(Object* Owner)&
 	{
 		if (ImGui::TreeNode(("SkeletonEdit_" + ToA(Owner->GetName())).c_str()))
 		{
-			ImGui::BulletText("%s", (std::to_string(ID) + "_" + (FilePath/FilePureName).string()).c_str());
+			ImGui::BulletText("%s", (std::to_string(ID) + "_" + (FilePath / FilePureName).string()).c_str());
 
 			if (ImGui::TreeNode("Animation"))
 			{
@@ -75,7 +79,7 @@ void Engine::SkeletonMesh::Event(Object* Owner)&
 				for (uint32 AnimIdx = 0u; AnimIdx < AnimInfoTable.size(); ++AnimIdx)
 				{
 					std::string AnimName = (ToA(AnimInfoTable[AnimIdx].Name).c_str());
-			
+
 					std::string Message = "Index : " + std::to_string(AnimIdx) +
 						" Name : " + AnimName;
 
@@ -123,20 +127,10 @@ void Engine::SkeletonMesh::Event(Object* Owner)&
 			ImGui::TreePop();
 		}
 	}
-}
+};
 
-void Engine::SkeletonMesh::Render(	const Matrix& World,
-									const Matrix& View,
-									const Matrix& Projection,
-									const Vector4& CameraLocation4D)&
+void Engine::SkeletonMesh::RenderReady(Engine::Frustum& RefFrustum)&
 {
-	if (Engine::Global::bDebugMode)
-	{
-		ImGui::TextColored(ImVec4{ 1.f,114.f/255.f, 198.f/255.f , 1.0f},"Draw : %s", ToA(ResourceName).c_str());
-	}
-
-	Super::Render(World,View,Projection,CameraLocation4D );
-
 	std::vector<Matrix> RenderBoneMatricies(BoneTable.size());
 
 	std::transform(std::begin(BoneTable), std::end(BoneTable),
@@ -151,9 +145,25 @@ void Engine::SkeletonMesh::Render(	const Matrix& World,
 	{
 		assert(NULL);
 	}
-	std::memcpy(LockRect.pBits, RenderBoneMatricies.data(), RenderBoneMatricies.size() * sizeof(Matrix) );
+	std::memcpy(LockRect.pBits, RenderBoneMatricies.data(), RenderBoneMatricies.size() * sizeof(Matrix));
 	BoneAnimMatrixInfo->UnlockRect(0u);
+}
 
+void Engine::SkeletonMesh::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim
+(
+	Engine::Frustum& RefFrustum, 
+	const Matrix& View,
+	const Matrix& Projection, 
+	const Vector4& CameraLocation)&
+{
+	Super::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(RefFrustum,
+		View, Projection, CameraLocation);
+
+	if (Engine::Global::bDebugMode)
+	{
+		ImGui::TextColored(ImVec4{ 1.f,114.f / 255.f, 198.f / 255.f , 1.0f }, "Draw : %s", ToA(ResourceName).c_str());
+	}
+	
 	auto Fx = ForwardShaderFx.GetHandle();
 	auto& Renderer = *Engine::Renderer::Instance;
 
@@ -167,7 +177,7 @@ void Engine::SkeletonMesh::Render(	const Matrix& World,
 	Fx->SetInt("VTFPitch", VTFPitch);
 	uint32 PassNum = 0u;
 	Fx->Begin(&PassNum, 0);
-	
+
 	for (auto& CurrentRenderMesh : MeshContainer)
 	{
 		Fx->SetVector("RimAmtColor", &CurrentRenderMesh.MaterialInfo.RimAmtColor);
@@ -180,7 +190,7 @@ void Engine::SkeletonMesh::Render(	const Matrix& World,
 		Fx->SetFloat("DetailDiffuseIntensity", CurrentRenderMesh.MaterialInfo.DetailDiffuseIntensity);
 		Fx->SetFloat("DetailNormalIntensity", CurrentRenderMesh.MaterialInfo.DetailNormalIntensity);
 		Fx->SetFloat("CavityCoefficient", CurrentRenderMesh.MaterialInfo.CavityCoefficient);
-		Fx->SetFloat("AlphaAddtive", CurrentRenderMesh.MaterialInfo.AlphaAddtive); 
+		Fx->SetFloat("AlphaAddtive", CurrentRenderMesh.MaterialInfo.AlphaAddtive);
 		Fx->SetFloat("DetailScale", CurrentRenderMesh.MaterialInfo.DetailScale);
 		Device->SetVertexDeclaration(VtxDecl);
 		Device->SetStreamSource(0, CurrentRenderMesh.VertexBuffer, 0, CurrentRenderMesh.Stride);
@@ -199,7 +209,7 @@ void Engine::SkeletonMesh::Render(	const Matrix& World,
 		{
 			Fx->BeginPass(i);
 
-			Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, 
+			Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u,
 				CurrentRenderMesh.VtxCount, 0u, CurrentRenderMesh.PrimitiveCount);
 
 			Fx->EndPass();
@@ -210,7 +220,7 @@ void Engine::SkeletonMesh::Render(	const Matrix& World,
 	if (bBoneDebug)
 	{
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-		Device->SetRenderState(D3DRS_ZENABLE, FALSE); 
+		Device->SetRenderState(D3DRS_ZENABLE, FALSE);
 		auto& ResourceSys = ResourceSystem::Instance;
 		ID3DXMesh* const _DebugMesh = ResourceSys->Get<ID3DXMesh>(L"SphereMesh");
 		for (auto& _Bone : BoneTable)
@@ -220,7 +230,75 @@ void Engine::SkeletonMesh::Render(	const Matrix& World,
 		Device->SetRenderState(D3DRS_ZENABLE, TRUE);
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 	}
+
+};
+
+void Engine::SkeletonMesh::RenderShadowDepth(const Matrix& LightViewProjection)&
+{
+	Super::RenderShadowDepth(LightViewProjection);
+
+	if (nullptr == Device)
+		return;
+
+	auto& Renderer = *Engine::Renderer::Instance;
+	Device->SetVertexDeclaration(VtxDecl);
+
+	auto Fx = ShadowDepthFx.GetHandle();
+	Fx->SetMatrix("LightViewProjection", &LightViewProjection);
+
+	for (const auto& [DecoKey, CurDeco] : DecoratorContainer)
+	{
+		for (const auto& CurDecoInstance : CurDeco.Instances)
+		{
+			const Vector3 DecoTfmScale = CurDecoInstance->Scale;
+			const Vector3 DecoTfmLocation = CurDecoInstance->Location;
+			const Vector3 DecoTfmRotation = CurDecoInstance->Rotation;
+
+			const Matrix DecoWorld =
+				FMath::WorldMatrix(
+					DecoTfmScale,
+					DecoTfmRotation, DecoTfmLocation);
+
+			uint32 PassNum = 0u;
+			Fx->Begin(&PassNum, 0);
+
+			for (auto& CurMesh : CurDeco.Meshes)
+			{
+				Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
+				Device->SetIndices(CurMesh.IdxBuf);
+				Fx->SetMatrix("World", &DecoWorld);
+
+				Fx->CommitChanges();
+
+				for (uint32 i = 0; i < PassNum; ++i)
+				{
+					Fx->BeginPass(i);
+					Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
+						0u, CurMesh.PrimitiveCount);
+					Fx->EndPass();
+				}
+			}
+
+			Fx->End();
+		}
+	}
+
 }
+
+void Engine::SkeletonMesh::RenderDeferredAfter(Engine::Frustum& RefFrustum, const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation, IDirect3DTexture9* const ShadowDepthMap, const Matrix& LightViewProjection, const float ShadowDepthMapSize, const float ShadowDepthBias, const Vector3& FogColor, const float FogDistance)&
+{
+	Super::RenderDeferredAfter(
+		RefFrustum, 
+		View, 
+		Projection, 
+		CameraLocation, 
+		ShadowDepthMap,
+		LightViewProjection, 
+		ShadowDepthMapSize, 
+		ShadowDepthBias,
+		FogColor, FogDistance);
+}
+
 
 void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 {

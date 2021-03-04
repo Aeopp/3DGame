@@ -39,10 +39,10 @@ namespace Engine
 			const std::wstring ResourceName)&;
 		void  Initialize(const std::wstring& ResourceName)&;
 		void  Event(class Object* Owner) & override;
-		void  Render(const Matrix& World,
+		/*void  Render(const Matrix& World,
 			const Matrix& View,
 			const Matrix& Projection,
-			const Vector4& CameraLocation4D) & override;
+			const Vector4& CameraLocation4D) & override;*/
 	public:
 		std::vector       <MeshElement>                          MeshContainer{};
 	private:

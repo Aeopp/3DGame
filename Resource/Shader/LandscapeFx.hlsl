@@ -283,7 +283,7 @@ PS_OUT PS_MAIN(PS_IN In)
     
     float3 HalfVec = normalize((-LightDirectionNormal) + (In.ViewDirection));
     Specular = saturate(dot(HalfVec, WorldNormal));
-    Specular = pow(abs(Specular),abs(Power));
+    Specular = pow((Specular),(Power));
     
     Out.Color = float4(LightColor.xyz * DiffuseColor.rgb * Diffuse +
                     LightColor.xyz * SpecularColor.rgb * Specular, DiffuseColor.a);

@@ -30,15 +30,9 @@ void Engine::DeferredPass::DefaultInitialize()&
 		D3DXCOLOR(0.f, 0.f, 0.f, 1.f));
 	WorldLocation3_Depth1.DebugBufferInitialize({ -860.f,40.f}, { RenderTargetDebugRenderSize });
 
-	CavityRGB1_CavityAlpha1_NULL_NULL1.Initialize(Device, CurViewPort.Width, CurViewPort.Height, D3DFMT_A16B16G16R16F,
+	CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.Initialize(Device, CurViewPort.Width, CurViewPort.Height, D3DFMT_A16B16G16R16F,
 		D3DXCOLOR(0.f, 0.f, 0.f, 1.f));
-	CavityRGB1_CavityAlpha1_NULL_NULL1.DebugBufferInitialize({ -860.f,-160.f}, RenderTargetDebugRenderSize);
-	
-	RimRGB1_InnerWidth1_OuterWidth1_NULL1.Initialize(Device, 
-		CurViewPort.Width, CurViewPort.Height, D3DFMT_A16B16G16R16F,
-		D3DXCOLOR(0.f, 0.f, 0.f, 1.f));
-	RimRGB1_InnerWidth1_OuterWidth1_NULL1.DebugBufferInitialize({ -860.f,-360.f },
-		RenderTargetDebugRenderSize);
+	CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.DebugBufferInitialize({ -860.f,-160.f}, RenderTargetDebugRenderSize);
 
 	//uint32 ShadowDepthMapSize = 2048u;
 	///*D3DVIEWPORT9 ViewPort{};

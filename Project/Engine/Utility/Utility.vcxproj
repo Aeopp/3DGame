@@ -296,12 +296,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Resource\Shader\DeferredAlbedoNormalWorldPosDepthSpecularFx.hlsl">
-      <FileType>Document</FileType>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\Resource\Shader\DeferredRimFx.hlsl">
+    <ClInclude Include="..\..\..\Resource\Shader\DeferredAlbedoNormalWorldPosDepthSpecularRimFx.hlsl">
       <FileType>Document</FileType>
     </ClInclude>
   </ItemGroup>
@@ -322,6 +317,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Resource\Shader\DebugBufferRenderFx.hlsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Resource\Shader\ShadowDepthSkeletonFx.hlsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Resource\Shader\DeferredAlbedoNormalWorldPosDepthSpecularRimSkeletonFx.hlsl">
       <FileType>Document</FileType>
     </ClInclude>
   </ItemGroup>

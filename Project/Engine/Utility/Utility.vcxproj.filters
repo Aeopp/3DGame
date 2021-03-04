@@ -238,10 +238,7 @@
     <ClInclude Include="Codes\Light.h">
       <Filter>DeferredPass</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Resource\Shader\DeferredAlbedoNormalWorldPosDepthSpecularFx.hlsl">
-      <Filter>Shader\HLSL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Resource\Shader\DeferredRimFx.hlsl">
+    <ClInclude Include="..\..\..\Resource\Shader\DeferredAlbedoNormalWorldPosDepthSpecularRimFx.hlsl">
       <Filter>Shader\HLSL</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Resource\Shader\DeferredLightFx.hlsl">
@@ -254,6 +251,12 @@
       <Filter>Shader\HLSL</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Resource\Shader\DebugBufferRenderFx.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Resource\Shader\ShadowDepthSkeletonFx.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Resource\Shader\DeferredAlbedoNormalWorldPosDepthSpecularRimSkeletonFx.hlsl">
       <Filter>Shader\HLSL</Filter>
     </ClInclude>
   </ItemGroup>

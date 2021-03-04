@@ -54,17 +54,32 @@ namespace Engine
 		void  Initialize(const std::wstring& ResourceName)&;
 		void  Event(class Object* Owner) & override;
 
-		void  Render(const Matrix& World,
-					const Matrix& View,
-					const Matrix& Projection,
-					const Vector4& CameraLocation4D) & override;
+		virtual void RenderReady(Engine::Frustum& RefFrustum)&override;
+
+		virtual void RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(
+			const Matrix& World , 
+			Engine::Frustum& RefFrustum,
+			const Matrix& View, 
+			const Matrix& Projection, 
+		    const Vector4& CameraLocation)&;
+		virtual void RenderShadowDepth(
+			const Matrix& World, 
+			const Matrix& LightViewProjection)&;
+		virtual void RenderDeferredAfter(Engine::Frustum& RefFrustum,
+			const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation,
+			IDirect3DTexture9* const ShadowDepthMap,
+			const Matrix& LightViewProjection,
+			const float ShadowDepthMapSize,
+			const float ShadowDepthBias,
+			const Vector3& FogColor,
+			const float FogDistance)&;
+
 		void  Update(Object* const Owner, const float DeltaTime)&;
 		Engine::Bone*
 			MakeHierarchy(Bone* BoneParent, const aiNode* const AiNode);
 
 		Engine::Bone*
 			MakeHierarchyClone(Bone* BoneParent, const Bone* const PrototypeBone);
-
 
 		void  PlayAnimation(const uint32 AnimIdx, 
 			const double Acceleration,
@@ -92,6 +107,9 @@ namespace Engine
 		uint32 MaxAnimIdx{ 0u };
 		bool bBoneDebug = false; 
 	private:
+		Matrix OwnerWorld = FMath::Identity{};
+		Engine::ShaderFx ShadowDepthSkeletonFx{};
+		Engine::ShaderFx DeferredAlbedoNormalWorldPosDepthSpecularRimSkeletonFx{};
 		std::string RootBoneName{}; 
 		std::shared_ptr<std::set<std::string>> BoneNameSet{}; 
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr }; 

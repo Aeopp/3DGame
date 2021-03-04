@@ -11,11 +11,19 @@ void Engine::Mesh::Event(Object* Owner)&
 {
 	Super::Event(Owner);
 }
-
-void Engine::Mesh::Render(const Matrix& World,
-	const Matrix& View,
-	const Matrix& Projection,
-	const Vector4& CameraLocation4D)&
+void Engine::Mesh::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engine::Frustum& RefFrustum, const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation)&
+{
+}
+void Engine::Mesh::RenderShadowDepth(const Matrix& LightViewProjection)&
+{
+	
+}
+void Engine::Mesh::RenderDeferredAfter(Engine::Frustum& RefFrustum, const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation, IDirect3DTexture9* const ShadowDepthMap, const Matrix& LightViewProjection, const float ShadowDepthMapSize, const float ShadowDepthBias, const Vector3& FogColor, const float FogDistance)&
 {
 
-}
+};
+
+void Engine::Mesh::RenderReady(Engine::Frustum& RefFrustum)&
+{
+
+};

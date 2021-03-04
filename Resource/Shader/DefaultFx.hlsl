@@ -228,7 +228,7 @@ PS_OUT PS_MAIN(PS_IN In)
     
     float3 HalfVec = normalize((-LightDirectionNormal) + (In.ViewDirection));
     Specular = saturate(dot(HalfVec, WorldNormal));
-    Specular = pow(abs(Specular), abs(Power));
+    Specular = pow((Specular), (Power));
     
     float3 Ambient = AmbientColor.xyz;
     

@@ -33,7 +33,9 @@ void Engine::Light::Initialize(
 void Engine::Light::Render(
 	IDirect3DDevice9* const Device, const Vector3& CameraLocation, 
 	const Matrix& View, const Matrix& Projection, 
-	IDirect3DTexture9* Albedo3_Contract1, IDirect3DTexture9* Normal3_Power1, IDirect3DTexture9* WorldPos3_Depth1, IDirect3DTexture9* CavityRGB1_CavityAlpha1, IDirect3DTexture9* RimRGB1_InnerWidth1_OuterWidth1 , 
+	IDirect3DTexture9* Albedo3_Contract1, IDirect3DTexture9* Normal3_Power1,
+	IDirect3DTexture9* WorldPos3_Depth1, 
+	IDirect3DTexture9* CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1, 
 	IDirect3DTexture9* ShadowDepth ,
 	const Vector3& FogColor,
 	const float FogDistance)&
@@ -66,8 +68,7 @@ void Engine::Light::Render(
 		Fx->SetTexture("Albedo3_Contract1", Albedo3_Contract1);
 		Fx->SetTexture("Normal3_Power1", Normal3_Power1);
 		Fx->SetTexture("WorldPos3_Depth1", WorldPos3_Depth1);
-		Fx->SetTexture("CavityRGB1_CavityAlpha1", CavityRGB1_CavityAlpha1);
-		Fx->SetTexture("RimRGB1_InnerWidth1_OuterWidth1", RimRGB1_InnerWidth1_OuterWidth1);
+		Fx->SetTexture("CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1", CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1);
 		Fx->SetTexture("ShadowDepth", ShadowDepth);
 		
 		Fx->CommitChanges();
