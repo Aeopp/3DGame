@@ -40,12 +40,18 @@ void Engine::DeferredPass::DefaultInitialize()&
 	RimRGB1_InnerWidth1_OuterWidth1_NULL1.DebugBufferInitialize({ -860.f,-360.f },
 		RenderTargetDebugRenderSize);
 
-	uint32 ShadowDepthMapSize = 4096u;
-
-	ShadowDepth.Initialize(Device, ShadowDepthMapSize,
-		ShadowDepthMapSize,
-		D3DFMT_A32B32G32R32F,
+	//uint32 ShadowDepthMapSize = 2048u;
+	///*D3DVIEWPORT9 ViewPort{};
+	//ViewPort.Height = 1080;
+	//ViewPort.Width = 1900;
+	//ViewPort.MaxZ = 1.f;
+	//ViewPort.MinZ = 0.0f;
+	//ViewPort.X = 0.0f;
+	//ViewPort.Y = 0.0f;
+	//Device->SetViewport(&ViewPort); */
+	ShadowDepth.Initialize(Device, CurViewPort.Width, CurViewPort.Height,
+		D3DFMT_R32F,
 		D3DXCOLOR(1.f, 1.f, 1.f, 1.f));
-	ShadowDepth.DepthStencilInitialize(Device, ShadowDepthMapSize, ShadowDepthMapSize, D3DFMT_D24X8);
+	ShadowDepth.DepthStencilInitialize(Device, CurViewPort.Width, CurViewPort.Height, D3DFMT_D24X8);
 	ShadowDepth.DebugBufferInitialize({ -660.f,440.f }, RenderTargetDebugRenderSize);
 }

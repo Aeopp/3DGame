@@ -4,6 +4,7 @@
 #include "ResourceSystem.h"
 #include "Vertexs.hpp"
 #include "StringHelper.h"
+#include "GraphicDevice.h"
 
 
 static uint32 RenderTargetUniqueResourceID = 0u;
@@ -23,8 +24,11 @@ void Engine::RenderTarget::Initialize(
 	static constexpr uint32 DefaultMipLevels = 1u;
 	this->Width = Width;
 	this->Height = Height; 
-	Device->CreateTexture(Width,Height, DefaultMipLevels, D3DUSAGE_RENDERTARGET,
-		Format, D3DPOOL_DEFAULT, &TargetTexture, nullptr);
+	if (FAILED(Device->CreateTexture(Width, Height, DefaultMipLevels, D3DUSAGE_RENDERTARGET,
+		Format, D3DPOOL_DEFAULT, &TargetTexture, nullptr)))
+	{
+		throw std::exception(__FUNCTION__);
+	}
 
 	// 생성한 텍스쳐로부터 
 	TargetTexture->GetSurfaceLevel(0u, &TargetSurface);
@@ -49,9 +53,11 @@ void Engine::RenderTarget::Initialize(
 
 void Engine::RenderTarget::DepthStencilInitialize(IDirect3DDevice9* Device, const uint32 Width, const uint32 Height, const D3DFORMAT Format)
 {
-	Device->CreateDepthStencilSurface(Width, Height,
-		Format, D3DMULTISAMPLE_NONE, 0, TRUE ,  &TargetDepthStencil, nullptr);
+	auto& RefGraphicDevice=Engine::GraphicDevice::Instance;
 
+	Device->CreateDepthStencilSurface(Width, Height,
+		Format, RefGraphicDevice->MultiSampleType , RefGraphicDevice->MultiSampleQuality, TRUE ,  &TargetDepthStencil, nullptr);
+	
 	const std::wstring RenderTargetUniqueResourceName =
 		std::to_wstring(UniqueResourceID);
 

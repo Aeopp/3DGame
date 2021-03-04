@@ -1,5 +1,6 @@
 ﻿#include "Renderer.h"
 #include <future>
+#include "GraphicDevice.h"
 #include "FMath.hpp"
 #include "imgui.h"
 #include "UtilityGlobal.h"
@@ -9,8 +10,10 @@
 
 void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)&
 {
+
 	this->Device = Device;
 	CreateStaticLightResource();
+
 
 	_Frustum.Initialize();
 	_DeferredPass.Initialize(Device.get());
@@ -18,9 +21,9 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 	Engine::Light::LightInformation LightInfo{};
 	LightInfo.Direction = { 0.031f,-0.796f,-0.604f, 0 };
 	LightInfo.Location = { 0.0f,2201.835f,1545.454f, 1};
-	LightInfo.ShadowFar = 20000.f;
-	LightInfo.ShadowDepthBias = 0.0003f;
-	LightInfo.OrthoProjectionSize = 10000.f;
+	LightInfo.ShadowFar = 5000.f;
+	LightInfo.ShadowDepthBias = 0.0001f;
+	LightInfo.OrthoProjectionSize = 3000.f;
 	LightInfo._LightOpt = Engine::Light::LightOption::Directional;
 	LightInfo.ShadowDepthMapSize = _DeferredPass.ShadowDepth.Width;
 	
@@ -55,7 +58,7 @@ void Engine::Renderer::Render()&
 		Device->GetViewport(&CurViewPort);
 	};
 
-	{
+	{		
 		_DeferredPass.ShadowDepth.ClearWithDepthStencil(D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER);
 		_DeferredPass.Albedo3_Contract1.Clear();
 		_DeferredPass.Normal3_Power1.Clear();
@@ -96,9 +99,10 @@ void Engine::Renderer::Render()&
 		ShadowViewPort.MinZ = 0.0f;
 		ShadowViewPort.MaxZ = 1.0f;
 		Device->SetViewport(&ShadowViewPort);
+		
 		_DeferredPass.ShadowDepth.BindGraphicDevice(0u);
 		_DeferredPass.ShadowDepth.BindDepthStencil();
-		
+
 		CurrentLandscape.
 			RenderShadowDepth(LightViewProjection);
 	};
@@ -150,7 +154,6 @@ void Engine::Renderer::Render()&
 		_DeferredPass.CavityRGB1_CavityAlpha1_NULL_NULL1.RenderDebugBuffer();
 
 		_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.RenderDebugBuffer();
-
 		_DeferredPass.ShadowDepth.RenderDebugBuffer();
 	};
 	

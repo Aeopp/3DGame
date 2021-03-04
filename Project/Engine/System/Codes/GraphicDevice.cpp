@@ -24,7 +24,7 @@ void Engine::GraphicDevice::Initialize(
 	PresentParameter.MultiSampleType = D3DMULTISAMPLE_NONE;
 	PresentParameter.MultiSampleQuality = 0u;
 
-	// 안티앨리어싱을 최고 퀄리티로 설정.
+	//  안티앨리어싱을 최고 퀄리티로 설정.
 	for (uint32 i = 1; i <= 16; ++i)
 	{
 		DWORD QualtyLevel{};
@@ -49,10 +49,13 @@ void Engine::GraphicDevice::Initialize(
 	PresentParameter.Windowed = !bFullScreen;
 	PresentParameter.EnableAutoDepthStencil = TRUE;
 	PresentParameter.AutoDepthStencilFormat = D3DFMT_D24S8;
-
+	D3DPRESENTFLAG_DISCARD_DEPTHSTENCIL;
+	PresentParameter.Flags = D3DPRESENTFLAG_DISCARD_DEPTHSTENCIL;
 	PresentParameter.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
 	PresentParameter.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
+	MultiSampleType = PresentParameter.MultiSampleType; 
+	MultiSampleQuality = PresentParameter.MultiSampleQuality; 
 	IDirect3DDevice9* _DevicePtr;
 	if (FAILED(_SDK->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, Hwnd, Flag, &PresentParameter, &_DevicePtr)))
 		throw std::exception("CreateDevice");

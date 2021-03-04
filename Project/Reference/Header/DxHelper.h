@@ -27,7 +27,7 @@ namespace DX
 			MessageBox(nullptr, L"NULL PTR", L"Warning!", MB_OK);
 		}
 
-		return std::shared_ptr<D3DInstanceType>(Ptr, [](auto Ptr)
+		return std::shared_ptr<D3DInstanceType>(Ptr, [](D3DInstanceType* Ptr)
 			{
 				Ptr->Release();
 			});

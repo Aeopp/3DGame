@@ -53,6 +53,7 @@ namespace Engine
 
 		void RenderDebugBuffer()&;
 
+
 		IDirect3DTexture9* GetTexture()const& { return TargetTexture;  };
 
 		uint32 Width = 0u;

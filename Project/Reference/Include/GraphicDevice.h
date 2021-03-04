@@ -17,7 +17,9 @@ namespace Engine
 		void End() & noexcept;
 		inline DX::SharedPtr<IDirect3DDevice9> GetDevice()& { return _Device; };
 		inline D3DCAPS9 GetCaps()const& { return DeviceCaps; };
-	private:
+	public:
+		D3DMULTISAMPLE_TYPE MultiSampleType{ D3DMULTISAMPLE_NONE };
+		DWORD MultiSampleQuality{ 0u } ;
 	private:
 		D3DCAPS9 DeviceCaps;
 		DX::SharedPtr<IDirect3D9> _SDK{ nullptr };
