@@ -1,6 +1,7 @@
 #include "SkeletonMesh.h"
 #include "UtilityGlobal.h"
 #include "FMath.hpp"
+#include "Transform.h"
 #include <future>
 #include <set>
 #include <optional>
@@ -52,12 +53,11 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 		RootBone->Childrens.push_back(MakeHierarchyClone(RootBone, ProtoBoneChildren));
 	}
 
-	ForwardShaderFx.Initialize(L"SkeletonSkinningDefaultFx");
 	InitTextureForVertexTextureFetch();
 
-	ShadowDepthSkeletonFx.Initialize(L"ShadowDepthSkeletonFx");
-	DeferredAlbedoNormalWorldPosDepthSpecularRimSkeletonFx.Initialize(
-	L"DeferredAlbedoNormalWorldPosDepthSpecularRimSkeletonFx");
+	ForwardShaderFx.Initialize(L"SkeletonSkinningDefaultFx");
+	DepthShadowFx.Initialize(L"ShadowDepthSkeletonFx");
+	DeferredDefaultFx.Initialize(L"DeferredAlbedoNormalWorldPosDepthSpecularRimSkeletonFx");
 }
 
 void Engine::SkeletonMesh::Event(Object* Owner)&
@@ -131,46 +131,79 @@ void Engine::SkeletonMesh::Event(Object* Owner)&
 }
 void Engine::SkeletonMesh::Render(Engine::Renderer* const _Renderer)&
 {
+	ForwardShaderFx.GetHandle();
+
+	auto Fx = ForwardShaderFx.GetHandle();
+	auto& Renderer = *Engine::Renderer::Instance;
+	const Matrix OwnerWorld = Owner->GetComponent<Engine::Transform>()->UpdateWorld();
+
+	Fx->SetMatrix("World", &OwnerWorld);
+	Fx->SetMatrix("View", &View);
+	Fx->SetMatrix("Projection", &Projection);
+	Fx->SetVector("LightDirection", &Renderer._DirectionalLight._LightInfo.Direction);
+	Fx->SetVector("LightColor", &Renderer._DirectionalLight._LightInfo.LightColor);
+	Fx->SetVector("CameraLocation", &CameraLocation4D);
+	Fx->SetTexture("VTF", BoneAnimMatrixInfo);
+	Fx->SetInt("VTFPitch", VTFPitch);
+	uint32 PassNum = 0u;
+	Fx->Begin(&PassNum, 0);
+
+	for (auto& CurrentRenderMesh : MeshContainer)
+	{
+		Fx->SetVector("RimAmtColor", &CurrentRenderMesh.MaterialInfo.RimAmtColor);
+		Fx->SetFloat("RimOuterWidth", CurrentRenderMesh.MaterialInfo.RimOuterWidth);
+		Fx->SetFloat("RimInnerWidth", CurrentRenderMesh.MaterialInfo.RimInnerWidth);
+		Fx->SetVector("AmbientColor", &CurrentRenderMesh.MaterialInfo.AmbientColor);
+		Fx->SetFloat("Power", CurrentRenderMesh.MaterialInfo.Power);
+		Fx->SetFloat("SpecularIntencity", CurrentRenderMesh.MaterialInfo.SpecularIntencity);
+		Fx->SetFloat("Contract", CurrentRenderMesh.MaterialInfo.Contract);
+		Fx->SetFloat("DetailDiffuseIntensity", CurrentRenderMesh.MaterialInfo.DetailDiffuseIntensity);
+		Fx->SetFloat("DetailNormalIntensity", CurrentRenderMesh.MaterialInfo.DetailNormalIntensity);
+		Fx->SetFloat("CavityCoefficient", CurrentRenderMesh.MaterialInfo.CavityCoefficient);
+		Fx->SetFloat("AlphaAddtive", CurrentRenderMesh.MaterialInfo.AlphaAddtive);
+		Fx->SetFloat("DetailScale", CurrentRenderMesh.MaterialInfo.DetailScale);
+		Device->SetVertexDeclaration(VtxDecl);
+		Device->SetStreamSource(0, CurrentRenderMesh.VertexBuffer, 0, CurrentRenderMesh.Stride);
+		Device->SetIndices(CurrentRenderMesh.IndexBuffer);
+
+		Fx->SetTexture("DiffuseMap", CurrentRenderMesh.MaterialInfo.GetTexture("Diffuse"));
+		Fx->SetTexture("NormalMap", CurrentRenderMesh.MaterialInfo.GetTexture("Normal3_Power1"));
+		Fx->SetTexture("CavityMap", CurrentRenderMesh.MaterialInfo.GetTexture("Cavity"));
+		Fx->SetTexture("EmissiveMap", CurrentRenderMesh.MaterialInfo.GetTexture("Emissive"));
+		Fx->SetTexture("DetailDiffuseMap", CurrentRenderMesh.MaterialInfo.GetTexture("DetailDiffuse"));
+		Fx->SetTexture("DetailNormalMap", CurrentRenderMesh.MaterialInfo.GetTexture("DetailNormal"));
+
+		Fx->CommitChanges();
+
+		for (uint32 i = 0; i < PassNum; ++i)
+		{
+			Fx->BeginPass(i);
+
+			Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u,
+				CurrentRenderMesh.VtxCount, 0u, CurrentRenderMesh.PrimitiveCount);
+
+			Fx->EndPass();
+		}
+	}
+	Fx->End();
+
+	if (bBoneDebug)
+	{
+		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+		Device->SetRenderState(D3DRS_ZENABLE, FALSE);
+		auto& ResourceSys = ResourceSystem::Instance;
+		ID3DXMesh* const _DebugMesh = ResourceSys->Get<ID3DXMesh>(L"SphereMesh");
+		for (auto& _Bone : BoneTable)
+		{
+			_Bone->DebugRender(World, Device, _DebugMesh);
+		}
+		Device->SetRenderState(D3DRS_ZENABLE, TRUE);
+		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	}
+
+
 }
 void Engine::SkeletonMesh::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engine::Renderer* const _Renderer)&
-{
-}
-void Engine::SkeletonMesh::RenderShadowDepth(Engine::Renderer* const _Renderer)&
-{
-}
-void Engine::SkeletonMesh::RenderReady(Engine::Renderer* const _Renderer)&
-{
-	std::vector<Matrix> RenderBoneMatricies(BoneTable.size());
-
-	std::transform(std::begin(BoneTable), std::end(BoneTable),
-		std::begin(RenderBoneMatricies), []
-		(const std::shared_ptr<Bone>& CopyBoneFinalMatrix)
-		{
-			return CopyBoneFinalMatrix->Final;
-		});
-
-	D3DLOCKED_RECT LockRect{ 0u, };
-	if (FAILED(BoneAnimMatrixInfo->LockRect(0u, &LockRect, nullptr, 0)))
-	{
-		assert(NULL);
-	}
-	std::memcpy(LockRect.pBits, RenderBoneMatricies.data(), RenderBoneMatricies.size() * sizeof(Matrix));
-	BoneAnimMatrixInfo->UnlockRect(0u);
-
-}
-;
-
-void Engine::SkeletonMesh::RenderReady(Engine::Frustum& RefFrustum)&
-{
-	
-}
-
-void Engine::SkeletonMesh::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim
-(
-	Engine::Frustum& RefFrustum, 
-	const Matrix& View,
-	const Matrix& Projection, 
-	const Vector4& CameraLocation)&
 {
 	Super::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(RefFrustum,
 		View, Projection, CameraLocation);
@@ -179,7 +212,7 @@ void Engine::SkeletonMesh::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim
 	{
 		ImGui::TextColored(ImVec4{ 1.f,114.f / 255.f, 198.f / 255.f , 1.0f }, "Draw : %s", ToA(ResourceName).c_str());
 	}
-	
+
 	auto Fx = ForwardShaderFx.GetHandle();
 	auto& Renderer = *Engine::Renderer::Instance;
 
@@ -247,9 +280,8 @@ void Engine::SkeletonMesh::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 	}
 
-};
-
-void Engine::SkeletonMesh::RenderShadowDepth(const Matrix& LightViewProjection)&
+}
+void Engine::SkeletonMesh::RenderShadowDepth(Engine::Renderer* const _Renderer)&
 {
 	Super::RenderShadowDepth(LightViewProjection);
 
@@ -300,20 +332,26 @@ void Engine::SkeletonMesh::RenderShadowDepth(const Matrix& LightViewProjection)&
 	}
 
 }
-
-void Engine::SkeletonMesh::RenderDeferredAfter(Engine::Frustum& RefFrustum, const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation, IDirect3DTexture9* const ShadowDepthMap, const Matrix& LightViewProjection, const float ShadowDepthMapSize, const float ShadowDepthBias, const Vector3& FogColor, const float FogDistance)&
+void Engine::SkeletonMesh::RenderReady(Engine::Renderer* const _Renderer)&
 {
-	Super::RenderDeferredAfter(
-		RefFrustum, 
-		View, 
-		Projection, 
-		CameraLocation, 
-		ShadowDepthMap,
-		LightViewProjection, 
-		ShadowDepthMapSize, 
-		ShadowDepthBias,
-		FogColor, FogDistance);
-}
+	std::vector<Matrix> RenderBoneMatricies(BoneTable.size());
+
+	std::transform(std::begin(BoneTable), std::end(BoneTable),
+		std::begin(RenderBoneMatricies), []
+		(const std::shared_ptr<Bone>& CopyBoneFinalMatrix)
+		{
+			return CopyBoneFinalMatrix->Final;
+		});
+
+	D3DLOCKED_RECT LockRect{ 0u, };
+	if (FAILED(BoneAnimMatrixInfo->LockRect(0u, &LockRect, nullptr, 0)))
+	{
+		assert(NULL);
+	}
+	std::memcpy(LockRect.pBits, RenderBoneMatricies.data(), RenderBoneMatricies.size() * sizeof(Matrix));
+	BoneAnimMatrixInfo->UnlockRect(0u);
+};
+
 
 
 void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&

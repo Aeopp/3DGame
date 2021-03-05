@@ -91,7 +91,6 @@ namespace Engine
 		std::string RootBoneName{}; 
 		std::shared_ptr<std::set<std::string>> BoneNameSet{}; 
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr }; 
-		Engine::ShaderFx ForwardShaderFx{};
 		double PrevAnimAcceleration = 1.f;
 		double Acceleration = 1.f;
 
@@ -117,7 +116,7 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 	const std::filesystem::path FileName,
 	const std::wstring ResourceName)&
 {
-	this->ResourceName = ResourceName;
+	this->DebugName = this->ResourceName = ResourceName;
 	this->Device = Device;
 	// 모델 생성 플래그 , 같은 플래그를 두번, 혹은 호환이 안되는
 	// 플래그가 겹칠 경우 런타임 에러이며 에러 핸들링이

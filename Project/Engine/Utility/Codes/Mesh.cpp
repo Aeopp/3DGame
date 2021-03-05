@@ -1,5 +1,6 @@
 #include "Mesh.h"
 #include "Renderer.h"
+#include "StringHelper.h"
 
 void Engine::Mesh::Initialize(
 	IDirect3DDevice9* const Device,

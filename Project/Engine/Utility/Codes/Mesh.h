@@ -43,9 +43,6 @@ namespace Engine
 		static const inline Property TypeProperty = Property::Render;
 		std::shared_ptr<std::vector<Vector3>> LocalVertexLocations;
 	protected:
-		Engine::ShaderFx ForwardShaderFx{};
-		Engine::ShaderFx DepthShadowFx{};
-		Engine::ShaderFx DeferredDefaultFx{};
 		Engine::Object* Owner{ nullptr };
 		std::wstring ResourceName{ };  
 		IDirect3DDevice9* Device{ nullptr };

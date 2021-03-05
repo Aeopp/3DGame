@@ -1,12 +1,8 @@
 #include "RenderInterface.h"
 #include "Renderer.h"
 #include "Transform.h"
-
-bool FrustumCullingCheck(const Engine::Frustum& RefFrustum)&
-{
-
-}
-
+#include "UtilityGlobal.h"
+#include "imgui.h"
 Sphere Engine::RenderInterface::GetCullingSphere() const&
 {
 	Sphere WorldSphere = CullingLocalSphere;
@@ -21,7 +17,21 @@ Sphere Engine::RenderInterface::GetCullingSphere() const&
 
 bool Engine::RenderInterface::FrustumInCheck(Engine::Frustum& RefFrustum)&
 {
-	return bCurrentFrustumIn = RefFrustum.IsIn(GetCullingSphere());
+	if (bCullingOn)
+	{
+		bCurrentFrustumIn = RefFrustum.IsIn(GetCullingSphere());
+	}
+	else
+	{
+		bCurrentFrustumIn = true;
+	}
+
+	if (Engine::Global::bDebugMode)
+	{
+		ImGui::TextColored(ImVec4{ 1.f,114.f / 255.f, 198.f / 255.f , 1.0f }, "Draw : %s",(DebugName).c_str());
+	}
+
+	return  bCurrentFrustumIn;
 }
 
 void Engine::RenderInterface::SetUpCullingInformation(const Sphere				CullingLocalSphere,
@@ -35,7 +45,6 @@ void Engine::RenderInterface::SetUpCullingInformation(const Sphere				CullingLoc
 void Engine::RenderInterface::SetUpRenderingInformation(const Group _Group)
 {
 	this->_Group = _Group;
-
 }
 
 void Engine::RenderInterface::Regist()

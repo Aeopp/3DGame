@@ -35,132 +35,158 @@ void Engine::Renderer::Update(const float DeltaTime)&
 
 void Engine::Renderer::Render()&
 {
-	Matrix View, Projection, CameraWorld;
-	Device->GetTransform(D3DTS_VIEW, &View);
-	Device->GetTransform(D3DTS_PROJECTION, &Projection);
-	CameraWorld = FMath::Inverse(View);
-	const Vector3 CameraLocation3D{ CameraWorld._41,CameraWorld._42,CameraWorld._43 };
-	const Vector4  CameraLocation = FMath::ConvertVector4(CameraLocation3D, 1.f);
-	auto& _Timer = Timer::Instance;
+	SetUpRenderInfo();
+	FrustumInCheck();
+	RenderReady();
+	BackUpCurBackBuffer();
+	ClearAllRenderTarget();
+	BindDeferredPass();
+	RenderDeferred();
+	BindShadowDepthPass();
+	RenderShadowDepth();
+	RestoreBackBuffer();
+	RenderDeferredLight();
 
-	_Frustum.Make(CameraWorld, Projection);
-	CurrentLandscape.FrustumCullingCheck(_Frustum);
-	CurrentLandscape.Tick(_Timer->GetTick());
-
-	IDirect3DSurface9* CurBackBufSurface{ nullptr };
-	IDirect3DSurface9* CurBackDepthStencil{ nullptr };
-	D3DVIEWPORT9 CurViewPort{}; 
-	{
-		Device->GetRenderTarget(0u, &CurBackBufSurface);
-		Device->GetDepthStencilSurface(&CurBackDepthStencil);
-		Device->GetViewport(&CurViewPort);
-	};
-
-	{		
-		_DeferredPass.ShadowDepth.ClearWithDepthStencil(D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER);
-		_DeferredPass.Albedo3_Contract1.Clear();
-		_DeferredPass.Normal3_Power1.Clear();
-		_DeferredPass.WorldLocation3_Depth1.Clear();
-		_DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.Clear();
-	};
-
-	{
-		Device->SetDepthStencilSurface(CurBackDepthStencil);
-	}
-	// 디퍼드  1 Pass
-	{
-		 _DeferredPass.Albedo3_Contract1.BindGraphicDevice(0u);
-		 _DeferredPass.Normal3_Power1.BindGraphicDevice(1u);
-		 _DeferredPass.WorldLocation3_Depth1.BindGraphicDevice(2u);
-		 _DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.BindGraphicDevice(3u);
-
-		 CurrentLandscape.RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(
-			 _Frustum, View, Projection, CameraLocation);
-		 CurrentLandscape.RenderDeferredRim(_Frustum, View, Projection, CameraLocation);
-	};
-
-	const Matrix LightViewProjection = _DirectionalLight.CalcLightViewProjection();
-
-	// 후처리 쉐도우
-	{
-		D3DVIEWPORT9 ShadowViewPort{};
-		ShadowViewPort.Height = _DeferredPass.ShadowDepth.Height;
-		ShadowViewPort.Width= _DeferredPass.ShadowDepth.Width;
-		ShadowViewPort.X = 0u;
-		ShadowViewPort.Y = 0u;
-		ShadowViewPort.MinZ = 0.0f;
-		ShadowViewPort.MaxZ = 1.0f;
-		Device->SetViewport(&ShadowViewPort);
-		
-		_DeferredPass.ShadowDepth.BindGraphicDevice(0u);
-		_DeferredPass.ShadowDepth.BindDepthStencil();
-
-		CurrentLandscape.
-			RenderShadowDepth(LightViewProjection);
-	};
-
-	{
-		Device->SetRenderTarget(0u, CurBackBufSurface);
-		Device->SetDepthStencilSurface(CurBackDepthStencil);
-		Device->SetViewport(&CurViewPort);
-	};
-
-	{
-		_DirectionalLight.Render(Device.get(),
-			CameraLocation3D, View, Projection, _DeferredPass.Albedo3_Contract1.GetTexture(),
-			_DeferredPass.Normal3_Power1.GetTexture(),
-			_DeferredPass.WorldLocation3_Depth1.GetTexture(),
-			_DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.GetTexture(),
-			_DeferredPass.ShadowDepth.GetTexture() ,
-			FogColor,
-			FogDistance );
-	};
-	
-
-	{
-		CurrentLandscape.Render(_Frustum, View, Projection, CameraLocation ,
-			_DeferredPass.ShadowDepth.GetTexture() , LightViewProjection ,
+	CurrentLandscape.Render(_Frustum, CurrentRenderInformation.View, CurrentRenderInformation.Projection, CurrentRenderInformation.CameraLocation4D,
+			_DeferredPass.ShadowDepth.GetTexture() , CurrentRenderInformation.LightViewProjection,
 			_DirectionalLight._LightInfo.ShadowDepthMapSize,
 			_DirectionalLight._LightInfo.ShadowDepthBias  ,
 			FogColor,
 			FogDistance);
-		RenderEnviroment(View, Projection, CameraLocation);
-		RenderNoAlpha(View, Projection, CameraLocation);
-		if (Engine::Global::bDebugMode)
-		{
-			RenderDebugCollision(View, Projection, CameraLocation);
-		}
-		_Frustum.Render(Device.get());
-		RenderUI(View, Projection, CameraLocation);
 
-		_Sky.Render(_Frustum, View, Projection, CameraLocation, Device.get(),
+	RenderNoAlpha();
+	RenderUI();
+	RenderDebugCollision();
+
+	_Sky.Render(_Frustum, CurrentRenderInformation.View, CurrentRenderInformation.Projection, CurrentRenderInformation.CameraLocation4D, Device.get(),
 			_DeferredPass.WorldLocation3_Depth1.GetTexture());
-	};
-	
+	_Frustum.Render(Device.get());
 
-	{
-		_DeferredPass.Albedo3_Contract1.RenderDebugBuffer();
-		_DeferredPass.Normal3_Power1.RenderDebugBuffer();
-		_DeferredPass.WorldLocation3_Depth1.RenderDebugBuffer();
-		_DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.RenderDebugBuffer();
-
-		_DeferredPass.RimRGB1_InnerWidth1_OuterWidth1_NULL1.RenderDebugBuffer();
-		_DeferredPass.ShadowDepth.RenderDebugBuffer();
-	};
-	
-	{
-		CurBackBufSurface->Release();
-		CurBackDepthStencil->Release();
-	};
-	
-
+	RenderDeferredDebugBuffer();
+	CurBackBufSurface->Release();
+	CurBackDepthStencil->Release();
 	RenderObjects.clear();
 };
 
 void Engine::Renderer::Regist(RenderInterface* const Target)
 {
 	RenderObjects[Target->GetGroup()].push_back(*Target);
+}
+void Engine::Renderer::FrustumInCheck()&
+{
+	CurrentLandscape.FrustumCullingCheck(_Frustum);
+
+	for (auto& [Group, RenderEntityRefs] :RenderObjects)
+	{
+		for (auto& RenderEntityRef : RenderEntityRefs)
+		{
+			bool EntityFrustumIn = RenderEntityRef.get().FrustumInCheck(_Frustum);
+		}
+	}
 };
+
+void Engine::Renderer::RenderReady()&
+{
+	auto& _Timer = Timer::Instance;
+	CurrentLandscape.Tick(_Timer->GetTick());
+}
+void Engine::Renderer::SetUpRenderInfo()&
+{
+	Matrix View, Projection, CameraWorld;
+	Device->GetTransform(D3DTS_VIEW, &View);
+	Device->GetTransform(D3DTS_PROJECTION, &Projection);
+	CameraWorld = FMath::Inverse(View);
+
+	CurrentRenderInformation.CameraLocation = { CameraWorld._41,CameraWorld._42,CameraWorld._43 };
+	CurrentRenderInformation.CameraLocation4D = FMath::ConvertVector4(CurrentRenderInformation.CameraLocation, 1.f);
+	CurrentRenderInformation.View = View;
+	CurrentRenderInformation.Projection = Projection;
+	CurrentRenderInformation.LightViewProjection = _DirectionalLight.CalcLightViewProjection();
+	_Frustum.Make(CameraWorld, Projection);
+}
+void Engine::Renderer::BackUpCurBackBuffer()&
+{
+	
+		Device->GetRenderTarget(0u, &CurBackBufSurface);
+		Device->GetDepthStencilSurface(&CurBackDepthStencil);
+		Device->GetViewport(&CurViewPort);
+	
+}
+void Engine::Renderer::RestoreBackBuffer()&
+{
+	Device->SetRenderTarget(0u, CurBackBufSurface);
+	Device->SetDepthStencilSurface(CurBackDepthStencil);
+	Device->SetViewport(&CurViewPort);
+}
+void Engine::Renderer::ClearAllRenderTarget()&
+{
+	_DeferredPass.ShadowDepth.ClearWithDepthStencil(D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER);
+	_DeferredPass.Albedo3_Contract1.Clear();
+	_DeferredPass.Normal3_Power1.Clear();
+	_DeferredPass.WorldLocation3_Depth1.Clear();
+	_DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.Clear();
+}
+void Engine::Renderer::BindDeferredPass()&
+{
+	_DeferredPass.Albedo3_Contract1.BindGraphicDevice(0u);
+	_DeferredPass.Normal3_Power1.BindGraphicDevice(1u);
+	_DeferredPass.WorldLocation3_Depth1.BindGraphicDevice(2u);
+	_DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.BindGraphicDevice(3u);
+
+	Device->SetDepthStencilSurface(CurBackDepthStencil);
+}
+void Engine::Renderer::RenderDeferred()&
+{
+	CurrentLandscape.RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(
+		_Frustum, CurrentRenderInformation.View, CurrentRenderInformation.Projection, CurrentRenderInformation.CameraLocation4D);
+}
+void Engine::Renderer::BindShadowDepthPass()&
+{
+	D3DVIEWPORT9 ShadowViewPort{};
+	ShadowViewPort.Height = _DeferredPass.ShadowDepth.Height;
+	ShadowViewPort.Width = _DeferredPass.ShadowDepth.Width;
+	ShadowViewPort.X = 0u;
+	ShadowViewPort.Y = 0u;
+	ShadowViewPort.MinZ = 0.0f;
+	ShadowViewPort.MaxZ = 1.0f;
+	Device->SetViewport(&ShadowViewPort);
+
+	_DeferredPass.ShadowDepth.BindGraphicDevice(0u);
+	_DeferredPass.ShadowDepth.BindDepthStencil();
+
+}
+void Engine::Renderer::RenderShadowDepth()&
+{
+	CurrentLandscape.
+		RenderShadowDepth(CurrentRenderInformation.LightViewProjection);
+}
+void Engine::Renderer::RenderDeferredLight()&
+{
+
+	_DirectionalLight.Render(Device.get(),
+		CurrentRenderInformation.CameraLocation, CurrentRenderInformation.View, CurrentRenderInformation.Projection,
+		_DeferredPass.Albedo3_Contract1.GetTexture(),
+		_DeferredPass.Normal3_Power1.GetTexture(),
+		_DeferredPass.WorldLocation3_Depth1.GetTexture(),
+		_DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.GetTexture(),
+		_DeferredPass.ShadowDepth.GetTexture(),
+		FogColor,
+		FogDistance);
+
+
+}
+void Engine::Renderer::RenderDeferredDebugBuffer()&
+{
+
+	_DeferredPass.Albedo3_Contract1.RenderDebugBuffer();
+	_DeferredPass.Normal3_Power1.RenderDebugBuffer();
+	_DeferredPass.WorldLocation3_Depth1.RenderDebugBuffer();
+	_DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.RenderDebugBuffer();
+
+	_DeferredPass.ShadowDepth.RenderDebugBuffer();
+
+}
+;
 
 Engine::Landscape& Engine::Renderer::RefLandscape()&
 {
@@ -237,8 +263,7 @@ void Engine::Renderer::CreateStaticLightResource()&
 		L"DebugBufferRenderFx");
 }
 
-void Engine::Renderer::RenderDebugCollision(const Matrix& View, const Matrix& Projection,
-	const Vector4& CameraLocation)&
+void Engine::Renderer::RenderDebugCollision()&
 {
 	if (Engine::Global::bDebugMode)
 	{
@@ -247,208 +272,51 @@ void Engine::Renderer::RenderDebugCollision(const Matrix& View, const Matrix& Pr
 		Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 		Device->SetRenderState(D3DRS_LIGHTING, FALSE);
 		Device->SetRenderState(D3DRS_FILLMODE,D3DFILL_WIREFRAME);
-#ifdef PARALLEL
-		if (auto iter = RenderObjects.find(RenderInterface::Group::DebugCollision);
-			iter != std::end(RenderObjects))
-		{
-			std::vector<std::future<void>> Futures;
-			for (auto& _RenderEntity : iter->second)
-			{
-				Futures.push_back(std::async(std::launch::async,
-					[_Frustum,_RenderEntity]() {
-						RenderInterface& _RefRender = _RenderEntity.get();
-						const Sphere CullingCheckSphere = _RefRender.GetCullingSphere();
-						if (_Frustum.IsIn(CullingCheckSphere))
-						{
-							_RefRender.Render();
-						};
-					}));
-			}
-			for (auto& Future : Futures)
-			{
-				Future.get();
-			}
-			Futures.clear();
-		}
-#else
 		if (auto iter = RenderObjects.find(RenderInterface::Group::DebugCollision);
 			iter != std::end(RenderObjects))
 		{
 			for (auto& _RenderEntity : iter->second)
 			{
 				RenderInterface& _RefRender = _RenderEntity.get();
-				if (_RefRender.bCullingOn)
+
+				if (_Frustum.IsIn(_RefRender.GetCullingSphere()))
 				{
-					
-					if (_Frustum.IsIn(_RefRender.GetCullingSphere()))
-					{
-						_RefRender.Render(View,Projection,CameraLocation);
-					}
+					_RefRender.Render(this);
 				}
 				else
 				{
-					_RefRender.Render(View, Projection, CameraLocation);
+					_RefRender.Render(this);
 				}
 			}
 		}
-#endif
 	}
 }
 
-void Engine::Renderer::RenderNoAlpha(const Matrix& View, const Matrix& Projection,
-	const Vector4& CameraLocation)&
+void Engine::Renderer::RenderNoAlpha()&
 {
-	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	Device->SetRenderState(D3DRS_ZENABLE, TRUE);
-	Device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
-	Device->SetRenderState(D3DRS_LIGHTING, FALSE);
-	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
-	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
-#ifdef PARALLEL
-	if (auto iter = RenderObjects.find(RenderInterface::Group::NoAlpha);
-		iter != std::end(RenderObjects))
-	{
-		std::vector<std::future<void>> Futures;
-		for (auto& NoAlphaRender : iter->second)
-		{
-			Futures.push_back(std::async(std::launch::async,
-				[_Frustum, _RenderEntity]() {
-					RenderInterface& _RefRender = _RenderEntity.get();
-					const Sphere CullingCheckSphere = _RefRender.GetCullingSphere();
-					if (_Frustum.IsIn(CullingCheckSphere))
-					{
-						_RefRender.Render();
-};
-					}));
-				}));
-		}
-		for (auto& Future : Futures)
-		{
-			Future.get();
-		}
-		Futures.clear();
-	}
-#else
 	if (auto iter = RenderObjects.find(RenderInterface::Group::NoAlpha);
 		iter != std::end(RenderObjects))
 	{
 		for (auto& _RenderEntity : iter->second)
 		{
 			RenderInterface& _RefRender = _RenderEntity.get();
-			if (_RefRender.bCullingOn)
-			{
-				if (_Frustum.IsIn(_RefRender.GetCullingSphere()))
-				{
-					_RefRender.Render(View, Projection, CameraLocation);
-				}
-			}
-			else
-			{
-				_RefRender.Render(View, Projection, CameraLocation);
-			}
+			_RefRender.Render(this);
 		}
 	}
-#endif
 }
 
-void Engine::Renderer::RenderEnviroment(const Matrix& View, const Matrix& Projection,
-										const Vector4& CameraLocation                   )&
+
+void Engine::Renderer::RenderUI()&
 {
-	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	Device->SetRenderState(D3DRS_ZENABLE, TRUE);
-	Device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
-	Device->SetRenderState(D3DRS_LIGHTING, FALSE);
-	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
-	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
-#ifdef PARALLEL
-	if (auto iter = RenderObjects.find(RenderInterface::Group::Enviroment);
-		iter != std::end(RenderObjects))
-	{
-		std::vector<std::future<void>> Futures;
-		for (auto& Enviroment : iter->second)
-		{
-			Futures.push_back(std::async(std::launch::async,
-				[_Frustum , _RenderEntity]() {
-					RenderInterface& _RefRender = _RenderEntity.get();
-					const Sphere CullingCheckSphere = _RefRender.GetCullingSphere();
-					if (_Frustum.IsIn(CullingCheckSphere))
-					{
-						_RefRender.Render();
-					};
-				}));
-				}));
-		}
-		for (auto& Future : Futures)
-		{
-			Future.get();
-		}
-		Futures.clear();
-	}
-#else
-	if (auto iter = RenderObjects.find(RenderInterface::Group::Enviroment);
-		iter != std::end(RenderObjects))
-	{
-		for (auto& _RenderEntity : iter->second)
-		{
-			RenderInterface& _RefRender = _RenderEntity.get();
-			if (_RefRender.bCullingOn)
-			{
-				if (_Frustum.IsIn(_RefRender.GetCullingSphere()))
-				{
-					_RefRender.Render(View, Projection, CameraLocation);
-				}
-			}
-			else
-			{
-				_RefRender.Render(View, Projection, CameraLocation);
-			}
-		}
-	}
-#endif
-}
-
-void Engine::Renderer::RenderUI(const Matrix& View, const Matrix& Projection,
-	const Vector4& CameraLocation)&
-{
-	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-	Device->SetRenderState(D3DRS_ZENABLE, FALSE);
-	Device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
-	Device->SetRenderState(D3DRS_LIGHTING, FALSE);
-	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
-	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
-#ifdef PARALLEL
-	if (auto iter = RenderObjects.find(RenderInterface::Group::UI);
-		iter != std::end(RenderObjects))
-	{
-		std::vector<std::future<void>> Futures;
-		for (auto& _RenderEntity : iter->second)
-		{
-			Futures.push_back(std::async(std::launch::async,
-				[_RenderEntity]() {
-					RenderInterface& _RefRender = _RenderEntity.get();
-					_RefRender.Render();
-				}));
-		}));
-	}
-	for (auto& Future : Futures)
-	{
-		Future.get();
-	}
-	Futures.clear();
-}
-
-
-#else
 	if (auto iter = RenderObjects.find(RenderInterface::Group::UI);
 		iter != std::end(RenderObjects))
 	{
 		for (auto& _RenderEntity : iter->second)
 		{
 			RenderInterface& _RefRender = _RenderEntity.get();
-			_RefRender.Render(View, Projection, CameraLocation);
+			_RefRender.Render(this);
 		}
 	}
-#endif
 };
 
 void Engine::Renderer::SkyInitialize(const std::filesystem::path& FullPath)&

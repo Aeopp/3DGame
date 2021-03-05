@@ -46,6 +46,10 @@ namespace Engine
 		bool bCullingOn{ true };
 		bool bCurrentFrustumIn{ true };
 	protected:
+		Engine::ShaderFx ForwardShaderFx{};
+		Engine::ShaderFx DepthShadowFx{};
+		Engine::ShaderFx DeferredDefaultFx{};
+		std::string DebugName{};
 		Group _Group;
 	private: 
 		class Transform* RenderObjectTransform{ nullptr };

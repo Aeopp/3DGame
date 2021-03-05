@@ -59,7 +59,7 @@ inline void Engine::StaticMesh::Load(
 	const std::filesystem::path FileName, 
 	const std::wstring ResourceName)&
 {
-	this->ResourceName = ResourceName;
+	this->DebugName = this->ResourceName = ResourceName;
 	this->Device = Device;
 	const aiScene*const AiScene = Engine::Global::AssimpImporter.ReadFile(
 		(FilePath / FileName).string(),
