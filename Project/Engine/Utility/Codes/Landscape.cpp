@@ -377,8 +377,8 @@ void Engine::Landscape::Initialize(
 	}
 
 
-	ForwardShaderFx.Initialize(L"LandscapeFx");
-	DeferredAlbedoNormalWorldPosDepthSpecular.Initialize(L"DeferredAlbedoNormalWorldPosDepthSpecularFx");
+	ForwardShaderFx.Initialize(L"DefaultFx");
+	DeferredAlbedoNormalWorldPosDepthSpecular.Initialize(L"DeferredAlbedoNormalWorldPosDepthSpecularRimFx");
 	
 	ShadowDepthFx.Initialize(L"ShadowDepthFx");
 }

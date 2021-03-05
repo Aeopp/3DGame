@@ -6,17 +6,14 @@ void Engine::RenderObject::Initialize()&
 }
 
 void Engine::RenderObject::PrototypeInitialize(
-	IDirect3DDevice9* const Device,
-	const RenderInterface::Group _Group)&
+	IDirect3DDevice9* const Device)&
 {
-	RenderInterface::SetUpRenderingInformation(_Group);
 	this->Device = Device;
 };
 
 void Engine::RenderObject::Event()&
 {
 	Super::Event();
-	RenderInterface::Regist();
 };
 
 void Engine::RenderObject::LateUpdate(const float DeltaTime)&
@@ -28,12 +25,6 @@ void Engine::RenderObject::LateUpdate(const float DeltaTime)&
 void Engine::RenderObject::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
-};
-
-void Engine::RenderObject::Render(const Matrix& View, const Matrix& Projection,
-	const Vector4& CameraLocation)&
-{
-	
 };
 
 

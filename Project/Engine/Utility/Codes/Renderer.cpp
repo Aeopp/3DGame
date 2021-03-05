@@ -47,22 +47,18 @@ void Engine::Renderer::Render()&
 	RestoreBackBuffer();
 	RenderDeferredLight();
 
-	CurrentLandscape.Render(_Frustum, CurrentRenderInformation.View, CurrentRenderInformation.Projection, CurrentRenderInformation.CameraLocation4D,
-			_DeferredPass.ShadowDepth.GetTexture() , CurrentRenderInformation.LightViewProjection,
-			_DirectionalLight._LightInfo.ShadowDepthMapSize,
-			_DirectionalLight._LightInfo.ShadowDepthBias  ,
-			FogColor,
-			FogDistance);
-
-	RenderNoAlpha();
+	// 지연 렌더링 이후 렌더링...
+	RenderAlphaTest();
+	RenderAlphaBlend();
 	RenderUI();
 	RenderDebugCollision();
+	RenderSky();
 
-	_Sky.Render(_Frustum, CurrentRenderInformation.View, CurrentRenderInformation.Projection, CurrentRenderInformation.CameraLocation4D, Device.get(),
-			_DeferredPass.WorldLocation3_Depth1.GetTexture());
+	// 디버그 렌더링.... 
 	_Frustum.Render(Device.get());
-
 	RenderDeferredDebugBuffer();
+
+	// 정보 초기화 ... 
 	CurBackBufSurface->Release();
 	CurBackDepthStencil->Release();
 	RenderObjects.clear();
@@ -78,6 +74,8 @@ void Engine::Renderer::FrustumInCheck()&
 
 	for (auto& [Group, RenderEntityRefs] :RenderObjects)
 	{
+		if (Group == RenderInterface::Group::UI)continue;
+
 		for (auto& RenderEntityRef : RenderEntityRefs)
 		{
 			bool EntityFrustumIn = RenderEntityRef.get().FrustumInCheck(_Frustum);
@@ -89,6 +87,15 @@ void Engine::Renderer::RenderReady()&
 {
 	auto& _Timer = Timer::Instance;
 	CurrentLandscape.Tick(_Timer->GetTick());
+
+
+	for (auto& [Group, RenderEntityRefs  ] :RenderObjects)
+	{
+		for (auto& RenderEntityRef : RenderEntityRefs)
+		{
+			RenderEntityRef.get().RenderReady(this);
+		}
+	}
 }
 void Engine::Renderer::SetUpRenderInfo()&
 {
@@ -139,6 +146,19 @@ void Engine::Renderer::RenderDeferred()&
 {
 	CurrentLandscape.RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(
 		_Frustum, CurrentRenderInformation.View, CurrentRenderInformation.Projection, CurrentRenderInformation.CameraLocation4D);
+
+	if (auto DeferredNoAlphaIter = RenderObjects.find(RenderInterface::Group::DeferredNoAlpha);
+		DeferredNoAlphaIter != std::end(RenderObjects))
+	{
+		auto& RenderEntityRefs = DeferredNoAlphaIter->second;
+
+		for (auto& RenderEntityRef : RenderEntityRefs)
+		{
+			auto& EntityRef = RenderEntityRef.get();
+
+			EntityRef.RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(this);
+		}
+	}
 }
 void Engine::Renderer::BindShadowDepthPass()&
 {
@@ -159,6 +179,21 @@ void Engine::Renderer::RenderShadowDepth()&
 {
 	CurrentLandscape.
 		RenderShadowDepth(CurrentRenderInformation.LightViewProjection);
+
+	for ( auto& [Group ,RenderEntityRefs  ] :  RenderObjects)
+	{
+		if (Group == RenderInterface::Group::UI)continue;
+
+		for (auto& RenderEntityRef : RenderEntityRefs)
+		{
+			auto& EntityRef = RenderEntityRef.get();
+
+			if (EntityRef.bShadowDepth)
+			{
+				EntityRef.RenderShadowDepth(this);
+			}
+		}
+	}
 }
 void Engine::Renderer::RenderDeferredLight()&
 {
@@ -186,7 +221,13 @@ void Engine::Renderer::RenderDeferredDebugBuffer()&
 	_DeferredPass.ShadowDepth.RenderDebugBuffer();
 
 }
-;
+void Engine::Renderer::RenderSky()&
+{
+	_Sky.Render(_Frustum, CurrentRenderInformation.View, CurrentRenderInformation.Projection, CurrentRenderInformation.CameraLocation4D, Device.get(),
+		_DeferredPass.WorldLocation3_Depth1.GetTexture());
+
+	
+}
 
 Engine::Landscape& Engine::Renderer::RefLandscape()&
 {
@@ -292,9 +333,29 @@ void Engine::Renderer::RenderDebugCollision()&
 	}
 }
 
-void Engine::Renderer::RenderNoAlpha()&
+void Engine::Renderer::RenderAlphaBlend()&
 {
-	if (auto iter = RenderObjects.find(RenderInterface::Group::NoAlpha);
+	CurrentLandscape.Render(_Frustum, CurrentRenderInformation.View, CurrentRenderInformation.Projection, CurrentRenderInformation.CameraLocation4D,
+		_DeferredPass.ShadowDepth.GetTexture(), CurrentRenderInformation.LightViewProjection,
+		_DirectionalLight._LightInfo.ShadowDepthMapSize,
+		_DirectionalLight._LightInfo.ShadowDepthBias,
+		FogColor,
+		FogDistance);
+
+	if (auto iter = RenderObjects.find(RenderInterface::Group::AlphaBlend);
+		iter != std::end(RenderObjects))
+	{
+		for (auto& _RenderEntity : iter->second)
+		{
+			RenderInterface& _RefRender = _RenderEntity.get();
+			_RefRender.Render(this);
+		}
+	}
+}
+
+void Engine::Renderer::RenderAlphaTest()&
+{
+	if (auto iter = RenderObjects.find(RenderInterface::Group::AlphaTest);
 		iter != std::end(RenderObjects))
 	{
 		for (auto& _RenderEntity : iter->second)

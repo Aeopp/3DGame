@@ -55,11 +55,9 @@ void Player::Initialize(
 		static_cast<Engine::OBB* const> (_Collision->_Geometric.get())->MakeDebugCollisionBox				(Device);
 	}
 
-	RenderInterface::SetUpCullingInformation(
-		_Collision->_Geometric->LocalSphere  ,
-		_Transform);
-
-	RenderInterface::bCullingOn = true;
+	_SkeletonMesh->SetUpCullingInformation(_Collision->_Geometric->LocalSphere,
+	   _Transform);
+	_SkeletonMesh->bCullingOn = true;
 
 	_SkeletonMesh->PlayAnimation(0u,100.f, -1);
 	
@@ -85,17 +83,18 @@ void Player::Initialize(
 		});
 }
 
-void Player::PrototypeInitialize(IDirect3DDevice9* const Device,
-						const Engine::RenderInterface::Group _Group)&
+void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
 {
-	Super::PrototypeInitialize(Device,_Group);
+	Super::PrototypeInitialize();
+
 	this->Device = Device;
 
 	auto _SkeletonMeshProto = std::make_shared<Engine::SkeletonMesh>();
 
 	_SkeletonMeshProto->Load<Vertex::LocationTangentUV2DSkinning>(Device,
-		App::ResourcePath/L"Mesh"/L"DynamicMesh"/L"",
-		L"PlayerNoAnimation.fbx", L"Player");
+		App::ResourcePath / L"Mesh" / L"DynamicMesh" / L"",
+		L"PlayerNoAnimation.fbx", L"Player",
+		Engine::RenderInterface::Group::DeferredNoAlpha);
 
 	RefResourceSys().InsertAny<decltype(_SkeletonMeshProto)>(L"Player", _SkeletonMeshProto);
 }
@@ -105,16 +104,6 @@ void Player::Event()&
 	Super::Event();
 
 	auto _SkeletonMeshComponent = GetComponent<Engine::SkeletonMesh>();
-}
-
-void Player::Render(const Matrix& View,
-					const Matrix& Projection,
-					const Vector4& CameraLocation)&
-{
-	Super::Render(View ,Projection ,CameraLocation);
-	auto _SkeletonMeshComponent = GetComponent<Engine::SkeletonMesh>();
-	const Matrix& World = GetComponent<Engine::Transform>()->UpdateWorld();
-	/*_SkeletonMeshComponent->Render(World ,View ,Projection, CameraLocation);*/
 }
 
 void Player::Update(const float DeltaTime)&

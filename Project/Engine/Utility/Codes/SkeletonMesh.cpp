@@ -20,7 +20,6 @@
 
 void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 {
-
 	auto& ResourceSys = Engine::ResourceSystem::Instance;
 
 	auto ProtoSkeletonMesh = 
@@ -131,61 +130,10 @@ void Engine::SkeletonMesh::Event(Object* Owner)&
 }
 void Engine::SkeletonMesh::Render(Engine::Renderer* const _Renderer)&
 {
-	ForwardShaderFx.GetHandle();
-
 	auto Fx = ForwardShaderFx.GetHandle();
-	auto& Renderer = *Engine::Renderer::Instance;
-	const Matrix OwnerWorld = Owner->GetComponent<Engine::Transform>()->UpdateWorld();
-
-	Fx->SetMatrix("World", &OwnerWorld);
-	Fx->SetMatrix("View", &View);
-	Fx->SetMatrix("Projection", &Projection);
-	Fx->SetVector("LightDirection", &Renderer._DirectionalLight._LightInfo.Direction);
-	Fx->SetVector("LightColor", &Renderer._DirectionalLight._LightInfo.LightColor);
-	Fx->SetVector("CameraLocation", &CameraLocation4D);
 	Fx->SetTexture("VTF", BoneAnimMatrixInfo);
 	Fx->SetInt("VTFPitch", VTFPitch);
-	uint32 PassNum = 0u;
-	Fx->Begin(&PassNum, 0);
-
-	for (auto& CurrentRenderMesh : MeshContainer)
-	{
-		Fx->SetVector("RimAmtColor", &CurrentRenderMesh.MaterialInfo.RimAmtColor);
-		Fx->SetFloat("RimOuterWidth", CurrentRenderMesh.MaterialInfo.RimOuterWidth);
-		Fx->SetFloat("RimInnerWidth", CurrentRenderMesh.MaterialInfo.RimInnerWidth);
-		Fx->SetVector("AmbientColor", &CurrentRenderMesh.MaterialInfo.AmbientColor);
-		Fx->SetFloat("Power", CurrentRenderMesh.MaterialInfo.Power);
-		Fx->SetFloat("SpecularIntencity", CurrentRenderMesh.MaterialInfo.SpecularIntencity);
-		Fx->SetFloat("Contract", CurrentRenderMesh.MaterialInfo.Contract);
-		Fx->SetFloat("DetailDiffuseIntensity", CurrentRenderMesh.MaterialInfo.DetailDiffuseIntensity);
-		Fx->SetFloat("DetailNormalIntensity", CurrentRenderMesh.MaterialInfo.DetailNormalIntensity);
-		Fx->SetFloat("CavityCoefficient", CurrentRenderMesh.MaterialInfo.CavityCoefficient);
-		Fx->SetFloat("AlphaAddtive", CurrentRenderMesh.MaterialInfo.AlphaAddtive);
-		Fx->SetFloat("DetailScale", CurrentRenderMesh.MaterialInfo.DetailScale);
-		Device->SetVertexDeclaration(VtxDecl);
-		Device->SetStreamSource(0, CurrentRenderMesh.VertexBuffer, 0, CurrentRenderMesh.Stride);
-		Device->SetIndices(CurrentRenderMesh.IndexBuffer);
-
-		Fx->SetTexture("DiffuseMap", CurrentRenderMesh.MaterialInfo.GetTexture("Diffuse"));
-		Fx->SetTexture("NormalMap", CurrentRenderMesh.MaterialInfo.GetTexture("Normal3_Power1"));
-		Fx->SetTexture("CavityMap", CurrentRenderMesh.MaterialInfo.GetTexture("Cavity"));
-		Fx->SetTexture("EmissiveMap", CurrentRenderMesh.MaterialInfo.GetTexture("Emissive"));
-		Fx->SetTexture("DetailDiffuseMap", CurrentRenderMesh.MaterialInfo.GetTexture("DetailDiffuse"));
-		Fx->SetTexture("DetailNormalMap", CurrentRenderMesh.MaterialInfo.GetTexture("DetailNormal"));
-
-		Fx->CommitChanges();
-
-		for (uint32 i = 0; i < PassNum; ++i)
-		{
-			Fx->BeginPass(i);
-
-			Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u,
-				CurrentRenderMesh.VtxCount, 0u, CurrentRenderMesh.PrimitiveCount);
-
-			Fx->EndPass();
-		}
-	}
-	Fx->End();
+	Super::Render(_Renderer);
 
 	if (bBoneDebug)
 	{
@@ -195,76 +143,18 @@ void Engine::SkeletonMesh::Render(Engine::Renderer* const _Renderer)&
 		ID3DXMesh* const _DebugMesh = ResourceSys->Get<ID3DXMesh>(L"SphereMesh");
 		for (auto& _Bone : BoneTable)
 		{
-			_Bone->DebugRender(World, Device, _DebugMesh);
+			_Bone->DebugRender(OwnerWorld, Device, _DebugMesh);
 		}
 		Device->SetRenderState(D3DRS_ZENABLE, TRUE);
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 	}
-
-
 }
 void Engine::SkeletonMesh::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engine::Renderer* const _Renderer)&
 {
-	Super::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(RefFrustum,
-		View, Projection, CameraLocation);
-
-	if (Engine::Global::bDebugMode)
-	{
-		ImGui::TextColored(ImVec4{ 1.f,114.f / 255.f, 198.f / 255.f , 1.0f }, "Draw : %s", ToA(ResourceName).c_str());
-	}
-
-	auto Fx = ForwardShaderFx.GetHandle();
-	auto& Renderer = *Engine::Renderer::Instance;
-
-	Fx->SetMatrix("World", &World);
-	Fx->SetMatrix("View", &View);
-	Fx->SetMatrix("Projection", &Projection);
-	Fx->SetVector("LightDirection", &Renderer._DirectionalLight._LightInfo.Direction);
-	Fx->SetVector("LightColor", &Renderer._DirectionalLight._LightInfo.LightColor);
-	Fx->SetVector("CameraLocation", &CameraLocation4D);
+	auto Fx = DeferredDefaultFx.GetHandle();
 	Fx->SetTexture("VTF", BoneAnimMatrixInfo);
 	Fx->SetInt("VTFPitch", VTFPitch);
-	uint32 PassNum = 0u;
-	Fx->Begin(&PassNum, 0);
-
-	for (auto& CurrentRenderMesh : MeshContainer)
-	{
-		Fx->SetVector("RimAmtColor", &CurrentRenderMesh.MaterialInfo.RimAmtColor);
-		Fx->SetFloat("RimOuterWidth", CurrentRenderMesh.MaterialInfo.RimOuterWidth);
-		Fx->SetFloat("RimInnerWidth", CurrentRenderMesh.MaterialInfo.RimInnerWidth);
-		Fx->SetVector("AmbientColor", &CurrentRenderMesh.MaterialInfo.AmbientColor);
-		Fx->SetFloat("Power", CurrentRenderMesh.MaterialInfo.Power);
-		Fx->SetFloat("SpecularIntencity", CurrentRenderMesh.MaterialInfo.SpecularIntencity);
-		Fx->SetFloat("Contract", CurrentRenderMesh.MaterialInfo.Contract);
-		Fx->SetFloat("DetailDiffuseIntensity", CurrentRenderMesh.MaterialInfo.DetailDiffuseIntensity);
-		Fx->SetFloat("DetailNormalIntensity", CurrentRenderMesh.MaterialInfo.DetailNormalIntensity);
-		Fx->SetFloat("CavityCoefficient", CurrentRenderMesh.MaterialInfo.CavityCoefficient);
-		Fx->SetFloat("AlphaAddtive", CurrentRenderMesh.MaterialInfo.AlphaAddtive);
-		Fx->SetFloat("DetailScale", CurrentRenderMesh.MaterialInfo.DetailScale);
-		Device->SetVertexDeclaration(VtxDecl);
-		Device->SetStreamSource(0, CurrentRenderMesh.VertexBuffer, 0, CurrentRenderMesh.Stride);
-		Device->SetIndices(CurrentRenderMesh.IndexBuffer);
-
-		Fx->SetTexture("DiffuseMap", CurrentRenderMesh.MaterialInfo.GetTexture("Diffuse"));
-		Fx->SetTexture("NormalMap", CurrentRenderMesh.MaterialInfo.GetTexture("Normal3_Power1"));
-		Fx->SetTexture("CavityMap", CurrentRenderMesh.MaterialInfo.GetTexture("Cavity"));
-		Fx->SetTexture("EmissiveMap", CurrentRenderMesh.MaterialInfo.GetTexture("Emissive"));
-		Fx->SetTexture("DetailDiffuseMap", CurrentRenderMesh.MaterialInfo.GetTexture("DetailDiffuse"));
-		Fx->SetTexture("DetailNormalMap", CurrentRenderMesh.MaterialInfo.GetTexture("DetailNormal"));
-
-		Fx->CommitChanges();
-
-		for (uint32 i = 0; i < PassNum; ++i)
-		{
-			Fx->BeginPass(i);
-
-			Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u,
-				CurrentRenderMesh.VtxCount, 0u, CurrentRenderMesh.PrimitiveCount);
-
-			Fx->EndPass();
-		}
-	}
-	Fx->End();
+	Super::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(_Renderer);
 
 	if (bBoneDebug)
 	{
@@ -274,66 +164,26 @@ void Engine::SkeletonMesh::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(En
 		ID3DXMesh* const _DebugMesh = ResourceSys->Get<ID3DXMesh>(L"SphereMesh");
 		for (auto& _Bone : BoneTable)
 		{
-			_Bone->DebugRender(World, Device, _DebugMesh);
+			_Bone->DebugRender(OwnerWorld, Device, _DebugMesh);
 		}
 		Device->SetRenderState(D3DRS_ZENABLE, TRUE);
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 	}
-
 }
 void Engine::SkeletonMesh::RenderShadowDepth(Engine::Renderer* const _Renderer)&
 {
-	Super::RenderShadowDepth(LightViewProjection);
+	auto Fx = DeferredDefaultFx.GetHandle();
+	Fx->SetTexture("VTF", BoneAnimMatrixInfo);
+	Fx->SetInt("VTFPitch", VTFPitch);
 
-	if (nullptr == Device)
-		return;
+	Super::RenderShadowDepth(_Renderer);
 
-	auto& Renderer = *Engine::Renderer::Instance;
-	Device->SetVertexDeclaration(VtxDecl);
-
-	auto Fx = ShadowDepthFx.GetHandle();
-	Fx->SetMatrix("LightViewProjection", &LightViewProjection);
-
-	for (const auto& [DecoKey, CurDeco] : DecoratorContainer)
-	{
-		for (const auto& CurDecoInstance : CurDeco.Instances)
-		{
-			const Vector3 DecoTfmScale = CurDecoInstance->Scale;
-			const Vector3 DecoTfmLocation = CurDecoInstance->Location;
-			const Vector3 DecoTfmRotation = CurDecoInstance->Rotation;
-
-			const Matrix DecoWorld =
-				FMath::WorldMatrix(
-					DecoTfmScale,
-					DecoTfmRotation, DecoTfmLocation);
-
-			uint32 PassNum = 0u;
-			Fx->Begin(&PassNum, 0);
-
-			for (auto& CurMesh : CurDeco.Meshes)
-			{
-				Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
-				Device->SetIndices(CurMesh.IdxBuf);
-				Fx->SetMatrix("World", &DecoWorld);
-
-				Fx->CommitChanges();
-
-				for (uint32 i = 0; i < PassNum; ++i)
-				{
-					Fx->BeginPass(i);
-					Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
-						0u, CurMesh.PrimitiveCount);
-					Fx->EndPass();
-				}
-			}
-
-			Fx->End();
-		}
-	}
 
 }
 void Engine::SkeletonMesh::RenderReady(Engine::Renderer* const _Renderer)&
 {
+	Super::RenderReady(_Renderer);
+
 	std::vector<Matrix> RenderBoneMatricies(BoneTable.size());
 
 	std::transform(std::begin(BoneTable), std::end(BoneTable),
@@ -350,6 +200,8 @@ void Engine::SkeletonMesh::RenderReady(Engine::Renderer* const _Renderer)&
 	}
 	std::memcpy(LockRect.pBits, RenderBoneMatricies.data(), RenderBoneMatricies.size() * sizeof(Matrix));
 	BoneAnimMatrixInfo->UnlockRect(0u);
+
+
 };
 
 

@@ -7,6 +7,8 @@
 
 namespace Engine
 {
+	class Renderer;
+
 	class DLL_DECL Collision : public Component, public RenderInterface
 	{
 	public:
@@ -26,7 +28,8 @@ namespace Engine
 		virtual void Update(class Object* const Owner,
 			const float DeltaTime) & override;
 		virtual void Event(class Object* Owner) & override;
-		virtual void Render(const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation) & override;
+
+		virtual void Render(Engine::Renderer*const _Renderer) & override;
 		auto& RefCollisionables()&;
 		auto& RefPushCollisionables()&;
 		bool IsCollisionable(const CollisionTag _Tag)const&;
@@ -56,6 +59,8 @@ namespace Engine
 		std::set<CollisionTag> Collisionables;
 	};
 };
+
+
 
 inline auto& Engine::Collision::RefCollisionables()&
 {

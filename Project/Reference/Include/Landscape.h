@@ -35,7 +35,6 @@ namespace Engine
 			std::string Name{};
 			Engine::MaterialInformation MaterialInfo{};
 			Sphere BoundingSphere{};
-			
 		};
 		struct FloatingInformation
 		{
@@ -103,24 +102,21 @@ namespace Engine
 		void Tick(const float Tick)&;
 
 		void Render(Engine::Frustum& RefFrustum,
-			const Matrix& View, const Matrix& Projection ,const Vector4& CameraLocation,
-			IDirect3DTexture9* const ShadowDepthMap ,
-			const Matrix& LightViewProjection,
-			const float ShadowDepthMapSize,
-			const float ShadowDepthBias ,
-			const Vector3& FogColor,
-			const float FogDistance)&;
+					const Matrix& View, const Matrix& Projection ,const Vector4& CameraLocation,
+					IDirect3DTexture9* const ShadowDepthMap ,
+					const Matrix& LightViewProjection,
+					const float ShadowDepthMapSize,
+					const float ShadowDepthBias ,
+					const Vector3& FogColor,
+					const float FogDistance)&;
 
 		void FrustumCullingCheck(Engine::Frustum& RefFrustum)&;
 
-		void RenderDeferredAlbedoNormalWorldPosDepthSpecular(Engine::Frustum& RefFrustum,
+		void RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engine::Frustum& RefFrustum,
 			const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation)&;
 
 		void RenderShadowDepth(
 			const Matrix& LightViewProjection)&;
-
-		void RenderDeferredRim(Engine::Frustum& RefFrustum,
-			const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation)&;
 
 		inline const std::vector<PlaneInfo>& GetMapWorldCoordPlanes()const&;
 
@@ -162,7 +158,7 @@ namespace Engine
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr };
 		Engine::ShaderFx ForwardShaderFx{};
 		Engine::ShaderFx DeferredAlbedoNormalWorldPosDepthSpecular{};
-		Engine::ShaderFx DeferredRimFx{};
+		
 		Engine::ShaderFx ShadowDepthFx{};
 		Vector3 Scale{1,1,1};
 		Vector3 Rotation{0,0,0};

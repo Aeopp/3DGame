@@ -59,9 +59,11 @@ namespace Engine
 		void RenderShadowDepth()&;
 		void RenderDeferredLight()&;
 		void RenderDeferredDebugBuffer()&;
+		void RenderSky()&;
 
 		void RenderDebugCollision()&;
-		void RenderNoAlpha()&;
+		void RenderAlphaBlend()&;
+		void RenderAlphaTest()&;
 		void RenderUI()&;
 	public:
 		Vector3 FogColor{ 0.1f,0.1f,0.1f };

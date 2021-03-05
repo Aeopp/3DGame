@@ -247,7 +247,7 @@ PS_OUT AlbedoNormalWorldPosDepthSpecular(PS_IN In)
     Out.WorldLocation3_Depth1 = float4(In.WorldLocation.xyz, In.Depth);
   
     CavityColor.rgb *= SpecularIntencity;
-    Out.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1Sampler = float4(CavityColor.r, RimColor.r, RimInnerWidth, RimOuterWidth);
+    Out.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1Sampler = float4(CavityColor.r, RimAmtColor.r, RimInnerWidth, RimOuterWidth);
     
     return Out;
 }

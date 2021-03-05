@@ -43,9 +43,11 @@ namespace Engine
 		static const inline Property TypeProperty = Property::Render;
 		std::shared_ptr<std::vector<Vector3>> LocalVertexLocations;
 	protected:
+		Matrix OwnerWorld = FMath::Identity();
+		IDirect3DVertexDeclaration9* VtxDecl{ nullptr };
+		std::vector<MeshElement>                     MeshContainer{};
 		Engine::Object* Owner{ nullptr };
 		std::wstring ResourceName{ };  
 		IDirect3DDevice9* Device{ nullptr };
-
 	};
 }

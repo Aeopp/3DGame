@@ -54,7 +54,7 @@ void EnterGame::Initialize(IDirect3DDevice9* const Device)&
 	// 프로토타입 로딩.
 	{
 		Proto.LoadPrototype<Engine::DynamicCamera>(L"Static",Device,App::Hwnd);
-		Proto.LoadPrototype<Player>(L"Static", Device, Engine::RenderInterface::Group::NoAlpha);
+		Proto.LoadPrototype<Player>(L"Static", Device);
 	}
 
 	// 카메라 오브젝트 추가.

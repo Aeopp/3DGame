@@ -207,9 +207,6 @@
     <ClInclude Include="Codes\Landscape.h">
       <Filter>Map</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Resource\Shader\LandscapeFx.hlsl">
-      <Filter>Shader\HLSL</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Reference\Header\StringHelper.h" />
     <ClInclude Include="..\..\..\Resource\Shader\NaviMeshFx.hlsl">
       <Filter>Shader\HLSL</Filter>

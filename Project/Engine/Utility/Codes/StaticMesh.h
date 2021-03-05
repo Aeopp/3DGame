@@ -36,18 +36,18 @@ namespace Engine
 		void  Load(IDirect3DDevice9* const Device,
 			const std::filesystem::path FilePath,
 			const std::filesystem::path FileName,
-			const std::wstring ResourceName)&;
+			const std::wstring ResourceName,
+			const Engine::RenderInterface::Group RenderGroup)&;
 		void  Initialize(const std::wstring& ResourceName)&;
 		void  Event(class Object* Owner) & override;
-		/*void  Render(const Matrix& World,
-			const Matrix& View,
-			const Matrix& Projection,
-			const Vector4& CameraLocation4D) & override;*/
-	public:
-		std::vector       <MeshElement>                          MeshContainer{};
-	private:
-		Engine::ShaderFx ForwardShaderFx{}; 
-		IDirect3DVertexDeclaration9* VtxDecl{ nullptr };
+
+
+		virtual void Render(Engine::Renderer* const _Renderer) & override;
+		// 지연 패스에 필요한 노말 알베도등 속성을 렌더타겟에 렌더링. 
+		virtual void RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engine::Renderer* const _Renderer) & override;
+		// 쉐도우 맵에 필요한 광원을 시점으로한 깊이정보를 렌더링. 
+		virtual void RenderShadowDepth(Engine::Renderer* const _Renderer) & override;
+		virtual void RenderReady(Engine::Renderer* const _Renderer) & override;
 	};
 	
 }
@@ -57,9 +57,12 @@ inline void Engine::StaticMesh::Load(
 	IDirect3DDevice9* const Device, 
 	const std::filesystem::path FilePath, 
 	const std::filesystem::path FileName, 
-	const std::wstring ResourceName)&
+	const std::wstring ResourceName ,
+	const Engine::RenderInterface::Group RenderGroup)&
 {
-	this->DebugName = this->ResourceName = ResourceName;
+	this->ResourceName = ResourceName;
+	this->DebugName = ToA(ResourceName);
+
 	this->Device = Device;
 	const aiScene*const AiScene = Engine::Global::AssimpImporter.ReadFile(
 		(FilePath / FileName).string(),

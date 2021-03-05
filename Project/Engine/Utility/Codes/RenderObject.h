@@ -6,18 +6,15 @@
 // 해당 클래스는 렌더와 관련된 컴포넌트의 도움 없이 직접 렌더링을 수행하는 오브젝트.
 namespace Engine
 {
-	class DLL_DECL RenderObject : public Object , public RenderInterface
+	class DLL_DECL RenderObject : public Object
 	{
 	public:
 		using Super = Object; 
 	public:
 		void Initialize()&;
-		void PrototypeInitialize(IDirect3DDevice9* const Device ,
-							const RenderInterface::Group _Group )&;
+		void PrototypeInitialize(IDirect3DDevice9* const Device)&;
 	public:
 		virtual void Event()&;
-		virtual void Render(const Matrix& View, const Matrix& Projection,
-			const Vector4& CameraLocation)& abstract;
 		virtual void LateUpdate(const float DeltaTime) & override;
 		virtual void Update(const float DeltaTime) & override;
 	protected:

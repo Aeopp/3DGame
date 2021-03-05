@@ -283,9 +283,6 @@
     <ClInclude Include="..\..\..\Resource\Shader\NaviMeshFx.hlsl">
       <FileType>Document</FileType>
     </ClInclude>
-    <ClInclude Include="..\..\..\Resource\Shader\LandscapeFx.hlsl">
-      <FileType>Document</FileType>
-    </ClInclude>
     <ClInclude Include="..\..\..\Resource\Shader\DefaultFx.hlsl">
       <FileType>Document</FileType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">3.0</ShaderModel>

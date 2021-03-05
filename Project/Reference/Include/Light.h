@@ -44,8 +44,7 @@ namespace Engine
 					IDirect3DTexture9* Albedo3_Contract1,
 					IDirect3DTexture9* Normal3_Power1,
 					IDirect3DTexture9* WorldPos3_Depth1,
-					IDirect3DTexture9* CavityRGB1_CavityAlpha1,
-					IDirect3DTexture9* RimRGB1_InnerWidth1_OuterWidth1 ,
+					IDirect3DTexture9* CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1,
 					IDirect3DTexture9* ShadowDepth ,
 			const Vector3& FogColor,
 			const float FogDistance)&;

@@ -20,10 +20,7 @@
 
 namespace Engine
 {
-	struct DLL_DECL SkinningMeshElement : public MeshElement
-	{
-	};
-
+	
 	struct DLL_DECL AnimationInformation
 	{
 		std::wstring Name{}; 
@@ -50,9 +47,17 @@ namespace Engine
 		void  Load(IDirect3DDevice9* const Device,
 			const std::filesystem::path FilePath,
 			const std::filesystem::path FileName,
-			const std::wstring ResourceName)&;
+			const std::wstring ResourceName ,
+			const Engine::RenderInterface::Group RenderGroup) &;
 		void  Initialize(const std::wstring& ResourceName)&;
 		void  Event(class Object* Owner) & override;
+		// 기본 쉐이더 . (포워드)
+		virtual void Render(Engine::Renderer* const _Renderer) & override;
+		// 지연 패스에 필요한 노말 알베도등 속성을 렌더타겟에 렌더링. 
+		virtual void RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engine::Renderer* const _Renderer) & override;
+		// 쉐도우 맵에 필요한 광원을 시점으로한 깊이정보를 렌더링. 
+		virtual void RenderShadowDepth(Engine::Renderer* const _Renderer) & override;
+		virtual void RenderReady(Engine::Renderer* const _Renderer) & override;
 
 		void  Update(Object* const Owner, const float DeltaTime)&;
 		Engine::Bone*
@@ -60,7 +65,6 @@ namespace Engine
 
 		Engine::Bone*
 			MakeHierarchyClone(Bone* BoneParent, const Bone* const PrototypeBone);
-
 
 		void  PlayAnimation(const uint32 AnimIdx, 
 			const double Acceleration,
@@ -88,9 +92,9 @@ namespace Engine
 		uint32 MaxAnimIdx{ 0u };
 		bool bBoneDebug = false; 
 	private:
+		
 		std::string RootBoneName{}; 
 		std::shared_ptr<std::set<std::string>> BoneNameSet{}; 
-		IDirect3DVertexDeclaration9* VtxDecl{ nullptr }; 
 		double PrevAnimAcceleration = 1.f;
 		double Acceleration = 1.f;
 
@@ -100,7 +104,6 @@ namespace Engine
 		std::shared_ptr<AnimationTrack>                             _AnimationTrack{};
 		std::unordered_map<std::string,uint64>						BoneTableIdxFromName{};
 		std::vector<std::shared_ptr<Bone>>							BoneTable{}; 
-		std::vector       <SkinningMeshElement>                     MeshContainer{};
 		// VTF 기술로 버텍스 쉐이더에서 애니메이션 스키닝을 수행.
 		IDirect3DTexture9* BoneAnimMatrixInfo{nullptr}; 
 		int32 VTFPitch{ 0 };
@@ -114,14 +117,17 @@ template<typename VertexType>
 void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 	const std::filesystem::path FilePath,
 	const std::filesystem::path FileName,
-	const std::wstring ResourceName)&
+	const std::wstring ResourceName ,
+	const Engine::RenderInterface::Group RenderGroup)&
 {
-	this->DebugName = this->ResourceName = ResourceName;
+	this->_Group = RenderGroup;
+	this->ResourceName = ResourceName;
+	this->DebugName = ToA(ResourceName);
 	this->Device = Device;
 	// 모델 생성 플래그 , 같은 플래그를 두번, 혹은 호환이 안되는
 	// 플래그가 겹칠 경우 런타임 에러이며 에러 핸들링이
 	// 어려우므로 매우 유의 할 것.
-	this->FilePath = FilePath; 
+	this->FilePath     = FilePath; 
 	this->FilePureName = FileName.stem();
 
 	const aiScene*const  AiScene = Engine::Global::AssimpImporter.ReadFile(
@@ -173,7 +179,7 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 		const std::wstring CurrentResourceName =
 			ResourceName + L"_" + std::to_wstring(SkeletonResourceID++);
 
-		SkinningMeshElement CreateMesh{};
+		MeshElement CreateMesh{};
 		aiMesh* _AiMesh = AiScene->mMeshes[MeshIdx];
 		// 버텍스 버퍼.
 		std::shared_ptr<std::vector<VertexType>> Verticies = std::make_shared<std::vector<VertexType>>();

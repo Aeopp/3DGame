@@ -18,6 +18,13 @@
 #include <fstream>
 #include <ostream>
 
+void Engine::Collision::Render(Engine::Renderer* const _Renderer)&
+{
+	const Matrix ToWorld = OffsetMatrix * OwnerTransform->UpdateWorld();
+	Device->SetTransform(D3DTS_WORLD, &ToWorld);
+	_Geometric->Render(Device, bCurrentFrameCollision);
+}
+
 void Engine::Collision::Initialize(
 	IDirect3DDevice9* const Device,
 	const CollisionTag _Tag,
@@ -92,14 +99,8 @@ void Engine::Collision::Event(Object* Owner)&
 		ImGui::TreePop();
 		ImGui::Separator();
 	}
-};
+}
 
-void Engine::Collision::Render(const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation)&
-{
-	const Matrix ToWorld = OffsetMatrix * OwnerTransform->UpdateWorld(); 
-	Device->SetTransform(D3DTS_WORLD, &ToWorld);
-	_Geometric->Render(Device, bCurrentFrameCollision);
-};
 
 bool Engine::Collision::IsCollision(Collision* const Rhs)&
 {

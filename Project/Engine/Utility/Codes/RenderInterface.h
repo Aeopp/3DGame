@@ -3,6 +3,7 @@
 #include "TypeAlias.h"
 #include "FMath.hpp"
 #include "Frustum.h"
+#include "ShaderFx.h"
 
 
 
@@ -15,9 +16,7 @@ namespace Engine
 	public:
 		enum class Group :uint8
 		{
-			Enviroment = 0u,
-			DeferredNoAlpha,  
-			NoAlpha,
+			DeferredNoAlpha =  0u , 
 			AlphaTest,
 			AlphaBlend,
 			Particle,
@@ -43,6 +42,7 @@ namespace Engine
 
 		inline const Group GetGroup()const& { return _Group; };
 		Sphere GetCullingSphere() const&; 
+		bool bShadowDepth{ true };
 		bool bCullingOn{ true };
 		bool bCurrentFrustumIn{ true };
 	protected:

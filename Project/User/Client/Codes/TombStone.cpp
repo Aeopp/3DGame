@@ -55,11 +55,9 @@ void TombStone::Initialize(
 		static_cast<Engine::OBB* const> (_Collision->_Geometric.get())->MakeDebugCollisionBox(Device);
 	}
 
-	RenderInterface::SetUpCullingInformation(
-		_Collision->_Geometric->LocalSphere  ,
+	_StaticMesh->SetUpCullingInformation(_Collision->_Geometric->LocalSphere ,
 		_Transform);
-
-	RenderInterface::bCullingOn = true;
+	_StaticMesh->bCullingOn = true;
 
 	// 바운딩 스피어
 	{
@@ -83,17 +81,17 @@ void TombStone::Initialize(
 		});
 }
 
-void TombStone::PrototypeInitialize(IDirect3DDevice9* const Device,
-						const Engine::RenderInterface::Group _Group)&
+void TombStone::PrototypeInitialize(IDirect3DDevice9* const Device)&
 {
-	Super::PrototypeInitialize(Device,_Group);
+	Super::PrototypeInitialize();
 	this->Device = Device;
 
 	auto _StaticMeshProto = std::make_shared<Engine::StaticMesh>();
 
 	_StaticMeshProto->Load<Vertex::LocationTangentUV2D>(Device,
 		App::ResourcePath / L"Mesh" / L"StaticMesh" / L"SnowTerrain" / L"",
-		L"SnowTerrain.dae", L"Floor");
+		L"SnowTerrain.dae", L"Floor" ,
+		Engine::RenderInterface::Group::DeferredNoAlpha);
 
 	RefResourceSys().InsertAny<decltype(_StaticMeshProto)>(L"Floor", _StaticMeshProto);
 }
@@ -103,14 +101,6 @@ void TombStone::Event()&
 	Super::Event();
 }
 
-void TombStone::Render(const Matrix& View, const Matrix& Projection,
-	const Vector4& CameraLocation)&
-{
-	Super::Render( View ,Projection ,CameraLocation);
-	const Matrix& World = GetComponent<Engine::Transform>()->UpdateWorld();
-	auto _StaticMesh = GetComponent<Engine::StaticMesh>();
-	//_StaticMesh->Render(World , View ,Projection ,CameraLocation);
-}
 
 void TombStone::Update(const float DeltaTime)&
 {
