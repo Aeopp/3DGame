@@ -19,6 +19,11 @@ Sphere Engine::RenderInterface::GetCullingSphere() const&
 	return WorldSphere;
 }
 
+bool Engine::RenderInterface::FrustumInCheck(Engine::Frustum& RefFrustum)&
+{
+	return bCurrentFrustumIn = RefFrustum.IsIn(GetCullingSphere());
+}
+
 void Engine::RenderInterface::SetUpCullingInformation(const Sphere				CullingLocalSphere,
 		class Transform* const RenderObjectTransform)&
 
@@ -38,17 +43,15 @@ void Engine::RenderInterface::Regist()
 	Renderer::Instance->Regist(this);
 }
 
-void Engine::RenderInterface::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engine::Frustum& RefFrustum, const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation)&
-{
-
-}
-
-void Engine::RenderInterface::RenderShadowDepth(const Matrix& LightViewProjection)&
+void Engine::RenderInterface::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engine::Renderer* const _Renderer)&
 {
 }
 
-void Engine::RenderInterface::RenderDeferredAfter(
-	Engine::Frustum& RefFrustum, const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation, IDirect3DTexture9* const ShadowDepthMap, const Matrix& LightViewProjection, const float ShadowDepthMapSize, const float ShadowDepthBias, const Vector3& FogColor, const float FogDistance)&
+void Engine::RenderInterface::RenderShadowDepth(Engine::Renderer* const _Renderer)&
 {
-
 }
+
+void Engine::RenderInterface::RenderReady(Engine::Renderer* const _Renderer)&
+{
+}
+

@@ -2,6 +2,8 @@ matrix World;
 matrix View;
 matrix Projection;
 
+matrix LightViewProjection;
+
 float DetailScale;
 float4 LightColor;
 float4 CameraLocation;
@@ -12,6 +14,15 @@ float RimInnerWidth;
 float Power;
 float SpecularIntencity;
 float CavityCoefficient;
+
+
+float3 FogColor = float3(1.f, 1.f, 1.f);
+float FogDistance = 10000.f;
+
+
+float ShadowDepthBias;
+float ShadowDepthMapSize;
+#define PCFCount 3
 
 float4 AmbientColor;
 float Contract;
@@ -25,6 +36,7 @@ texture CavityMap;
 texture EmissiveMap;
 texture DetailDiffuseMap;
 texture DetailNormalMap;
+texture ShadowDepthMap;
 
 // UDN
 //vec3 NormalBlend_UDN(vec3 n1, vec3 n2)
@@ -35,6 +47,16 @@ texture DetailNormalMap;
 
 // diffuse blend 
 // basediffuse * detail diffuse 
+
+sampler ShadowDepthSampler = sampler_state
+{
+    texture = ShadowDepthMap;
+
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
+};
 
 sampler DiffuseSampler = sampler_state
 {
@@ -100,6 +122,10 @@ sampler DetailNormalSampler = sampler_state
     mipfilter = anisotropic;
     MaxAnisotropy = 16;
 
+    addressu = border;
+    addressv = border;
+    bordercolor = 0xffffffff;
+
 };
 
 struct VS_IN
@@ -163,13 +189,51 @@ struct PS_OUT
 PS_OUT PS_MAIN(PS_IN In)
 {
     PS_OUT Out = (PS_OUT) 0;
-	
+    
+    float4 DiffuseColor = tex2D(DiffuseSampler, In.UV);
+    float4 DetailDiffuseColor = tex2D(DetailDiffuseSampler, (In.UV * DetailScale));
+    DetailDiffuseColor *= DetailDiffuseIntensity;
+    
+    DiffuseColor = DiffuseColor * DetailDiffuseColor;
+    float4 CavityColor = tex2D(CavitySampler, In.UV);
+    CavityColor.rgb *= CavityCoefficient;
+    CavityColor.rgba = clamp(CavityColor.rgba, 0.0f, 1.0f);
+    float3 SpecularColor = CavityColor.rgb * SpecularIntencity;
+    DiffuseColor.rgb *= CavityColor.rgb;
+    
+    float4 LightClipPosition = mul(float4(In.WorldLocation, 1.f), LightViewProjection);
+    LightClipPosition.xy = LightClipPosition.xy / LightClipPosition.w;
+    LightClipPosition.y *= -1.f;
+    LightClipPosition.xy *= 0.5f;
+    LightClipPosition.xy += 0.5f;
+    
+    float ShadowFactor = 1.15f;
+    
+    if (saturate(LightClipPosition.z) == LightClipPosition.z)
+    {
+        float LookUpCount = (PCFCount * 2.0f + 1) * (PCFCount * 2.0f + 1);
+        
+        float Shadow = 0.0;
+        float2 TexelSize = 1.0 / ShadowDepthMapSize;
+        for (int x = -PCFCount; x <= PCFCount; ++x)
+        {
+            for (int y = -PCFCount; y <= PCFCount; ++y)
+            {
+                float pcfDepth = tex2D(ShadowDepthSampler, LightClipPosition.xy + float2(x, y) * TexelSize).x;
+                if (LightClipPosition.z > (pcfDepth + ShadowDepthBias))
+                {
+                    Shadow += 1.0f;
+                }
+            }
+        }
+        Shadow /= LookUpCount;
+        ShadowFactor -= Shadow;
+    }
     
     float3 TangentNormal = tex2D(NormalSampler, In.UV).xyz;
     TangentNormal = normalize((TangentNormal * 2.0) - 1.0);
-    // G채널을 반전시킬 필요가 있다.
     TangentNormal.y *= -1.f;
-    
+
     float3 DetailTangentNormal = tex2D(DetailNormalSampler, (In.UV * DetailScale)).xyz;
     DetailTangentNormal = normalize((DetailTangentNormal * 2.0) - 1.0);
     DetailTangentNormal.y *= -1.f;
@@ -181,13 +245,14 @@ PS_OUT PS_MAIN(PS_IN In)
                             normalize(In.BiNormal),
                             normalize(In.Normal));
     
+    
     float3 WorldNormal = normalize(mul(TangentNormal, TBN));
     
     In.ViewDirection = normalize(In.ViewDirection);
     
     float3 ToCamera = normalize(CameraLocation.xyz - In.WorldLocation.xyz);
     
-    float Rim = max(0.0, dot(In.Normal, ToCamera));
+    float Rim = max(0.0, dot(normalize(In.Normal), ToCamera));
     
     float RimAmtOuter = abs(1.f - Rim);
     float RimAmtInner = abs(0.f - Rim);
@@ -213,33 +278,27 @@ PS_OUT PS_MAIN(PS_IN In)
     // 하프 람버트.
     Diffuse = pow(((Diffuse * 0.5) + 0.5), Contract);
     // 셀 쉐이딩
-    Diffuse = ceil(Diffuse * 10.0) / 10.0f;
+    Diffuse = ceil(Diffuse * 5.0) / 5.0f;
     
-    float4 DiffuseColor = tex2D(DiffuseSampler, In.UV);
-    float4 DetailDiffuseColor = tex2D(DetailDiffuseSampler, (In.UV * DetailScale));
-    DetailDiffuseColor *= DetailDiffuseIntensity;
-    
-    DiffuseColor = DiffuseColor * DetailDiffuseColor;
-    float4 CavityColor = tex2D(CavitySampler, In.UV);
-    CavityColor.rgb *= CavityCoefficient;
-    CavityColor.rgba = clamp(CavityColor.rgba, 0.0f, 1.0f);
-    float3 SpecularColor = CavityColor.rgb * SpecularIntencity;
-    DiffuseColor.rgb *= CavityColor.rgb;
     
     float3 HalfVec = normalize((-LightDirectionNormal) + (In.ViewDirection));
     Specular = saturate(dot(HalfVec, WorldNormal));
     Specular = pow((Specular), (Power));
     
-    float3 Ambient = AmbientColor.xyz;
-    
     Out.Color = float4(LightColor.xyz * DiffuseColor.rgb * Diffuse +
                     LightColor.xyz * SpecularColor.rgb * Specular, DiffuseColor.a);
-    
-    Out.Color.rgb += Ambient;
+   
     Out.Color.rgba += RimAmt * RimAmtColor.rgba;
+    ShadowFactor = saturate(ShadowFactor);
+    Out.Color.rgb *= ShadowFactor;
+    Out.Color.rgb += AmbientColor.xyz;
     Out.Color.a += AlphaAddtive;
     Out.Color.a = saturate(Out.Color.a);
     
+    float Distance = length(In.WorldLocation.xyz - CameraLocation.xyz);
+    float FogFactor = saturate((FogDistance - Distance) / FogDistance);
+    Out.Color.rgb += (FogFactor * FogColor);
+
     return Out;
 }
 
@@ -250,12 +309,14 @@ technique Default_Device
         alphablendenable = true;
         srcblend = srcalpha;
         destblend = invsrcalpha;
-
         zenable = true;
         zwriteenable = true;
         cullmode = ccw;
         fillmode = solid;
-
+        StencilEnable = true;
+        StencilFunc = always;
+        StencilPass = replace;
+        StencilRef = 1;
         vertexshader = compile vs_3_0 VS_MAIN();
         pixelshader = compile ps_3_0 PS_MAIN();
     }

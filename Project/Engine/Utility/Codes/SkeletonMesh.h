@@ -55,26 +55,13 @@ namespace Engine
 			const Engine::RenderInterface::Group RenderGroup) &;
 		void  Initialize(const std::wstring& ResourceName)&;
 		void  Event(class Object* Owner) & override;
-
-		virtual void RenderReady(Engine::Frustum& RefFrustum)&override;
-
-		virtual void RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(
-			const Matrix& World , 
-			Engine::Frustum& RefFrustum,
-			const Matrix& View, 
-			const Matrix& Projection, 
-		    const Vector4& CameraLocation)&;
-		virtual void RenderShadowDepth(
-			const Matrix& World, 
-			const Matrix& LightViewProjection)&;
-		virtual void RenderDeferredAfter(Engine::Frustum& RefFrustum,
-			const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation,
-			IDirect3DTexture9* const ShadowDepthMap,
-			const Matrix& LightViewProjection,
-			const float ShadowDepthMapSize,
-			const float ShadowDepthBias,
-			const Vector3& FogColor,
-			const float FogDistance)&;
+		// 기본 쉐이더 . (포워드)
+		virtual void Render(Engine::Renderer* const _Renderer) & override;
+		// 지연 패스에 필요한 노말 알베도등 속성을 렌더타겟에 렌더링. 
+		virtual void RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engine::Renderer* const _Renderer) & override;
+		// 쉐도우 맵에 필요한 광원을 시점으로한 깊이정보를 렌더링. 
+		virtual void RenderShadowDepth(Engine::Renderer* const _Renderer) & override;
+		virtual void RenderReady(Engine::Renderer* const _Renderer) & override;
 
 		void  Update(Object* const Owner, const float DeltaTime)&;
 		Engine::Bone*

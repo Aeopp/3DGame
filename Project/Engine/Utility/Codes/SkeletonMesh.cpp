@@ -128,9 +128,17 @@ void Engine::SkeletonMesh::Event(Object* Owner)&
 			ImGui::TreePop();
 		}
 	}
-};
-
-void Engine::SkeletonMesh::RenderReady(Engine::Frustum& RefFrustum)&
+}
+void Engine::SkeletonMesh::Render(Engine::Renderer* const _Renderer)&
+{
+}
+void Engine::SkeletonMesh::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engine::Renderer* const _Renderer)&
+{
+}
+void Engine::SkeletonMesh::RenderShadowDepth(Engine::Renderer* const _Renderer)&
+{
+}
+void Engine::SkeletonMesh::RenderReady(Engine::Renderer* const _Renderer)&
 {
 	std::vector<Matrix> RenderBoneMatricies(BoneTable.size());
 
@@ -148,6 +156,13 @@ void Engine::SkeletonMesh::RenderReady(Engine::Frustum& RefFrustum)&
 	}
 	std::memcpy(LockRect.pBits, RenderBoneMatricies.data(), RenderBoneMatricies.size() * sizeof(Matrix));
 	BoneAnimMatrixInfo->UnlockRect(0u);
+
+}
+;
+
+void Engine::SkeletonMesh::RenderReady(Engine::Frustum& RefFrustum)&
+{
+	
 }
 
 void Engine::SkeletonMesh::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim
