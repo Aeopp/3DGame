@@ -45,14 +45,15 @@ namespace Engine
 		bool bShadowDepth{ true };
 		bool bCullingOn{ true };
 		bool bCurrentFrustumIn{ true };
+		class Transform* RenderObjectTransform{ nullptr };
 	protected:
 		Engine::ShaderFx ForwardShaderFx{};
 		Engine::ShaderFx DepthShadowFx{};
 		Engine::ShaderFx DeferredDefaultFx{};
 		std::string DebugName{};
 		Group _Group;
-	private: 
-		class Transform* RenderObjectTransform{ nullptr };
+		
+	private:
 		const float*     CullingSphereScale{ nullptr }; 
 		const Matrix*    CullingWorldMatrix{ nullptr };
 		Sphere           CullingLocalSphere{}; 

@@ -64,7 +64,7 @@
     <ClInclude Include="Codes\EnemyLayer.h">
       <Filter>Layer\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\TombStone.h">
+    <ClInclude Include="Codes\PlayerHead.h">
       <Filter>Object</Filter>
     </ClInclude>
     <ClInclude Include="Codes\EnterGame.h">
@@ -99,7 +99,7 @@
     <ClCompile Include="Codes\EnemyLayer.cpp">
       <Filter>Layer\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="Codes\TombStone.cpp">
+    <ClCompile Include="Codes\PlayerHead.cpp">
       <Filter>Object</Filter>
     </ClCompile>
     <ClCompile Include="Codes\EnterGame.cpp">

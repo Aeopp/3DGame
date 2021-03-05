@@ -1,0 +1,8 @@
+Diffuse=NoSRGB
+Normal=h_s001_NM
+Other[0]=h_s001_MM
+Other[1]=128wh
+Other[2]=BaseColor
+Other[3]=exmap
+Other[4]=normal_no
+Other[5]=TS4source

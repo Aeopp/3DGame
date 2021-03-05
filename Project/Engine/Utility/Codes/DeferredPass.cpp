@@ -34,7 +34,7 @@ void Engine::DeferredPass::DefaultInitialize()&
 		D3DXCOLOR(0.f, 0.f, 0.f, 1.f));
 	CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.DebugBufferInitialize({ -860.f,-160.f}, RenderTargetDebugRenderSize);
 
-	//uint32 ShadowDepthMapSize = 2048u;
+	uint32 ShadowDepthMapSize = 2048u;
 	///*D3DVIEWPORT9 ViewPort{};
 	//ViewPort.Height = 1080;
 	//ViewPort.Width = 1900;

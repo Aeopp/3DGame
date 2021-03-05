@@ -1,6 +1,6 @@
 #include "..\\stdafx.h"
 #include "StartScene.h"
-#include "TombStone.h"
+#include "PlayerHead.h"
 #include "Player.h"
 #include "Shader.h"
 #include "Vertexs.hpp"
@@ -55,7 +55,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 
 	// 프로토타입 로딩.
 	{
-	// 	Proto.LoadPrototype<TombStone>(L"Static", Device ,Engine::RenderInterface::Group::NoAlpha);
+	// 	Proto.LoadPrototype<PlayerHead>(L"Static", Device ,Engine::RenderInterface::Group::Deferred);
 
 	}
 
@@ -74,9 +74,6 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 
 	// 오브젝트 스폰
 	{
-		/*RefManager().NewObject<EnemyLayer,TombStone>(L"Static", L"TombStone_1" ,
-			Vector3{ 1.f,1.f,1.f},Vector3{ 0,0,0 }, Vector3{ 0,0,0 });*/
-
 		//RefManager().NewObject<Engine::NormalLayer, Player>(L"Static", L"Player_0",
 		//	Vector3{ 1.f,1.f,1.f }, Vector3{ 0,0,0 }, Vector3{ 0,0,5 });
 
@@ -107,7 +104,7 @@ void StartScene::Event()&
 					{
 						auto TargetName = Target->GetName();
 
-						if (TargetName.find(L"TombStone",0u) != std::wstring::npos)
+						if (TargetName.find(L"Player",0u) != std::wstring::npos)
 						{
 							Target->Kill();
 						}
@@ -124,14 +121,14 @@ void StartScene::Update(const float DeltaTime)&
 	
 	// 오브젝트 레이어 검색.
 	{
-		auto _Target = RefManager().FindObject<EnemyLayer, TombStone>(L"TombStone_1");
+		auto _Target = RefManager().FindObject<EnemyLayer, Player>(L"Player_!");
 		auto _TargetLayer = RefManager().FindLayer<EnemyLayer>();
 
 		auto& LayerMap = RefManager().RefLayers();
 
-		for (auto& _TombStone : RefManager().FindObjects<EnemyLayer, TombStone>())
+		for (auto& _Player : RefManager().FindObjects<EnemyLayer, Player>())
 		{
-			_TombStone->GetName();
+			_Player->GetName();
 		}
 		for (auto& _Camera: RefManager().FindObjects<Engine::NormalLayer, Engine::DynamicCamera>())
 		{

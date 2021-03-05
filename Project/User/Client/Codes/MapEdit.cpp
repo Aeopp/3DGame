@@ -4,7 +4,7 @@
 #include "StaticMesh.h"
 #include <array>
 #include "Controller.h"
-#include "TombStone.h"
+#include "PlayerHead.h"
 #include "Player.h"
 #include "Shader.h"
 #include "Vertexs.hpp"
@@ -138,7 +138,7 @@ void MapEdit::Initialize(IDirect3DDevice9* const Device)&
 			}
 		}
 
-		RefLandscape.Load(App::ResourcePath / L"MapLoadInfo" / "DecoratorBig.json");
+		RefLandscape.Load(App::ResourcePath / L"MapLoadInfo" / "SkyGarden.json");
 	}
 
 	D3DXCreateLine(Device, &LinearSpace);

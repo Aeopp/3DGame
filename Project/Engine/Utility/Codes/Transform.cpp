@@ -66,6 +66,17 @@ void Engine::Transform::Event(Object* const Owner)&
 const Matrix& Engine::Transform::UpdateWorld()&
 {
 	World = FMath::WorldMatrix(Scale,Rotation,Location);
+
+	if (AttachBoneToRoot)
+	{
+		World *= (*AttachBoneToRoot);
+	};
+
+	if (OwnerTransform)
+	{
+		World *= (*OwnerTransform);
+	};
+
 	return World;
 };
 
@@ -272,5 +283,17 @@ void Engine::Transform::MoveUp(const float DeltaTime, const float Speed)
 		 CurSaveClassProperty.Rotation = Rotation;
 		 ResourceSys->InsertAny(ToW(LoadProp), CurSaveClassProperty);
 	 };
+ }
+
+ void Engine::Transform::AttachBone(const Matrix* const TargetBoneToRoot)&
+ {
+	 AttachBoneToRoot = TargetBoneToRoot;
+ }
+
+
+ void Engine::Transform::AttachTransform(const Matrix* const TargetParentTransform)&
+ {
+	 OwnerTransform = TargetParentTransform;
+
  }
 

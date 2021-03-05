@@ -124,7 +124,7 @@ void Engine::Bone::DebugRender(
 		CurColorTex = ResourceSys->Get<IDirect3DTexture9>(L"Texture_Green");
 	}
 	
-	const Matrix Final = FMath::Scale({ 10,10,10 }) * ToRoot * World ;
+	const Matrix Final = FMath::Scale({ 10,10,10 }) * ToRoot * World;
 	Device->SetTransform(D3DTS_WORLD,&Final);
 	Device->SetTexture(0, CurColorTex);
 	DebugMesh->DrawSubset(0);

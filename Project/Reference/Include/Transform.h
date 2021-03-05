@@ -47,9 +47,13 @@ namespace Engine
 	public:
 		void Save()&;
 		void Load()&;
+	public:
+		void AttachBone(const Matrix* const TargetBoneToRoot)&;
+		void AttachTransform(const Matrix* const TargetParentTransform)&;
 	private:
+		const Matrix* AttachBoneToRoot = nullptr;
+		const Matrix* OwnerTransform = nullptr;
 		std::string OwnerClassIdentifier{};
-
 		Matrix World;
 		Vector3 Scale{ 1,1,1 };
 		Vector3 Forward{ 0,0,1 };

@@ -15,6 +15,7 @@
 #include "App.h"
 #include "ShaderManager.h"
 #include "NormalLayer.h"
+#include "PlayerHead.h"
 
 void Player::Initialize(
 	const std::optional<Vector3>& Scale,
@@ -24,6 +25,7 @@ void Player::Initialize(
 	Super::Initialize();
 
 	auto _Transform =AddComponent<Engine::Transform>(typeid(Player).name());
+
 	if (Scale)
 	{
 		_Transform->SetScale(*Scale);
@@ -42,6 +44,7 @@ void Player::Initialize(
 						(Device, Engine::CollisionTag::Decorator, _Transform,
 							typeid(Player).name());
 
+	_Collision->RenderObjectTransform = _Transform;
 	// 바운딩 박스.
 	{
 		Vector3  BoundingBoxMin{}, BoundingBoxMax{};
@@ -81,6 +84,14 @@ void Player::Initialize(
 		{
 	          Engine::CollisionTag::Decorator
 		});
+
+	std::shared_ptr<PlayerHead> _PlayerHead = 
+		RefManager().NewObject<Engine::NormalLayer, PlayerHead>(L"Static", Name+L"Head",
+		_Transform->GetScale(), _Transform->GetRotation() , _Transform->GetLocation()  );
+
+	auto* PlayerHeadTransform = _PlayerHead->GetComponent<Engine::Transform>();
+	PlayerHeadTransform->AttachBone(&_SkeletonMesh->GetBone("Spine2")->ToRoot);
+	PlayerHeadTransform->AttachTransform(&_Transform->UpdateWorld() );
 }
 
 void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&

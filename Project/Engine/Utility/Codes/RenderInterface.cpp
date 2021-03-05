@@ -3,6 +3,7 @@
 #include "Transform.h"
 #include "UtilityGlobal.h"
 #include "imgui.h"
+
 Sphere Engine::RenderInterface::GetCullingSphere() const&
 {
 	Sphere WorldSphere = CullingLocalSphere;

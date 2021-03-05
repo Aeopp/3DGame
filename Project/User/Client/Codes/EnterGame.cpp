@@ -1,6 +1,6 @@
 #include "..\\stdafx.h"
 #include "EnterGame.h"
-#include "TombStone.h"
+#include "PlayerHead.h"
 #include "MapEdit.h"
 #include "StartScene.h"
 
@@ -55,6 +55,7 @@ void EnterGame::Initialize(IDirect3DDevice9* const Device)&
 	{
 		Proto.LoadPrototype<Engine::DynamicCamera>(L"Static",Device,App::Hwnd);
 		Proto.LoadPrototype<Player>(L"Static", Device);
+		Proto.LoadPrototype<PlayerHead>(L"Static", Device);
 	}
 
 	// 카메라 오브젝트 추가.
