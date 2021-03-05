@@ -62,7 +62,7 @@ inline void Engine::StaticMesh::Load(
 {
 	this->ResourceName = ResourceName;
 	this->DebugName = ToA(ResourceName);
-
+	this->_Group = RenderGroup;
 	this->Device = Device;
 	const aiScene*const AiScene = Engine::Global::AssimpImporter.ReadFile(
 		(FilePath / FileName).string(),

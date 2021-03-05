@@ -92,7 +92,10 @@ void ObjectEdit::Initialize(IDirect3DDevice9* const Device)&
 				}
 			}
 		}
+
+		RefLandscape.Load(App::ResourcePath / L"MapLoadInfo" / "SkyGarden.json");
 	}
+	
 }
 
 void ObjectEdit::Event()&

@@ -667,7 +667,7 @@ void MapEdit::Landscape()&
 		D3DXVec4Normalize(&Renderer._DirectionalLight._LightInfo.Direction, &Renderer._DirectionalLight._LightInfo.Direction);
 		ImGui::SliderFloat3("Location", (float*)&Renderer._DirectionalLight._LightInfo.Location, -10000.f, 10000.f);
 		ImGui::SliderFloat("Shadow Distance", (float*)&Renderer._DirectionalLight._LightInfo.ShadowFar, 1000.f, 100000.f);
-		ImGui::SliderFloat("Shadow OrthoProjectionSize", (float*)&Renderer._DirectionalLight._LightInfo.OrthoProjectionSize, 1000.f, 10000.f);
+		ImGui::SliderFloat("Shadow OrthoProjectionFactor", (float*)&Renderer._DirectionalLight._LightInfo.ShadowOrthoProjectionFactor, 1.f, 5.f);
 
 		
 		ImGui::InputFloat("Shadow Depth Bias",

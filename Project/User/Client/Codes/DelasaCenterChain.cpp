@@ -60,7 +60,7 @@ void DelasaCenterChain::Initialize(
 	   _Transform);
 	_SkeletonMesh->bCullingOn = true;
 
-	_SkeletonMesh->PlayAnimation(0u,1.f,0.33f);
+	_SkeletonMesh->PlayAnimation(0);
 	
 	// 바운딩 스피어
 	{

@@ -105,7 +105,8 @@ namespace Engine
 					const Matrix& View, const Matrix& Projection ,const Vector4& CameraLocation,
 					IDirect3DTexture9* const ShadowDepthMap ,
 					const Matrix& LightViewProjection,
-					const float ShadowDepthMapSize,
+					const float ShadowDepthMapWidth,
+					const float ShadowDepthMapHeight,
 					const float ShadowDepthBias ,
 					const Vector3& FogColor,
 					const float FogDistance)&;

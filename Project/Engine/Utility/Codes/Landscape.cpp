@@ -418,7 +418,8 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 	const Vector4& CameraLocation4D ,
 	IDirect3DTexture9* const ShadowDepthMap  ,
 	const Matrix& LightViewProjection,
-	const float ShadowDepthMapSize,
+	const float ShadowDepthMapWidth,
+	const float ShadowDepthMapHeight,
 	const float ShadowDepthBias ,
 	const Vector3& FogColor ,
 	const float FogDistance )&
@@ -450,9 +451,9 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 	Fx->SetVector("CameraLocation", &CameraLocation4D);
 	Fx->SetTexture("ShadowDepthMap", ShadowDepthMap);
 	Fx->SetMatrix("LightViewProjection", &LightViewProjection);
-	Fx->SetFloat("ShadowDepthMapSize", ShadowDepthMapSize);
+	Fx->SetFloat("ShadowDepthMapWidth", ShadowDepthMapWidth);
+	Fx->SetFloat("ShadowDepthMapHeight", ShadowDepthMapHeight);
 	Fx->SetFloat("ShadowDepthBias", ShadowDepthBias);
-
 
 	Device->SetVertexDeclaration(VtxDecl);
 

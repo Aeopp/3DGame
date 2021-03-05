@@ -21,7 +21,9 @@ float FogDistance = 10000.f;
 
 
 float ShadowDepthBias;
-float ShadowDepthMapSize;
+float ShadowDepthMapWidth;
+float ShadowDepthMapHeight;
+
 #define PCFCount 3
 
 float4 AmbientColor;
@@ -214,12 +216,16 @@ PS_OUT PS_MAIN(PS_IN In)
         float LookUpCount = (PCFCount * 2.0f + 1) * (PCFCount * 2.0f + 1);
         
         float Shadow = 0.0;
-        float2 TexelSize = 1.0 / ShadowDepthMapSize;
+        float TexelSizeU = 1.0 / ShadowDepthMapWidth;
+        float TexelSizeV = 1.0 / ShadowDepthMapHeight;
+        
         for (int x = -PCFCount; x <= PCFCount; ++x)
         {
             for (int y = -PCFCount; y <= PCFCount; ++y)
             {
-                float pcfDepth = tex2D(ShadowDepthSampler, LightClipPosition.xy + float2(x, y) * TexelSize).x;
+                float2 UVOffset = float2(x * TexelSizeU, y * TexelSizeV);
+                
+                float pcfDepth = tex2D(ShadowDepthSampler, LightClipPosition.xy + UVOffset).x;
                 if (LightClipPosition.z > (pcfDepth + ShadowDepthBias))
                 {
                     Shadow += 1.0f;

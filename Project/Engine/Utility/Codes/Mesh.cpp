@@ -27,13 +27,20 @@ void Engine::Mesh::Render(Engine::Renderer* const _Renderer)&
 	auto Fx =ForwardShaderFx.GetHandle();
 	auto& Renderer = *Engine::Renderer::Instance;
 	const auto& RenderInfo = Renderer.GetCurrentRenderInformation();
-
+	const auto& _RefDeferredPass = Renderer.RefDeferredPass(); 
 	Fx->SetMatrix("World", &OwnerWorld);
+	Fx->SetFloat("FogDistance", Renderer.FogDistance);
+	Fx->SetFloatArray("FogColor", Renderer.FogColor, 3u);
 	Fx->SetMatrix("View", &RenderInfo.View);
 	Fx->SetMatrix("Projection", &RenderInfo.Projection);
 	Fx->SetVector("LightDirection", &Renderer._DirectionalLight._LightInfo.Direction);
 	Fx->SetVector("LightColor", &Renderer._DirectionalLight._LightInfo.LightColor);
 	Fx->SetVector("CameraLocation", &RenderInfo.CameraLocation4D);
+	Fx->SetTexture("ShadowDepthMap",  Renderer.RefDeferredPass().ShadowDepth.GetTexture());
+	Fx->SetMatrix("LightViewProjection", &RenderInfo.LightViewProjection);
+	Fx->SetFloat("ShadowDepthMapWidth", Renderer._DirectionalLight._LightInfo.ShadowDepthMapWidth);
+	Fx->SetFloat("ShadowDepthMapHeight", Renderer._DirectionalLight._LightInfo.ShadowDepthMapHeight );
+	Fx->SetFloat("ShadowDepthBias", Renderer._DirectionalLight._LightInfo.ShadowDepthBias);
 
 	Device->SetVertexDeclaration(VtxDecl);
 	uint32 PassNum = 0u;
@@ -41,29 +48,22 @@ void Engine::Mesh::Render(Engine::Renderer* const _Renderer)&
 
 	for (auto& CurrentRenderMesh : MeshContainer)
 	{
+		Device->SetStreamSource(0, CurrentRenderMesh.VertexBuffer, 0, CurrentRenderMesh.Stride);
+		Device->SetIndices(CurrentRenderMesh.IndexBuffer);
+
 		Fx->SetVector("RimAmtColor", &CurrentRenderMesh.MaterialInfo.RimAmtColor);
 		Fx->SetFloat("RimOuterWidth", CurrentRenderMesh.MaterialInfo.RimOuterWidth);
 		Fx->SetFloat("RimInnerWidth", CurrentRenderMesh.MaterialInfo.RimInnerWidth);
-		Fx->SetVector("AmbientColor", &CurrentRenderMesh.MaterialInfo.AmbientColor);
 		Fx->SetFloat("Power", CurrentRenderMesh.MaterialInfo.Power);
 		Fx->SetFloat("SpecularIntencity", CurrentRenderMesh.MaterialInfo.SpecularIntencity);
 		Fx->SetFloat("Contract", CurrentRenderMesh.MaterialInfo.Contract);
+		Fx->SetFloat("DetailScale", CurrentRenderMesh.MaterialInfo.DetailScale);
 		Fx->SetFloat("DetailDiffuseIntensity", CurrentRenderMesh.MaterialInfo.DetailDiffuseIntensity);
 		Fx->SetFloat("DetailNormalIntensity", CurrentRenderMesh.MaterialInfo.DetailNormalIntensity);
 		Fx->SetFloat("CavityCoefficient", CurrentRenderMesh.MaterialInfo.CavityCoefficient);
 		Fx->SetFloat("AlphaAddtive", CurrentRenderMesh.MaterialInfo.AlphaAddtive);
-		Fx->SetFloat("DetailScale", CurrentRenderMesh.MaterialInfo.DetailScale);
 
-		Device->SetStreamSource(0, CurrentRenderMesh.VertexBuffer, 0, CurrentRenderMesh.Stride);
-		Device->SetIndices(CurrentRenderMesh.IndexBuffer);
-
-		Fx->SetTexture("DiffuseMap", CurrentRenderMesh.MaterialInfo.GetTexture("Diffuse"));
-		Fx->SetTexture("NormalMap", CurrentRenderMesh.MaterialInfo.GetTexture("Normal3_Power1"));
-		Fx->SetTexture("CavityMap", CurrentRenderMesh.MaterialInfo.GetTexture("Cavity"));
-		Fx->SetTexture("EmissiveMap", CurrentRenderMesh.MaterialInfo.GetTexture("Emissive"));
-		Fx->SetTexture("DetailDiffuseMap", CurrentRenderMesh.MaterialInfo.GetTexture("DetailDiffuse"));
-		Fx->SetTexture("DetailNormalMap", CurrentRenderMesh.MaterialInfo.GetTexture("DetailNormal"));
-
+		CurrentRenderMesh.MaterialInfo.BindingTexture(Fx);
 		Fx->CommitChanges();
 
 		for (uint32 i = 0; i < PassNum; ++i)

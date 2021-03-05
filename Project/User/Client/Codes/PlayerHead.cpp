@@ -96,7 +96,7 @@ void PlayerHead::PrototypeInitialize(IDirect3DDevice9* const Device)&
 	_StaticMeshProto->Load<Vertex::LocationTangentUV2D>(Device,
 		App::ResourcePath / L"Mesh" / L"StaticMesh" / L"",
 		L"PlayerHead.fbx", L"PlayerHead" ,
-		Engine::RenderInterface::Group::DeferredNoAlpha);
+		Engine::RenderInterface::Group::AlphaBlend);
 
 	RefResourceSys().InsertAny<decltype(_StaticMeshProto)>(L"PlayerHead", _StaticMeshProto);
 }

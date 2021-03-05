@@ -89,7 +89,7 @@ void Player::Initialize(
 
 	std::shared_ptr<PlayerHead> _PlayerHead = 
 		RefManager().NewObject<Engine::NormalLayer, PlayerHead>(L"Static", Name+L"_Head",
-			Vector3{ 1,1,1 }, Vector3{ 0.352,-89.332,3.263 }, Vector3{ 18.596 ,-2.131,-1.656 }  );
+			Vector3{ 1,1,1 }, Vector3{ 1.57f,1.57f,0.078}, Vector3{ -138.098,145.245,0.0f}  );
 
 	auto* PlayerHeadTransform = _PlayerHead->GetComponent<Engine::Transform>();
 	PlayerHeadTransform->AttachBone(&_SkeletonMesh->GetBone("Spine2")->ToRoot);

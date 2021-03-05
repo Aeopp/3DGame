@@ -47,7 +47,8 @@ void Engine::Light::Render(
 	Fx->SetMatrix("Projection", &Projection);
 
 	const Matrix LightViewProjection =CalcLightViewProjection();
-	Fx->SetFloat("ShadowDepthMapSize", _LightInfo.ShadowDepthMapSize);
+	Fx->SetFloat("ShadowDepthMapWidth", _LightInfo.ShadowDepthMapWidth);
+	Fx->SetFloat("ShadowDepthMapHeight", _LightInfo.ShadowDepthMapHeight);
 	Fx->SetFloatArray("FogColor", FogColor,3u);
 	Fx->SetFloat("FogDistance", FogDistance);
 	Fx->SetMatrix("LightViewProjection", &LightViewProjection);
@@ -93,7 +94,7 @@ Matrix Engine::Light::CalcLightViewProjection() const&
 
 	D3DXMatrixLookAtLH(&LightView, &LightLocation3D, &At, &Up);
 
-	D3DXMatrixOrthoLH(&LightProjection, _LightInfo.OrthoProjectionSize, _LightInfo.OrthoProjectionSize,
+	D3DXMatrixOrthoLH(&LightProjection, _LightInfo.ShadowDepthMapWidth * _LightInfo.ShadowOrthoProjectionFactor, _LightInfo.ShadowDepthMapHeight * _LightInfo.ShadowOrthoProjectionFactor,
 		0.1f, _LightInfo.ShadowFar);
 
 	return LightView * LightProjection;
