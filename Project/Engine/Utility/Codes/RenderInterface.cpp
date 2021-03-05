@@ -11,7 +11,8 @@ Sphere Engine::RenderInterface::GetCullingSphere() const&
 	WorldSphere.Center = 
 		FMath::Mul(WorldSphere.Center, RenderObjectTransform->UpdateWorld());
 	const Vector3 Scale = RenderObjectTransform->GetScale();
-	WorldSphere.Radius *= ((Scale.x + Scale.y + Scale.z) / 3.f );
+
+	WorldSphere.Radius *= FMath::MaxScala(Scale);
 
 	return WorldSphere;
 }
@@ -27,7 +28,7 @@ bool Engine::RenderInterface::FrustumInCheck(Engine::Frustum& RefFrustum)&
 		bCurrentFrustumIn = true;
 	}
 
-	if (Engine::Global::bDebugMode && bCullingOn)
+	if (Engine::Global::bDebugMode && bCurrentFrustumIn)
 	{
 		ImGui::TextColored(ImVec4{ 1.f,114.f / 255.f, 198.f / 255.f , 1.0f }, "Draw : %s",(DebugName).c_str());
 	}
@@ -55,13 +56,16 @@ void Engine::RenderInterface::Regist()
 
 void Engine::RenderInterface::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engine::Renderer* const _Renderer)&
 {
+
 }
 
 void Engine::RenderInterface::RenderShadowDepth(Engine::Renderer* const _Renderer)&
 {
+
 }
 
 void Engine::RenderInterface::RenderReady(Engine::Renderer* const _Renderer)&
 {
+
 }
 

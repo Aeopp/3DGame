@@ -56,6 +56,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 
 	// 프로토타입 로딩.
 	{
+		
 	// 	Proto.LoadPrototype<PlayerHead>(L"Static", Device ,Engine::RenderInterface::Group::Deferred);
 
 	}

@@ -85,6 +85,9 @@
     <ClInclude Include="Codes\PlayerWeapon.h">
       <Filter>Object\Player</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\DelasaCenterChain.h">
+      <Filter>Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -119,6 +122,9 @@
     </ClCompile>
     <ClCompile Include="Codes\PlayerWeapon.cpp">
       <Filter>Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\DelasaCenterChain.cpp">
+      <Filter>Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

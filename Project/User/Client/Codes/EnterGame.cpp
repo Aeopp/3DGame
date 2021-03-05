@@ -29,6 +29,7 @@
 #include "ShaderManager.h"
 #include "ObjectEdit.h"
 #include "PlayerWeapon.h"
+#include "DelasaCenterChain.h"
 
 
 void EnterGame::Initialize(IDirect3DDevice9* const Device)&
@@ -59,6 +60,7 @@ void EnterGame::Initialize(IDirect3DDevice9* const Device)&
 		Proto.LoadPrototype<Player>(L"Static", Device);
 		Proto.LoadPrototype<PlayerHead>(L"Static", Device);
 		Proto.LoadPrototype<PlayerWeapon>(L"Static", Device); 
+		Proto.LoadPrototype<DelasaCenterChain>(L"Static", Device);
 	}
 
 	// 카메라 오브젝트 추가.

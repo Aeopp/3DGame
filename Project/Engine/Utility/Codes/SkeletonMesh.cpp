@@ -241,6 +241,7 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 			if (CurrentAnimMotionTime > AnimInfoTable[AnimIdx].Duration)
 			{
 				CurrentAnimMotionTime = AnimInfoTable[AnimIdx].Duration;
+				bAnimationEnd = true;
 			}
 
 			Bone* RootBone = BoneTable.front().get();
@@ -258,6 +259,7 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 			if (CurrentAnimMotionTime > AnimInfoTable[AnimIdx].Duration)
 			{
 				CurrentAnimMotionTime = AnimInfoTable[AnimIdx].Duration; 
+				bAnimationEnd = true;
 			}
 			Bone* RootBone = BoneTable.front().get();
 
@@ -319,6 +321,7 @@ void Engine::SkeletonMesh::PlayAnimation(const uint32 AnimIdx ,
 	                                     const double Acceleration ,
 										 const double TransitionDuration)&
 {
+	
 	PrevAnimMotionTime = CurrentAnimMotionTime;
 	CurrentAnimMotionTime = 0.0;
 	PrevAnimIndex = this->AnimIdx;
@@ -327,6 +330,8 @@ void Engine::SkeletonMesh::PlayAnimation(const uint32 AnimIdx ,
 	this->TransitionDuration = TransitionRemainTime = TransitionDuration;
 	this->PrevAnimAcceleration = this->Acceleration;
 	this->Acceleration = Acceleration;
+
+	bAnimationEnd = false;
 }
 
 void Engine::SkeletonMesh::PlayAnimation(const uint32 AnimIdx)&
@@ -340,8 +345,6 @@ void Engine::SkeletonMesh::PlayAnimation(const std::string& AnimName)&
 	const uint32 AnimIdx = AnimIdxFromName.find(AnimName)->second;
 	this->PlayAnimation(AnimIdx);
 }
-
-
 
 void Engine::SkeletonMesh::InitTextureForVertexTextureFetch()&
 {

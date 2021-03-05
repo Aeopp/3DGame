@@ -1,0 +1,10 @@
+{
+    "AnimationInfoTable": [
+        {
+            "Index": 0,
+            "Name": "Take 001",
+            "Acceleration": 100.0,
+            "TransitionTime": 0.5
+        }
+    ]
+}

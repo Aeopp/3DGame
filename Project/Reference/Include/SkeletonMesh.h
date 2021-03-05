@@ -79,6 +79,7 @@ namespace Engine
 		void AnimationSave()&;
 		void AnimationLoad()&;
 	public:
+		bool bAnimationEnd{ true };
 		static const inline Property          TypeProperty = Property::Render;
 		uint32 PrevAnimIndex = 0u;
 		uint32 AnimIdx{ 0u };

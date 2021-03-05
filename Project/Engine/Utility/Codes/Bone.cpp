@@ -153,6 +153,7 @@ void Engine::Bone::BoneMatrixUpdate(
 	// 여기서 이전 프레임과 다음 프레임을 보간 한다.
 	Matrix AnimationTransform = OriginTransform;
 
+	// 현재 본이 타겟 애니매이션에서 움직일 필요성이 있나?
 	const bool bCurBoneApplyAnimation = PosTrack.contains(Name);
 
 	if (bCurBoneApplyAnimation)
