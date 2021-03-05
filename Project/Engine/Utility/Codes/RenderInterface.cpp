@@ -2,7 +2,12 @@
 #include "Renderer.h"
 #include "Transform.h"
 
-inline Sphere Engine::RenderInterface::GetCullingSphere() const&
+bool FrustumCullingCheck(const Engine::Frustum& RefFrustum)&
+{
+
+}
+
+Sphere Engine::RenderInterface::GetCullingSphere() const&
 {
 	Sphere WorldSphere = CullingLocalSphere;
 

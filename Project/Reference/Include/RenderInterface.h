@@ -27,6 +27,7 @@ namespace Engine
 		void Regist();
 		virtual void Render(const Matrix& View, const Matrix& Projection,
 							const Vector4& CameraLocation)& abstract;
+		bool FrustumCullingCheck(const Engine::Frustum& RefFrustum)&;
 		inline const Group GetGroup()const& { return _Group; };
 		Sphere GetCullingSphere() const&; 
 		bool bCullingOn{ true };

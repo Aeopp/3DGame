@@ -19,7 +19,6 @@
 
 void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 {
-	Super::Initialize(Device);
 
 	auto& ResourceSys = Engine::ResourceSystem::Instance;
 
@@ -29,6 +28,8 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 	uint32 IDBackUp = ID;
 	this->operator=(*ProtoSkeletonMesh);
 	ID = IDBackUp;
+
+	Super::Initialize(Device, _Group);
 
 	auto ProtoRootBone = ProtoSkeletonMesh->BoneTable.front();
 	ProtoSkeletonMesh->BoneTableIdxFromName;

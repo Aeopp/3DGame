@@ -20,12 +20,15 @@ namespace Engine
 		Engine::MaterialInformation MaterialInfo{};
 	};
 
-	class DLL_DECL Mesh : public Component 
+	class DLL_DECL Mesh : 
+							public Component  ,
+							public RenderInterface
 	{
 	public:
 		using Super = Component;
 	public:
-		void Initialize(IDirect3DDevice9* const Device)&;
+		void Initialize(IDirect3DDevice9* const Device,
+						const RenderInterface::Group _Group)&;
 		virtual void Event(class Object* Owner) & override;
 
 		virtual void RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engine::Frustum& RefFrustum,
@@ -43,9 +46,13 @@ namespace Engine
 
 		virtual void RenderReady(Engine::Frustum& RefFrustum) &;
 	public:
+		bool bDepthShadow{ true };
 		static const inline Property TypeProperty = Property::Render;
 		std::shared_ptr<std::vector<Vector3>> LocalVertexLocations;
 	protected:
+		Engine::ShaderFx DepthShadowFx{};
+		Engine::ShaderFx DeferredDefaultFx{};
+		Engine::Object* Owner{ nullptr };
 		std::wstring ResourceName{ };  
 		IDirect3DDevice9* Device{ nullptr };
 

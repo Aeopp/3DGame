@@ -11,6 +11,7 @@ namespace Engine
 		enum class Group :uint8
 		{
 			Enviroment = 0u,
+			DeferredNoAlpha,  
 			NoAlpha,
 			AlphaTest,
 			AlphaBlend,
@@ -28,7 +29,8 @@ namespace Engine
 		virtual void Render(const Matrix& View, const Matrix& Projection,
 							const Vector4& CameraLocation)& abstract;
 
-		virtual void RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engine::Frustum& RefFrustum,
+		virtual void RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(
+			Engine::Frustum& RefFrustum,
 			const Matrix& View, const Matrix& Projection, const Vector4& CameraLocation)&;
 		virtual void RenderShadowDepth(
 			const Matrix& LightViewProjection)&;
@@ -44,12 +46,13 @@ namespace Engine
 		inline const Group GetGroup()const& { return _Group; };
 		Sphere GetCullingSphere() const&; 
 		bool bCullingOn{ true };
+	protected:
+		Group _Group;
 	private: 
 		class Transform* RenderObjectTransform{ nullptr };
 		const float* CullingSphereScale{ nullptr }; 
 		const Matrix* CullingWorldMatrix{ nullptr };
 		Sphere CullingLocalSphere{}; 
-		Group _Group;
 	};
 };
 

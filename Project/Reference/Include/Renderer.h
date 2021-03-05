@@ -14,7 +14,6 @@
 #include "Sky.h"
 #include "DeferredPass.h"
 
-
 namespace Engine
 {
 	class DLL_DECL Renderer : public SingletonInterface<Renderer>

@@ -22,6 +22,7 @@ namespace Engine
 {
 	struct DLL_DECL SkinningMeshElement : public MeshElement
 	{
+
 	};
 
 	struct DLL_DECL AnimationInformation
@@ -50,7 +51,8 @@ namespace Engine
 		void  Load(IDirect3DDevice9* const Device,
 			const std::filesystem::path FilePath,
 			const std::filesystem::path FileName,
-			const std::wstring ResourceName)&;
+			const std::wstring ResourceName ,
+			const Engine::RenderInterface::Group RenderGroup) &;
 		void  Initialize(const std::wstring& ResourceName)&;
 		void  Event(class Object* Owner) & override;
 
@@ -107,9 +109,7 @@ namespace Engine
 		uint32 MaxAnimIdx{ 0u };
 		bool bBoneDebug = false; 
 	private:
-		Matrix OwnerWorld = FMath::Identity{};
-		Engine::ShaderFx ShadowDepthSkeletonFx{};
-		Engine::ShaderFx DeferredAlbedoNormalWorldPosDepthSpecularRimSkeletonFx{};
+		Matrix OwnerWorld = FMath::Identity(); 
 		std::string RootBoneName{}; 
 		std::shared_ptr<std::set<std::string>> BoneNameSet{}; 
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr }; 
@@ -137,8 +137,10 @@ template<typename VertexType>
 void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 	const std::filesystem::path FilePath,
 	const std::filesystem::path FileName,
-	const std::wstring ResourceName)&
+	const std::wstring ResourceName ,
+	const Engine::RenderInterface::Group RenderGroup)&
 {
+	this->_Group = RenderGroup;
 	this->ResourceName = ResourceName;
 	this->Device = Device;
 	// 모델 생성 플래그 , 같은 플래그를 두번, 혹은 호환이 안되는
