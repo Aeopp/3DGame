@@ -42,7 +42,7 @@ void Player::Initialize(
 	auto _SkeletonMesh = AddComponent<Engine::SkeletonMesh>(L"Player");
 
 	auto _Collision = AddComponent<Engine::Collision>
-						(Device, Engine::CollisionTag::Decorator, _Transform,
+						(Device, Engine::CollisionTag::Player, _Transform,
 							typeid(Player).name());
 
 	_Collision->RenderObjectTransform = _Transform;
@@ -78,12 +78,13 @@ void Player::Initialize(
 
 	_Collision->RefCollisionables().insert(
 		{
-			Engine::CollisionTag::Decorator
+			Engine::CollisionTag::Enemy ,
+			Engine::CollisionTag::EnemyAttack
 		});
 
 	_Collision->RefPushCollisionables().insert(
 		{
-	          Engine::CollisionTag::Decorator
+	       Engine::CollisionTag::Enemy
 		});
 
 	std::shared_ptr<PlayerHead> _PlayerHead = 

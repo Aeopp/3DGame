@@ -40,7 +40,7 @@ void PlayerHead::Initialize(
 	auto _StaticMesh =AddComponent<Engine::StaticMesh>(L"PlayerHead");
 
 	auto _Collision = AddComponent<Engine::Collision>
-		(Device, Engine::CollisionTag::None, _Transform ,
+		(Device, Engine::CollisionTag::Player, _Transform ,
 			typeid(PlayerHead).name());
 	_Collision->RenderObjectTransform = _Transform;
 
@@ -72,15 +72,18 @@ void PlayerHead::Initialize(
 		static_cast<Engine::GSphere* const>(_Collision->_Geometric.get())->MakeDebugCollisionSphere(Device);*/
 	}
 
+
 	_Collision->RefCollisionables().insert(
 		{
-			Engine::CollisionTag::Decorator
+			Engine::CollisionTag::Enemy ,
+			Engine::CollisionTag::EnemyAttack
 		});
 
 	_Collision->RefPushCollisionables().insert(
 		{
-	          Engine::CollisionTag::Decorator
+		   Engine::CollisionTag::Enemy
 		});
+
 }
 
 void PlayerHead::PrototypeInitialize(IDirect3DDevice9* const Device)&

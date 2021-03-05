@@ -1,8 +1,4 @@
-Diffuse=128wh
-Normal=normal_no
+Diffuse=InnerMask
 Other[0]=HF_InnerDiffuse_Mask
 Other[1]=HF_InnerDiffuse
-Other[2]=exmap
-Other[3]=InnerMask
-Other[4]=noalpha
-Other[5]=NoSRGB
+Other[2]=body_defat
