@@ -3,6 +3,7 @@ matrix LightViewProjection;
 
 int VTFPitch;
 texture VTF;
+
 sampler VTFSampler = sampler_state
 {
     texture = VTF;

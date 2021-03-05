@@ -172,7 +172,7 @@ void Engine::SkeletonMesh::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(En
 }
 void Engine::SkeletonMesh::RenderShadowDepth(Engine::Renderer* const _Renderer)&
 {
-	auto Fx = DeferredDefaultFx.GetHandle();
+	auto Fx = DepthShadowFx.GetHandle();
 	Fx->SetTexture("VTF", BoneAnimMatrixInfo);
 	Fx->SetInt("VTFPitch", VTFPitch);
 

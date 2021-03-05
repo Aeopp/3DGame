@@ -8,13 +8,16 @@ namespace Engine
 	class DLL_DECL Transform : public  Component
 	{
 	public:
+		struct EditProperty
+		{
+			float LocationSensitivity = 1.f;
+		};
 		struct TransformProperty
 		{
 			Vector3 Scale{ 1,1,1 };
 			Vector3 Rotation{ 0,0,0 }; 
 		};
 	public :
-
 		using Super = Component;
 		void Initialize(const std::string& OwnerClassIdentifier)&;
 		virtual void Update(class Object* const Owner,
@@ -51,6 +54,7 @@ namespace Engine
 		void AttachBone(const Matrix* const TargetBoneToRoot)&;
 		void AttachTransform(const Matrix* const TargetParentTransform)&;
 	private:
+		EditProperty _EditProperty{};
 		const Matrix* AttachBoneToRoot = nullptr;
 		const Matrix* OwnerTransform = nullptr;
 		std::string OwnerClassIdentifier{};

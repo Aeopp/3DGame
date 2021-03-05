@@ -108,60 +108,6 @@ void PlayerHead::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
 
-	auto& Control = RefControl();
-	auto _Transform = GetComponent<Engine::Transform>();
-	static constexpr float Speed = 10.f;
-
-	if (Control.IsPressing(DIK_UP))
-	{
-		_Transform->Move({ 0,0,1 }, DeltaTime, Speed);
-	}
-	if (Control.IsPressing(DIK_DOWN))
-	{
-		_Transform->Move({ 0,0,1 },DeltaTime, -Speed);
-	}
-	if (Control.IsPressing(DIK_LEFT))
-	{
-		_Transform->Move({1,0,0} , DeltaTime, -Speed);
-	}
-	if (Control.IsPressing(DIK_RIGHT))
-	{
-		_Transform->Move({1,0,0},DeltaTime, Speed);
-	}
-	if (Control.IsPressing(DIK_PGUP))
-	{
-		_Transform->Move({ 0,1,0 },DeltaTime, Speed);
-	}
-	if (Control.IsPressing(DIK_PGDN))
-	{
-		_Transform->Move({ 0,1,0 },  DeltaTime, -Speed);
-	}
-
-
-	if (Control.IsPressing(DIK_R))
-	{
-		_Transform->RotateYaw(Speed, DeltaTime);
-	}
-	if (Control.IsPressing(DIK_T))
-	{
-		_Transform->RotateYaw(-Speed, DeltaTime);
-	}
-	if (Control.IsPressing(DIK_F))
-	{
-		_Transform->RotatePitch(Speed, DeltaTime); 
-	}
-	if (Control.IsPressing(DIK_G))
-	{
-		_Transform->RotatePitch(-Speed, DeltaTime);
-	}
-	if (Control.IsPressing(DIK_V))
-	{
-		_Transform->RotateRoll(Speed, DeltaTime);
-	}
-	if (Control.IsPressing(DIK_B))
-	{
-		_Transform->RotateRoll(-Speed, DeltaTime);
-	}
 };
 
 void PlayerHead::HitNotify(Object* const Target, const Vector3 PushDir,

@@ -45,6 +45,7 @@ void Engine::Transform::Event(Object* const Owner)&
 			Save();
 		}
 
+		ImGui::InputFloat("LocationSensitivity", &_EditProperty.LocationSensitivity);
 		ImGui::InputFloat3("Scale", (float*)&Scale);
 		ImGui::InputFloat3("Rotation", (float*)&Rotation);
 		ImGui::InputFloat3("Location", (float*)&Location);
@@ -52,7 +53,8 @@ void Engine::Transform::Event(Object* const Owner)&
 		Vector3 CurSliderScale{ 0,0,0 }, CurSliderRotation{ 0,0,0 }, CurSliderLocation{ 0,0,0 };
 		ImGui::SliderFloat3("_Scale",(float*) &CurSliderScale, -0.1f, +0.1f); 
 		ImGui::SliderFloat3("_Rotation", (float*)&CurSliderRotation , -0.1f, +0.1f);
-		ImGui::SliderFloat3("_Location", (float*)&CurSliderLocation, -0.1f, +0.1f);
+		ImGui::SliderFloat3("_Location", (float*)&CurSliderLocation, 
+			-_EditProperty.LocationSensitivity, +_EditProperty.LocationSensitivity);
 
 		SetScale(Scale + CurSliderScale);
 		SetRotation(Rotation + CurSliderRotation);

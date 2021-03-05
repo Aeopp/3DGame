@@ -5,12 +5,6 @@ void Engine::ShaderManager::Initialize(
 	const DX::SharedPtr<IDirect3DDevice9>& Device)&
 {
 	this->Device = Device;
-	
-	EmplaceShader(
-		L"Skeleton", Global::ResourcePath  / L"Shader" / L"Skeleton",
-		{ "World","ViewProjection","FinalMatrix" },
-		{},
-		{ "DiffuseSampler" });
 };
 
 void Engine::ShaderManager::Update(

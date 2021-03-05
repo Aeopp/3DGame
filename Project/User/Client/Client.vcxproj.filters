@@ -64,9 +64,6 @@
     <ClInclude Include="Codes\EnemyLayer.h">
       <Filter>Layer\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\PlayerHead.h">
-      <Filter>Object</Filter>
-    </ClInclude>
     <ClInclude Include="Codes\EnterGame.h">
       <Filter>Scene\Enter</Filter>
     </ClInclude>
@@ -81,6 +78,12 @@
     </ClInclude>
     <ClInclude Include="Codes\MapEdit.h">
       <Filter>Scene\Tool</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\PlayerHead.h">
+      <Filter>Object\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\PlayerWeapon.h">
+      <Filter>Object\Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -99,9 +102,6 @@
     <ClCompile Include="Codes\EnemyLayer.cpp">
       <Filter>Layer\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="Codes\PlayerHead.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
     <ClCompile Include="Codes\EnterGame.cpp">
       <Filter>Scene\Enter</Filter>
     </ClCompile>
@@ -113,6 +113,12 @@
     </ClCompile>
     <ClCompile Include="Codes\MapEdit.cpp">
       <Filter>Scene\Tool</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\PlayerHead.cpp">
+      <Filter>Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\PlayerWeapon.cpp">
+      <Filter>Object\Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

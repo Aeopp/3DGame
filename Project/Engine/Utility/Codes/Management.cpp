@@ -148,8 +148,6 @@ Engine::Management::~Management() noexcept
 	GraphicDevice::Reset();
 };
 
-
-
 void Engine::Management::GameLoop()&
 {
 	_Timer->Update();
@@ -162,7 +160,6 @@ void Engine::Management::Event()&
 	_Controller->Update();
 	_Sound->Update();
 	_CurrentScene->Event();
-
 }
 
 void Engine::Management::Update(const float DeltaTime)&

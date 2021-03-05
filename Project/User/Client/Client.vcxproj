@@ -205,6 +205,7 @@
     <ClInclude Include="Codes\EnemyLayer.h" />
     <ClInclude Include="Codes\EnterGame.h" />
     <ClInclude Include="Codes\Player.h" />
+    <ClInclude Include="Codes\PlayerWeapon.h" />
     <ClInclude Include="Codes\StartScene.h" />
     <ClInclude Include="Codes\PlayerHead.h" />
     <ClInclude Include="Codes\MapEdit.h" />
@@ -220,6 +221,7 @@
     <ClCompile Include="Codes\EnemyLayer.cpp" />
     <ClCompile Include="Codes\EnterGame.cpp" />
     <ClCompile Include="Codes\Player.cpp" />
+    <ClCompile Include="Codes\PlayerWeapon.cpp" />
     <ClCompile Include="Codes\StartScene.cpp" />
     <ClCompile Include="Codes\PlayerHead.cpp" />
     <ClCompile Include="Codes\MapEdit.cpp" />

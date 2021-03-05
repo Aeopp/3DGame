@@ -16,6 +16,7 @@
 #include "ShaderManager.h"
 #include "NormalLayer.h"
 #include "PlayerHead.h"
+#include "PlayerWeapon.h"
 
 void Player::Initialize(
 	const std::optional<Vector3>& Scale,
@@ -86,12 +87,20 @@ void Player::Initialize(
 		});
 
 	std::shared_ptr<PlayerHead> _PlayerHead = 
-		RefManager().NewObject<Engine::NormalLayer, PlayerHead>(L"Static", Name+L"Head",
-		_Transform->GetScale(), _Transform->GetRotation() , _Transform->GetLocation()  );
+		RefManager().NewObject<Engine::NormalLayer, PlayerHead>(L"Static", Name+L"_Head",
+			Vector3{ 1,1,1 }, Vector3{ 0,0,0 }, Vector3{ 0 ,0 , 0 }  );
 
 	auto* PlayerHeadTransform = _PlayerHead->GetComponent<Engine::Transform>();
 	PlayerHeadTransform->AttachBone(&_SkeletonMesh->GetBone("Spine2")->ToRoot);
 	PlayerHeadTransform->AttachTransform(&_Transform->UpdateWorld() );
+
+	std::shared_ptr<PlayerWeapon> _PlayerWeapon =
+		RefManager().NewObject<Engine::NormalLayer, PlayerWeapon >(L"Static",
+			Name + L"_Weapon", Vector3{ 1,1,1 }, Vector3{ 0,0,0 }, Vector3{ 0,0,0 });
+
+	auto* PlayerWeaponTransform = _PlayerWeapon->GetComponent<Engine::Transform>();
+	PlayerWeaponTransform->AttachBone(&_SkeletonMesh->GetBone("Weapon_Hand_R")->ToRoot);
+	PlayerWeaponTransform->AttachTransform(&_Transform->UpdateWorld());
 }
 
 void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&

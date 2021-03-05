@@ -24,6 +24,7 @@
 #include "FontManager.h"
 #include "UtilityGlobal.h"
 #include "ShaderManager.h"
+#include "PlayerWeapon.h"
 
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
 {
