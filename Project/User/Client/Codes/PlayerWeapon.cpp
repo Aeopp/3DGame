@@ -39,7 +39,7 @@ void PlayerWeapon::Initialize(
 	auto _StaticMesh =AddComponent<Engine::StaticMesh>(L"PlayerWeapon");
 
 	auto _Collision = AddComponent<Engine::Collision>
-		(Device, Engine::CollisionTag::Decorator, _Transform ,
+		(Device, Engine::CollisionTag::None, _Transform ,
 			typeid(PlayerWeapon).name());
 	_Collision->RenderObjectTransform = _Transform;
 

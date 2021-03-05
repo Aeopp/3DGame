@@ -40,7 +40,7 @@ void PlayerHead::Initialize(
 	auto _StaticMesh =AddComponent<Engine::StaticMesh>(L"PlayerHead");
 
 	auto _Collision = AddComponent<Engine::Collision>
-		(Device, Engine::CollisionTag::Decorator, _Transform ,
+		(Device, Engine::CollisionTag::None, _Transform ,
 			typeid(PlayerHead).name());
 	_Collision->RenderObjectTransform = _Transform;
 

@@ -27,7 +27,7 @@ bool Engine::RenderInterface::FrustumInCheck(Engine::Frustum& RefFrustum)&
 		bCurrentFrustumIn = true;
 	}
 
-	if (Engine::Global::bDebugMode)
+	if (Engine::Global::bDebugMode && bCullingOn)
 	{
 		ImGui::TextColored(ImVec4{ 1.f,114.f / 255.f, 198.f / 255.f , 1.0f }, "Draw : %s",(DebugName).c_str());
 	}
