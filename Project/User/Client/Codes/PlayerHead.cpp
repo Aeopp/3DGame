@@ -96,7 +96,7 @@ void PlayerHead::PrototypeInitialize(IDirect3DDevice9* const Device)&
 	_StaticMeshProto->Load<Vertex::LocationTangentUV2D>(Device,
 		App::ResourcePath / L"Mesh" / L"StaticMesh" / L"",
 		L"PlayerHead.fbx", L"PlayerHead" ,
-		Engine::RenderInterface::Group::AlphaBlend);
+		Engine::RenderInterface::Group::DeferredNoAlpha);
 
 	RefResourceSys().InsertAny<decltype(_StaticMeshProto)>(L"PlayerHead", _StaticMeshProto);
 }
@@ -127,7 +127,9 @@ void PlayerHead::HitBegin(Object* const Target, const Vector3 PushDir, const flo
 void PlayerHead::HitEnd(Object* const Target)&
 {
 	Super::HitEnd(Target);
-}
+};
+
+
 std::function<Engine::Object::SpawnReturnValue(const Engine::Object::SpawnParam&)> PlayerHead::PrototypeEdit()&
 {
 	static uint32 SpawnID = 0u;

@@ -30,20 +30,19 @@ sampler Albedo3_Contract1Sampler= sampler_state
 {
     texture = Albedo3_Contract1;
 
-    minfilter = anisotropic;
-    magfilter = anisotropic;
-    mipfilter = anisotropic;
-    MaxAnisotropy = 16;
+    minfilter = point;
+    magfilter = point;
+    mipfilter = point;
 };
 
 sampler Normal3_Power1Sampler = sampler_state
 {
     texture = Normal3_Power1;
 
-    minfilter = anisotropic;
-    magfilter = anisotropic;
-    mipfilter = anisotropic;
-    MaxAnisotropy = 16;
+ 
+    minfilter = point;
+    magfilter = point;
+    mipfilter = point;
     
 };
 
@@ -51,30 +50,33 @@ sampler WorldPos3_Depth1Sampler = sampler_state
 {
     texture = WorldPos3_Depth1;
 
-    minfilter = anisotropic;
-    magfilter = anisotropic;
-    mipfilter = anisotropic;
-    MaxAnisotropy = 16;
+    minfilter = point;
+    magfilter = point;
+    mipfilter = point;
 };
 
 sampler CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1Sampler = sampler_state
 {
     texture = CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1;
 
-    minfilter = anisotropic;
-    magfilter = anisotropic;
-    mipfilter = anisotropic;
-    MaxAnisotropy = 16;
+   
+    minfilter = point;
+    magfilter = point;
+    mipfilter = point;
 };
 
 sampler ShadowDepthSampler = sampler_state
 {
     texture = ShadowDepth;
   
-    minfilter = anisotropic;
-    magfilter = anisotropic;
-    mipfilter = anisotropic;
-    MaxAnisotropy = 16;
+
+    minfilter = point;
+    magfilter = point;
+    mipfilter = point;
+    //minfilter = anisotropic;
+    //magfilter = anisotropic;
+    //mipfilter = anisotropic;
+//     MaxAnisotropy = 16;
 
     addressu = border;
     addressv = border;
@@ -198,8 +200,7 @@ PS_OUT PS_MAIN(PS_IN In)
     
     float Diffuse = saturate(dot(-LightDirectionNormal, Normal));
     Diffuse = pow(((Diffuse * 0.5) + 0.5), Contract);
-    Diffuse = ceil(Diffuse * 5.0) / 5.0f;
-    
+    Diffuse = ceil(Diffuse * 10.0f) / 10.0f;
     float3 HalfVec = normalize((-LightDirectionNormal) + ViewDirection);
     Specular = saturate(dot(HalfVec, Normal));
     Specular = pow((Specular),(Power));

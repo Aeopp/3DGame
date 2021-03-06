@@ -1,0 +1,5 @@
+Diffuse=NoSRGB
+Normal=h_f035_NM
+Other[0]=h_f035_MM
+Other[1]=TS4source
+Other[2]=HairColor

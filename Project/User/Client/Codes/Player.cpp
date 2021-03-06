@@ -17,6 +17,7 @@
 #include "NormalLayer.h"
 #include "PlayerHead.h"
 #include "PlayerWeapon.h"
+#include "PlayerHair.h"
 
 void Player::Initialize(
 	const std::optional<Vector3>& Scale,
@@ -63,7 +64,7 @@ void Player::Initialize(
 	   _Transform);
 	_SkeletonMesh->bCullingOn = true;
 
-	_SkeletonMesh->PlayAnimation(0u,100.f, -1);
+	_SkeletonMesh->PlayAnimation(0u,1.f,1);
 	
 	// 바운딩 스피어
 	{
@@ -89,7 +90,7 @@ void Player::Initialize(
 
 	std::shared_ptr<PlayerHead> _PlayerHead = 
 		RefManager().NewObject<Engine::NormalLayer, PlayerHead>(L"Static", Name+L"_Head",
-			Vector3{ 1,1,1 }, Vector3{ 1.57f,1.57f,0.078}, Vector3{ -138.098,145.245,0.0f}  );
+			Vector3{ 1,1,1 }, Vector3{ 0,0,0}, Vector3{ 0,0,0}  );
 
 	auto* PlayerHeadTransform = _PlayerHead->GetComponent<Engine::Transform>();
 	PlayerHeadTransform->AttachBone(&_SkeletonMesh->GetBone("Spine2")->ToRoot);
@@ -97,11 +98,19 @@ void Player::Initialize(
 
 	std::shared_ptr<PlayerWeapon> _PlayerWeapon =
 		RefManager().NewObject<Engine::NormalLayer, PlayerWeapon >(L"Static",
-			Name + L"_Weapon", Vector3{ 0.5,0.5,0.5 }, Vector3{ 0.261,0.010,0.037}, Vector3{ 6.029,4.827,-9.992 });
+			Name + L"_Weapon", Vector3{ 0.5,0.5,0.5 }, Vector3{ 0,0,0 }, Vector3{ 0,0,0 });
 
 	auto* PlayerWeaponTransform = _PlayerWeapon->GetComponent<Engine::Transform>();
 	PlayerWeaponTransform->AttachBone(&_SkeletonMesh->GetBone("Weapon_Hand_R")->ToRoot);
 	PlayerWeaponTransform->AttachTransform(&_Transform->UpdateWorld());
+
+	std::shared_ptr<PlayerHair> _PlayerHair =
+		RefManager().NewObject<Engine::NormalLayer, PlayerHair >(L"Static",
+			Name + L"_Hair", Vector3{ 1,1,1 }, Vector3{ 0,0,0 }, Vector3{ 0,0,0 });
+
+	auto* PlayerHairTransform = _PlayerWeapon->GetComponent<Engine::Transform>();
+	PlayerHairTransform->AttachBone(&_SkeletonMesh->GetBone("Spine2")->ToRoot);
+	PlayerHairTransform->AttachTransform(&_Transform->UpdateWorld());
 }
 
 void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
