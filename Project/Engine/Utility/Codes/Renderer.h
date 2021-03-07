@@ -66,8 +66,8 @@ namespace Engine
 		void RenderAlphaTest()&;
 		void RenderUI()&;
 	public:
-		Vector3 FogColor{ 0.1f,0.1f,0.1f };
-		float FogDistance = 10000.f;
+		Vector3 FogColor{ 0.5f,0.5f,0.5f };
+		float FogDistance = 5000.f;
 	private:
 		IDirect3DSurface9* CurBackBufSurface{ nullptr };
 		IDirect3DSurface9* CurBackDepthStencil{ nullptr };

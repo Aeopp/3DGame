@@ -186,6 +186,9 @@ void Player::FSM(const float DeltaTime)&
 	case Player::State::CombatWait:
 		CombatWaitState(CurrentFSMControlInfo);
 		break;
+	case Player::State::RunEnd:
+		RunEndState(CurrentFSMControlInfo);
+		break;
 	default:
 		break;
 	}
@@ -221,16 +224,19 @@ void Player::RunState(const FSMControlInformation& FSMControlInfo)&
 		bMove = true;
 	}
 
-	const Vector3 ControlMoveDirection = 
-		FMath::Normalize(std::accumulate(std::begin(ControlDirections), std::end(ControlDirections), Vector3{ 0,0,0 }));
-
-	CurrentMoveDirection  =FMath::Lerp(CurrentMoveDirection, ControlMoveDirection, FSMControlInfo.DeltaTime);
-
-	FSMControlInfo.MyTransform->Move(CurrentMoveDirection, FSMControlInfo.DeltaTime, RunSpeed);
-
 	if (bMove)
 	{
+		const 	Vector3 ControlMoveDirection = (std::accumulate(std::begin(ControlDirections), std::end(ControlDirections), Vector3{ 0,0,0 })) / ControlDirections.size();
 
+		auto _Transform = GetComponent<Engine::Transform>();
+		CurrentMoveDirection = FMath::Normalize(FMath::Lerp(CurrentMoveDirection, ControlMoveDirection,
+			FSMControlInfo.DeltaTime * PlayerMoveDirectionInterpolateAcceleration));
+		Vector3 NewRotation = _Transform->GetRotation();
+		const float Yaw = std::atan2f(CurrentMoveDirection.x, CurrentMoveDirection.z);
+		NewRotation.y = Yaw - FMath::PI / 2.f;
+		_Transform->SetRotation(NewRotation);
+
+		FSMControlInfo.MyTransform->Move(CurrentMoveDirection, FSMControlInfo.DeltaTime, RunSpeed);
 	}
 	else
 	{
@@ -263,8 +269,47 @@ void Player::RunTransition(const FSMControlInformation& FSMControlInfo)&
 	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
 	_AnimNotify.bLoop = true;
 	_AnimNotify.Name = "run";
+
+	_AnimNotify.AnimTimeEventCallMapping[0.90f] = [](Engine::SkeletonMesh* const Mesh)
+	{
+
+	};
+
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::Run;
+
+	const auto& ViewPlayerInfo = CurrentTPCamera->GetTargetInformation();
+	Vector3 ViewDirection = ViewPlayerInfo.CurrentViewDirection;
+	ViewDirection.y = 0.0f;
+	ViewDirection = FMath::Normalize(ViewDirection);
+
+	auto _Transform = GetComponent<Engine::Transform>();
+	Vector3 NewRotation = _Transform->GetRotation();
+	const float Yaw = std::atan2f(CurrentMoveDirection.x, CurrentMoveDirection.z);
+	NewRotation.y = Yaw - FMath::PI / 2.f;
+	_Transform->SetRotation(NewRotation);
+	CurrentMoveDirection = ViewDirection;
+};
+
+void Player::RunEndState(const FSMControlInformation& FSMControlInfo)&
+{
+	const auto& CurAnimNotifyInfo = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+
+	if (CurAnimNotifyInfo.bAnimationEnd)
+	{
+		CombatWaitTransition(FSMControlInfo);
+	}
+
+};
+
+void Player::RunEndTransition(const FSMControlInformation& FSMControlInfo)&
+{
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = false;
+	_AnimNotify.Name = "RunEnd";
+
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = Player::State::RunEnd;
 };
 
 void Player::HitNotify(Object* const Target, const Vector3 PushDir,

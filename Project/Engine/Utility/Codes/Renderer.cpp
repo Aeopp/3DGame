@@ -25,7 +25,7 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 	LightInfo._LightOpt = Engine::Light::LightOption::Directional;
 	LightInfo.ShadowDepthMapWidth= _DeferredPass.ShadowDepth.Width;
 	LightInfo.ShadowDepthMapHeight = _DeferredPass.ShadowDepth.Height;
-	LightInfo.ShadowOrthoProjectionFactor= 2.f;
+	LightInfo.ShadowOrthoProjectionFactor= 2.3f;
 
 	_DirectionalLight.Initialize(Device.get(), LightInfo);
 };

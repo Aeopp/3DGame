@@ -8,8 +8,8 @@ float4 LightDirection;
 
 float4 LightColor; 
 float3 AmbientColor = float3(0.01, 0.01, 0.01);
-float3 FogColor = float3(1.f, 1.f, 1.f);
-float  FogDistance = 10000.f;
+float3 FogColor;
+float FogDistance;
 
 float ShadowDepthMapHeight;
 float ShadowDepthMapWidth;
@@ -218,7 +218,7 @@ PS_OUT PS_MAIN(PS_IN In)
     // 가까우면 1 멀면 0 
     float FogFactor = saturate((FogDistance - Distance) / FogDistance);
     
-    Out.Color.rgb += (FogFactor * FogColor);
+    Out.Color.rgb = Out.Color.rgb * (FogFactor) + ((1.0f - FogFactor) * FogColor);
     
     return Out;
 }

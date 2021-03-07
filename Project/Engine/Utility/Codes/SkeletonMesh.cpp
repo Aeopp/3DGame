@@ -221,6 +221,9 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 	PrevAnimMotionTime     += (DeltaTime * PrevAnimAcceleration);
 	TransitionRemainTime   -= DeltaTime;
 
+	AnimationNotify();
+
+
 	if (TransitionRemainTime > 0.0)
 	{
 		std::optional<Bone::AnimationBlendInfo> IsAnimationBlend = std::nullopt;
@@ -243,19 +246,17 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 					_AnimationTrack->PosTimeLine[PrevAnimIndex]
 				});
 
-			if (CurrentAnimMotionTime > AnimInfoTable[AnimIdx].Duration)
-			{
-				CurrentAnimMotionTime = AnimInfoTable[AnimIdx].Duration;
-				
-				CurrentNotify.bAnimationEnd = true;
-			}
-
 			Bone* RootBone = BoneTable.front().get();
 			RootBone->BoneMatrixUpdate(Identity,
 				CurrentAnimMotionTime,
 				_AnimationTrack->ScaleTimeLine[AnimIdx],
 				_AnimationTrack->QuatTimeLine[AnimIdx],
 				_AnimationTrack->PosTimeLine[AnimIdx], IsAnimationBlend);
+
+			if (CurrentAnimMotionTime > AnimInfoTable[AnimIdx].Duration)
+			{
+				AnimationEnd();
+			}
 		}
 	}
 	else
@@ -264,9 +265,7 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 		{
 			if (CurrentAnimMotionTime > AnimInfoTable[AnimIdx].Duration)
 			{
-				CurrentAnimMotionTime = AnimInfoTable[AnimIdx].Duration; 
-
-				CurrentNotify.bAnimationEnd = true;
+				AnimationEnd();
 			}
 			Bone* RootBone = BoneTable.front().get();
 
@@ -334,7 +333,6 @@ void Engine::SkeletonMesh::PlayAnimation(const uint32 AnimIdx ,
 										 const double TransitionDuration,
 										 const AnimNotify& _AnimNotify)&
 {
-	
 	PrevAnimMotionTime = CurrentAnimMotionTime;
 	CurrentAnimMotionTime = 0.0;
 	PrevAnimIndex = this->AnimIdx;
@@ -345,12 +343,42 @@ void Engine::SkeletonMesh::PlayAnimation(const uint32 AnimIdx ,
 	this->Acceleration = Acceleration;
 
 	CurrentNotify = _AnimNotify;
+	HavebeenCalledEvent.clear();
 }
 
 void Engine::SkeletonMesh::PlayAnimation(const Engine::SkeletonMesh::AnimNotify& _AnimNotify)&
 {
 	const uint32 AnimIdx = AnimIdxFromName.find(_AnimNotify.Name)->second;
 	this->PlayAnimation(AnimIdx, AnimInfoTable[AnimIdx].Acceleration, AnimInfoTable[AnimIdx].TransitionTime, _AnimNotify);
+}
+
+void Engine::SkeletonMesh::AnimationEnd()&
+{
+	if (CurrentNotify.bLoop)
+	{
+		PlayAnimation(CurrentNotify);
+	}
+	else
+	{
+		CurrentAnimMotionTime = AnimInfoTable[AnimIdx].Duration;
+		CurrentNotify.bAnimationEnd = true;
+	}
+}
+
+void Engine::SkeletonMesh::AnimationNotify()&
+{
+	const float AnimDurationNormalize = CurrentAnimMotionTime / AnimInfoTable[AnimIdx].Duration;
+	auto EventIter = CurrentNotify.AnimTimeEventCallMapping.lower_bound(AnimDurationNormalize);
+
+	if (std::end(CurrentNotify.AnimTimeEventCallMapping) != EventIter)
+	{
+		// 과거에 호출 한 적이 없으며 함수가 유효한가요 ? 
+		if (!HavebeenCalledEvent.contains(EventIter->first)&& EventIter->second)
+		{
+			HavebeenCalledEvent.insert(EventIter->first);
+			EventIter->second(this);
+		}
+	}
 }
 
 void Engine::SkeletonMesh::InitTextureForVertexTextureFetch()&

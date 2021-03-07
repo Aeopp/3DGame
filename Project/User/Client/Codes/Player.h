@@ -12,7 +12,13 @@ public:
 	enum class State : uint8
 	{
 		CombatWait=0u,
-		Run=1u,
+		Run,
+		RunEnd,
+		JumpStart,
+		JumpUp,
+		Jump,
+		JumpDown,
+		JumpLanding,
 	};
 	void Initialize(const std::optional<Vector3>& Scale,
 					const std::optional<Vector3>& Rotation,
@@ -46,10 +52,13 @@ private:
 	void CombatWaitState(const FSMControlInformation& FSMControlInfo)&;
 	void RunState(const FSMControlInformation& FSMControlInfo)&;
 	void RunTransition(const FSMControlInformation& FSMControlInfo)&;
+	void RunEndState(const FSMControlInformation& FSMControlInfo)&;
+	void RunEndTransition(const FSMControlInformation& FSMControlInfo)&;
 private:
+	float PlayerMoveDirectionInterpolateAcceleration = 7.f;
 	Engine::ThirdPersonCamera* CurrentTPCamera{ nullptr };
 	Vector3 CurrentMoveDirection{ 0.f ,  0.f  , 1.f };
-	float RunSpeed = 200.f;
+	float RunSpeed = 333.f;
 	State CurrentState{ Player::State::CombatWait};
 	IDirect3DDevice9* Device{ nullptr };
 };

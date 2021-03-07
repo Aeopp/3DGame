@@ -4,301 +4,351 @@
             "Index": 0,
             "Name": "walk",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 60.0
         },
         {
             "Index": 1,
             "Name": "run",
-            "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "Acceleration": 51.21200180053711,
+            "TransitionTime": 0.20100000500679017,
+            "Duration": 30.0
         },
         {
             "Index": 2,
             "Name": "RunEnd",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 20.0
         },
         {
             "Index": 3,
             "Name": "JumpStart",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 4.0
         },
         {
             "Index": 4,
             "Name": "JumpUp",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 12.0
         },
         {
             "Index": 5,
             "Name": "jump",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 11.999999999999972
         },
         {
             "Index": 6,
             "Name": "JumpDown",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 12.0
         },
         {
             "Index": 7,
             "Name": "JumpLanding",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 25.0
         },
         {
             "Index": 8,
             "Name": "CombatWait",
-            "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "Acceleration": 43.28200149536133,
+            "TransitionTime": 0.25,
+            "Duration": 100.00000000000006
         },
         {
             "Index": 9,
             "Name": "dash",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 40.0
         },
         {
             "Index": 10,
             "Name": "Down",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 5.0
         },
         {
             "Index": 11,
             "Name": "StandUpRolling",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 80.0
         },
         {
             "Index": 12,
             "Name": "StandUpAttack",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 70.0
         },
         {
             "Index": 13,
             "Name": "StandBigBack",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 35.0
         },
         {
             "Index": 14,
             "Name": "StandBigFront",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 25.0
         },
         {
             "Index": 15,
             "Name": "StandBigLeft",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 35.000000000000117
         },
         {
             "Index": 16,
             "Name": "StandBigRight",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 34.999999999999889
         },
         {
             "Index": 17,
             "Name": "StandAirBigBack",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 7.0
         },
         {
             "Index": 18,
             "Name": "StandAirBigFront",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 7.0
         },
         {
             "Index": 19,
             "Name": "StandAirBigLeft",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 7.0
         },
         {
             "Index": 20,
             "Name": "StandAirBigRight",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 7.0
         },
         {
             "Index": 21,
             "Name": "StandAirFallBigBack",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 15.0
         },
         {
             "Index": 22,
             "Name": "StandAirFallBigFront",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 15.0
         },
         {
             "Index": 23,
             "Name": "StandAirFallBigLeft",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 15.0
         },
         {
             "Index": 24,
             "Name": "StandAirFallBigRight",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 15.0
         },
         {
             "Index": 25,
             "Name": "Respawn",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 65.0
         },
         {
             "Index": 26,
             "Name": "StunLoop",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 100.0
         },
         {
             "Index": 27,
             "Name": "BasicCombo01",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 60.0
         },
         {
             "Index": 28,
             "Name": "BasicCombo02",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 55.0
         },
         {
             "Index": 29,
             "Name": "BasicCombo03",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 90.00000000000023
         },
         {
             "Index": 30,
             "Name": "ComboEx01",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 84.99999999999977
         },
         {
             "Index": 31,
             "Name": "ComboEx02Start",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 80.0
         },
         {
             "Index": 32,
             "Name": "ComboEx02Loop",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 10.0
         },
         {
             "Index": 33,
             "Name": "ComboEx02End",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 75.0
         },
         {
             "Index": 34,
             "Name": "DashCombo",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 68.0
         },
         {
             "Index": 35,
             "Name": "AirCombo01",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 50.0
         },
         {
             "Index": 36,
             "Name": "AirCombo02",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 58.0
         },
         {
             "Index": 37,
             "Name": "AirCombo03",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 69.0
         },
         {
             "Index": 38,
             "Name": "AirCombo04",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 42.0
         },
         {
             "Index": 39,
             "Name": "AirCombo04Landing",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 105.0
         },
         {
             "Index": 40,
             "Name": "RageSkill",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 150.0
         },
         {
             "Index": 41,
             "Name": "SwitchingGround",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 20.0
         },
         {
             "Index": 42,
             "Name": "SwitchingAir",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 15.0
         },
         {
             "Index": 43,
             "Name": "LeafAttackReady",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 104.0
         },
         {
             "Index": 44,
             "Name": "LeafAttackStart",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 10.0
         },
         {
             "Index": 45,
             "Name": "LeafAttackAir",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 10.0
         },
         {
             "Index": 46,
             "Name": "LeafAttackUp",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 10.0
         },
         {
             "Index": 47,
             "Name": "LeafAttackDown",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 10.0
         },
         {
             "Index": 48,
             "Name": "LeafAttackLanding",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 50.000000000000458
         },
         {
             "Index": 49,
             "Name": "VolcanicQuake",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25
+            "TransitionTime": 0.25,
+            "Duration": 150.0
         }
     ]
 }

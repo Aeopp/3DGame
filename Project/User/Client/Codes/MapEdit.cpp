@@ -658,7 +658,7 @@ void MapEdit::Landscape()&
 	ImGui::End();
 
 	ImGui::Begin("RenderOption");
-	ImGui::SliderFloat("FogDistance", &Renderer.FogDistance, 0.0f, 100000.f);
+	ImGui::SliderFloat("FogDistance", &Renderer.FogDistance, 0.0f, 10000.f);
 	ImGui::ColorEdit3("FogColor", (float*)&Renderer.FogColor );
 	if (ImGui::TreeNode("DirectionalLight"))
 	{

@@ -2,7 +2,6 @@
 #include "Mesh.h"
 #include "Vertexs.hpp"
 #include <vector>
-
 #include <unordered_map>
 #include <string>
 #include "FMath.hpp"
@@ -70,9 +69,9 @@ namespace Engine
 		struct AnimNotify
 		{
 			std::string Name{}; 
-			bool bAnimationEnd{ true };
-			bool bLoop{ false };
-			std::map<float, std::function<void()>> AnimTimeEventCallMapping{};
+			bool bAnimationEnd { true };
+			bool bLoop { false };
+			std::map<float, std::function<void(Engine::SkeletonMesh*const)>> AnimTimeEventCallMapping{};
 		};
 
 		Engine::SkeletonMesh::AnimNotify GetCurrentAnimNotify()const&;
@@ -82,6 +81,9 @@ namespace Engine
 			const double TransitionDuration, const AnimNotify& _AnimNotify)&;
 		void  PlayAnimation(const AnimNotify& _AnimNotify)&;
 
+		void AnimationEnd()&;
+		void AnimationNotify()&;
+
 		inline std::shared_ptr<Engine::Bone> GetBone(const std::string& BoneName) const&;
 		inline std::shared_ptr<Engine::Bone> GetRootBone() const&;
 	private:
@@ -89,7 +91,6 @@ namespace Engine
 		void AnimationSave()&;
 		void AnimationLoad()&;
 	public:
-		
 		static const inline Property          TypeProperty = Property::Render;
 		uint32 PrevAnimIndex = 0u;
 		uint32 AnimIdx{ 0u };
@@ -105,7 +106,8 @@ namespace Engine
 	private:
 		AnimNotify CurrentNotify{};
 	private:
-		
+		std::set<float> HavebeenCalledEvent{};
+
 		std::string RootBoneName{}; 
 		std::shared_ptr<std::set<std::string>> BoneNameSet{}; 
 		double PrevAnimAcceleration = 1.f;
