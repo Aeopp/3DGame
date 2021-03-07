@@ -26,7 +26,7 @@ namespace Engine
 		std::wstring Name{}; 
 		double Duration = 1.f;
 		double TickPerSecond = 30.f;
-		double TransitionTime = 0.5f;
+		double TransitionTime = 0.25f;
 		double Acceleration = 1.f;
 	};
 	

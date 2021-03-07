@@ -4,12 +4,14 @@
 #include "DynamicMesh.h"
 #include <iostream>
 #include "DynamicMesh.h"
+#include "ThirdPersonCamera.h"
 #include "Collision.h"
 #include "CollisionSystem.h"
 #include "Controller.h"
 #include "ExportUtility.hpp"
 #include "dinput.h"
 #include "imgui.h"
+#include "Management.h"
 #include "Vertexs.hpp"
 #include "ResourceSystem.h"
 #include "App.h"
@@ -116,6 +118,23 @@ void Player::Initialize(
 	auto* PlayerHairTransform = _PlayerHair->GetComponent<Engine::Transform>();
 	PlayerHairTransform->AttachBone(&_SkeletonMesh->GetBone("Spine2")->ToRoot);
 	PlayerHairTransform->AttachTransform(&_Transform->UpdateWorld());
+
+	constexpr float Aspect = App::ClientSize<float>.first / App::ClientSize<float>.second;
+
+	auto& Manager = RefManager(); 
+
+	Manager.NewObject<Engine::NormalLayer, Engine::ThirdPersonCamera>(L"Static", L"ThirdPersonCamera",
+		FMath::PI / 4.f, 0.1f, 10000.f, Aspect);
+
+	Engine::ThirdPersonCamera::TargetInformation InitTargetInfo{};
+	InitTargetInfo.DistancebetweenTarget = 250.f;
+	InitTargetInfo.TargetLocationOffset = { 0,50.f,0.f };
+	InitTargetInfo.TargetObject = this;
+	InitTargetInfo.ViewDirection = { 0.f,-0.707f,0.707f };
+	InitTargetInfo.RotateResponsiveness = 0.01f;
+	InitTargetInfo.ZoomInOutScale = 0.1f;
+	
+	Manager.FindObject<Engine::NormalLayer, Engine::ThirdPersonCamera>(L"ThirdPersonCamera")->SetUpTarget(InitTargetInfo);
 }
 
 void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&

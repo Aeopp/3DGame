@@ -46,6 +46,8 @@ void Engine::Landscape::DecoratorLoad(
 	const std::filesystem::path& LoadPath,
 	const std::filesystem::path& LoadFileName)&
 {
+	if (LoadFileName.extension() == L"zip")return;
+
 	using VertexType = Vertex::LocationTangentUV2D;
 
 	auto AiScene = Engine::Global::AssimpImporter.ReadFile(

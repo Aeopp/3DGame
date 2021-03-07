@@ -1,5 +1,6 @@
 #include "..\\stdafx.h"
 #include "StartScene.h"
+#include "ThirdPersonCamera.h"
 #include "PlayerHead.h"
 #include "Controller.h"
 #include "Player.h"
@@ -66,11 +67,11 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 
 	// 카메라 오브젝트 추가.
 	{
-		constexpr float Aspect = App::ClientSize<float>.first / App::ClientSize<float>.second;
+		
 
-		Manager.NewObject<Engine::NormalLayer, Engine::DynamicCamera>(
+		/*Manager.NewObject<Engine::NormalLayer, Engine::DynamicCamera>(
 			L"Static", L"Camera",
-			FMath::PI / 4.f, 0.1f, 20000.f, Aspect, 333.f, &Control);
+			FMath::PI / 4.f, 0.1f, 20000.f, Aspect, 333.f, &Control);*/
 	}
 
 	// 맵 정보 로딩

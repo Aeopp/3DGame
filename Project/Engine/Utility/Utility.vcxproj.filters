@@ -256,6 +256,9 @@
     <ClInclude Include="..\..\..\Resource\Shader\DeferredAlbedoNormalWorldPosDepthSpecularRimSkeletonFx.hlsl">
       <Filter>Shader\HLSL</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\ThirdPersonCamera.h">
+      <Filter>Object\Camera</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">
@@ -380,6 +383,9 @@
     </ClCompile>
     <ClCompile Include="Codes\Light.cpp">
       <Filter>DeferredPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\ThirdPersonCamera.cpp">
+      <Filter>Object\Camera</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

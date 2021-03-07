@@ -21,11 +21,15 @@ static std::tuple<Vector3, Quaternion, Vector3> CurrentAnimationTransform(
 	const auto& CurNameScaleTrack = ScaleTrack.find(Name)->second;
 	const auto ScaleEnd = CurNameScaleTrack.upper_bound(CurrentAnimTimeTrackTime);
 	auto ScaleBegin = ScaleEnd;
-	std::advance(ScaleBegin, -1);
+
+	if (ScaleBegin != std::begin(CurNameScaleTrack))
+	{
+		std::advance(ScaleBegin, -1);
+	}
 
 	const bool bScaleNextFrame = ScaleEnd != std::end(CurNameScaleTrack);
 
-	Vector3 CurAnimScale = ScaleBegin->second;
+	Vector3 CurAnimScale = ScaleBegin != std::end(CurNameScaleTrack) ? ScaleBegin->second : ScaleEnd->second;
 
 	if (bScaleNextFrame)
 	{
@@ -40,10 +44,13 @@ static std::tuple<Vector3, Quaternion, Vector3> CurrentAnimationTransform(
 
 	const auto QuatEnd = CurNameQuatTrack.upper_bound(CurrentAnimTimeTrackTime);
 	auto QuatBegin = QuatEnd;
-	std::advance(QuatBegin, -1);
+	if (QuatBegin != std::begin(CurNameQuatTrack))
+	{
+		std::advance(QuatBegin, -1);
+	}
 
 	const bool bQuatNextFrame = QuatEnd != std::end(CurNameQuatTrack);
-	Quaternion CurAnimRotation = QuatBegin->second;
+	Quaternion CurAnimRotation = QuatBegin != std::end(CurNameQuatTrack) ? QuatBegin->second : QuatEnd->second;
 
 	if (bQuatNextFrame)
 	{
@@ -59,10 +66,15 @@ static std::tuple<Vector3, Quaternion, Vector3> CurrentAnimationTransform(
 	const auto& CurNamePosTrack = PosTrack.find(Name)->second;
 	const auto PosEnd = CurNamePosTrack.upper_bound(CurrentAnimTimeTrackTime);
 	auto PosBegin = PosEnd;
-	std::advance(PosBegin, -1);
+
+	if (PosBegin != std::begin(CurNamePosTrack))
+	{
+		std::advance(PosBegin, -1);
+	}
 
 	const bool bPosNextFrame = PosEnd != std::end(CurNamePosTrack);
-	Vector3 CurAnimLocation = PosBegin->second;
+	Vector3 CurAnimLocation = PosBegin != std::end(CurNamePosTrack) ? PosBegin ->second: PosEnd->second;
+
 
 	if (bPosNextFrame)
 	{
@@ -82,7 +94,7 @@ void Engine::Bone::BoneEdit()
 		bEditObserver = true;
 		if (ImGui::CollapsingHeader("Edit"))
 		{
-			bEditSelect = true; 
+			bEditSelect = true;
 			ImGui::Button("Attach");
 			ImGui::Button("Detach");
 		}
@@ -105,7 +117,7 @@ void Engine::Bone::BoneEdit()
 
 void Engine::Bone::DebugRender(
 	const Matrix& World,
-	IDirect3DDevice9* Device, 
+	IDirect3DDevice9* Device,
 	ID3DXMesh* const DebugMesh)&
 {
 	IDirect3DTexture9* CurColorTex{ nullptr };
@@ -123,9 +135,9 @@ void Engine::Bone::DebugRender(
 	{
 		CurColorTex = ResourceSys->Get<IDirect3DTexture9>(L"Texture_Green");
 	}
-	
+
 	const Matrix Final = FMath::Scale({ 10,10,10 }) * ToRoot * World;
-	Device->SetTransform(D3DTS_WORLD,&Final);
+	Device->SetTransform(D3DTS_WORLD, &Final);
 	Device->SetTexture(0, CurColorTex);
 	DebugMesh->DrawSubset(0);
 
@@ -163,8 +175,8 @@ void Engine::Bone::BoneMatrixUpdate(
 
 		if (IsAnimationBlend.has_value())
 		{
-			 const bool bCurBoneApplyPrevAnimation = IsAnimationBlend->PosTrack.contains(Name);
-			
+			const bool bCurBoneApplyPrevAnimation = IsAnimationBlend->PosTrack.contains(Name);
+
 			if (bCurBoneApplyPrevAnimation)
 			{
 				const auto& [BlendAnimScale, BlendAnimRotation, BlendAnimLocation] =
@@ -187,8 +199,8 @@ void Engine::Bone::BoneMatrixUpdate(
 						1.0 - IsAnimationBlend->PrevAnimationWeight);
 
 				AnimationTransform = (FMath::Scale(LerpAnimScale) *
-							FMath::Rotation(LerpAnimRotation) *
-							FMath::Translation(LerpAnimLocation));
+					FMath::Rotation(LerpAnimRotation) *
+					FMath::Translation(LerpAnimLocation));
 			}
 		}
 		else
@@ -199,9 +211,9 @@ void Engine::Bone::BoneMatrixUpdate(
 		}
 	}
 
-    Transform = AnimationTransform;
-	ToRoot =    Transform * ParentToRoot;
-	Final =     Offset * ToRoot;
+	Transform = AnimationTransform;
+	ToRoot = Transform * ParentToRoot;
+	Final = Offset * ToRoot;
 
 	/*if (CollisionGeometric)
 	{
@@ -214,6 +226,6 @@ void Engine::Bone::BoneMatrixUpdate(
 			ToRoot, CurrentAnimationTime,
 			ScaleTrack,
 			QuatTrack,
-			PosTrack , IsAnimationBlend);
+			PosTrack, IsAnimationBlend);
 	}
 }

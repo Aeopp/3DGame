@@ -31,6 +31,8 @@
 #include "PlayerWeapon.h"
 #include "DelasaCenterChain.h"
 #include "PlayerHair.h"
+#include "ThirdPersonCamera.h"
+
 
 
 void EnterGame::Initialize(IDirect3DDevice9* const Device)&
@@ -58,6 +60,8 @@ void EnterGame::Initialize(IDirect3DDevice9* const Device)&
 	// 프로토타입 로딩.
 	{
 		Proto.LoadPrototype<Engine::DynamicCamera>(L"Static",Device,App::Hwnd);
+		Proto.LoadPrototype<Engine::ThirdPersonCamera>(L"Static", Device, App::Hwnd);
+
 		Proto.LoadPrototype<Player>(L"Static", Device);
 		Proto.LoadPrototype<PlayerHead>(L"Static", Device);
 		Proto.LoadPrototype<PlayerHair>(L"Static", Device);

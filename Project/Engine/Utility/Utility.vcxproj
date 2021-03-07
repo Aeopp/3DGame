@@ -231,6 +231,7 @@
     <ClCompile Include="Codes\SkeletonMesh.cpp" />
     <ClCompile Include="Codes\Sky.cpp" />
     <ClCompile Include="Codes\StaticMesh.cpp" />
+    <ClCompile Include="Codes\ThirdPersonCamera.cpp" />
     <ClCompile Include="Codes\Transform.cpp" />
     <ClCompile Include="Codes\Frustum.cpp" />
     <ClCompile Include="Codes\UtilityGlobal.cpp" />
@@ -270,6 +271,7 @@
     <ClInclude Include="Codes\SkeletonMesh.h" />
     <ClInclude Include="Codes\Sky.h" />
     <ClInclude Include="Codes\StaticMesh.h" />
+    <ClInclude Include="Codes\ThirdPersonCamera.h" />
     <ClInclude Include="Codes\Transform.h" />
     <ClInclude Include="Codes\Frustum.h" />
     <ClInclude Include="Codes\UtilityGlobal.h" />
