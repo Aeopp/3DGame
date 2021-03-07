@@ -12,7 +12,7 @@
 #include "dinput.h"
 #include "imgui.h"
 #include "Management.h"
-#include "Vertexs.hpp"
+#include "Vertexs.hpp" 
 #include "ResourceSystem.h"
 #include "App.h"
 #include "ShaderManager.h"
@@ -66,8 +66,10 @@ void Player::Initialize(
 	   _Transform);
 	_SkeletonMesh->bCullingOn = true;
 
-	_SkeletonMesh->PlayAnimation(0u,1.f,1);
-	
+	auto& Control = RefControl();
+	FSMControlInformation InitFSMControlInfo{ _Transform  , Control    , _SkeletonMesh ,1.f };
+	CombatWaitTransition(InitFSMControlInfo);
+
 	// 바운딩 스피어
 	{
 		/*Vector3 BoundingSphereCenter;
@@ -123,18 +125,21 @@ void Player::Initialize(
 
 	auto& Manager = RefManager(); 
 
-	Manager.NewObject<Engine::NormalLayer, Engine::ThirdPersonCamera>(L"Static", L"ThirdPersonCamera",
-		FMath::PI / 4.f, 0.1f, 10000.f, Aspect);
+	if (Engine::Global::bDebugMode==false)
+	{
+		CurrentTPCamera = Manager.NewObject<Engine::NormalLayer, Engine::ThirdPersonCamera>(L"Static", L"ThirdPersonCamera",
+			FMath::PI / 4.f, 0.1f, 10000.f, Aspect).get();
 
-	Engine::ThirdPersonCamera::TargetInformation InitTargetInfo{};
-	InitTargetInfo.DistancebetweenTarget = 250.f;
-	InitTargetInfo.TargetLocationOffset = { 0,50.f,0.f };
-	InitTargetInfo.TargetObject = this;
-	InitTargetInfo.ViewDirection = { 0.f,-0.707f,0.707f };
-	InitTargetInfo.RotateResponsiveness = 0.01f;
-	InitTargetInfo.ZoomInOutScale = 0.1f;
-	
-	Manager.FindObject<Engine::NormalLayer, Engine::ThirdPersonCamera>(L"ThirdPersonCamera")->SetUpTarget(InitTargetInfo);
+		Engine::ThirdPersonCamera::TargetInformation InitTargetInfo{};
+		InitTargetInfo.DistancebetweenTarget = 250.f;
+		InitTargetInfo.TargetLocationOffset = { 0,50.f,0.f };
+		InitTargetInfo.TargetObject = this;
+		InitTargetInfo.ViewDirection = { 0.f,-0.707f,0.707f };
+		InitTargetInfo.RotateResponsiveness = 0.01f;
+		InitTargetInfo.ZoomInOutScale = 0.1f;
+
+		Manager.FindObject<Engine::NormalLayer, Engine::ThirdPersonCamera>(L"ThirdPersonCamera")->SetUpTarget(InitTargetInfo);
+	}
 }
 
 void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
@@ -163,60 +168,103 @@ void Player::Event()&
 void Player::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
+	FSM(DeltaTime);
+};
 
+void Player::FSM(const float DeltaTime)&
+{
 	auto& Control = RefControl();
 	auto _Transform = GetComponent<Engine::Transform>();
-	static constexpr float Speed = 10.f;
+	auto _SkeletonMesh = GetComponent<Engine::SkeletonMesh>();
 
-	if (Control.IsPressing(DIK_UP))
+	FSMControlInformation CurrentFSMControlInfo{ _Transform  , Control    , _SkeletonMesh ,DeltaTime };
+	switch (CurrentState)
 	{
-		_Transform->Move({ 0,0,1 }, DeltaTime, Speed);
+	case Player::State::Run:
+		RunState(CurrentFSMControlInfo);
+		break;
+	case Player::State::CombatWait:
+		CombatWaitState(CurrentFSMControlInfo);
+		break;
+	default:
+		break;
 	}
-	if (Control.IsPressing(DIK_DOWN))
+};
+
+void Player::RunState(const FSMControlInformation& FSMControlInfo)&
+{
+	const auto& ViewPlayerInfo =CurrentTPCamera->GetTargetInformation();
+	Vector3 ViewDirection = ViewPlayerInfo.CurrentViewDirection;
+	ViewDirection.y = 0.0f;
+	ViewDirection = FMath::Normalize(ViewDirection);
+	std::vector<Vector3> ControlDirections{};
+	bool bMove = false;
+
+	if (FSMControlInfo._Controller.IsPressing(DIK_W))
 	{
-		_Transform->Move({ 0,0,1 },DeltaTime, -Speed);
+		ControlDirections.emplace_back(ViewDirection);
+		bMove = true; 
 	}
-	if (Control.IsPressing(DIK_LEFT))
+	if (FSMControlInfo._Controller.IsPressing(DIK_S))
 	{
-		_Transform->Move({1,0,0} , DeltaTime, -Speed);
+		ControlDirections.emplace_back(-ViewDirection); 
+		bMove = true;
 	}
-	if (Control.IsPressing(DIK_RIGHT))
+	if (FSMControlInfo._Controller.IsPressing(DIK_D))
 	{
-		_Transform->Move({1,0,0},DeltaTime, Speed);
+		ControlDirections.emplace_back(FMath::Normalize(FMath::RotationVecNormal(ViewDirection, { 0,1,0 }, FMath::PI / 2.f)));
+		bMove = true;
 	}
-	if (Control.IsPressing(DIK_PGUP))
+	if (FSMControlInfo._Controller.IsPressing(DIK_A))
 	{
-		_Transform->Move({ 0,1,0 },DeltaTime, Speed);
-	}
-	if (Control.IsPressing(DIK_PGDN))
-	{
-		_Transform->Move({ 0,1,0 },  DeltaTime, -Speed);
+		ControlDirections.emplace_back(FMath::Normalize(FMath::RotationVecNormal(ViewDirection, { 0,1,0 }, -FMath::PI / 2.f)));
+		bMove = true;
 	}
 
-	if (Control.IsPressing(DIK_R))
+	const Vector3 ControlMoveDirection = 
+		FMath::Normalize(std::accumulate(std::begin(ControlDirections), std::end(ControlDirections), Vector3{ 0,0,0 }));
+
+	CurrentMoveDirection  =FMath::Lerp(CurrentMoveDirection, ControlMoveDirection, FSMControlInfo.DeltaTime);
+
+	FSMControlInfo.MyTransform->Move(CurrentMoveDirection, FSMControlInfo.DeltaTime, RunSpeed);
+
+	if (bMove)
 	{
-		_Transform->RotateYaw(Speed, DeltaTime);
+
 	}
-	if (Control.IsPressing(DIK_T))
+	else
 	{
-		_Transform->RotateYaw(-Speed, DeltaTime);
+		CombatWaitTransition(FSMControlInfo);
 	}
-	if (Control.IsPressing(DIK_F))
+}
+
+void Player::CombatWaitState(const FSMControlInformation& FSMControlInfo)&
+{
+	if (   FSMControlInfo._Controller.IsPressing(DIK_W) 
+		|| FSMControlInfo._Controller.IsPressing(DIK_A) 
+		|| FSMControlInfo._Controller.IsPressing(DIK_S) 
+		|| FSMControlInfo._Controller.IsPressing(DIK_D))
 	{
-		_Transform->RotatePitch(Speed, DeltaTime); 
+		RunTransition(FSMControlInfo);
 	}
-	if (Control.IsPressing(DIK_G))
-	{
-		_Transform->RotatePitch(-Speed, DeltaTime);
-	}
-	if (Control.IsPressing(DIK_V))
-	{
-		_Transform->RotateRoll(Speed, DeltaTime);
-	}
-	if (Control.IsPressing(DIK_B))
-	{
-		_Transform->RotateRoll(-Speed, DeltaTime);
-	}
+};
+
+void Player::CombatWaitTransition(const FSMControlInformation& FSMControlInfo)&
+{
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = true;
+	_AnimNotify.Name = "CombatWait";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = Player::State::CombatWait;
+};
+
+void Player::RunTransition(const FSMControlInformation& FSMControlInfo)&
+{
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = true;
+	_AnimNotify.Name = "run";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = Player::State::Run;
 };
 
 void Player::HitNotify(Object* const Target, const Vector3 PushDir,

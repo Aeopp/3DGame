@@ -33,6 +33,8 @@
 
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
 {
+	Engine::Global::bDebugMode = false;
+
     Super::Initialize(Device);
 	
 	auto& FontMgr = RefFontManager();
@@ -113,7 +115,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 		ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" /
 			"SkyGarden.json");
 	}
-	Engine::Global::bDebugMode = false;
+	
 };
 
 void StartScene::Event()&

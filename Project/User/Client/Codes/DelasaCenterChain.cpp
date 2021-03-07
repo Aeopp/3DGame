@@ -60,7 +60,10 @@ void DelasaCenterChain::Initialize(
 	   _Transform);
 	_SkeletonMesh->bCullingOn = true;
 
-	_SkeletonMesh->PlayAnimation(0);
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = true;
+	_AnimNotify.Name = "Take 001";
+	_SkeletonMesh->PlayAnimation(_AnimNotify);
 	
 	// 바운딩 스피어
 	{
@@ -105,12 +108,6 @@ void DelasaCenterChain::PrototypeInitialize(IDirect3DDevice9* const Device)&
 void DelasaCenterChain::Event()&
 {
 	Super::Event();
-
-	auto _SkeletonMeshComponent = GetComponent<Engine::SkeletonMesh>();
-	if (_SkeletonMeshComponent->bAnimationEnd)
-	{
-		_SkeletonMeshComponent->PlayAnimation(0);
-	}
 }
 
 void DelasaCenterChain::Update(const float DeltaTime)&

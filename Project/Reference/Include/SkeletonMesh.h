@@ -2,6 +2,7 @@
 #include "Mesh.h"
 #include "Vertexs.hpp"
 #include <vector>
+
 #include <unordered_map>
 #include <string>
 #include "FMath.hpp"
@@ -23,7 +24,7 @@ namespace Engine
 	
 	struct DLL_DECL AnimationInformation
 	{
-		std::wstring Name{}; 
+		std::string Name{}; 
 		double Duration = 1.f;
 		double TickPerSecond = 30.f;
 		double TransitionTime = 0.25f;
@@ -66,11 +67,20 @@ namespace Engine
 		Engine::Bone*
 			MakeHierarchyClone(Bone* BoneParent, const Bone* const PrototypeBone);
 
+		struct AnimNotify
+		{
+			std::string Name{}; 
+			bool bAnimationEnd{ true };
+			bool bLoop{ false };
+			std::map<float, std::function<void()>> AnimTimeEventCallMapping{};
+		};
+
+		Engine::SkeletonMesh::AnimNotify GetCurrentAnimNotify()const&;
+
 		void  PlayAnimation(const uint32 AnimIdx, 
 			const double Acceleration,
-			const double TransitionDuration)&;
-		void  PlayAnimation(const uint32 AnimIdx)&;
-		void  PlayAnimation(const std::string& AnimName)&;
+			const double TransitionDuration, const AnimNotify& _AnimNotify)&;
+		void  PlayAnimation(const AnimNotify& _AnimNotify)&;
 
 		inline std::shared_ptr<Engine::Bone> GetBone(const std::string& BoneName) const&;
 		inline std::shared_ptr<Engine::Bone> GetRootBone() const&;
@@ -79,7 +89,7 @@ namespace Engine
 		void AnimationSave()&;
 		void AnimationLoad()&;
 	public:
-		bool bAnimationEnd{ true };
+		
 		static const inline Property          TypeProperty = Property::Render;
 		uint32 PrevAnimIndex = 0u;
 		uint32 AnimIdx{ 0u };
@@ -92,6 +102,8 @@ namespace Engine
 
 		uint32 MaxAnimIdx{ 0u };
 		bool bBoneDebug = false; 
+	private:
+		AnimNotify CurrentNotify{};
 	private:
 		
 		std::string RootBoneName{}; 
@@ -317,7 +329,7 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 			aiAnimation* _Animation = AiScene->mAnimations[AnimIdx];
 			AnimInfoTable[AnimIdx].Acceleration = 1.0 * _Animation->mTicksPerSecond;
 			AnimInfoTable[AnimIdx].TickPerSecond = _Animation->mTicksPerSecond;
-			AnimInfoTable[AnimIdx].Name = ToW(_Animation->mName.C_Str());
+			AnimInfoTable[AnimIdx].Name = (_Animation->mName.C_Str());
 			AnimInfoTable[AnimIdx].Duration = _Animation->mDuration;
 
 			AnimIdxFromName.insert({ _Animation ->mName.C_Str() , AnimIdx});

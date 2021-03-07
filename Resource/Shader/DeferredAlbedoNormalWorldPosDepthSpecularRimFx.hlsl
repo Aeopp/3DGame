@@ -30,7 +30,6 @@ sampler DiffuseSampler = sampler_state
     magfilter = anisotropic;
     mipfilter = anisotropic;
     MaxAnisotropy = 16;
-
 };
 
 sampler CavitySampler = sampler_state

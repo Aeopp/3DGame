@@ -34,6 +34,7 @@ namespace Engine
 		virtual std::optional<SpawnReturnValue> InitializeFromEditSpawnParam(const SpawnParam& _SpawnParam) & override;
 		virtual std::function<SpawnReturnValue(const SpawnParam&)> PrototypeEdit()&override;
 
+		inline Engine::ThirdPersonCamera::TargetInformation GetTargetInformation()const& {return _TargetInformation; };
 		void SetUpTarget(const TargetInformation& TargetInformationParam)&;
 	public:
 		float FovY{ 0.0f };

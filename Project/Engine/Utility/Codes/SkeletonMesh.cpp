@@ -78,7 +78,7 @@ void Engine::SkeletonMesh::Event(Object* Owner)&
 
 				for (uint32 AnimIdx = 0u; AnimIdx < AnimInfoTable.size(); ++AnimIdx)
 				{
-					std::string AnimName = (ToA(AnimInfoTable[AnimIdx].Name).c_str());
+					std::string AnimName = ((AnimInfoTable[AnimIdx].Name).c_str());
 
 					std::string Message = "Index : " + std::to_string(AnimIdx) +
 						" Name : " + AnimName;
@@ -99,12 +99,17 @@ void Engine::SkeletonMesh::Event(Object* Owner)&
 						ImGui::SliderFloat(TransitionTimeMsg.c_str(), &FTransitionTime, 0.01f, 3.f);
 						AnimInfoTable[AnimIdx].TransitionTime = static_cast<double>(FTransitionTime);
 
+						float FDurationTime = AnimInfoTable[AnimIdx].Duration;
+						ImGui::Text("Duration : %.f", FDurationTime);
+
 						std::string PlayMsg = "Play_" + AnimName;
 
 						if (ImGui::Button(PlayMsg.c_str()))
 						{
-							PlayAnimation(AnimIdx, AnimInfoTable[AnimIdx].Acceleration,
-								AnimInfoTable[AnimIdx].TransitionTime);
+							Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+							_AnimNotify.bLoop = true;
+							_AnimNotify.Name = AnimName;
+							PlayAnimation(AnimIdx, FAcceleration, FTransitionTime, _AnimNotify);
 						}
 
 						ImGui::Separator();
@@ -241,7 +246,8 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 			if (CurrentAnimMotionTime > AnimInfoTable[AnimIdx].Duration)
 			{
 				CurrentAnimMotionTime = AnimInfoTable[AnimIdx].Duration;
-				bAnimationEnd = true;
+				
+				CurrentNotify.bAnimationEnd = true;
 			}
 
 			Bone* RootBone = BoneTable.front().get();
@@ -259,7 +265,8 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 			if (CurrentAnimMotionTime > AnimInfoTable[AnimIdx].Duration)
 			{
 				CurrentAnimMotionTime = AnimInfoTable[AnimIdx].Duration; 
-				bAnimationEnd = true;
+
+				CurrentNotify.bAnimationEnd = true;
 			}
 			Bone* RootBone = BoneTable.front().get();
 
@@ -317,9 +324,15 @@ Engine::Bone* Engine::SkeletonMesh::MakeHierarchyClone(Bone* BoneParent, const B
 	return TargetBone.get();
 }
 
+Engine::SkeletonMesh::AnimNotify Engine::SkeletonMesh::GetCurrentAnimNotify() const&
+{
+	return CurrentNotify;
+}
+
 void Engine::SkeletonMesh::PlayAnimation(const uint32 AnimIdx ,
 	                                     const double Acceleration ,
-										 const double TransitionDuration)&
+										 const double TransitionDuration,
+										 const AnimNotify& _AnimNotify)&
 {
 	
 	PrevAnimMotionTime = CurrentAnimMotionTime;
@@ -331,19 +344,13 @@ void Engine::SkeletonMesh::PlayAnimation(const uint32 AnimIdx ,
 	this->PrevAnimAcceleration = this->Acceleration;
 	this->Acceleration = Acceleration;
 
-	bAnimationEnd = false;
+	CurrentNotify = _AnimNotify;
 }
 
-void Engine::SkeletonMesh::PlayAnimation(const uint32 AnimIdx)&
+void Engine::SkeletonMesh::PlayAnimation(const Engine::SkeletonMesh::AnimNotify& _AnimNotify)&
 {
-	this->PlayAnimation
-	(AnimIdx, AnimInfoTable[AnimIdx].Acceleration, AnimInfoTable[AnimIdx].TransitionTime);
-}
-
-void Engine::SkeletonMesh::PlayAnimation(const std::string& AnimName)&
-{
-	const uint32 AnimIdx = AnimIdxFromName.find(AnimName)->second;
-	this->PlayAnimation(AnimIdx);
+	const uint32 AnimIdx = AnimIdxFromName.find(_AnimNotify.Name)->second;
+	this->PlayAnimation(AnimIdx, AnimInfoTable[AnimIdx].Acceleration, AnimInfoTable[AnimIdx].TransitionTime, _AnimNotify);
 }
 
 void Engine::SkeletonMesh::InitTextureForVertexTextureFetch()&
@@ -390,13 +397,16 @@ void Engine::SkeletonMesh::AnimationSave()&
 				Writer.Uint(AnimIdx);
 
 				Writer.Key("Name");
-				Writer.String(ToA(AnimInfoTable[AnimIdx].Name).c_str());
+				Writer.String((AnimInfoTable[AnimIdx].Name).c_str());
 
 				Writer.Key("Acceleration");
 				Writer.Double(AnimInfoTable[AnimIdx].Acceleration);
 
 				Writer.Key("TransitionTime");
 				Writer.Double(AnimInfoTable[AnimIdx].TransitionTime);
+
+				Writer.Key("Duration");
+				Writer.Double(AnimInfoTable[AnimIdx].Duration);
 			}
 			Writer.EndObject();
 		}

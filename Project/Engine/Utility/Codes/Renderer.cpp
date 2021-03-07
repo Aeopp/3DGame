@@ -14,6 +14,7 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 	CreateStaticLightResource();
 
 	_Frustum.Initialize();
+	
 	_DeferredPass.Initialize(Device.get());
 
 	Engine::Light::LightInformation LightInfo{};
@@ -214,13 +215,15 @@ void Engine::Renderer::RenderDeferredLight()&
 void Engine::Renderer::RenderDeferredDebugBuffer()&
 {
 
-	_DeferredPass.Albedo3_Contract1.RenderDebugBuffer();
-	_DeferredPass.Normal3_Power1.RenderDebugBuffer();
-	_DeferredPass.WorldLocation3_Depth1.RenderDebugBuffer();
-	_DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.RenderDebugBuffer();
+	if (Engine::Global::bDebugMode)
+	{
+		_DeferredPass.Albedo3_Contract1.RenderDebugBuffer();
+		_DeferredPass.Normal3_Power1.RenderDebugBuffer();
+		_DeferredPass.WorldLocation3_Depth1.RenderDebugBuffer();
+		_DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.RenderDebugBuffer();
 
-	_DeferredPass.ShadowDepth.RenderDebugBuffer();
-
+		_DeferredPass.ShadowDepth.RenderDebugBuffer();
+	}
 }
 void Engine::Renderer::RenderSky()&
 {
