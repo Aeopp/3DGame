@@ -47,4 +47,5 @@ void Engine::DeferredPass::DefaultInitialize()&
 		D3DXCOLOR(1.f, 1.f, 1.f, 1.f));
 	ShadowDepth.DepthStencilInitialize(Device, CurViewPort.Width, CurViewPort.Height, D3DFMT_D24X8);
 	ShadowDepth.DebugBufferInitialize({ -660.f,440.f }, RenderTargetDebugRenderSize);
+
 }

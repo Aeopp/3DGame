@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -206,6 +206,7 @@
     <ClInclude Include="Codes\EnterGame.h" />
     <ClInclude Include="Codes\DelasaCenterChain.h" />
     <ClInclude Include="Codes\Player.h" />
+    <ClInclude Include="Codes\PlayerHair.h" />
     <ClInclude Include="Codes\PlayerWeapon.h" />
     <ClInclude Include="Codes\StartScene.h" />
     <ClInclude Include="Codes\PlayerHead.h" />
@@ -223,6 +224,7 @@
     <ClCompile Include="Codes\EnterGame.cpp" />
     <ClCompile Include="Codes\DelasaCenterChain.cpp" />
     <ClCompile Include="Codes\Player.cpp" />
+    <ClCompile Include="Codes\PlayerHair.cpp" />
     <ClCompile Include="Codes\PlayerWeapon.cpp" />
     <ClCompile Include="Codes\StartScene.cpp" />
     <ClCompile Include="Codes\PlayerHead.cpp" />

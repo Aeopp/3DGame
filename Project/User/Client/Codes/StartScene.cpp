@@ -1,6 +1,7 @@
 #include "..\\stdafx.h"
 #include "StartScene.h"
 #include "PlayerHead.h"
+#include "Controller.h"
 #include "Player.h"
 #include "Shader.h"
 #include "Vertexs.hpp"
@@ -25,6 +26,9 @@
 #include "UtilityGlobal.h"
 #include "ShaderManager.h"
 #include "PlayerWeapon.h"
+#include "Renderer.h"
+#include "ObjectEdit.h"
+
 
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
 {
@@ -35,6 +39,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	auto& ResourceSys = RefResourceSys();
 	auto& Manager = RefManager();
 	auto& Proto =   RefProto();
+	auto& Renderer = RefRenderer();
 
 	// 텍스쳐 리소스 추가. 
 	{
@@ -56,8 +61,6 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 
 	// 프로토타입 로딩.
 	{
-		
-	// 	Proto.LoadPrototype<PlayerHead>(L"Static", Device ,Engine::RenderInterface::Group::Deferred);
 
 	}
 
@@ -67,84 +70,70 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 
 		Manager.NewObject<Engine::NormalLayer, Engine::DynamicCamera>(
 			L"Static", L"Camera",
-			FMath::PI / 3.f, 0.1f, 20000.f, Aspect, 333.f, &Control);
+			FMath::PI / 4.f, 0.1f, 20000.f, Aspect, 333.f, &Control);
 	}
 
-	MapScale = { 1.f , 1.f, 1.f };
-	MapRotation = { 3.14f / 2.f,0.f,0.f };
-	MapLocation = { 0,0,0 };
+	// 맵 정보 로딩
+	{
+		MapScale = { 1.f , 1.f , 1.f };
+		MapRotation = { 3.14f / 2.f,0.f,0.f };
+		MapLocation = { 0,0,0 };
+
+		auto& RefLandscape = Renderer.RefLandscape();
+		RefLandscape.Initialize(Device, MapScale, MapRotation, MapLocation);
+
+		std::vector<std::filesystem::path>DecoratorPaths
+		{
+			{ Engine::Global::ResourcePath / L"Mesh" / L"StaticMesh" / L"Decorator" / L""} ,
+			{ Engine::Global::ResourcePath / L"Mesh" / L"StaticMesh" / L""},
+			{ Engine::Global::ResourcePath / L"Mesh" / L"DynamicMesh" / L""}
+		};
+
+		for (const auto& CurPath : DecoratorPaths)
+		{
+			for (auto& TargetFileCurPath : std::filesystem::directory_iterator{ CurPath })
+			{
+				const auto& FileName = TargetFileCurPath.path().filename();
+
+				if (FileName.has_extension())
+				{
+					RefLandscape.DecoratorLoad(CurPath, FileName);
+				}
+			}
+		}
+
+		RefLandscape.Load(App::ResourcePath / L"MapLoadInfo" / "SkyGarden.json");
+	}
 
 	// 오브젝트 스폰
 	{
-		//RefManager().NewObject<Engine::NormalLayer, Player>(L"Static", L"Player_0",
-		//	Vector3{ 1.f,1.f,1.f }, Vector3{ 0,0,0 }, Vector3{ 0,0,5 });
-
-		//RefManager().NewObject<Engine::NormalLayer, Player>(L"Static", L"Player_1",
-		//	Vector3{ 1.f,1.f,1.f }, Vector3{ 0,0,0 }, Vector3{ 5,0,5 });
+		LogoVtxBuf = ResourceSys.Get<IDirect3DVertexBuffer9>(L"VertexBuffer_Plane");
+		Renderer.SkyInitialize(App::ResourcePath / L"Mesh" / L"StaticMesh" / L"SKy" / L"SM_SkySphere.FBX");
+		ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" /
+			"SkyGarden.json");
 	}
-
-	LogoVtxBuf = ResourceSys.Get<IDirect3DVertexBuffer9>(L"VertexBuffer_Plane");
+	Engine::Global::bDebugMode = false;
 };
 
 void StartScene::Event()&
 {
 	Super::Event();
 
-	ImGui::ShowDemoWindow();
+	auto& _Control = RefControl();
 
-
-	if (Engine::Global::bDebugMode)
+	if (_Control.IsDown(DIK_F1))
 	{
-		ImGui::Begin("Help");
-		{
-			ImGui::Checkbox("Logo ?", &bLogo);
-			if (ImGui::Button("Object KILL"))
-			{
-				for (auto& [TypeKey, TargetObjects] :RefManager().FindLayer<EnemyLayer>()->RefObjects())
-				{
-					for (auto& Target : TargetObjects)
-					{
-						auto TargetName = Target->GetName();
+		Engine::Global::bDebugMode = !Engine::Global::bDebugMode;
+	}
 
-						if (TargetName.find(L"Player",0u) != std::wstring::npos)
-						{
-							Target->Kill();
-						}
-					}
-				}
-			}
-		}
-		ImGui::End();
+	if (_Control.IsDown(DIK_SPACE))
+	{
+		bLogo = false;
 	}
 }
 void StartScene::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
-	
-	// 오브젝트 레이어 검색.
-	{
-		auto _Target = RefManager().FindObject<EnemyLayer, Player>(L"Player_!");
-		auto _TargetLayer = RefManager().FindLayer<EnemyLayer>();
-
-		auto& LayerMap = RefManager().RefLayers();
-
-		for (auto& _Player : RefManager().FindObjects<EnemyLayer, Player>())
-		{
-			_Player->GetName();
-		}
-		for (auto& _Camera: RefManager().FindObjects<Engine::NormalLayer, Engine::DynamicCamera>())
-		{
-			_Camera->GetName();
-		}
-
-		for (auto&  [_Key,_Objects]: RefManager().RefObjects<EnemyLayer>())
-		{
-			for (auto& _Object : _Objects)
-			{
-				_Object->GetName();
-			};
-		}
-	}
 };
 
 void StartScene::Render()&
@@ -162,7 +151,7 @@ void StartScene::Render()&
 		Fx->SetMatrix("Projection", &Projection);
 		Fx->SetTexture("Diffuse", LogoTexture);
 		uint32 iPassMax = 0;
-		Fx->Begin(&iPassMax, 0);	// 1인자 : 현재 쉐이더 파일이 지닌 최대 pass개수, 2인자 : 시작하는 방식에  플래그
+		Fx->Begin(&iPassMax, 0);	
 		Fx->BeginPass(0);
 		Device->SetStreamSource(0, LogoVtxBuf, 0, sizeof(Vertex::LocationUV2D));
 		Device->SetFVF(Vertex::LocationUV2D::FVF);
@@ -170,10 +159,8 @@ void StartScene::Render()&
 		Fx->EndPass();
 		Fx->End();
 	}
-	else
-	{
 
-	}
+
 }
 
 

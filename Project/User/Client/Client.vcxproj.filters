@@ -58,9 +58,6 @@
     <ClInclude Include="Codes\App.h">
       <Filter>App</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\StartScene.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
     <ClInclude Include="Codes\EnemyLayer.h">
       <Filter>Layer\Enemy</Filter>
     </ClInclude>
@@ -88,6 +85,12 @@
     <ClInclude Include="Codes\DelasaCenterChain.h">
       <Filter>Object</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\PlayerHair.h">
+      <Filter>Object\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\StartScene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -98,9 +101,6 @@
     </ClCompile>
     <ClCompile Include="Codes\App.cpp">
       <Filter>App</Filter>
-    </ClCompile>
-    <ClCompile Include="Codes\StartScene.cpp">
-      <Filter>Scene</Filter>
     </ClCompile>
     <ClCompile Include="Codes\EnemyLayer.cpp">
       <Filter>Layer\Enemy</Filter>
@@ -125,6 +125,12 @@
     </ClCompile>
     <ClCompile Include="Codes\DelasaCenterChain.cpp">
       <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\PlayerHair.cpp">
+      <Filter>Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\StartScene.cpp">
+      <Filter>Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

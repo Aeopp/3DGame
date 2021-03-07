@@ -1,0 +1,126 @@
+애니메이션 리스트
+0~60 Walk
+100~130 Run
+150~170 RunEnd
+
+200~204 JumpStart
+
+220~232 JumpUp
+
+250 262 Jump
+
+300 312 Jumpdown
+
+330 355 JumpLanding
+
+400~500 CombatWait (전투중)
+
+550 ~ 590 Dash (대쉬) 
+
+620 625 Down (자버리기) 
+
+650 730 StandUpRolling (일어나면서 구르기) 
+
+750~820 StandUpAttack (일어나면서 윈드밀) 
+
+850 885 StandBigBack (뒤에서 맞음) 
+
+900 925 StandBigFront (앞에서 맞음)
+
+950 985 StandBigLeft (왼쪽에서 맞음)
+
+1000 1035 StandBigRight (오른쪽에서 맞음)
+
+1100 1107 StandAirBigBack (뒤에서 맞아서 날라감)
+
+1120 1127 StandAirBigFront (앞에서 맞아서 날라감)
+
+1150 1157 StandAirBigLeft (왼쪽에서 맞아서 날라감)
+
+1180 1187 StandAirBigRight (오른쪽에서 맞아서 날라감) 
+
+날라가다가 균형잡기
+
+1250 1265 StandAirFallBigBack 
+
+1280 1295 StandAirFallBigFront
+
+1320 1335 StandAirFallBigLeft
+
+1350 1365 StandAirFallBigRight 
+
+1400 1465 Respawn (달리기 준비자세에서 일어나기)
+
+1500 1600 StunLoop (스턴)
+
+전투 :
+
+1650 1710 BasicCombo01(콤보1) 
+
+1750 1805 BasicCombo02(콤보2)
+
+1850 1940 BasicCombo03 (콤보3)
+
+2000 2085 ComboEx01(콤보ex01)
+
+2120 2200 ComboEx02Start(빙그리 패턴 시동)
+
+2250 2260 ComboEx02Loop(빙그리 루프)
+
+2300 2375 ComboEx02End(빙그리 엔드)
+
+2400 2468 DashCombo
+
+2500 2550 AirCombo01
+
+2570 2628 AirCombo02
+
+2650 2719 AirCombo03
+
+2750 2792 AirCombo04
+
+2820 2925 AirCombo04Landing
+
+3000 3150 RageSkill
+
+3200 3220 SwitchingGround (띄워올려버리기)
+
+3270 3285 SwitchingAir (띄워올리며 같이 점프)
+
+3400 3504 LeafAttackReady (준비)
+
+3600 3610 LeafAttackStart (활공시작)
+
+3650 3660 LeafAttackAir(활공중)
+
+3700 3710 LeafAttackUp (활공 상승모션)
+
+3750 3760 LeafAttackDown (활공 내려가는모션)
+
+3800 LeafAttackLanding ( 착지하며 내려찍기)
+
+3900 4050 VolcanicQuake 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

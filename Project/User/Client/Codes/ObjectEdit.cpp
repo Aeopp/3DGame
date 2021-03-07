@@ -60,7 +60,7 @@ void ObjectEdit::Initialize(IDirect3DDevice9* const Device)&
 
 		Manager.NewObject<Engine::NormalLayer, Engine::DynamicCamera>(
 			L"Static", L"Camera",
-			FMath::PI / 3.f, 0.1f, 20000.f, Aspect, 333.f, &Control);
+			FMath::PI / 4.f, 0.1f, 20000.f, Aspect, 333.f, &Control);
 	}
 
 	// 랜드스케이프. 
@@ -221,7 +221,7 @@ void ObjectEdit::Render()&
 	Super::Render();
 };
 
-void ObjectEdit::CaptureObjectLoad(const std::filesystem::path& FullPath)&
+void ObjectEdit::CaptureObjectLoad(const std::filesystem::path& FullPath)
 {
 	std::ifstream Is{ FullPath };
 	using namespace rapidjson;
@@ -279,7 +279,6 @@ void ObjectEdit::CaptureObjectLoad(const std::filesystem::path& FullPath)&
 											LocationArr[1].GetFloat(),
 											LocationArr[2].GetFloat() };
 
-
 					Manager.NewObject(LayerKey, ObjectTypeKey, ToW(PrototypeTag), ToW(SpawnObjName), _SpawnParam);
 				}
 			}
@@ -327,6 +326,8 @@ void ObjectEdit::CaptureCurrentObjects()&
 						Writer.StartArray();
 						for (const auto& SaveObjectInstance : ObjectContainer)
 						{
+							if (false == SaveObjectInstance->IsCapturable())continue;
+
 							Writer.StartObject();
 							{
 								Writer.Key("Name");

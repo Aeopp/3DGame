@@ -38,13 +38,14 @@ namespace Engine
 		};
 		struct FloatingInformation
 		{
-			static inline std::pair<float, float> VibrationWidthRange{ 0.f,10.f };
-			static inline std::pair<float, float > RotationAccRange  { 0.0f,0.00003f };
-			static inline std::pair<float, float>  VibrationAccRange  { 0.0f,1.f };
+			static inline std::pair<float, float> VibrationWidthRange{ 0.f,82.f };
+			static inline std::pair<float, float > RotationAccRange  { 0.0f,0.012f};
+			static inline std::pair<float, float>  VibrationAccRange  { 0.0f,0.5f };
 			
 			static void RangeEdit();
-			void Initialize()&
+			void Initialize(const Vector3& OriginLocation)&
 			{
+				this->OriginLocation = OriginLocation;
 				VibrationWidth=FMath::Random(VibrationWidthRange.first, VibrationWidthRange.second);
 				RotationAcc = FMath::Random(RotationAccRange.first, RotationAccRange.second);
 				VibrationAcc = FMath::Random(VibrationAccRange.first, VibrationAccRange.second);
@@ -54,15 +55,16 @@ namespace Engine
 				Radian = 0.0f;
 			}
 			// 부유하는 물체들 운동시킨 이후의 위치를 계산합니다. 
-			Vector3 Floating(const float DeltaTime, 
-				const Vector3& BeforeApplyingLocation /*떠다니는 운동 적용 전 기준 위치를 넘겨주세요.*/)&
+			Vector3 Floating(const float DeltaTime)&
 			{
 				VibrationT += (DeltaTime * VibrationAcc);
 				Radian += (RotationAcc * DeltaTime) * RotationFactorSign;
-				Vector3 ApplyFloatingLocation = FMath::RotationVecCoord(BeforeApplyingLocation, { 0,1,0 }, Radian);
+				Vector3 ApplyFloatingLocation = FMath::RotationVecCoord(OriginLocation, { 0,1,0 }, Radian);
 				ApplyFloatingLocation.y += std::sinf(VibrationT) * VibrationWidth;
 				return ApplyFloatingLocation;
 			}
+			// 운동 적용전 기준 위치.  
+			Vector3 OriginLocation{ 0,0,0 }; 
 			// 상하 운동
 			float VibrationT{ 0.0f };
 			float VibrationWidth{ 1.f };

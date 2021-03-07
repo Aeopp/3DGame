@@ -3,24 +3,32 @@
 #include <algorithm>
 #include <iterator>
 #include "imgui.h"
-
+#include "UtilityGlobal.h"
 void Engine::Layer::Initialize()&
 {
 }
 
 void Engine::Layer::Event()&
 {
-	ImGui::Begin("Object Information");
+	if (Engine::Global::bDebugMode)
 	{
-		for (auto& [Key, CurrentObjectContainer] : _ObjectMap)
+		ImGui::Begin("Object Information");
+	};
+
+	for (auto& [Key, CurrentObjectContainer] : _ObjectMap)
+	{
+		for (auto& CurrentObject : CurrentObjectContainer)
 		{
-			for (auto& CurrentObject : CurrentObjectContainer)
-			{
-				CurrentObject->Event();
-			};
+			CurrentObject->Event();
 		};
-	}
-	ImGui::End();
+	};
+
+	
+
+	if (Engine::Global::bDebugMode)
+	{
+		ImGui::End();
+	};
 }
 
 void Engine::Layer::Update(const float DeltaTime)&

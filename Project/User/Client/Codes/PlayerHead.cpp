@@ -89,7 +89,8 @@ void PlayerHead::Initialize(
 void PlayerHead::PrototypeInitialize(IDirect3DDevice9* const Device)&
 {
 	Super::PrototypeInitialize();
-	this->Device = Device;
+	this->Device = Device; 
+	bCapturable = false;
 
 	auto _StaticMeshProto = std::make_shared<Engine::StaticMesh>();
 

@@ -9,8 +9,6 @@
 #include "ShaderManager.h"
 #include "Renderer.h"
 #include "Timer.h"
-
-
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
@@ -25,13 +23,11 @@
 static uint32 StaticMeshResourceID = 0u;
 static Engine::Landscape::DecoInformation* PickDecoInstancePtr{ nullptr };
 
-
-
 static bool IsFloatingDecorator(const std::wstring& DecoratorKey)
 {
 	static std::array<std::wstring, 3u> FloatingDecoratorNames
 	{
-		 L"Floating",
+		L"Floating",
 		L"Rock",
 		L"BGIslandSet01"
 	};
@@ -179,7 +175,7 @@ Engine::Landscape::PushDecorator(
 		if (Deco._Option == Engine::Landscape::Decorator::Option::Floating)
 		{
 			Engine::Landscape::FloatingInformation  _FloatValue{};
-			_FloatValue.Initialize();
+			_FloatValue.Initialize(Location);
 			DecoInfoInstance.OptionValue = _FloatValue;
 		}
 
@@ -404,9 +400,11 @@ void Engine::Landscape::Tick(const float Tick)&
 		{
 			if (IsFloatingDeco)
 			{
-				CurDecoInstance->Location = 
+				Engine::Landscape::FloatingInformation& FloatingInfoRef = 
 					std::any_cast<Engine::Landscape::FloatingInformation&>
-					(CurDecoInstance->OptionValue).Floating(Tick, CurDecoInstance->Location);
+					(CurDecoInstance->OptionValue);
+
+				CurDecoInstance->Location = FloatingInfoRef.Floating(Tick);
 			}
 		};
 	};
@@ -940,7 +938,8 @@ void Engine::Landscape::FloatingDecoInstancesReInit()&
 		{
 			for (auto& CurDecoInstance : Deco.Instances)
 			{
-				std::any_cast<Engine::Landscape::FloatingInformation&>(CurDecoInstance->OptionValue).Initialize();
+				auto& FloatingInfoRef = std::any_cast<Engine::Landscape::FloatingInformation&>(CurDecoInstance->OptionValue); 
+				FloatingInfoRef.Initialize(FloatingInfoRef.OriginLocation);
 			}
 		}
 	}

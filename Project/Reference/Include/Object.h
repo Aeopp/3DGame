@@ -62,12 +62,15 @@ namespace Engine
 		virtual void HitNotify(Object* const Target, const Vector3 PushDir,
 			const float CrossAreaScale)&;
 	public:
+		bool IsCapturable()const& { return bCapturable;  };
+	public:
 		virtual std::function< SpawnReturnValue(const SpawnParam&)>
 			PrototypeEdit()& abstract;
 
 		std::wstring PrototypeTag{};
 	protected:
 		std::wstring Name{};
+		bool bCapturable{ true };
 	private:
 		bool bPendingKill{ false };
 		std::map<Component::Property/*업데이트 순서 통제*/,

@@ -52,7 +52,7 @@ void Engine::Transform::Event(Object* const Owner)&
 
 		Vector3 CurSliderScale{ 0,0,0 }, CurSliderRotation{ 0,0,0 }, CurSliderLocation{ 0,0,0 };
 		ImGui::SliderFloat3("_Scale",(float*) &CurSliderScale, -0.1f, +0.1f); 
-		ImGui::SliderFloat3("_Rotation", (float*)&CurSliderRotation , -0.1f, +0.1f);
+		ImGui::SliderFloat3("_Rotation", (float*)&CurSliderRotation , -0.01f, +0.01f);
 		ImGui::SliderFloat3("_Location", (float*)&CurSliderLocation, 
 			-_EditProperty.LocationSensitivity, +_EditProperty.LocationSensitivity);
 

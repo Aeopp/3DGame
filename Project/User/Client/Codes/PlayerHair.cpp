@@ -90,7 +90,7 @@ void PlayerHair::PrototypeInitialize(IDirect3DDevice9* const Device)&
 {
 	Super::PrototypeInitialize();
 	this->Device = Device;
-
+	bCapturable = false ;
 	auto _StaticMeshProto = std::make_shared<Engine::StaticMesh>();
 
 	_StaticMeshProto->Load<Vertex::LocationTangentUV2D>(Device,

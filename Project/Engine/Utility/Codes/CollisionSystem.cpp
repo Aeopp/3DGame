@@ -2,6 +2,7 @@
 #include "Collision.h"
 #include "Object.h"
 #include "imgui.h"
+#include "UtilityGlobal.h"
 
 void Engine::CollisionSystem::Regist(
 	CollisionTag _Tag,
@@ -24,7 +25,10 @@ void Engine::CollisionSystem::Initialize()&
 
 void Engine::CollisionSystem::Update(const float DeltaTime)&
 {
-	ImGui::Begin("Collision Information");
+	if (Engine::Global::bDebugMode)
+	{
+		ImGui::Begin("Collision Information");
+	}
 
 	for (auto& [Tag, CollisionComps] : CollisionCompMap)
 	{
@@ -71,7 +75,11 @@ void Engine::CollisionSystem::Update(const float DeltaTime)&
 		}
 	}
 
-	ImGui::End();
+	if (Engine::Global::bDebugMode)
+	{
+		ImGui::End();
+	}
+	
 
 	CollisionCompMap.clear();
 }

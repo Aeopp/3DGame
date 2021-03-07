@@ -75,18 +75,20 @@ void DelasaCenterChain::Initialize(
 
 	_Collision->RefCollisionables().insert(
 		{
-			Engine::CollisionTag::Player
+			
 		});
 
 	_Collision->RefPushCollisionables().insert(
 		{
-	       Engine::CollisionTag::Player
+	       
 		});
 }
 
 void DelasaCenterChain::PrototypeInitialize(IDirect3DDevice9* const Device)&
 {
 	Super::PrototypeInitialize();
+
+	bCapturable = true;
 
 	this->Device = Device;
 

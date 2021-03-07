@@ -141,6 +141,8 @@ void Engine::DynamicCamera::PrototypeInitialize(
 							const HWND Hwnd)&
 {
 	Super::PrototypeInitialize(Device);
+	bCapturable = false;
+
 	this->Hwnd = Hwnd;
 }
 std::shared_ptr<Engine::Object> Engine::DynamicCamera::GetCopyShared()&

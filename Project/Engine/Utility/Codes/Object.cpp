@@ -31,19 +31,20 @@ void Engine::Object::Event()&
 		ImGui::Separator();
 		ImGui::Text(_Name.c_str());
 
-		for (auto& [PropertyKey, ComponentContainer] : _Components)
-		{
-			for (auto& [Key, CurrentComponent] : ComponentContainer)
-			{
-				CurrentComponent->Event(this);
-			}
-		};
-		
-		if (ImGui::SmallButton(("Kill "+ _Name).c_str()))
+
+		if (ImGui::SmallButton(("Kill " + _Name).c_str()))
 		{
 			this->Kill();
 		}
-	}	
+	};
+
+	for (auto& [PropertyKey, ComponentContainer] : _Components)
+	{
+		for (auto& [Key, CurrentComponent] : ComponentContainer)
+		{
+			CurrentComponent->Event(this);
+		}
+	};
 };
 
 void Engine::Object::Update(const float DeltaTime)&
@@ -74,7 +75,11 @@ void Engine::Object::HitBegin(Object* const Target, const Vector3 PushDir, const
 
 void Engine::Object::HitEnd(Object* const Target)&
 {
-	ImGui::Text("%s Overlapped end", Target->GetName().c_str());
+	if (Engine::Global::bDebugMode)
+	{
+		ImGui::Text("%s Overlapped end", Target->GetName().c_str());
+	}
+	
 }
 
 void Engine::Object::HitNotify(Object* const Target,

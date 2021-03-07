@@ -200,7 +200,7 @@ PS_OUT PS_MAIN(PS_IN In)
     
     float Diffuse = saturate(dot(-LightDirectionNormal, Normal));
     Diffuse = pow(((Diffuse * 0.5) + 0.5), Contract);
-    Diffuse = ceil(Diffuse * 10.0f) / 10.0f;
+  //  Diffuse = ceil(Diffuse * 10.0f) / 10.0f;
     float3 HalfVec = normalize((-LightDirectionNormal) + ViewDirection);
     Specular = saturate(dot(HalfVec, Normal));
     Specular = pow((Specular),(Power));

@@ -5,28 +5,7 @@
             "ObjectTypeList": [
                 {
                     "ObjectTypeKey": "class Engine::DynamicCamera",
-                    "ObjectInstanceList": [
-                        {
-                            "Name": "Camera",
-                            "PrototypeTag": "Static",
-                            "bCaptureable": true,
-                            "Scale": [
-                                1.0,
-                                1.0,
-                                1.0
-                            ],
-                            "Rotation": [
-                                0.7550523281097412,
-                                -0.1687823086977005,
-                                0.0
-                            ],
-                            "Location": [
-                                171.32777404785157,
-                                1495.8265380859376,
-                                -2573.501708984375
-                            ]
-                        }
-                    ]
+                    "ObjectInstanceList": []
                 },
                 {
                     "ObjectTypeKey": "class DelasaCenterChain",
@@ -49,6 +28,43 @@
                                 0.0,
                                 969.0,
                                 0.0
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ObjectTypeKey": "class PlayerHair",
+                    "ObjectInstanceList": []
+                },
+                {
+                    "ObjectTypeKey": "class PlayerWeapon",
+                    "ObjectInstanceList": []
+                },
+                {
+                    "ObjectTypeKey": "class PlayerHead",
+                    "ObjectInstanceList": []
+                },
+                {
+                    "ObjectTypeKey": "class Player",
+                    "ObjectInstanceList": [
+                        {
+                            "Name": "Player_0",
+                            "PrototypeTag": "Static",
+                            "bCaptureable": true,
+                            "Scale": [
+                                0.7,
+                                0.7,
+                                0.7
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Location": [
+                                -117.31836700439453,
+                                227.667724609375,
+                                69.28411865234375
                             ]
                         }
                     ]

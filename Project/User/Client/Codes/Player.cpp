@@ -88,27 +88,32 @@ void Player::Initialize(
 	       Engine::CollisionTag::Enemy
 		});
 
-	std::shared_ptr<PlayerHead> _PlayerHead = 
-		RefManager().NewObject<Engine::NormalLayer, PlayerHead>(L"Static", Name+L"_Head",
-			Vector3{ 1,1,1 }, Vector3{ 0,0,0}, Vector3{ 0,0,0}  );
-
-	auto* PlayerHeadTransform = _PlayerHead->GetComponent<Engine::Transform>();
-	PlayerHeadTransform->AttachBone(&_SkeletonMesh->GetBone("Spine2")->ToRoot);
-	PlayerHeadTransform->AttachTransform(&_Transform->UpdateWorld() );
-
 	std::shared_ptr<PlayerWeapon> _PlayerWeapon =
 		RefManager().NewObject<Engine::NormalLayer, PlayerWeapon >(L"Static",
-			Name + L"_Weapon", Vector3{ 0.5,0.5,0.5 }, Vector3{ 0,0,0 }, Vector3{ 0,0,0 });
+			Name + L"_Weapon", Vector3{ 0.5f,0.5f,0.5f }, Vector3{ 0,0,0 }, Vector3{ 0,0,0 });
 
 	auto* PlayerWeaponTransform = _PlayerWeapon->GetComponent<Engine::Transform>();
 	PlayerWeaponTransform->AttachBone(&_SkeletonMesh->GetBone("Weapon_Hand_R")->ToRoot);
 	PlayerWeaponTransform->AttachTransform(&_Transform->UpdateWorld());
 
+
+	std::shared_ptr<PlayerHead> _PlayerHead = 
+		RefManager().NewObject<Engine::NormalLayer, PlayerHead>(L"Static", Name+L"_Head",
+			Vector3{ 1,1,1 },
+			Vector3{ 0.071,4.774,3.327}, 
+			Vector3{ 14.050,-2.910,-0.623});
+
+	auto* PlayerHeadTransform = _PlayerHead->GetComponent<Engine::Transform>();
+	PlayerHeadTransform->AttachBone(&_SkeletonMesh->GetBone("Spine2")->ToRoot);
+	PlayerHeadTransform->AttachTransform(&_Transform->UpdateWorld() );
+
 	std::shared_ptr<PlayerHair> _PlayerHair =
 		RefManager().NewObject<Engine::NormalLayer, PlayerHair >(L"Static",
-			Name + L"_Hair", Vector3{ 1,1,1 }, Vector3{ 0,0,0 }, Vector3{ 0,0,0 });
+			Name + L"_Hair", Vector3{ 1,1,1 },
+			Vector3{0.071f,4.769f,3.125f}, 
+			Vector3{-137.612,-12.285,7.865f});
 
-	auto* PlayerHairTransform = _PlayerWeapon->GetComponent<Engine::Transform>();
+	auto* PlayerHairTransform = _PlayerHair->GetComponent<Engine::Transform>();
 	PlayerHairTransform->AttachBone(&_SkeletonMesh->GetBone("Spine2")->ToRoot);
 	PlayerHairTransform->AttachTransform(&_Transform->UpdateWorld());
 }
@@ -116,14 +121,14 @@ void Player::Initialize(
 void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
 {
 	Super::PrototypeInitialize();
-
+	bCapturable = true;
 	this->Device = Device;
 
 	auto _SkeletonMeshProto = std::make_shared<Engine::SkeletonMesh>();
 
 	_SkeletonMeshProto->Load<Vertex::LocationTangentUV2DSkinning>(Device,
 		App::ResourcePath / L"Mesh" / L"DynamicMesh" / L"",
-		L"PlayerNoAnimation.fbx", L"Player",
+		L"PlayerAnimation.fbx", L"Player",
 		Engine::RenderInterface::Group::DeferredNoAlpha);
 
 	RefResourceSys().InsertAny<decltype(_SkeletonMeshProto)>(L"Player", _SkeletonMeshProto);
