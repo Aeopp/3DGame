@@ -54,6 +54,20 @@ private:
 	void RunTransition(const FSMControlInformation& FSMControlInfo)&;
 	void RunEndState(const FSMControlInformation& FSMControlInfo)&;
 	void RunEndTransition(const FSMControlInformation& FSMControlInfo)&;
+
+	void JumpStartState       (const FSMControlInformation& FSMControlInfo)&;
+	void JumpStartTransition  (const FSMControlInformation& FSMControlInfo)&;
+	void JumpUpState          (const FSMControlInformation& FSMControlInfo)&;
+	void JumpUpTransition     (const FSMControlInformation& FSMControlInfo)&;
+	void JumpState            (const FSMControlInformation& FSMControlInfo)&;
+	void JumpTransition       (const FSMControlInformation& FSMControlInfo)&;
+	void JumpDownState        (const FSMControlInformation& FSMControlInfo)&;
+	void JumpDownTransition   (const FSMControlInformation& FSMControlInfo)&;
+	void JumpLandingState     (const FSMControlInformation& FSMControlInfo)&;
+	void JumpLandingTransition(const FSMControlInformation& FSMControlInfo)&;
+
+private:
+	bool CheckTheJumpableState(const FSMControlInformation& FSMControlInfo)&;
 private:
 	float PlayerMoveDirectionInterpolateAcceleration = 7.f;
 	Engine::ThirdPersonCamera* CurrentTPCamera{ nullptr };

@@ -189,6 +189,21 @@ void Player::FSM(const float DeltaTime)&
 	case Player::State::RunEnd:
 		RunEndState(CurrentFSMControlInfo);
 		break;
+	case Player::State::Jump:
+		JumpState(CurrentFSMControlInfo);
+		break;
+	case Player::State::JumpDown:
+		JumpDownState(CurrentFSMControlInfo);
+		break;
+	case Player::State::JumpStart:
+		JumpStartState(CurrentFSMControlInfo);
+		break;
+	case Player::State::JumpUp:
+		JumpUpState(CurrentFSMControlInfo);
+		break;
+	case Player::State::JumpLanding:
+		JumpLandingState(CurrentFSMControlInfo);
+		break;
 	default:
 		break;
 	}
@@ -196,6 +211,13 @@ void Player::FSM(const float DeltaTime)&
 
 void Player::RunState(const FSMControlInformation& FSMControlInfo)&
 {
+	if (CheckTheJumpableState(FSMControlInfo))
+	{
+		JumpStartState(FSMControlInfo);
+		return;
+	}
+
+
 	const auto& ViewPlayerInfo =CurrentTPCamera->GetTargetInformation();
 	Vector3 ViewDirection = ViewPlayerInfo.CurrentViewDirection;
 	ViewDirection.y = 0.0f;
@@ -246,6 +268,12 @@ void Player::RunState(const FSMControlInformation& FSMControlInfo)&
 
 void Player::CombatWaitState(const FSMControlInformation& FSMControlInfo)&
 {
+	if (CheckTheJumpableState(FSMControlInfo) )
+	{
+		JumpStartTransition(FSMControlInfo);
+		return;
+	}
+
 	if (   FSMControlInfo._Controller.IsPressing(DIK_W) 
 		|| FSMControlInfo._Controller.IsPressing(DIK_A) 
 		|| FSMControlInfo._Controller.IsPressing(DIK_S) 
@@ -293,14 +321,119 @@ void Player::RunTransition(const FSMControlInformation& FSMControlInfo)&
 
 void Player::RunEndState(const FSMControlInformation& FSMControlInfo)&
 {
+	if (CheckTheJumpableState(FSMControlInfo))
+	{
+		JumpStartTransition(FSMControlInfo);
+		return;
+	}
+
 	const auto& CurAnimNotifyInfo = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 
 	if (CurAnimNotifyInfo.bAnimationEnd)
 	{
 		CombatWaitTransition(FSMControlInfo);
+		return;
 	}
 
 };
+
+void Player::JumpStartState(const FSMControlInformation& FSMControlInfo)&
+{
+	const auto& CurAnimNotify =FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+
+	if (CurAnimNotify.bAnimationEnd)
+	{
+		JumpUpTransition(FSMControlInfo);
+		return;
+	}
+}
+
+void Player::JumpStartTransition(const FSMControlInformation& FSMControlInfo)&
+{
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = false;
+	_AnimNotify.Name = "JumpStart";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = Player::State::JumpStart;
+}
+void Player::JumpUpState(const FSMControlInformation& FSMControlInfo)&
+{
+	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+
+	if (CurAnimNotify.bAnimationEnd)
+	{
+		JumpTransition(FSMControlInfo);
+		return;
+	}
+}
+void Player::JumpUpTransition(const FSMControlInformation& FSMControlInfo)&
+{
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = false;
+	_AnimNotify.Name = "JumpUp";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = Player::State::JumpUp;
+
+}
+void Player::JumpState(const FSMControlInformation& FSMControlInfo)&
+{
+	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+
+	if (CurAnimNotify.bAnimationEnd)
+	{
+		JumpDownTransition(FSMControlInfo);
+		return;
+	}
+};
+
+void Player::JumpTransition(const FSMControlInformation& FSMControlInfo)&
+{
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = false;
+	_AnimNotify.Name = "jump";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = Player::State::Jump;
+};
+
+void Player::JumpDownState(const FSMControlInformation& FSMControlInfo)&
+{
+	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+
+	if (CurAnimNotify.bAnimationEnd)
+	{
+		JumpLandingTransition(FSMControlInfo);
+		return;
+
+	}
+};
+
+void Player::JumpDownTransition(const FSMControlInformation& FSMControlInfo)&
+{
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = false;
+	_AnimNotify.Name = "JumpDown";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = Player::State::JumpDown;
+};
+
+void Player::JumpLandingState(const FSMControlInformation& FSMControlInfo)&
+{
+	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+
+	if (CurAnimNotify.bAnimationEnd)
+	{
+		CombatWaitTransition(FSMControlInfo);
+		return;
+	}
+}
+void Player::JumpLandingTransition(const FSMControlInformation& FSMControlInfo)&
+{
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = false;
+	_AnimNotify.Name = "JumpLanding";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = Player::State::JumpLanding;
+}
 
 void Player::RunEndTransition(const FSMControlInformation& FSMControlInfo)&
 {
@@ -310,6 +443,16 @@ void Player::RunEndTransition(const FSMControlInformation& FSMControlInfo)&
 
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::RunEnd;
+};
+
+bool Player::CheckTheJumpableState(const FSMControlInformation& FSMControlInfo)&
+{
+	if (FSMControlInfo._Controller.IsDown(DIK_SPACE))
+	{
+		return true;
+	}
+
+	return false;
 };
 
 void Player::HitNotify(Object* const Target, const Vector3 PushDir,

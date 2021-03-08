@@ -129,7 +129,7 @@ void StartScene::Event()&
 		Engine::Global::bDebugMode = !Engine::Global::bDebugMode;
 	}
 
-	if (_Control.IsDown(DIK_SPACE))
+	if (_Control.IsDown(DIK_TAB))
 	{
 		bLogo = false;
 	}

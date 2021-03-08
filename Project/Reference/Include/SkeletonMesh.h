@@ -69,7 +69,7 @@ namespace Engine
 		struct AnimNotify
 		{
 			std::string Name{}; 
-			bool bAnimationEnd { true };
+			bool bAnimationEnd { false };
 			bool bLoop { false };
 			std::map<float, std::function<void(Engine::SkeletonMesh*const)>> AnimTimeEventCallMapping{};
 		};
@@ -81,12 +81,14 @@ namespace Engine
 			const double TransitionDuration, const AnimNotify& _AnimNotify)&;
 		void  PlayAnimation(const AnimNotify& _AnimNotify)&;
 
-		void AnimationEnd()&;
-		void AnimationNotify()&;
+	
 
 		inline std::shared_ptr<Engine::Bone> GetBone(const std::string& BoneName) const&;
 		inline std::shared_ptr<Engine::Bone> GetRootBone() const&;
 	private:
+		void AnimationEnd()&;
+		void AnimationNotify()&;
+
 		void InitTextureForVertexTextureFetch()&; 
 		void AnimationSave()&;
 		void AnimationLoad()&;
