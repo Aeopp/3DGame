@@ -237,21 +237,6 @@ void Player::RunState(const FSMControlInformation& FSMControlInfo)&
 	{
 		MoveFromController(FSMControlInfo  , *bMoveInfo);
 	}
-
-	if (bMove)
-	{
-		const 	Vector3 ControlMoveDirection = (std::accumulate(std::begin(ControlDirections), std::end(ControlDirections), Vector3{ 0,0,0 })) / ControlDirections.size();
-
-		auto _Transform = GetComponent<Engine::Transform>();
-		CurrentMoveDirection = FMath::Normalize(FMath::Lerp(CurrentMoveDirection, ControlMoveDirection,
-			FSMControlInfo.DeltaTime * PlayerMoveDirectionInterpolateAcceleration));
-		Vector3 NewRotation = _Transform->GetRotation();
-		const float Yaw = std::atan2f(CurrentMoveDirection.x, CurrentMoveDirection.z);
-		NewRotation.y = Yaw - FMath::PI / 2.f;
-		_Transform->SetRotation(NewRotation);
-
-		FSMControlInfo.MyTransform->Move(CurrentMoveDirection, FSMControlInfo.DeltaTime, RunSpeed);
-	}
 	else
 	{
 		CombatWaitTransition(FSMControlInfo);
@@ -583,6 +568,19 @@ bool Player::CheckTheAttackableState(const FSMControlInformation& FSMControlInfo
 void Player::MoveFromController(const FSMControlInformation& FSMControlInfo ,
 					const Player::MoveControlInformation& MoveControlInfo)&
 {
+	const 	Vector3 ControlMoveDirection = (std::accumulate(std::begin(MoveControlInfo.ControlDirections),
+		std::end(MoveControlInfo.ControlDirections), Vector3{ 0,0,0 })) / MoveControlInfo.ControlDirections.size();
+
+	auto _Transform = GetComponent<Engine::Transform>();
+	CurrentMoveDirection = FMath::Normalize(FMath::Lerp(CurrentMoveDirection, ControlMoveDirection,
+		FSMControlInfo.DeltaTime * PlayerMoveDirectionInterpolateAcceleration));
+	Vector3 NewRotation = _Transform->GetRotation();
+	const float Yaw = std::atan2f(CurrentMoveDirection.x, CurrentMoveDirection.z);
+	NewRotation.y = Yaw - FMath::PI / 2.f;
+	_Transform->SetRotation(NewRotation);
+
+	FSMControlInfo.MyTransform->Move(CurrentMoveDirection, FSMControlInfo.DeltaTime, RunSpeed);
+
 }
 ;
 
