@@ -296,14 +296,17 @@ PS_OUT PS_MAIN(PS_IN In)
    
     Out.Color.rgba += RimAmt * RimAmtColor.rgba;
     ShadowFactor = saturate(ShadowFactor);
-    Out.Color.rgb *= ShadowFactor;
+   
     Out.Color.rgb += AmbientColor.xyz;
-    Out.Color.a += AlphaAddtive;
-    Out.Color.a = saturate(Out.Color.a);
-    
+    Out.Color.rgb *= ShadowFactor;
     float Distance = length(In.WorldLocation.xyz - CameraLocation.xyz);
     float FogFactor = saturate((FogDistance - Distance) / FogDistance);
     Out.Color.rgb = Out.Color.rgb * (FogFactor) + ((1.0f - FogFactor) * FogColor);
+   
+    Out.Color.a += AlphaAddtive;
+    Out.Color.a = saturate(Out.Color.a);
+    
+
 
     return Out;
 }

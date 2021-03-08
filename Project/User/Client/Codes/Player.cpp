@@ -100,7 +100,6 @@ void Player::Initialize(
 	PlayerWeaponTransform->AttachBone(&_SkeletonMesh->GetBone("Weapon_Hand_R")->ToRoot);
 	PlayerWeaponTransform->AttachTransform(&_Transform->UpdateWorld());
 
-
 	std::shared_ptr<PlayerHead> _PlayerHead = 
 		RefManager().NewObject<Engine::NormalLayer, PlayerHead>(L"Static", Name+L"_Head",
 			Vector3{ 1,1,1 },
@@ -127,8 +126,9 @@ void Player::Initialize(
 
 	if (Engine::Global::bDebugMode==false)
 	{
-		CurrentTPCamera = Manager.NewObject<Engine::NormalLayer, Engine::ThirdPersonCamera>(L"Static", L"ThirdPersonCamera",
-			FMath::PI / 4.f, 0.1f, 10000.f, Aspect).get();
+		CurrentTPCamera = Manager.NewObject<Engine::NormalLayer, 
+			Engine::ThirdPersonCamera>(L"Static", L"ThirdPersonCamera",
+			FMath::PI / 4.f, 0.1f, 15000.f, Aspect).get();
 
 		Engine::ThirdPersonCamera::TargetInformation InitTargetInfo{};
 		InitTargetInfo.DistancebetweenTarget = 250.f;
@@ -204,6 +204,15 @@ void Player::FSM(const float DeltaTime)&
 	case Player::State::JumpLanding:
 		JumpLandingState(CurrentFSMControlInfo);
 		break;
+	case Player::State::BasicCombo01:
+		BasicCombo01State(CurrentFSMControlInfo);
+		break;
+	case Player::State::BasicCombo02: 
+		BasicCombo02State(CurrentFSMControlInfo); 
+		break;
+	case Player::State::BasicCombo03:
+		BasicCombo03State(CurrentFSMControlInfo);
+		break;
 	default:
 		break;
 	}
@@ -217,33 +226,16 @@ void Player::RunState(const FSMControlInformation& FSMControlInfo)&
 		return;
 	}
 
+	if (CheckTheAttackableState(FSMControlInfo))
+	{
+		BasicCombo01Transition(FSMControlInfo);
+		return;
+	}
 
-	const auto& ViewPlayerInfo =CurrentTPCamera->GetTargetInformation();
-	Vector3 ViewDirection = ViewPlayerInfo.CurrentViewDirection;
-	ViewDirection.y = 0.0f;
-	ViewDirection = FMath::Normalize(ViewDirection);
-	std::vector<Vector3> ControlDirections{};
-	bool bMove = false;
-
-	if (FSMControlInfo._Controller.IsPressing(DIK_W))
+	auto bMoveInfo  = CheckTheMoveableState(FSMControlInfo);
+	if (bMoveInfo)
 	{
-		ControlDirections.emplace_back(ViewDirection);
-		bMove = true; 
-	}
-	if (FSMControlInfo._Controller.IsPressing(DIK_S))
-	{
-		ControlDirections.emplace_back(-ViewDirection); 
-		bMove = true;
-	}
-	if (FSMControlInfo._Controller.IsPressing(DIK_D))
-	{
-		ControlDirections.emplace_back(FMath::Normalize(FMath::RotationVecNormal(ViewDirection, { 0,1,0 }, FMath::PI / 2.f)));
-		bMove = true;
-	}
-	if (FSMControlInfo._Controller.IsPressing(DIK_A))
-	{
-		ControlDirections.emplace_back(FMath::Normalize(FMath::RotationVecNormal(ViewDirection, { 0,1,0 }, -FMath::PI / 2.f)));
-		bMove = true;
+		MoveFromController(FSMControlInfo  , *bMoveInfo);
 	}
 
 	if (bMove)
@@ -273,6 +265,14 @@ void Player::CombatWaitState(const FSMControlInformation& FSMControlInfo)&
 		JumpStartTransition(FSMControlInfo);
 		return;
 	}
+
+	if (CheckTheAttackableState(FSMControlInfo))
+	{
+		BasicCombo01Transition(FSMControlInfo);
+		return;
+	}
+
+
 
 	if (   FSMControlInfo._Controller.IsPressing(DIK_W) 
 		|| FSMControlInfo._Controller.IsPressing(DIK_A) 
@@ -324,6 +324,12 @@ void Player::RunEndState(const FSMControlInformation& FSMControlInfo)&
 	if (CheckTheJumpableState(FSMControlInfo))
 	{
 		JumpStartTransition(FSMControlInfo);
+		return;
+	}
+
+	if (CheckTheAttackableState(FSMControlInfo))
+	{
+		BasicCombo01Transition(FSMControlInfo);
 		return;
 	}
 
@@ -435,15 +441,125 @@ void Player::JumpLandingTransition(const FSMControlInformation& FSMControlInfo)&
 	CurrentState = Player::State::JumpLanding;
 }
 
+void Player::BasicCombo01State(const FSMControlInformation& FSMControlInfo)&
+{
+	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
+	
+	if (AnimTimeNormal < 0.7f)
+	{
+		if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK))
+		{
+			BasicCombo02Transition(FSMControlInfo);
+		}
+	}
+
+	if (CurAnimNotify.bAnimationEnd)
+	{
+		CombatWaitState(FSMControlInfo );
+		return;
+	}
+}
+
+void Player::BasicCombo01Transition(const FSMControlInformation& FSMControlInfo)&
+{
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = false;
+	_AnimNotify.Name = "BasicCombo01";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = Player::State::BasicCombo01;
+}
+
+void Player::BasicCombo02State(const FSMControlInformation& FSMControlInfo)&
+{
+	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
+
+	if (AnimTimeNormal < 0.7f)
+	{
+		if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK))
+		{
+			BasicCombo03Transition(FSMControlInfo);
+		}
+	}
+
+	if (CurAnimNotify.bAnimationEnd)
+	{
+		CombatWaitState(FSMControlInfo);
+		return;
+	}
+}
+
+void Player::BasicCombo02Transition(const FSMControlInformation& FSMControlInfo)&
+{
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = false;
+	_AnimNotify.Name = "BasicCombo02";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = Player::State::BasicCombo02;
+}
+
+void Player::BasicCombo03State(const FSMControlInformation& FSMControlInfo)&
+{
+	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+
+	if (CurAnimNotify.bAnimationEnd)
+	{
+		CombatWaitState(FSMControlInfo);
+		return;
+	}
+}
+
+void Player::BasicCombo03Transition(const FSMControlInformation& FSMControlInfo)&
+{
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = false;
+	_AnimNotify.Name = "BasicCombo03";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = Player::State::BasicCombo03;
+};
+
 void Player::RunEndTransition(const FSMControlInformation& FSMControlInfo)&
 {
 	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
 	_AnimNotify.bLoop = false;
 	_AnimNotify.Name = "RunEnd";
-
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::RunEnd;
 };
+
+std::optional<Player::MoveControlInformation>   Player::CheckTheMoveableState(const FSMControlInformation& FSMControlInfo)&
+{
+	const auto& ViewPlayerInfo = CurrentTPCamera->GetTargetInformation();
+	Vector3 ViewDirection = ViewPlayerInfo.CurrentViewDirection;
+	ViewDirection.y = 0.0f;
+	ViewDirection = FMath::Normalize(ViewDirection);
+	std::vector<Vector3> ControlDirections{};
+
+	if (FSMControlInfo._Controller.IsPressing(DIK_W))
+	{
+		ControlDirections.emplace_back(ViewDirection);
+	}
+	if (FSMControlInfo._Controller.IsPressing(DIK_S))
+	{
+		ControlDirections.emplace_back(-ViewDirection);
+	}
+	if (FSMControlInfo._Controller.IsPressing(DIK_D))
+	{
+		ControlDirections.emplace_back(FMath::Normalize(FMath::RotationVecNormal(ViewDirection, { 0,1,0 }, FMath::PI / 2.f)));
+	}
+	if (FSMControlInfo._Controller.IsPressing(DIK_A))
+	{
+		ControlDirections.emplace_back(FMath::Normalize(FMath::RotationVecNormal(ViewDirection, { 0,1,0 }, -FMath::PI / 2.f)));
+	}
+
+	if (ControlDirections.empty() == false)
+	{
+		return { Player::MoveControlInformation{ std::move(ControlDirections) } };
+	}
+	
+	return std::nullopt;
+}
 
 bool Player::CheckTheJumpableState(const FSMControlInformation& FSMControlInfo)&
 {
@@ -454,6 +570,21 @@ bool Player::CheckTheJumpableState(const FSMControlInformation& FSMControlInfo)&
 
 	return false;
 };
+
+bool Player::CheckTheAttackableState(const FSMControlInformation& FSMControlInfo)&
+{
+	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK))
+	{
+		return true;
+	}
+
+	return false;
+}
+void Player::MoveFromController(const FSMControlInformation& FSMControlInfo ,
+					const Player::MoveControlInformation& MoveControlInfo)&
+{
+}
+;
 
 void Player::HitNotify(Object* const Target, const Vector3 PushDir,
 	const float CrossAreaScale)&

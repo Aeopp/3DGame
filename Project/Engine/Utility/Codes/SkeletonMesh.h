@@ -75,6 +75,7 @@ namespace Engine
 		};
 
 		Engine::SkeletonMesh::AnimNotify GetCurrentAnimNotify()const&;
+		float GetCurrentNormalizeAnimTime()const&;
 
 		void  PlayAnimation(const uint32 AnimIdx, 
 			const double Acceleration,

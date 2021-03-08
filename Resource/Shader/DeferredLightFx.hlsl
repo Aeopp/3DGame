@@ -210,16 +210,15 @@ PS_OUT PS_MAIN(PS_IN In)
                        CavityColor.rgb * LightColor.rgb * Specular, 1.0f);
     
     Out.Color.rgb += RimAmt * RimLightColor.rgb;
+    Out.Color.rgb += AmbientColor.rgb;
     ShadowFactor = saturate(ShadowFactor);
     Out.Color.rgb *= ShadowFactor;
-    Out.Color.rgb += AmbientColor.rgb;
-    
-    float Distance =  length(WorldLocation.xyz - CameraLocation.xyz);
+    float Distance = length(WorldLocation.xyz - CameraLocation.xyz);
     // 가까우면 1 멀면 0 
     float FogFactor = saturate((FogDistance - Distance) / FogDistance);
-    
     Out.Color.rgb = Out.Color.rgb * (FogFactor) + ((1.0f - FogFactor) * FogColor);
-    
+ 
+
     return Out;
 }
 

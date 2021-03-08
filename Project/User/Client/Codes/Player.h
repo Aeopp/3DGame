@@ -11,7 +11,7 @@ public:
 public:
 	enum class State : uint8
 	{
-		CombatWait=0u,
+		CombatWait = 0u,
 		Run,
 		RunEnd,
 		JumpStart,
@@ -19,6 +19,9 @@ public:
 		Jump,
 		JumpDown,
 		JumpLanding,
+		BasicCombo01,
+		BasicCombo02,
+		BasicCombo03,
 	};
 	void Initialize(const std::optional<Vector3>& Scale,
 					const std::optional<Vector3>& Rotation,
@@ -46,6 +49,10 @@ private:
 		Engine::SkeletonMesh* const MySkeletonMesh;
 		const float DeltaTime;
 	};
+	struct MoveControlInformation 
+	{
+		std::vector<Vector3> ControlDirections{};
+	};
 	void FSM(const float DeltaTime)&;
 private:
 	void CombatWaitTransition(const FSMControlInformation& FSMControlInfo)&;
@@ -66,8 +73,19 @@ private:
 	void JumpLandingState     (const FSMControlInformation& FSMControlInfo)&;
 	void JumpLandingTransition(const FSMControlInformation& FSMControlInfo)&;
 
+	void BasicCombo01State(const FSMControlInformation& FSMControlInfo)&;
+	void BasicCombo01Transition(const FSMControlInformation& FSMControlInfo)&;
+	void BasicCombo02State(const FSMControlInformation& FSMControlInfo)&;
+	void BasicCombo02Transition(const FSMControlInformation& FSMControlInfo)&;
+	void BasicCombo03State(const FSMControlInformation& FSMControlInfo)&;
+	void BasicCombo03Transition(const FSMControlInformation& FSMControlInfo)&;
 private:
+	std::optional<Player::MoveControlInformation> CheckTheMoveableState(const FSMControlInformation& FSMControlInfo)&;
 	bool CheckTheJumpableState(const FSMControlInformation& FSMControlInfo)&;
+	bool CheckTheAttackableState(const FSMControlInformation& FSMControlInfo)&;
+private:
+	void MoveFromController(const FSMControlInformation& FSMControlInfo,
+							const Player::MoveControlInformation& MoveControlInfo)&;
 private:
 	float PlayerMoveDirectionInterpolateAcceleration = 7.f;
 	Engine::ThirdPersonCamera* CurrentTPCamera{ nullptr };

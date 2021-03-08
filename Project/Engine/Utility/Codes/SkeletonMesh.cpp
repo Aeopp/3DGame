@@ -328,6 +328,11 @@ Engine::SkeletonMesh::AnimNotify Engine::SkeletonMesh::GetCurrentAnimNotify() co
 	return CurrentNotify;
 }
 
+float Engine::SkeletonMesh::GetCurrentNormalizeAnimTime() const&
+{
+	return CurrentAnimMotionTime / AnimInfoTable[AnimIdx].Duration;
+}
+
 void Engine::SkeletonMesh::PlayAnimation(const uint32 AnimIdx ,
 	                                     const double Acceleration ,
 										 const double TransitionDuration,
