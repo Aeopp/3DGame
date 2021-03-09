@@ -2,6 +2,8 @@ matrix World;
 matrix View;
 matrix Projection;
 
+matrix PrevWorldView;
+
 float DetailScale;
 
 float Contract;

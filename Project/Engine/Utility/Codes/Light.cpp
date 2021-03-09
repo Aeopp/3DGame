@@ -6,6 +6,8 @@
 #include <array>
 #include "StringHelper.h"
 #include "Timer.h"
+#include "Renderer.h"
+
 #include "Vertexs.hpp"
 
 static uint32 LightID = 0u;
@@ -31,20 +33,34 @@ void Engine::Light::Initialize(
 };
 
 void Engine::Light::Render(
-	IDirect3DDevice9* const Device, const Vector3& CameraLocation, 
-	const Matrix& View, const Matrix& Projection, 
+	IDirect3DDevice9* const Device, 
+	const Vector3& CameraLocation, 
+	const Matrix& View, 
+	const Matrix& Projection, 
 	IDirect3DTexture9* Albedo3_Contract1, IDirect3DTexture9* Normal3_Power1,
 	IDirect3DTexture9* WorldPos3_Depth1, 
 	IDirect3DTexture9* CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1, 
 	IDirect3DTexture9* ShadowDepth ,
 	const Vector3& FogColor,
-	const float FogDistance)&
+	const float FogDistance )&
 {
+	auto& _Renderer = Engine::Renderer::Instance;
+
+	const auto& CurRenderInfo = _Renderer->GetCurrentRenderInformation();
+	const auto& PrevRenderInfo = _Renderer->GetPrevRenderInformation();
+
 	auto Fx = _DeferredLight.GetHandle();
 	uint32 Pass = 0u;
 	Fx->Begin(&Pass, NULL);
 	Fx->SetMatrix("View", &View);
 	Fx->SetMatrix("Projection", &Projection);
+	Fx->SetMatrix("InverseViewProjection", &CurRenderInfo.InverseViewProjection);
+	Fx->SetMatrix("ViewProjection", &CurRenderInfo.ViewProjection);
+
+	Fx->SetMatrix("PrevView", &PrevRenderInfo.View);
+	Fx->SetMatrix("PrevProjection", &PrevRenderInfo.Projection);
+	Fx->SetMatrix("PrevInverseViewProjection", &PrevRenderInfo.InverseViewProjection );
+	Fx->SetMatrix("PrevViewProjection", &CurRenderInfo.ViewProjection);
 
 	const Matrix LightViewProjection =CalcLightViewProjection();
 	Fx->SetFloat("ShadowDepthMapWidth", _LightInfo.ShadowDepthMapWidth);

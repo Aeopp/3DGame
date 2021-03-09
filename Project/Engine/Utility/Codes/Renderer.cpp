@@ -22,7 +22,7 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 	LightInfo.Location = { 0.0f,2201.835f,1545.454f, 1};
 	LightInfo.ShadowFar = 4000.f;
 	// LightInfo.ShadowDepthBias = 0.014f;
-	LightInfo.ShadowDepthBias = 0.0f;
+	LightInfo.ShadowDepthBias = 0.0016f;
 
 	LightInfo._LightOpt = Engine::Light::LightOption::Directional;
 	LightInfo.ShadowDepthMapWidth= _DeferredPass.ShadowDepth.Width;
@@ -66,6 +66,9 @@ void Engine::Renderer::Render()&
 	CurBackBufSurface->Release();
 	CurBackDepthStencil->Release();
 	RenderObjects.clear();
+
+	// 렌더링 정보 저장 .
+	SetUpPrevRenderInfo();
 };
 
 void Engine::Renderer::Regist(RenderInterface* const Target)
@@ -92,7 +95,6 @@ void Engine::Renderer::RenderReady()&
 	auto& _Timer = Timer::Instance;
 	CurrentLandscape.Tick(_Timer->GetTick());
 
-
 	for (auto& [Group, RenderEntityRefs  ] :RenderObjects)
 	{
 		for (auto& RenderEntityRef : RenderEntityRefs)
@@ -112,12 +114,19 @@ void Engine::Renderer::SetUpRenderInfo()&
 	CurrentRenderInformation.CameraLocation4D = FMath::ConvertVector4(CurrentRenderInformation.CameraLocation, 1.f);
 	CurrentRenderInformation.View = View;
 	CurrentRenderInformation.Projection = Projection;
+	CurrentRenderInformation.ViewProjection = View * Projection;
+	CurrentRenderInformation.InverseViewProjection = 
+			std::move(FMath::Inverse(CurrentRenderInformation.ViewProjection));
+
 	CurrentRenderInformation.LightViewProjection = _DirectionalLight.CalcLightViewProjection();
 	_Frustum.Make(CameraWorld, Projection);
 }
+void Engine::Renderer::SetUpPrevRenderInfo()&
+{
+	PrevRenderInformation = CurrentRenderInformation;
+}
 void Engine::Renderer::BackUpCurBackBuffer()&
 {
-	
 		Device->GetRenderTarget(0u, &CurBackBufSurface);
 		Device->GetDepthStencilSurface(&CurBackDepthStencil);
 		Device->GetViewport(&CurViewPort);
@@ -134,14 +143,14 @@ void Engine::Renderer::ClearAllRenderTarget()&
 	_DeferredPass.ShadowDepth.ClearWithDepthStencil(D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER);
 	_DeferredPass.Albedo3_Contract1.Clear();
 	_DeferredPass.Normal3_Power1.Clear();
-	_DeferredPass.WorldLocation3_Depth1.Clear();
+	_DeferredPass.Velocity2_None1_Depth1.Clear();
 	_DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.Clear();
 }
 void Engine::Renderer::BindDeferredPass()&
 {
 	_DeferredPass.Albedo3_Contract1.BindGraphicDevice(0u);
 	_DeferredPass.Normal3_Power1.BindGraphicDevice(1u);
-	_DeferredPass.WorldLocation3_Depth1.BindGraphicDevice(2u);
+	_DeferredPass.Velocity2_None1_Depth1.BindGraphicDevice(2u);
 	_DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.BindGraphicDevice(3u);
 
 	Device->SetDepthStencilSurface(CurBackDepthStencil);
@@ -206,7 +215,7 @@ void Engine::Renderer::RenderDeferredLight()&
 		CurrentRenderInformation.CameraLocation, CurrentRenderInformation.View, CurrentRenderInformation.Projection,
 		_DeferredPass.Albedo3_Contract1.GetTexture(),
 		_DeferredPass.Normal3_Power1.GetTexture(),
-		_DeferredPass.WorldLocation3_Depth1.GetTexture(),
+		_DeferredPass.Velocity2_None1_Depth1.GetTexture(),
 		_DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.GetTexture(),
 		_DeferredPass.ShadowDepth.GetTexture(),
 		FogColor,
@@ -221,7 +230,7 @@ void Engine::Renderer::RenderDeferredDebugBuffer()&
 	{
 		_DeferredPass.Albedo3_Contract1.RenderDebugBuffer();
 		_DeferredPass.Normal3_Power1.RenderDebugBuffer();
-		_DeferredPass.WorldLocation3_Depth1.RenderDebugBuffer();
+		_DeferredPass.Velocity2_None1_Depth1.RenderDebugBuffer();
 		_DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.RenderDebugBuffer();
 
 		_DeferredPass.ShadowDepth.RenderDebugBuffer();
@@ -230,7 +239,7 @@ void Engine::Renderer::RenderDeferredDebugBuffer()&
 void Engine::Renderer::RenderSky()&
 {
 	_Sky.Render(_Frustum, CurrentRenderInformation.View, CurrentRenderInformation.Projection, CurrentRenderInformation.CameraLocation4D, Device.get(),
-		_DeferredPass.WorldLocation3_Depth1.GetTexture());
+		_DeferredPass.Velocity2_None1_Depth1.GetTexture());
 
 	
 }

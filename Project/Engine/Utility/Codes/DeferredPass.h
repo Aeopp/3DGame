@@ -20,7 +20,7 @@ namespace Engine
 	public:
 		RenderTarget Albedo3_Contract1{};
 		RenderTarget Normal3_Power1{};
-		RenderTarget WorldLocation3_Depth1{};
+		RenderTarget Velocity2_None1_Depth1{};
 		RenderTarget CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1{};
 		
 		RenderTarget ShadowDepth{};

@@ -22,8 +22,10 @@ namespace Engine
 	public:
 		struct RenderInformation
 		{
+			Matrix  InverseViewProjection{};
 			Matrix  View{};
 			Matrix  Projection{};
+			Matrix  ViewProjection{};
 			Vector3 CameraLocation{};
 			Vector4 CameraLocation4D{};  
 			Matrix  LightViewProjection{};
@@ -44,12 +46,13 @@ namespace Engine
 		void CreateStaticLightResource()&; 
 
 		const RenderInformation& GetCurrentRenderInformation() const& {return CurrentRenderInformation; };
-
+		const RenderInformation& GetPrevRenderInformation() const& { return PrevRenderInformation; };
 		Engine::Light _DirectionalLight{};
 	private:
 		void FrustumInCheck()&;
 		void RenderReady()&;
 		void SetUpRenderInfo()&;
+		void SetUpPrevRenderInfo()&;
 		void BackUpCurBackBuffer()&;
 		void RestoreBackBuffer()&;
 		void ClearAllRenderTarget()&;
@@ -73,6 +76,7 @@ namespace Engine
 		IDirect3DSurface9* CurBackDepthStencil{ nullptr };
 		D3DVIEWPORT9 CurViewPort{};
 		RenderInformation CurrentRenderInformation{};  
+		RenderInformation PrevRenderInformation{};
 		DeferredPass _DeferredPass{};
 		Sky _Sky{};
 		Landscape CurrentLandscape{};

@@ -179,8 +179,8 @@ void Player::Update(const float DeltaTime)&
 	if (Location.y < TestLandingCheck)
 	{
 		_Transform->Landing(TestLandingCheck);
-
 	}
+
 	auto& _RefPhysic = _Transform->RefPhysic();
 };
 

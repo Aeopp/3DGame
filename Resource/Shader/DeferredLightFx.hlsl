@@ -1,7 +1,16 @@
 float4x4 View;
 float4x4 Projection;
+float4x4 InverseViewProjection;
+float4x4 ViewProjection;
+
 float4x4 LightViewProjection;
 float4   LightLocation;
+
+float4x4 PrevInverseViewProjection;
+float4x4 PrevView; 
+float4x4 PrevProjection;
+float4x4 PrevViewProjection;
+
 
 float4 CameraLocation;
 float4 LightDirection;
@@ -13,10 +22,7 @@ float FogDistance;
 
 float ShadowDepthMapHeight;
 float ShadowDepthMapWidth;
-
 float ShadowDepthBias;
-
-
 
 #define PCFCount 3
 
@@ -40,7 +46,6 @@ sampler Normal3_Power1Sampler = sampler_state
 {
     texture = Normal3_Power1;
 
- 
     minfilter = anisotropic;
     magfilter = anisotropic;
     mipfilter = anisotropic;
@@ -123,10 +128,37 @@ PS_OUT PS_MAIN(PS_IN In)
         
     float4 Albedo3_Contract1 = tex2D(Albedo3_Contract1Sampler, In.UV);
     float4 WorldPos3_Depth1 = tex2D(WorldPos3_Depth1Sampler, In.UV);
-    float3 WorldLocation = WorldPos3_Depth1.rgb;
+    float  Depth = WorldPos3_Depth1.a;
+    float4 CurrentNDC = float4(In.UV.x * 2.f - 1.f, (1.f-In.UV.y) * 2.f - 1.f, Depth, 1.f);
+    // view-projection 역으로 변환합니다. 
+    float4 WorldLocation = mul(CurrentNDC, InverseViewProjection);
+    WorldLocation /= WorldLocation.w;
+    
+    // float3 WorldLocation = WorldPos3_Depth1.rgb;
     float3 Albedo   = Albedo3_Contract1.rgb;
     
-    float4 LightClipPosition = mul(float4(WorldLocation, 1.f), LightViewProjection);
+    /////
+    //float4 PrevNDC = mul(WorldLocation, PrevViewProjection);
+    //PrevNDC /= PrevNDC.w;
+    //float4 NDCDelta = (CurrentNDC - PrevNDC);
+    //int NumSamples = 100;
+    //float2 Velocity = NDCDelta.xy * 0.5f;
+    //Velocity /= (float) NumSamples;
+    
+    //float3 ColorVelocity = tex2D(Albedo3_Contract1Sampler, In.UV);
+    //float2 VelocitySampleUV = In.UV + Velocity;
+    
+    //for (int i = 1; i < NumSamples; ++i, VelocitySampleUV += Velocity)
+    //{
+    //    float4 currentColor = tex2D(Albedo3_Contract1Sampler, VelocitySampleUV);
+    //    ColorVelocity += currentColor.rgb;
+    //}
+    
+    //ColorVelocity = ColorVelocity / NumSamples;
+    //Albedo = ColorVelocity;
+    ///// 
+    
+    float4 LightClipPosition = mul(float4(WorldLocation.xyz, 1.f), LightViewProjection);
     LightClipPosition.xyz = LightClipPosition.xyz / LightClipPosition.w;
     LightClipPosition.y *= -1.f;
     LightClipPosition.xy *= 0.5f;
@@ -167,7 +199,6 @@ PS_OUT PS_MAIN(PS_IN In)
     float3 Normal = Normal3_Power1.rgb;
     float Power = Normal3_Power1.a;
        
-    float Depth = WorldPos3_Depth1.a;
     
     float3 CavityColor = _CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.rrr;
     
@@ -199,6 +230,7 @@ PS_OUT PS_MAIN(PS_IN In)
     
     float Specular = 0.0f;
     
+  
     float Diffuse = saturate(dot(-LightDirectionNormal, Normal));
     Diffuse = pow(((Diffuse * 0.5) + 0.5), Contract);
   //  Diffuse = ceil(Diffuse * 10.0f) / 10.0f;
@@ -217,8 +249,8 @@ PS_OUT PS_MAIN(PS_IN In)
     // 가까우면 1 멀면 0 
     float FogFactor = saturate((FogDistance - Distance) / FogDistance);
     Out.Color.rgb = Out.Color.rgb * (FogFactor) + ((1.0f - FogFactor) * FogColor);
- 
-
+    
+    
     return Out;
 }
 
