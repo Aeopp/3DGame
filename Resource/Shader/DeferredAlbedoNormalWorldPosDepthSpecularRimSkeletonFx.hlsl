@@ -118,7 +118,7 @@ struct VS_OUT
     float3 BiNormal : TEXCOORD2;
     float2 UV : TEXCOORD3;
     float3 WorldLocation : TEXCOORD4;
-    float Depth : TEXCOORD5;
+    float4 ClipPosition : TEXCOORD5;
 };
 
 
@@ -174,14 +174,13 @@ VS_OUT VS_MAIN(VS_IN In)
     WorldView = mul(World, View);
     WorldViewProjection = mul(WorldView, Projection);
 
-    Out.Position = mul(vector(AnimPos.xyz, 1.f), WorldViewProjection);
+    Out.ClipPosition = Out.Position = mul(vector(AnimPos.xyz, 1.f), WorldViewProjection);
     Out.UV = In.UV;
     Out.Normal = mul(float4(AnimNormal.xyz, 0.f), World);
     Out.Tangent = mul(float4(AnimTanget.xyz, 0.f), World);
     Out.BiNormal = mul(float4(AnimBiNormal.xyz, 0.f), World);
     
     Out.WorldLocation = mul(float4(AnimPos.xyz, 1.f), World).xyz;
-    Out.Depth = Out.Position.z / Out.Position.w;
     
     return Out;
 }
@@ -194,7 +193,7 @@ struct PS_IN
     float3 BiNormal : TEXCOORD2;
     float2 UV : TEXCOORD3;
     float3 WorldLocation : TEXCOORD4;
-    float  Depth : TEXCOORD5;
+    float4 ClipPosition : TEXCOORD5;
 };
 
 
@@ -244,7 +243,7 @@ PS_OUT AlbedoNormalWorldPosDepthSpecular(PS_IN In)
     Out.Normal3_Power1 = float4(WorldNormal.xyz, Power);
     
     // 월드 위치와 NDC 깊이 패킹
-    Out.WorldLocation3_Depth1 = float4(In.WorldLocation.xyz, In.Depth);
+    Out.WorldLocation3_Depth1 = float4(In.WorldLocation.xyz, In.ClipPosition.z / In.ClipPosition.w);
   
     CavityColor.rgb *= SpecularIntencity;
     Out.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1Sampler = float4(CavityColor.r, RimAmtColor.r, RimInnerWidth, RimOuterWidth);

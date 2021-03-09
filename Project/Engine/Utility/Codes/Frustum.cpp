@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "FMath.hpp"
 #include <execution>
+#include "UtilityGlobal.h"
 #include "ResourceSystem.h"
 #include "Vertexs.hpp"
 #include "GraphicDevice.h"
@@ -89,6 +90,8 @@ bool Engine::Frustum::IsIn(const Sphere& _Sphere)&
 
 void Engine::Frustum::Render(IDirect3DDevice9* const Device)&
 {
+	if (Engine::Global::bDebugMode)
+	{
 	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	Device->SetRenderState(D3DRS_ZENABLE, FALSE);
@@ -100,4 +103,6 @@ void Engine::Frustum::Render(IDirect3DDevice9* const Device)&
 	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 	Device->SetRenderState(D3DRS_ZENABLE, TRUE);
+
+	}
 }
