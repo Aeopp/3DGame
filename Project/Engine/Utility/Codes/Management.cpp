@@ -438,13 +438,18 @@ void Engine::Management::CreateStaticResource()&
 	{
 		// 상위 셰이더 로딩
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"DefaultFx.hlsl", L"DefaultFx");
-		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"DeferredAlbedoNormalWorldPosDepthSpecularRimFx.hlsl", L"DeferredAlbedoNormalWorldPosDepthSpecularRimFx");
+		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"DeferredAlbedoNormalVelocityDepthSpecularRimFx.hlsl", L"DeferredAlbedoNormalVelocityDepthSpecularRimFx");
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"ShadowDepthFx.hlsl", L"ShadowDepthFx");
 		Engine::ShaderFx::Load(Device.get(),Engine::Global::ResourcePath / L"Shader" / L"ShadowDepthSkeletonFx.hlsl",L"ShadowDepthSkeletonFx");
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"DeferredDefaultFx.hlsl", L"DeferredDefaultFx");
 		Engine::ShaderFx::Load(Device.get(),Engine::Global::ResourcePath / L"Shader" / L"SkyFx.hlsl",L"SkyFx");
-		Engine::ShaderFx::Load(Device.get(),Engine::Global::ResourcePath / L"Shader" / L"DeferredAlbedoNormalWorldPosDepthSpecularRimSkeletonFx.hlsl", L"DeferredAlbedoNormalWorldPosDepthSpecularRimSkeletonFx");
-			
+		Engine::ShaderFx::Load(Device.get(),Engine::Global::ResourcePath / L"Shader" / L"DeferredAlbedoNormalVelocityDepthSpecularRimSkeletonFx.hlsl", L"DeferredAlbedoNormalVelocityDepthSpecularRimSkeletonFx");
+		
+		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"VelocityFx.hlsl", L"VelocityFx");
+		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"VelocitySkinningFx.hlsl", L"VelocitySkinningFx");
+		
+		
+
 		Engine::ShaderFx::Load(Device.get(),Engine::Global::ResourcePath / L"Shader" / L"SkeletonSkinningDefaultFx.hlsl",L"SkeletonSkinningDefaultFx");
 	}
 

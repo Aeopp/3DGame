@@ -48,6 +48,8 @@ void Engine::Renderer::Render()&
 	RenderDeferred();
 	BindShadowDepthPass();
 	RenderShadowDepth();
+	BindVelocityMap();
+	RenderVelocity();
 	RestoreBackBuffer();
 	RenderDeferredLight();
 
@@ -141,6 +143,7 @@ void Engine::Renderer::RestoreBackBuffer()&
 void Engine::Renderer::ClearAllRenderTarget()&
 {
 	_DeferredPass.ShadowDepth.ClearWithDepthStencil(D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER);
+	_DeferredPass.VelocityMap.ClearWithDepthStencil(D3DCLEAR_TARGET| D3DCLEAR_ZBUFFER);
 	_DeferredPass.Albedo3_Contract1.Clear();
 	_DeferredPass.Normal3_Power1.Clear();
 	_DeferredPass.Velocity2_None1_Depth1.Clear();
@@ -157,7 +160,8 @@ void Engine::Renderer::BindDeferredPass()&
 }
 void Engine::Renderer::RenderDeferred()&
 {
-	CurrentLandscape.RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(
+	CurrentLandscape.
+		RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(
 		_Frustum, CurrentRenderInformation.View, CurrentRenderInformation.Projection, CurrentRenderInformation.CameraLocation4D);
 
 	if (auto DeferredNoAlphaIter = RenderObjects.find(RenderInterface::Group::DeferredNoAlpha);
@@ -169,7 +173,7 @@ void Engine::Renderer::RenderDeferred()&
 		{
 			auto& EntityRef = RenderEntityRef.get();
 
-			EntityRef.RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(this);
+			EntityRef.RenderDeferredAlbedoNormalVelocityDepthSpecularRim(this);
 		}
 	}
 }
@@ -208,9 +212,35 @@ void Engine::Renderer::RenderShadowDepth()&
 		}
 	}
 }
+
+void Engine::Renderer::BindVelocityMap()
+{
+	_DeferredPass.VelocityMap.BindGraphicDevice(0u);
+	_DeferredPass.VelocityMap.BindDepthStencil();
+}
+
+void Engine::Renderer::RenderVelocity()
+{
+	CurrentLandscape.RenderVelocity(this);
+
+	for (auto& [Group, RenderEntityRefs] : RenderObjects)
+	{
+		if (Group == RenderInterface::Group::UI)continue;
+
+		for (auto& RenderEntityRef : RenderEntityRefs)
+		{
+			auto& EntityRef = RenderEntityRef.get();
+
+			if (EntityRef.bMotionBlur)
+			{
+				EntityRef.RenderVelocity(this);
+			}
+		}
+	}
+}
+
 void Engine::Renderer::RenderDeferredLight()&
 {
-
 	_DirectionalLight.Render(Device.get(),
 		CurrentRenderInformation.CameraLocation, CurrentRenderInformation.View, CurrentRenderInformation.Projection,
 		_DeferredPass.Albedo3_Contract1.GetTexture(),
@@ -234,6 +264,7 @@ void Engine::Renderer::RenderDeferredDebugBuffer()&
 		_DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.RenderDebugBuffer();
 
 		_DeferredPass.ShadowDepth.RenderDebugBuffer();
+		_DeferredPass.VelocityMap.RenderDebugBuffer();
 	}
 }
 void Engine::Renderer::RenderSky()&

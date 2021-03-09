@@ -78,6 +78,7 @@ namespace Engine
 		{
 			bool bLandscapeInclude = false;
 			bool bPendingKill = false;
+			Matrix PrevWorld = FMath::Identity();
 			Vector3 Scale{ 1,1,1 };
 			Vector3 Rotation{ 0,0,0 };
 			Vector3 Location{ 0,0,0 };
@@ -120,6 +121,11 @@ namespace Engine
 
 		void RenderShadowDepth(
 			const Matrix& LightViewProjection)&;
+	
+		void RenderVelocity(class Renderer* const _Renderer)&;
+
+		
+
 
 		inline const std::vector<PlaneInfo>& GetMapWorldCoordPlanes()const&;
 
@@ -161,7 +167,7 @@ namespace Engine
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr };
 		Engine::ShaderFx ForwardShaderFx{};
 		Engine::ShaderFx DeferredAlbedoNormalWorldPosDepthSpecular{};
-		
+		Engine::ShaderFx VelocityFx{};
 		Engine::ShaderFx ShadowDepthFx{};
 		Vector3 Scale{1,1,1};
 		Vector3 Rotation{0,0,0};

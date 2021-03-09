@@ -56,7 +56,10 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 
 	ForwardShaderFx.Initialize(L"SkeletonSkinningDefaultFx");
 	DepthShadowFx.Initialize(L"ShadowDepthSkeletonFx");
-	DeferredDefaultFx.Initialize(L"DeferredAlbedoNormalWorldPosDepthSpecularRimSkeletonFx");
+	DeferredDefaultFx.Initialize(L"DeferredAlbedoNormalVelocityDepthSpecularRimSkeletonFx");
+	VelocityFx.Initialize(L"VelocitySkinningFx");
+
+	RenderBoneMatricies.resize(BoneTable.size());
 }
 
 void Engine::SkeletonMesh::Event(Object* Owner)&
@@ -157,12 +160,12 @@ void Engine::SkeletonMesh::Render(Engine::Renderer* const _Renderer)&
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 	}
 }
-void Engine::SkeletonMesh::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engine::Renderer* const _Renderer)&
+void Engine::SkeletonMesh::RenderDeferredAlbedoNormalVelocityDepthSpecularRim(Engine::Renderer* const _Renderer)&
 {
 	auto Fx = DeferredDefaultFx.GetHandle();
 	Fx->SetTexture("VTF", BoneAnimMatrixInfo);
 	Fx->SetInt("VTFPitch", VTFPitch);
-	Super::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(_Renderer);
+	Super::RenderDeferredAlbedoNormalVelocityDepthSpecularRim(_Renderer);
 
 	if (bBoneDebug)
 	{
@@ -192,7 +195,7 @@ void Engine::SkeletonMesh::RenderReady(Engine::Renderer* const _Renderer)&
 {
 	Super::RenderReady(_Renderer);
 
-	std::vector<Matrix> RenderBoneMatricies(BoneTable.size());
+	std::swap(BoneAnimMatrixInfo, PrevBoneAnimMatrixInfo);
 
 	std::transform(std::begin(BoneTable), std::end(BoneTable),
 		std::begin(RenderBoneMatricies), []
@@ -206,11 +209,20 @@ void Engine::SkeletonMesh::RenderReady(Engine::Renderer* const _Renderer)&
 	{
 		assert(NULL);
 	}
+
 	std::memcpy(LockRect.pBits, RenderBoneMatricies.data(), RenderBoneMatricies.size() * sizeof(Matrix));
 	BoneAnimMatrixInfo->UnlockRect(0u);
-
-
-};
+}
+void Engine::SkeletonMesh::RenderVelocity(Engine::Renderer* const _Renderer)&
+{
+	auto Fx = VelocityFx.GetHandle();
+	Fx->SetTexture("VTF", BoneAnimMatrixInfo);
+	Fx->SetTexture("PrevVTF", PrevBoneAnimMatrixInfo);
+	Fx->SetInt("VTFPitch", VTFPitch);
+	
+	
+	Super::RenderVelocity(_Renderer);
+}
 
 
 
@@ -407,11 +419,19 @@ void Engine::SkeletonMesh::InitTextureForVertexTextureFetch()&
 	(VTFPitch, VTFPitch,1,0, D3DFMT_A32B32G32R32F,D3DPOOL_MANAGED,
 		&BoneAnimMatrixInfo, nullptr);
 
+	Device->CreateTexture
+	(VTFPitch, VTFPitch, 1, 0, D3DFMT_A32B32G32R32F, D3DPOOL_MANAGED,
+		&PrevBoneAnimMatrixInfo, nullptr);
+
 	static uint64 BoneAnimMatrixInfoTextureResourceID = 0u;
 
 	ResourceSystem::Instance->Insert<IDirect3DTexture9>
 		(
-			L"VTF_" + std::to_wstring(BoneAnimMatrixInfoTextureResourceID++), BoneAnimMatrixInfo);
+			L"VTF_" + std::to_wstring(BoneAnimMatrixInfoTextureResourceID), BoneAnimMatrixInfo);
+
+	ResourceSystem::Instance->Insert<IDirect3DTexture9>
+		(
+			L"PrevVTF_" + std::to_wstring(BoneAnimMatrixInfoTextureResourceID++), PrevBoneAnimMatrixInfo);
 }
 
 void Engine::SkeletonMesh::AnimationSave()&

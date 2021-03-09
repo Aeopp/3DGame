@@ -24,6 +24,7 @@ namespace Engine
 		RenderTarget CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1{};
 		
 		RenderTarget ShadowDepth{};
+		RenderTarget VelocityMap{};
 	private:
 		IDirect3DDevice9* Device{ nullptr };
 	};

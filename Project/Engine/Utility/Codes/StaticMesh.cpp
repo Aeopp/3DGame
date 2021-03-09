@@ -24,7 +24,8 @@ void Engine::StaticMesh::Initialize(
 
 	ForwardShaderFx.Initialize(L"DefaultFx");
 	DepthShadowFx.Initialize(L"ShadowDepthFx");
-	DeferredDefaultFx.Initialize(L"DeferredAlbedoNormalWorldPosDepthSpecularRimFx");
+	DeferredDefaultFx.Initialize(L"DeferredAlbedoNormalVelocityDepthSpecularRimFx");
+	VelocityFx.Initialize(L"VelocityFx");
 }
 
 void Engine::StaticMesh::Event(Object* Owner)&
@@ -36,9 +37,9 @@ void Engine::StaticMesh::Render(Engine::Renderer* const _Renderer)&
 {
 	Super::Render(_Renderer);
 }
-void Engine::StaticMesh::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engine::Renderer* const _Renderer)&
+void Engine::StaticMesh::RenderDeferredAlbedoNormalVelocityDepthSpecularRim(Engine::Renderer* const _Renderer)&
 {
-	Super::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(_Renderer);
+	Super::RenderDeferredAlbedoNormalVelocityDepthSpecularRim(_Renderer);
 }
 void Engine::StaticMesh::RenderShadowDepth(Engine::Renderer* const _Renderer)&
 {
@@ -47,4 +48,9 @@ void Engine::StaticMesh::RenderShadowDepth(Engine::Renderer* const _Renderer)&
 void Engine::StaticMesh::RenderReady(Engine::Renderer* const _Renderer)&
 {
 	Super::RenderReady(_Renderer);
+}
+
+void Engine::StaticMesh::RenderVelocity(Engine::Renderer* const _Renderer)&
+{
+	Super::RenderVelocity(_Renderer);
 }

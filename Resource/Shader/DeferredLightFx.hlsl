@@ -31,6 +31,16 @@ texture Normal3_Power1;
 texture WorldPos3_Depth1;
 texture CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1;
 texture ShadowDepth;
+texture VelocityMap;
+
+sampler VelocityMap_Sampler = sampler_state
+{
+    texture = VelocityMap;
+
+    minfilter = point;
+    magfilter = point;
+    mipfilter = point;
+};
 
 sampler Albedo3_Contract1Sampler= sampler_state
 {
@@ -134,29 +144,29 @@ PS_OUT PS_MAIN(PS_IN In)
     float4 WorldLocation = mul(CurrentNDC, InverseViewProjection);
     WorldLocation /= WorldLocation.w;
     
-    // float3 WorldLocation = WorldPos3_Depth1.rgb;
-    float3 Albedo   = Albedo3_Contract1.rgb;
     
-    /////
-    //float4 PrevNDC = mul(WorldLocation, PrevViewProjection);
-    //PrevNDC /= PrevNDC.w;
-    //float4 NDCDelta = (CurrentNDC - PrevNDC);
-    //int NumSamples = 100;
-    //float2 Velocity = NDCDelta.xy * 0.5f;
-    //Velocity /= (float) NumSamples;
+    // float3 Albedo   = Albedo3_Contract1.rgb;
+    float3 Albedo = float3(0, 0, 0);
+    /////////
+    int NumBlurSample = 32;
+    float4 Velocity = tex2D(VelocityMap_Sampler, In.UV);
+    Velocity.xy /= (float) NumBlurSample;
     
-    //float3 ColorVelocity = tex2D(Albedo3_Contract1Sampler, In.UV);
-    //float2 VelocitySampleUV = In.UV + Velocity;
+    int iCnt = 1;
     
-    //for (int i = 1; i < NumSamples; ++i, VelocitySampleUV += Velocity)
-    //{
-    //    float4 currentColor = tex2D(Albedo3_Contract1Sampler, VelocitySampleUV);
-    //    ColorVelocity += currentColor.rgb;
-    //}
-    
-    //ColorVelocity = ColorVelocity / NumSamples;
-    //Albedo = ColorVelocity;
-    ///// 
+    float4 BColor;
+    for (int i = iCnt; i < NumBlurSample;++i)
+    {
+        BColor = tex2D(Albedo3_Contract1Sampler, In.UV + (Velocity.xy* (float) i));
+        if(Velocity.a < BColor.a +0.04f)
+        {
+            iCnt++;
+            Albedo += BColor;
+            
+        }
+    }
+    Albedo /= (float) iCnt;
+    /////// 
     
     float4 LightClipPosition = mul(float4(WorldLocation.xyz, 1.f), LightViewProjection);
     LightClipPosition.xyz = LightClipPosition.xyz / LightClipPosition.w;
@@ -249,6 +259,7 @@ PS_OUT PS_MAIN(PS_IN In)
     // 가까우면 1 멀면 0 
     float FogFactor = saturate((FogDistance - Distance) / FogDistance);
     Out.Color.rgb = Out.Color.rgb * (FogFactor) + ((1.0f - FogFactor) * FogColor);
+    
     
     
     return Out;

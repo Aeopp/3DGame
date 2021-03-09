@@ -60,6 +60,8 @@ namespace Engine
 		void RenderDeferred()&;
 		void BindShadowDepthPass()&;
 		void RenderShadowDepth()&;
+		void BindVelocityMap();
+		void RenderVelocity();
 		void RenderDeferredLight()&;
 		void RenderDeferredDebugBuffer()&;
 		void RenderSky()&;

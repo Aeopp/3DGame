@@ -60,7 +60,7 @@ void Engine::Light::Render(
 	Fx->SetMatrix("PrevView", &PrevRenderInfo.View);
 	Fx->SetMatrix("PrevProjection", &PrevRenderInfo.Projection);
 	Fx->SetMatrix("PrevInverseViewProjection", &PrevRenderInfo.InverseViewProjection );
-	Fx->SetMatrix("PrevViewProjection", &CurRenderInfo.ViewProjection);
+	Fx->SetMatrix("PrevViewProjection", &PrevRenderInfo.ViewProjection);
 
 	const Matrix LightViewProjection =CalcLightViewProjection();
 	Fx->SetFloat("ShadowDepthMapWidth", _LightInfo.ShadowDepthMapWidth);
@@ -87,7 +87,7 @@ void Engine::Light::Render(
 		Fx->SetTexture("WorldPos3_Depth1", WorldPos3_Depth1);
 		Fx->SetTexture("CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1", CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1);
 		Fx->SetTexture("ShadowDepth", ShadowDepth);
-		
+		Fx->SetTexture("VelocityMap", _Renderer->RefDeferredPass().VelocityMap.GetTexture());
 		Fx->CommitChanges();
 		Device->SetIndices(IdxBuf);
 		Device->SetStreamSource(0u, VtxBuf, 0u, sizeof(Vertex::Screen));

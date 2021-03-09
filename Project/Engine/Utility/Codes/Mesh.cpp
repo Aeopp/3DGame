@@ -78,20 +78,26 @@ void Engine::Mesh::Render(Engine::Renderer* const _Renderer)&
 	}
 	Fx->End();
 };
-void Engine::Mesh::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engine::Renderer* const _Renderer)&
+void Engine::Mesh::RenderDeferredAlbedoNormalVelocityDepthSpecularRim(
+	Engine::Renderer* const _Renderer)&
 {
 	if (nullptr == Device)
 		return;
 	if (bCurrentFrustumIn == false)
 		return;
 
-	const auto& RenderInfo  =_Renderer->GetCurrentRenderInformation();
+	const auto& RenderInfo  = _Renderer->GetCurrentRenderInformation();
+	const auto& PrevRenderInfo = _Renderer->GetPrevRenderInformation();
 
 	Device->SetVertexDeclaration(VtxDecl);
 	auto Fx = DeferredDefaultFx.GetHandle();
 	Fx->SetMatrix("View", &RenderInfo.View);
 	Fx->SetMatrix("Projection", &RenderInfo.Projection);
 	Fx->SetMatrix("World", &OwnerWorld);
+
+	const Matrix PrevWorldViewProjection =PrevWorld* PrevRenderInfo.ViewProjection;
+	Fx->SetMatrix("PrevWorldViewProjection", &PrevWorldViewProjection);
+
 
 	uint32 Pass = 0u;
 	Fx->Begin(&Pass,NULL);
@@ -160,5 +166,46 @@ void Engine::Mesh::RenderShadowDepth(Engine::Renderer* const _Renderer)&
 }; 
 void Engine::Mesh::RenderReady(Engine::Renderer* const _Renderer)&
 {
+	PrevWorld = OwnerWorld;
+	PrevView = _Renderer->GetPrevRenderInformation().View;
 	OwnerWorld = Owner->GetComponent<Engine::Transform>()->UpdateWorld();
-};
+
+}
+void Engine::Mesh::RenderVelocity(Engine::Renderer* const _Renderer)&
+{
+	if (nullptr == Device)
+		return;
+
+	Device->SetVertexDeclaration(VtxDecl);
+	auto Fx = VelocityFx.GetHandle();
+	const auto& RenderInfo = _Renderer->GetCurrentRenderInformation();
+	const auto& PrevRenderInfo = _Renderer->GetPrevRenderInformation();
+
+	const Matrix WorldView = OwnerWorld* RenderInfo.View;
+	const Matrix PrevWorldView = PrevWorld* PrevRenderInfo.View;
+	
+	Fx->SetMatrix("WorldView", &WorldView);
+	Fx->SetMatrix("PrevWorldView", &PrevWorldView);
+	Fx->SetMatrix("Projection", &RenderInfo.Projection);
+
+	uint32 Pass = 0u;
+	Fx->Begin(&Pass, NULL);
+	{
+		for (uint32 i = 0; i < Pass; ++i)
+		{
+			Fx->BeginPass(i);
+			{
+				for (auto& CurMesh : MeshContainer)
+				{
+					Device->SetStreamSource(0, CurMesh.VertexBuffer, 0, CurMesh.Stride);
+					Device->SetIndices(CurMesh.IndexBuffer);
+					Fx->CommitChanges();
+					Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount, 0u, CurMesh.PrimitiveCount);
+				}
+			}
+			Fx->EndPass();
+		}
+	}
+	Fx->End();
+}
+;

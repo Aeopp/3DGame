@@ -54,7 +54,7 @@ void Engine::RenderInterface::Regist()
 	Renderer::Instance->Regist(this);
 }
 
-void Engine::RenderInterface::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engine::Renderer* const _Renderer)&
+void Engine::RenderInterface::RenderDeferredAlbedoNormalVelocityDepthSpecularRim(Engine::Renderer* const _Renderer)&
 {
 
 }
@@ -67,5 +67,10 @@ void Engine::RenderInterface::RenderShadowDepth(Engine::Renderer* const _Rendere
 void Engine::RenderInterface::RenderReady(Engine::Renderer* const _Renderer)&
 {
 
-}
+};
+
+void Engine::RenderInterface::RenderVelocity(Engine::Renderer* const _Renderer)&
+{
+
+};
 

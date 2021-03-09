@@ -2,7 +2,7 @@ matrix World;
 matrix View;
 matrix Projection;
 
-matrix PrevWorldView;
+matrix PrevWorldViewProjection;
 
 float DetailScale;
 
@@ -119,8 +119,8 @@ struct VS_OUT
     float3 Tangent : TEXCOORD1;
     float3 BiNormal : TEXCOORD2;
     float2 UV : TEXCOORD3;
-    float3 WorldLocation : TEXCOORD4;
-    float4 ClipPosition : TEXCOORD5;
+    float4 ClipPosition : TEXCOORD4;
+    float2 Velocity : TEXCOORD5; 
 };
 
 
@@ -138,7 +138,7 @@ VS_OUT VS_MAIN(VS_IN In)
     
     float UVCorrection = 0.5f;
     float FVTFPitch = float(VTFPitch);
-    int IVTFPitch = int(VTFPitch);
+    int   IVTFPitch = int(VTFPitch);
     
     for (int i = 0; i < 4; ++i)
     {
@@ -164,12 +164,11 @@ VS_OUT VS_MAIN(VS_IN In)
             tex2Dlod(VTFSampler, float4(VTFUVRow3, 0.f, 0.f))
         };
         
-        AnimTanget += (mul(float4(In.Tangent, 0.f), AnimMatrix) * In.Weights[i]);
-        AnimNormal += (mul(float4(In.Normal, 0.f), AnimMatrix) * In.Weights[i]);
+        AnimTanget   += (mul(float4(In.Tangent, 0.f), AnimMatrix) * In.Weights[i]);
+        AnimNormal   += (mul(float4(In.Normal, 0.f), AnimMatrix) * In.Weights[i]);
         AnimBiNormal += (mul(float4(In.BiNormal, 0.f), AnimMatrix) * In.Weights[i]);
-        AnimPos += (mul(In.Position, AnimMatrix) * In.Weights[i]);
+        AnimPos      += (mul(In.Position, AnimMatrix) * In.Weights[i]);
     }
-    
     
     matrix WorldView, WorldViewProjection;
 
@@ -178,11 +177,16 @@ VS_OUT VS_MAIN(VS_IN In)
 
     Out.ClipPosition = Out.Position = mul(vector(AnimPos.xyz, 1.f), WorldViewProjection);
     Out.UV = In.UV;
-    Out.Normal = mul(float4(AnimNormal.xyz, 0.f), World);
-    Out.Tangent = mul(float4(AnimTanget.xyz, 0.f), World);
-    Out.BiNormal = mul(float4(AnimBiNormal.xyz, 0.f), World);
+    Out.Normal = normalize(mul(float4(AnimNormal.xyz, 0.f), World));
+    Out.Tangent = normalize(mul(float4(AnimTanget.xyz, 0.f), World));
+    Out.BiNormal = normalize(mul(float4(AnimBiNormal.xyz, 0.f), World));
     
-    Out.WorldLocation = mul(float4(AnimPos.xyz, 1.f), World).xyz;
+    float4 PrevPosition =  mul(float4(AnimPos.xyz, 1.f), PrevWorldViewProjection);
+    float3 Direction    =  Out.ClipPosition.xyz - PrevPosition.xyz;
+    
+    float2 Velocity = (Out.ClipPosition.xy / Out.ClipPosition.w) - (PrevPosition.xy / PrevPosition.w);
+    Out.Velocity.xy = Velocity * 0.5f;
+    Out.Velocity.y *= -1.f;
     
     return Out;
 }
@@ -194,8 +198,8 @@ struct PS_IN
     float3 Tangent : TEXCOORD1;
     float3 BiNormal : TEXCOORD2;
     float2 UV : TEXCOORD3;
-    float3 WorldLocation : TEXCOORD4;
-    float4 ClipPosition : TEXCOORD5;
+    float4 ClipPosition : TEXCOORD4;
+    float2 Velocity : TEXCOORD5;
 };
 
 
@@ -203,7 +207,7 @@ struct PS_OUT
 {
     vector Albedo3_Contract1 : COLOR0;
     vector Normal3_Power1: COLOR1;
-    vector WorldLocation3_Depth1 : COLOR2;
+    vector Velocity2_None1_Depth1 : COLOR2;
     vector CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1Sampler : COLOR3;
 };
 
@@ -245,7 +249,8 @@ PS_OUT AlbedoNormalWorldPosDepthSpecular(PS_IN In)
     Out.Normal3_Power1 = float4(WorldNormal.xyz, Power);
     
     // 월드 위치와 NDC 깊이 패킹
-    Out.WorldLocation3_Depth1 = float4(In.WorldLocation.xyz, In.ClipPosition.z / In.ClipPosition.w);
+    
+    Out.Velocity2_None1_Depth1 = float4(In.Velocity.xy,1.f, In.ClipPosition.z / In.ClipPosition.w);
   
     CavityColor.rgb *= SpecularIntencity;
     Out.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1Sampler = float4(CavityColor.r, RimAmtColor.r, RimInnerWidth, RimOuterWidth);

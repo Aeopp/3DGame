@@ -370,14 +370,13 @@ void Engine::Landscape::Initialize(
 
 	if (!VtxDecl)
 	{
-		VtxDecl = VertexType::GetVertexDecl(Device);
+		VtxDecl      = VertexType::GetVertexDecl(Device);
 		ResourceSys->Insert<IDirect3DVertexDeclaration9>(VtxTypeWName , VtxDecl);
 	}
 
-
 	ForwardShaderFx.Initialize(L"DefaultFx");
-	DeferredAlbedoNormalWorldPosDepthSpecular.Initialize(L"DeferredAlbedoNormalWorldPosDepthSpecularRimFx");
-	
+	DeferredAlbedoNormalWorldPosDepthSpecular.Initialize(L"DeferredAlbedoNormalVelocityDepthSpecularRimFx");
+	VelocityFx.Initialize(L"VelocityFx");
 	ShadowDepthFx.Initialize(L"ShadowDepthFx");
 }
 
@@ -440,6 +439,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 
 	auto& Renderer = *Engine::Renderer::Instance;
 	const Matrix MapWorld = FMath::WorldMatrix(Scale, Rotation, Location);
+	const auto& PrevRenderInfo = Renderer.GetPrevRenderInformation();
 
 	auto Fx = ForwardShaderFx.GetHandle();
 	Fx->SetFloat("FogDistance", FogDistance);
@@ -454,7 +454,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 	Fx->SetFloat("ShadowDepthMapWidth", ShadowDepthMapWidth);
 	Fx->SetFloat("ShadowDepthMapHeight", ShadowDepthMapHeight);
 	Fx->SetFloat("ShadowDepthBias", ShadowDepthBias);
-
+	
 	Device->SetVertexDeclaration(VtxDecl);
 
 	for (const auto& [DecoKey, CurDeco] : DecoratorContainer)
@@ -485,6 +485,10 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 				{
 					Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
 					Device->SetIndices(CurMesh.IdxBuf);
+
+
+					PrevRenderInfo.ViewProjection;
+
 					Fx->SetMatrix("World", &DecoWorld);
 					Fx->SetVector("RimAmtColor", &CurMesh.MaterialInfo.RimAmtColor);
 					Fx->SetFloat("RimOuterWidth", CurMesh.MaterialInfo.RimOuterWidth);
@@ -624,6 +628,7 @@ void Engine::Landscape::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engin
 
 	auto& Renderer = *Engine::Renderer::Instance;
 	const Matrix MapWorld = FMath::WorldMatrix(Scale, Rotation, Location);
+	const auto& PrevRenderInfo =Renderer.GetPrevRenderInformation();
 
 	Device->SetVertexDeclaration(VtxDecl);
 	
@@ -641,10 +646,12 @@ void Engine::Landscape::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engin
 
 			const Vector3 DecoTfmRotation = CurDecoInstance->Rotation;
 
+			const Matrix PrevWorld = CurDecoInstance->PrevWorld;
 			const Matrix DecoWorld =
 				FMath::WorldMatrix(
 					DecoTfmScale,
 					DecoTfmRotation, DecoTfmLocation);
+
 
 			uint32 PassNum = 0u;
 			Fx->Begin(&PassNum, 0);
@@ -663,6 +670,9 @@ void Engine::Landscape::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engin
 					Fx->SetFloat("DetailScale", CurMesh.MaterialInfo.DetailScale);
 					Fx->SetFloat("Contract", CurMesh.MaterialInfo.Contract);
 					Fx->SetMatrix("World", &DecoWorld);
+					const Matrix PrevWorldViewProjection =
+						(PrevWorld * PrevRenderInfo.View * PrevRenderInfo.Projection);
+					Fx->SetMatrix("PrevWorldViewProjection" ,&PrevWorldViewProjection);
 					Fx->SetFloat("Power", CurMesh.MaterialInfo.Power);
 					Fx->SetFloat("SpecularIntencity", CurMesh.MaterialInfo.SpecularIntencity);
 					Fx->SetFloat("DetailDiffuseIntensity", CurMesh.MaterialInfo.DetailDiffuseIntensity);
@@ -671,7 +681,7 @@ void Engine::Landscape::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engin
 					Fx->SetFloat("RimOuterWidth", CurMesh.MaterialInfo.RimOuterWidth);
 					Fx->SetFloat("RimInnerWidth", CurMesh.MaterialInfo.RimInnerWidth);
 					Fx->SetVector("RimAmtColor", &CurMesh.MaterialInfo.RimAmtColor);
-
+					
 					CurMesh.MaterialInfo.BindingTexture(Fx);
 					Fx->CommitChanges();
 
@@ -958,4 +968,55 @@ Engine::Landscape::Mesh::Mesh()
 {
 	static uint32 CurrentID = 0u;
 	ID = CurrentID++;
+}
+
+void Engine::Landscape::RenderVelocity(Engine::Renderer* const _Renderer)&
+{
+	if (nullptr == Device)
+		return;
+
+	auto& Renderer = *Engine::Renderer::Instance;
+	Device->SetVertexDeclaration(VtxDecl);
+	auto Fx = VelocityFx.GetHandle();
+	const auto& RenderInfo = _Renderer->GetCurrentRenderInformation();
+	const auto& PrevRenderInfo = _Renderer->GetPrevRenderInformation();
+	Fx->SetMatrix("Projection", &RenderInfo.Projection);
+
+	for (const auto& [DecoKey, CurDeco] : DecoratorContainer)
+	{
+		for (const auto& CurDecoInstance : CurDeco.Instances)
+		{
+			const Vector3 DecoTfmScale = CurDecoInstance->Scale;
+			const Vector3 DecoTfmLocation = CurDecoInstance->Location;
+			const Vector3 DecoTfmRotation = CurDecoInstance->Rotation;
+
+			const Matrix DecoWorld =
+				FMath::WorldMatrix(
+					DecoTfmScale,
+					DecoTfmRotation, DecoTfmLocation);
+
+			uint32 PassNum = 0u;
+			Fx->Begin(&PassNum, 0);
+			for (auto& CurMesh : CurDeco.Meshes)
+			{
+				Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
+				Device->SetIndices(CurMesh.IdxBuf);
+				const Matrix WorldView = DecoWorld * RenderInfo.View;
+				const Matrix PrevWorldView = CurDecoInstance->PrevWorld * PrevRenderInfo.View;
+				Fx->SetMatrix("WorldView", &WorldView);
+				Fx->SetMatrix("PrevWorldView", &PrevWorldView);
+				CurDecoInstance->PrevWorld = DecoWorld;
+				Fx->CommitChanges();
+				for (uint32 i = 0; i < PassNum; ++i)
+				{
+					Fx->BeginPass(i);
+					Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
+						0u, CurMesh.PrimitiveCount);
+					Fx->EndPass();
+				}
+			}
+
+			Fx->End();
+		}
+	}
 }

@@ -2,6 +2,8 @@ matrix World;
 matrix View;
 matrix Projection;
 
+matrix PrevWorldViewProjection;
+
 float DetailScale;
 
 float Contract;
@@ -103,8 +105,8 @@ struct VS_OUT
     float3 Tangent : TEXCOORD1;
     float3 BiNormal : TEXCOORD2;
     float2 UV : TEXCOORD3;
-    float3 WorldLocation : TEXCOORD4;
-    float4 ClipPosition : TEXCOORD5;
+    float4 ClipPosition : TEXCOORD4;
+    float2 Velocity : TEXCOORD5;
 };
 
 
@@ -124,8 +126,13 @@ VS_OUT VS_MAIN(VS_IN In)
     Out.Tangent = mul(float4(In.Tangent.xyz, 0.f), World);
     Out.BiNormal = mul(float4(In.BiNormal.xyz, 0.f), World);
     
-    Out.WorldLocation = mul(vector(In.Position.xyz, 1.f), World).xyz;
     
+    float4 PrevPosition = mul(float4(In.Position.xyz, 1.f), PrevWorldViewProjection);
+    float3 Direction = Out.ClipPosition.xyz - PrevPosition.xyz;
+    
+    float2 Velocity = (Out.ClipPosition.xy / Out.ClipPosition.w) - (PrevPosition.xy / PrevPosition.w);
+    Out.Velocity.xy = Velocity * 0.5f;
+    Out.Velocity.y *= -1.f;
     
     return Out;
 }
@@ -137,8 +144,8 @@ struct PS_IN
     float3 Tangent : TEXCOORD1;
     float3 BiNormal : TEXCOORD2;
     float2 UV : TEXCOORD3;
-    float3 WorldLocation : TEXCOORD4;
-    float4 ClipPosition : TEXCOORD5;
+    float4 ClipPosition : TEXCOORD4;
+    float2 Velocity : TEXCOORD5;
 };
 
 
@@ -146,7 +153,7 @@ struct PS_OUT
 {
     vector Albedo3_Contract1 : COLOR0;
     vector Normal3_Power1: COLOR1;
-    vector WorldLocation3_Depth1 : COLOR2;
+    vector Velocity2_None1_Depth1 : COLOR2;
     vector CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1Sampler : COLOR3;
 };
 
@@ -188,7 +195,7 @@ PS_OUT AlbedoNormalWorldPosDepthSpecular(PS_IN In)
     Out.Normal3_Power1 = float4(WorldNormal.xyz, Power);
     
     // 월드 위치와 NDC 깊이 패킹
-    Out.WorldLocation3_Depth1 = float4(In.WorldLocation.xyz, In.ClipPosition.z / In.ClipPosition.w);
+    Out.Velocity2_None1_Depth1 = float4(In.Velocity.xy,1.f, In.ClipPosition.z / In.ClipPosition.w);
   
     CavityColor.rgb *= SpecularIntencity;
     Out.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1Sampler = float4(CavityColor.r, RimAmtColor.x, RimInnerWidth, RimOuterWidth);
