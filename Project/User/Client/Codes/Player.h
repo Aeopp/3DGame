@@ -9,19 +9,54 @@ class Player final: public Engine::Object
 public:
 	using Super = Engine::Object;
 public:
+	struct StateDuringSpeed 
+	{
+		float Run = 400.f; 
+		float ComboEx02 = 200.f;
+		float Attack = 111.f; 
+		float Jump = 111.f;
+		float Rolling = 700.f;
+		float Dash = 1200.f;
+	};
 	enum class State : uint8
 	{
 		CombatWait = 0u,
+
 		Run,
 		RunEnd,
+
 		JumpStart,
 		JumpUp,
 		Jump,
 		JumpDown,
 		JumpLanding,
+
 		BasicCombo01,
 		BasicCombo02,
 		BasicCombo03,
+
+		ComboEx01,
+
+		ComboEx02Start,
+		ComboEx02Loop,
+		ComboEx02End,
+
+		Dash,
+
+		DashCombo,
+
+		StandUpRolling ,
+
+		StandBigBack,
+		StandBigFront,
+		StandBigLeft,
+		StandBigRight,
+
+		AirCombo01,
+		AirCombo02,
+		AirCombo03,
+		AirCombo04,
+		AirCombo04Landing,
 	};
 	void Initialize(const std::optional<Vector3>& Scale,
 					const std::optional<Vector3>& Rotation,
@@ -56,42 +91,89 @@ private:
 	void FSM(const float DeltaTime)&;
 private:
 	void CombatWaitTransition(const FSMControlInformation& FSMControlInfo)&;
-	void CombatWaitState(const FSMControlInformation& FSMControlInfo)&;
-	void RunState(const FSMControlInformation& FSMControlInfo)&;
-	void RunTransition(const FSMControlInformation& FSMControlInfo)&;
-	void RunEndState(const FSMControlInformation& FSMControlInfo)&;
-	void RunEndTransition(const FSMControlInformation& FSMControlInfo)&;
+	void CombatWaitState(     const FSMControlInformation& FSMControlInfo)&;
+	void RunState(            const FSMControlInformation& FSMControlInfo)&;
+	void RunTransition(       const FSMControlInformation& FSMControlInfo)&;
+	void RunEndState(         const FSMControlInformation& FSMControlInfo)&;
+	void RunEndTransition(    const FSMControlInformation& FSMControlInfo)&;
 
-	void JumpStartState       (const FSMControlInformation& FSMControlInfo)&;
-	void JumpStartTransition  (const FSMControlInformation& FSMControlInfo)&;
-	void JumpUpState          (const FSMControlInformation& FSMControlInfo)&;
-	void JumpUpTransition     (const FSMControlInformation& FSMControlInfo)&;
-	void JumpState            (const FSMControlInformation& FSMControlInfo)&;
-	void JumpTransition       (const FSMControlInformation& FSMControlInfo)&;
-	void JumpDownState        (const FSMControlInformation& FSMControlInfo)&;
-	void JumpDownTransition   (const FSMControlInformation& FSMControlInfo)&;
-	void JumpLandingState     (const FSMControlInformation& FSMControlInfo)&;
-	void JumpLandingTransition(const FSMControlInformation& FSMControlInfo)&;
+	void JumpStartState       ( const FSMControlInformation& FSMControlInfo)&;
+	void JumpStartTransition  ( const FSMControlInformation& FSMControlInfo)&;
+	void JumpUpState          ( const FSMControlInformation& FSMControlInfo)&;
+	void JumpUpTransition     ( const FSMControlInformation& FSMControlInfo)&;
+	void JumpState            ( const FSMControlInformation& FSMControlInfo)&;
+	void JumpTransition       ( const FSMControlInformation& FSMControlInfo)&;
+	void JumpDownState        ( const FSMControlInformation& FSMControlInfo)&;
+	void JumpDownTransition   ( const FSMControlInformation& FSMControlInfo)&;
+	void JumpLandingState     ( const FSMControlInformation& FSMControlInfo)&;
+	void JumpLandingTransition( const FSMControlInformation& FSMControlInfo)&;
 
-	void BasicCombo01State(const FSMControlInformation& FSMControlInfo)&;
+	void BasicCombo01State(     const FSMControlInformation& FSMControlInfo)&;
 	void BasicCombo01Transition(const FSMControlInformation& FSMControlInfo)&;
-	void BasicCombo02State(const FSMControlInformation& FSMControlInfo)&;
+	void BasicCombo02State(     const FSMControlInformation& FSMControlInfo)&;
 	void BasicCombo02Transition(const FSMControlInformation& FSMControlInfo)&;
-	void BasicCombo03State(const FSMControlInformation& FSMControlInfo)&;
+	void BasicCombo03State(     const FSMControlInformation& FSMControlInfo)&;
 	void BasicCombo03Transition(const FSMControlInformation& FSMControlInfo)&;
+
+	void AirCombo01State(const FSMControlInformation& FSMControlInfo)&;
+	void AirCombo01Transition(const FSMControlInformation& FSMControlInfo)&;
+	void AirCombo02State(const FSMControlInformation& FSMControlInfo)&;
+	void AirCombo02Transition(const FSMControlInformation& FSMControlInfo)&;
+	void AirCombo03State(const FSMControlInformation& FSMControlInfo)&;
+	void AirCombo03Transition(const FSMControlInformation& FSMControlInfo)&;
+	void AirCombo04State(const FSMControlInformation& FSMControlInfo)&;
+	void AirCombo04Transition(const FSMControlInformation& FSMControlInfo)&;
+	void AirCombo04LandingState(const FSMControlInformation& FSMControlInfo)&;
+	void AirCombo04LandingTransition(const FSMControlInformation& FSMControlInfo)&;
+
+	void ComboEx01State(const FSMControlInformation& FSMControlInfo)&;
+	void ComboEx01Transition(const FSMControlInformation& FSMControlInfo)&;
+
+	void ComboEx02StartState(const FSMControlInformation& FSMControlInfo)&;
+	void ComboEx02StartTransition(const FSMControlInformation& FSMControlInfo)&;
+	void ComboEx02LoopState(const FSMControlInformation& FSMControlInfo)&;
+	void ComboEx02LoopTransition(const FSMControlInformation& FSMControlInfo)&;
+	void ComboEx02EndState(const FSMControlInformation& FSMControlInfo)&;
+	void ComboEx02EndTransition(const FSMControlInformation& FSMControlInfo)&;
+
+	void DashState     (const FSMControlInformation& FSMControlInfo)&;
+	void DashTransition(const FSMControlInformation& FSMControlInfo ,
+					const Player::MoveControlInformation& MoveControlInfo)&;
+	
+	void DashComboState (const FSMControlInformation& FSMControlInfo)&;
+	void DashComboTransition (const FSMControlInformation& FSMControlInfo)&;
+
+	void StandUpRollingState(const FSMControlInformation& FSMControlInfo )&; 
+	void StandUpRollingTransition(const FSMControlInformation& FSMControlInfo ,
+								const Player::MoveControlInformation& MoveControlInfo)&;
+
+	void StandBigBackState(const FSMControlInformation& FSMControlInfo)&;
+	void StandBigBackTransition(const FSMControlInformation& FSMControlInfo)&;
+	void StandBigFrontState(const FSMControlInformation& FSMControlInfo)&;
+	void StandBigFrontTransition(const FSMControlInformation& FSMControlInfo)&;
+	void StandBigLeftState(const FSMControlInformation& FSMControlInfo)&;
+	void StandBigLeftTransition(const FSMControlInformation& FSMControlInfo)&;
+	void StandBigRightState(const FSMControlInformation& FSMControlInfo)&;
+	void StandBigRightTransition(const FSMControlInformation& FSMControlInfo)&;
 private:
-	std::optional<Player::MoveControlInformation> CheckTheMoveableState(const FSMControlInformation& FSMControlInfo)&;
+	std::optional<Player::MoveControlInformation> 
+		CheckTheMoveableState(const FSMControlInformation& FSMControlInfo)&;
 	bool CheckTheJumpableState(const FSMControlInformation& FSMControlInfo)&;
 	bool CheckTheAttackableState(const FSMControlInformation& FSMControlInfo)&;
 private:
 	void MoveFromController(const FSMControlInformation& FSMControlInfo,
-							const Player::MoveControlInformation& MoveControlInfo)&;
+							const Player::MoveControlInformation& MoveControlInfo ,
+							const float CurrentStateSpeed)&;
+
+	void Jumping(const FSMControlInformation& FSMControlInfo, 
+				 const float Force)&;
 private:
-	float PlayerMoveDirectionInterpolateAcceleration = 7.f;
+	float JumpForce = 111.f;
+	float PlayerMoveDirectionInterpolateAcceleration = 6.0f;
 	Engine::ThirdPersonCamera* CurrentTPCamera{ nullptr };
 	Vector3 CurrentMoveDirection{ 0.f ,  0.f  , 1.f };
-	float RunSpeed = 333.f;
-	State CurrentState{ Player::State::CombatWait};
+	StateDuringSpeed StateableSpeed{};
+	State   CurrentState{ Player::State::CombatWait};
 	IDirect3DDevice9* Device{ nullptr };
 };
 

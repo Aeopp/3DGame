@@ -338,7 +338,7 @@ void Engine::SkeletonMesh::PlayAnimation(const uint32 AnimIdx ,
 										 const double TransitionDuration,
 										 const AnimNotify& _AnimNotify)&
 {
-	PrevAnimMotionTime = CurrentAnimMotionTime;
+	PrevAnimMotionTime    = CurrentAnimMotionTime;
 	CurrentAnimMotionTime = 0.0;
 	PrevAnimIndex = this->AnimIdx;
 
