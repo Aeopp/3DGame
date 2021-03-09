@@ -20,10 +20,14 @@
 
 namespace Engine
 {
-	
 	struct DLL_DECL AnimationInformation
 	{
+		struct DLL_DECL AnimNotify
+		{
+			std::string IdentificationName{};
+		};
 		std::string Name{}; 
+		std::map<float, AnimNotify> AnimNotifyMap{};
 		double Duration = 1.f;
 		double TickPerSecond = 30.f;
 		double TransitionTime = 0.25f;

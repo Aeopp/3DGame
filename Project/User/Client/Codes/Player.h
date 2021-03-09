@@ -16,7 +16,7 @@ public:
 		float Attack = 111.f; 
 		float Jump = 111.f;
 		float Rolling = 700.f;
-		float Dash = 1200.f;
+		float Dash = 2000.f;
 	};
 	enum class State : uint8
 	{
@@ -165,10 +165,10 @@ private:
 							const Player::MoveControlInformation& MoveControlInfo ,
 							const float CurrentStateSpeed)&;
 
-	void Jumping(const FSMControlInformation& FSMControlInfo, 
-				 const float Force)&;
+	//void Jumping(const FSMControlInformation& FSMControlInfo, 
+	//			 const float Force)&;
 private:
-	float JumpForce = 111.f;
+	Vector3 JumpInitVelocity = {0,1000.f,0};
 	float PlayerMoveDirectionInterpolateAcceleration = 6.0f;
 	Engine::ThirdPersonCamera* CurrentTPCamera{ nullptr };
 	Vector3 CurrentMoveDirection{ 0.f ,  0.f  , 1.f };

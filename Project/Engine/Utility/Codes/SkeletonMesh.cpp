@@ -102,6 +102,9 @@ void Engine::SkeletonMesh::Event(Object* Owner)&
 						float FDurationTime = AnimInfoTable[AnimIdx].Duration;
 						ImGui::Text("Duration : %.f", FDurationTime);
 
+						const float CurrentMotionNormalizeTime = GetCurrentNormalizeAnimTime(); 
+						ImGui::Text("Current Motion Normalize Time : %.f",CurrentMotionNormalizeTime);
+
 						std::string PlayMsg = "Play_" + AnimName;
 
 						if (ImGui::Button(PlayMsg.c_str()))

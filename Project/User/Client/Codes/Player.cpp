@@ -21,6 +21,8 @@
 #include "PlayerWeapon.h"
 #include "PlayerHair.h"
 
+const float TestLandingCheck = 227.667724609375f;
+
 void Player::Initialize(
 	const std::optional<Vector3>& Scale,
 	const std::optional<Vector3>& Rotation,
@@ -41,7 +43,9 @@ void Player::Initialize(
 	}
 	
 	_Transform->SetLocation(SpawnLocation);
-	
+	Engine::Transform::PhysicInformation InitPhysic;
+	InitPhysic.Gravity = 98.0f;
+	_Transform->EnablePhysic(InitPhysic );
 	auto _SkeletonMesh = AddComponent<Engine::SkeletonMesh>(L"Player");
 
 	auto _Collision = AddComponent<Engine::Collision>
@@ -169,6 +173,15 @@ void Player::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
 	FSM(DeltaTime);
+
+	auto _Transform       = GetComponent<Engine::Transform>();
+	const Vector3 Location = _Transform->GetLocation();
+	if (Location.y < TestLandingCheck)
+	{
+		_Transform->Landing(TestLandingCheck);
+
+	}
+	auto& _RefPhysic = _Transform->RefPhysic();
 };
 
 void Player::FSM(const float DeltaTime)&
@@ -289,6 +302,10 @@ void Player::RunState(const FSMControlInformation& FSMControlInfo)&
 		{
  			StandUpRollingTransition(FSMControlInfo , *bMoveInfo);
 		}
+		else if (FSMControlInfo._Controller.IsDown(DIK_LCONTROL))
+		{
+			DashTransition(FSMControlInfo, *bMoveInfo);
+		}
 		else 
 		{ 
 			MoveFromController(FSMControlInfo, *bMoveInfo, StateableSpeed.Run);
@@ -333,14 +350,7 @@ void Player::CombatWaitState(const FSMControlInformation& FSMControlInfo)&
 
 	if (auto bMoveable =CheckTheMoveableState(FSMControlInfo))
 	{
-		if (FSMControlInfo._Controller.IsDown(DIK_LCONTROL))
-		{
-			DashTransition(FSMControlInfo, *bMoveable);
-		}
-		else
-		{
-			RunTransition(FSMControlInfo);
-		}
+        RunTransition(FSMControlInfo);
 	}
 };
 
@@ -406,16 +416,12 @@ void Player::RunEndState(const FSMControlInformation& FSMControlInfo)&
 void Player::JumpStartState(const FSMControlInformation& FSMControlInfo)&
 {
 	const auto& CurAnimNotify =FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
-
 	
 	if (auto bMoveInfo = CheckTheMoveableState(FSMControlInfo); 
 		bMoveInfo)
 	{
 		MoveFromController(FSMControlInfo, *bMoveInfo, StateableSpeed.Jump);	
 	}
-
-	Jumping(FSMControlInfo, JumpForce);
-
 
 	if (CurAnimNotify.bAnimationEnd)
 	{
@@ -432,7 +438,7 @@ void Player::JumpStartTransition(const FSMControlInformation& FSMControlInfo)&
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::JumpStart;
 
-
+	FSMControlInfo.MyTransform->AddVelocity(JumpInitVelocity);
 }
 void Player::JumpUpState(const FSMControlInformation& FSMControlInfo)&
 {
@@ -444,14 +450,19 @@ void Player::JumpUpState(const FSMControlInformation& FSMControlInfo)&
 		MoveFromController(FSMControlInfo, *bMoveInfo, StateableSpeed.Jump);
 	}
 
-	Jumping(FSMControlInfo, JumpForce);
-
 	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK))
 	{
 		AirCombo01Transition(FSMControlInfo) ;
+		return;
 	}
 
-	if (CurAnimNotify.bAnimationEnd)
+	bool bNextChangeNextJumpMotion = false;
+
+	const auto& _RefPhysic     =  FSMControlInfo.MyTransform->RefPhysic();
+	bNextChangeNextJumpMotion |=  _RefPhysic.Velocity.y < 0.0f;
+	bNextChangeNextJumpMotion |=  CurAnimNotify.bAnimationEnd;
+
+	if (bNextChangeNextJumpMotion)
 	{
 		JumpTransition(FSMControlInfo);
 		return;
@@ -464,8 +475,6 @@ void Player::JumpUpTransition(const FSMControlInformation& FSMControlInfo)&
 	_AnimNotify.Name = "JumpUp";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::JumpUp;
-
-	
 }
 void Player::JumpState(const FSMControlInformation& FSMControlInfo)&
 {
@@ -477,10 +486,18 @@ void Player::JumpState(const FSMControlInformation& FSMControlInfo)&
 		MoveFromController(FSMControlInfo, *bMoveInfo, StateableSpeed.Jump);
 	}
 
-	Jumping(FSMControlInfo, JumpForce);
+	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK))
+	{
+		AirCombo01Transition(FSMControlInfo);
+		return;
+	}
 
+	bool bNextJumpMotionChange = false;
+	const auto& _RefPhysic  = FSMControlInfo.MyTransform->RefPhysic();
+	bNextJumpMotionChange |= _RefPhysic.Velocity.y < 0.0f; 
+	bNextJumpMotionChange |= CurAnimNotify.bAnimationEnd;
 
-	if (CurAnimNotify.bAnimationEnd)
+	if (bNextJumpMotionChange)
 	{
 		JumpDownTransition(FSMControlInfo);
 		return;
@@ -506,14 +523,20 @@ void Player::JumpDownState(const FSMControlInformation& FSMControlInfo)&
 		MoveFromController(FSMControlInfo, *bMoveInfo, StateableSpeed.Jump);
 	}
 
-	Jumping(FSMControlInfo, JumpForce);
+	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK))
+	{
+		AirCombo01Transition(FSMControlInfo);
+		return;
+	}
 
-	if (CurAnimNotify.bAnimationEnd)
+	bool bNextJumpMotionChange = false;
+	bNextJumpMotionChange |= CurAnimNotify.bAnimationEnd;
+
+	if (bNextJumpMotionChange)
 	{
 		JumpLandingTransition(FSMControlInfo);
 		return;
-
-	}
+	};
 };
 
 void Player::JumpDownTransition(const FSMControlInformation& FSMControlInfo)&
@@ -535,7 +558,6 @@ void Player::JumpLandingState(const FSMControlInformation& FSMControlInfo)&
 		MoveFromController(FSMControlInfo, *bMoveInfo, StateableSpeed.Jump);
 	}
 
-	Jumping(FSMControlInfo, JumpForce);
 
 	if (CurAnimNotify.bAnimationEnd)
 	{
@@ -919,12 +941,13 @@ void Player::DashState(const FSMControlInformation& FSMControlInfo)&
 		return;
 	}
 
-	FSMControlInfo.MyTransform->Move
-		(CurrentMoveDirection, FSMControlInfo.DeltaTime,StateableSpeed.Dash);
-
 	if (CurAnimNotify.bAnimationEnd) 
 	{
 		CombatWaitTransition(FSMControlInfo);
+
+		auto& _RefPhysic = FSMControlInfo.MyTransform->RefPhysic(); 
+		_RefPhysic.Velocity.x = 0.0f;
+		_RefPhysic.Velocity.z = 0.0f;
 	}
 }
 
@@ -952,6 +975,9 @@ void Player::DashTransition(const FSMControlInformation& FSMControlInfo,
 	_AnimNotify.Name = "dash";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::Dash;
+
+
+	FSMControlInfo.MyTransform->AddVelocity(CurrentMoveDirection * StateableSpeed.Dash);
 }
 
 std::optional<Player::MoveControlInformation>   
@@ -997,10 +1023,10 @@ void Player::StandBigBackTransition(const FSMControlInformation& FSMControlInfo)
 	CurrentState = Player::State::StandBigBack;
 }
 
-void Player::Jumping(const FSMControlInformation& FSMControlInfo  , const float Force)&
-{
-	FSMControlInfo.MyTransform->Move({ 0,1,0 },FSMControlInfo.DeltaTime, JumpForce);
-}
+//void Player::Jumping(const FSMControlInformation& FSMControlInfo  , const float Force)&
+//{
+//	// FSMControlInfo.MyTransform->Move({ 0,1,0 },FSMControlInfo.DeltaTime, JumpForce);
+//}
 
 void Player::StandBigBackState(const FSMControlInformation& FSMControlInfo)&
 {
@@ -1128,11 +1154,12 @@ void Player::StandUpRollingState(const FSMControlInformation& FSMControlInfo)&
 {
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 
-	FSMControlInfo.MyTransform->Move
-		(CurrentMoveDirection, FSMControlInfo.DeltaTime, StateableSpeed.Rolling);
-
 	if (CurAnimNotify.bAnimationEnd)
 	{
+		auto& _RefPhysic = FSMControlInfo.MyTransform->RefPhysic();
+		_RefPhysic.Velocity.x = 0.0f;
+		_RefPhysic.Velocity.z = 0.0f;
+
 		if (CheckTheMoveableState(FSMControlInfo)  ) 
 		{
 			RunTransition(FSMControlInfo ); 
@@ -1168,6 +1195,8 @@ void Player::StandUpRollingTransition(const FSMControlInformation& FSMControlInf
 	_AnimNotify.Name = "StandUpRolling";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::StandUpRolling;
+
+	FSMControlInfo.MyTransform->AddVelocity(CurrentMoveDirection * StateableSpeed.Rolling);
 }
 
 void Player::DashComboTransition(const FSMControlInformation& FSMControlInfo)&

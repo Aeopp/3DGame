@@ -27,7 +27,14 @@ void Engine::Transform::Initialize(const std::string& OwnerClassIdentifier)&
 
 void Engine::Transform::Update(Object* const Owner, const float DeltaTime)&
 {
+	if (_PhysicInfo)
+	{
+		_PhysicInfo->Velocity += (_PhysicInfo->Acceleration * DeltaTime);
+		_PhysicInfo->Velocity.y -= (_PhysicInfo->Gravity * DeltaTime);
 
+
+		Move(_PhysicInfo->Velocity, DeltaTime);
+	}
 };
 
 void Engine::Transform::Event(Object* const Owner)&
@@ -157,6 +164,11 @@ void Engine::Transform::RotateAxis(Vector3 Axis, const float Radian,
 	_Unit.z = 0.f;
 	_Unit = FMath::Normalize(_Unit);
 	Rotation.z = std::acosf(FMath::Dot(_Unit, { 0,1,0 }));
+}
+
+void Engine::Transform::Move(const Vector3& Velocity, const float DeltaTime)&
+{
+	Location += Velocity * DeltaTime;
 }
 
 
@@ -297,5 +309,37 @@ void Engine::Transform::MoveUp(const float DeltaTime, const float Speed)
  {
 	 OwnerTransform = TargetParentTransform;
 
+ };
+
+ void Engine::Transform::Landing(const float Y)&
+ {
+	 SetLocation({ Location.x, Y, Location.z } );
+	 _PhysicInfo->Velocity.y = 0.0f;
+	 _PhysicInfo->Acceleration.y = 0.0f;
+ }
+
+ void Engine::Transform::AddVelocity(const Vector3& Velocity)&
+ {
+	 _PhysicInfo->Velocity += Velocity;
+ }
+
+ void Engine::Transform::ClearVelocity()&
+ {
+	 _PhysicInfo->Velocity = { 0,0,0 };
+ }
+
+ void Engine::Transform::AddAcceleration(const Vector3& Acceleration)&
+ {
+	 _PhysicInfo->Acceleration += Acceleration;
+ };
+
+ void Engine::Transform::EnablePhysic(Engine::Transform::PhysicInformation _PhysicInfo)&
+ {
+	 this->_PhysicInfo.emplace(_PhysicInfo);
+ }
+
+ Engine::Transform::PhysicInformation& Engine::Transform::RefPhysic()&
+ {
+	 return  *_PhysicInfo;
  }
 

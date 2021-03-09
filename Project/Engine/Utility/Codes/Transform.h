@@ -5,9 +5,15 @@
 
 namespace Engine
 {
-	class DLL_DECL Transform : public  Component
+	class DLL_DECL Transform : public Component
 	{
 	public:
+		struct PhysicInformation
+		{
+			float Gravity{ 9.8f }; 
+			Vector3 Acceleration{ 0,0,0 }; 
+			Vector3 Velocity    { 0,0,0 };
+		};
 		struct EditProperty
 		{
 			float LocationSensitivity = 1.f;
@@ -32,6 +38,7 @@ namespace Engine
 		void RotateRoll(const float Radian, const float DeltaTime)&;
 		void RotatePitch(const float Radian, const float DeltaTime)&;
 		void RotateAxis(Vector3 Axis, const float Radian,const float DeltaTime)&;
+		void Move(const Vector3& Velocity, const float DeltaTime)&;
 		void Move(Vector3 Direction, const float DeltaTime,const float Speed);
 		void MoveForward(const float DeltaTime ,const float Speed);
 		void MoveRight(const float DeltaTime, const float Speed);
@@ -53,7 +60,19 @@ namespace Engine
 	public:
 		void AttachBone(const Matrix* const TargetBoneToRoot)&;
 		void AttachTransform(const Matrix* const TargetParentTransform)&;
+
+	public:
+		// 먼저 Enable 하였는지 생각해보기. 
+		void EnablePhysic(Engine::Transform::PhysicInformation _PhysicInfo)&;
+
+		void Landing(const float Y)&;
+		void AddVelocity(const Vector3& Velocity)&; 
+		void AddAcceleration(const Vector3& Acceleration)&;
+		void ClearVelocity()&;
+
+		Engine::Transform::PhysicInformation& RefPhysic()&;
 	private:
+		std::optional<Engine::Transform::PhysicInformation> _PhysicInfo{};
 		EditProperty _EditProperty{};
 		const Matrix* AttachBoneToRoot = nullptr;
 		const Matrix* OwnerTransform = nullptr;
