@@ -4,16 +4,16 @@ matrix Projection;
 
 matrix PrevWorldViewProjection;
 
-float DetailScale;
+float  DetailScale;
 
-float Contract;
-float Power;
-float SpecularIntencity;
-float CavityCoefficient;
-float DetailDiffuseIntensity;
-float DetailNormalIntensity;
-float RimInnerWidth;
-float RimOuterWidth;
+float  Contract;
+float  Power;
+float  SpecularIntencity;
+float  CavityCoefficient;
+float  DetailDiffuseIntensity;
+float  DetailNormalIntensity;
+float  RimInnerWidth;
+float  RimOuterWidth;
 vector RimAmtColor;
 
 texture DiffuseMap;
@@ -120,12 +120,11 @@ VS_OUT VS_MAIN(VS_IN In)
     WorldView = mul(World, View);
     WorldViewProjection = mul(WorldView, Projection);
 
-    Out.ClipPosition=Out.Position = mul(vector(In.Position.xyz, 1.f), WorldViewProjection);
+    Out.ClipPosition = Out.Position = mul(vector(In.Position.xyz, 1.f), WorldViewProjection);
     Out.UV = In.UV;
     Out.Normal = mul(float4(In.Normal.xyz, 0.f), World);
     Out.Tangent = mul(float4(In.Tangent.xyz, 0.f), World);
     Out.BiNormal = mul(float4(In.BiNormal.xyz, 0.f), World);
-    
     
     float4 PrevPosition = mul(float4(In.Position.xyz, 1.f), PrevWorldViewProjection);
     float3 Direction = Out.ClipPosition.xyz - PrevPosition.xyz;

@@ -11,7 +11,6 @@ float4x4 PrevView;
 float4x4 PrevProjection;
 float4x4 PrevViewProjection;
 
-
 float4 CameraLocation;
 float4 LightDirection;
 
@@ -24,23 +23,15 @@ float ShadowDepthMapHeight;
 float ShadowDepthMapWidth;
 float ShadowDepthBias;
 
-#define PCFCount 3
+#define PCFCount 5
 
 texture Albedo3_Contract1;
 texture Normal3_Power1;
 texture WorldPos3_Depth1;
 texture CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1;
 texture ShadowDepth;
-texture VelocityMap;
 
-sampler VelocityMap_Sampler = sampler_state
-{
-    texture = VelocityMap;
 
-    minfilter = point;
-    magfilter = point;
-    mipfilter = point;
-};
 
 sampler Albedo3_Contract1Sampler= sampler_state
 {
@@ -128,7 +119,8 @@ struct PS_IN
 
 struct PS_OUT
 {
-    vector Color : COLOR0;
+    vector BackBufferColor : COLOR0;
+    vector DeferredTargetColor : COLOR1;
 };
 
 
@@ -145,28 +137,7 @@ PS_OUT PS_MAIN(PS_IN In)
     WorldLocation /= WorldLocation.w;
     
     
-    // float3 Albedo   = Albedo3_Contract1.rgb;
-    float3 Albedo = float3(0, 0, 0);
-    /////////
-    int NumBlurSample = 32;
-    float4 Velocity = tex2D(VelocityMap_Sampler, In.UV);
-    Velocity.xy /= (float) NumBlurSample;
-    
-    int iCnt = 1;
-    
-    float4 BColor;
-    for (int i = iCnt; i < NumBlurSample;++i)
-    {
-        BColor = tex2D(Albedo3_Contract1Sampler, In.UV + (Velocity.xy* (float) i));
-        if(Velocity.a < BColor.a +0.04f)
-        {
-            iCnt++;
-            Albedo += BColor;
-            
-        }
-    }
-    Albedo /= (float) iCnt;
-    /////// 
+     float3 Albedo   = Albedo3_Contract1.rgb;
     
     float4 LightClipPosition = mul(float4(WorldLocation.xyz, 1.f), LightViewProjection);
     LightClipPosition.xyz = LightClipPosition.xyz / LightClipPosition.w;
@@ -248,19 +219,19 @@ PS_OUT PS_MAIN(PS_IN In)
     Specular = saturate(dot(HalfVec, Normal));
     Specular = pow((Specular),(Power));
     
-    Out.Color = float4(Albedo.rgb * LightColor.rgb * Diffuse +
+    Out.BackBufferColor = float4(Albedo.rgb * LightColor.rgb * Diffuse +
                        CavityColor.rgb * LightColor.rgb * Specular, 1.0f);
     
-    Out.Color.rgb += RimAmt * RimLightColor.rgb;
-    Out.Color.rgb += AmbientColor.rgb;
+    Out.BackBufferColor.rgb += RimAmt * RimLightColor.rgb;
+    Out.BackBufferColor.rgb += AmbientColor.rgb;
     ShadowFactor = saturate(ShadowFactor);
-    Out.Color.rgb *= ShadowFactor;
+    Out.BackBufferColor.rgb *= ShadowFactor;
     float Distance = length(WorldLocation.xyz - CameraLocation.xyz);
     // 가까우면 1 멀면 0 
     float FogFactor = saturate((FogDistance - Distance) / FogDistance);
-    Out.Color.rgb = Out.Color.rgb * (FogFactor) + ((1.0f - FogFactor) * FogColor);
+    Out.BackBufferColor.rgb = Out.BackBufferColor.rgb * (FogFactor) + ((1.0f - FogFactor) * FogColor);
     
-    
+    Out.DeferredTargetColor = Out.BackBufferColor;
     
     return Out;
 }

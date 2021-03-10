@@ -50,10 +50,13 @@ namespace Engine
 			const Vector3& FogColor,
 			const float FogDistance)&;
 
+		void MotionBlurRender(IDirect3DDevice9* const Device,class Renderer* const _Renderer);
+
 		Matrix CalcLightViewProjection()const&;
 
 		LightInformation _LightInfo{};
 	private:		
+		Engine::ShaderFx MotionBlurFx{};
 		Engine::ShaderFx _DeferredLight{};
 		uint32 ID = 0u;
 		IDirect3DVertexBuffer9* VtxBuf{ nullptr };

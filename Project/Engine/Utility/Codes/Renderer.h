@@ -58,11 +58,17 @@ namespace Engine
 		void ClearAllRenderTarget()&;
 		void BindDeferredPass()&;
 		void RenderDeferred()&;
+		void BindVelocity()&;
+		void RenderVelocity()&;
 		void BindShadowDepthPass()&;
 		void RenderShadowDepth()&;
-		void BindVelocityMap();
-		void RenderVelocity();
-		void RenderDeferredLight()&;
+
+		void BindDeferredTarget()&;
+		void RenderDeferredTarget()&;
+
+		void BindMotionBlur()&;
+		void RenderMotionBlur()&;
+		
 		void RenderDeferredDebugBuffer()&;
 		void RenderSky()&;
 
@@ -74,6 +80,7 @@ namespace Engine
 		Vector3 FogColor{ 0.5f,0.5f,0.5f };
 		float FogDistance = 5000.f;
 	private:
+		
 		IDirect3DSurface9* CurBackBufSurface{ nullptr };
 		IDirect3DSurface9* CurBackDepthStencil{ nullptr };
 		D3DVIEWPORT9 CurViewPort{};

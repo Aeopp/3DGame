@@ -445,6 +445,7 @@ void Engine::Management::CreateStaticResource()&
 		Engine::ShaderFx::Load(Device.get(),Engine::Global::ResourcePath / L"Shader" / L"SkyFx.hlsl",L"SkyFx");
 		Engine::ShaderFx::Load(Device.get(),Engine::Global::ResourcePath / L"Shader" / L"DeferredAlbedoNormalVelocityDepthSpecularRimSkeletonFx.hlsl", L"DeferredAlbedoNormalVelocityDepthSpecularRimSkeletonFx");
 		
+		
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"VelocityFx.hlsl", L"VelocityFx");
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"VelocitySkinningFx.hlsl", L"VelocitySkinningFx");
 		

@@ -28,6 +28,7 @@ void Engine::Light::Initialize(
 	VtxDecl = ResourceSys->Get<IDirect3DVertexDeclaration9>(L"LightVertexDecl");
 
 	_DeferredLight.Initialize(L"DeferredLightFx");
+	MotionBlurFx.Initialize(L"MotionBlurFx");
 
 	_LightInfo = SetLightInformation;
 };
@@ -38,7 +39,7 @@ void Engine::Light::Render(
 	const Matrix& View, 
 	const Matrix& Projection, 
 	IDirect3DTexture9* Albedo3_Contract1, IDirect3DTexture9* Normal3_Power1,
-	IDirect3DTexture9* WorldPos3_Depth1, 
+	IDirect3DTexture9* Velocity2_None1_Depth1, 
 	IDirect3DTexture9* CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1, 
 	IDirect3DTexture9* ShadowDepth ,
 	const Vector3& FogColor,
@@ -84,10 +85,9 @@ void Engine::Light::Render(
 		Fx->BeginPass(i);
 		Fx->SetTexture("Albedo3_Contract1", Albedo3_Contract1);
 		Fx->SetTexture("Normal3_Power1", Normal3_Power1);
-		Fx->SetTexture("WorldPos3_Depth1", WorldPos3_Depth1);
+		Fx->SetTexture("WorldPos3_Depth1", Velocity2_None1_Depth1);
 		Fx->SetTexture("CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1", CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1);
 		Fx->SetTexture("ShadowDepth", ShadowDepth);
-		Fx->SetTexture("VelocityMap", _Renderer->RefDeferredPass().VelocityMap.GetTexture());
 		Fx->CommitChanges();
 		Device->SetIndices(IdxBuf);
 		Device->SetStreamSource(0u, VtxBuf, 0u, sizeof(Vertex::Screen));
@@ -95,8 +95,31 @@ void Engine::Light::Render(
 		Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, 4u, 0u, 2u);
 		Fx->EndPass();
 	};
-	
 	Fx->End();
+}
+
+void Engine::Light::MotionBlurRender( 	IDirect3DDevice9*const Device,Renderer* const _Renderer)
+{
+	// 모션 블러
+	{
+		auto Fx = MotionBlurFx.GetHandle();
+		uint32 Pass = 0u;
+		Fx->Begin(&Pass, NULL);
+		for (uint32 i = 0; i < Pass; ++i)
+		{
+			Fx->BeginPass(i);
+			Fx->SetTexture("DeferredTarget", _Renderer->RefDeferredPass().DeferredTarget.GetTexture());
+			Fx->SetTexture("Velocity2_None1_Depth1", _Renderer->RefDeferredPass().Velocity2_None1_Depth1.GetTexture());
+			Fx->SetTexture("VelocityMap", _Renderer->RefDeferredPass().VelocityMap.GetTexture());
+			Fx->CommitChanges();
+			Device->SetIndices(IdxBuf);
+			Device->SetStreamSource(0u, VtxBuf, 0u, sizeof(Vertex::Screen));
+			Device->SetVertexDeclaration(VtxDecl);
+			Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, 4u, 0u, 2u);
+			Fx->EndPass();
+		};
+		Fx->End();
+	}
 }
 Matrix Engine::Light::CalcLightViewProjection() const&
 {

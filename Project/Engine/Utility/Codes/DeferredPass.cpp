@@ -55,13 +55,28 @@ void Engine::DeferredPass::DefaultInitialize()&
 	      CurViewPort.Height / +2.f - (RenderTargetDebugRenderSize.y * 1.f) },
 		RenderTargetDebugRenderSize);
 
-	VelocityMap.Initialize(Device,CurViewPort.Width,CurViewPort.Height,
-		D3DFMT_A32B32G32R32F ,
+	VelocityMap.Initialize(Device, CurViewPort.Width, CurViewPort.Height,
+		D3DFMT_A32B32G32R32F,
 		D3DXCOLOR(0.f, 0.f, 0.f, 1.f));
-	VelocityMap.DepthStencilInitialize(Device, CurViewPort.Width,
-		CurViewPort.Height, D3DFMT_D24X8);
+	VelocityMap.DepthStencilInitialize(Device, CurViewPort.Width, CurViewPort.Height, D3DFMT_D24X8);
 	VelocityMap.DebugBufferInitialize(
 		{ CurViewPort.Width / -2.f + (RenderTargetDebugRenderSize.x * 3.f),
-		  CurViewPort.Height / +2.f - (RenderTargetDebugRenderSize.y * 3.f) },
+		  CurViewPort.Height / +2.f - (RenderTargetDebugRenderSize.y * 5.f) },
+		RenderTargetDebugRenderSize);
+
+	DeferredTarget.Initialize(Device,CurViewPort.Width,CurViewPort.Height,
+		D3DFMT_A32B32G32R32F,
+		D3DXCOLOR(0.f, 0.f, 0.f, 1.f));
+	DeferredTarget.DebugBufferInitialize(
+		{ CurViewPort.Width / -2.f + (RenderTargetDebugRenderSize.x * 3.f),
+		  CurViewPort.Height / +2.f - (RenderTargetDebugRenderSize.y * 7.f) },
+		RenderTargetDebugRenderSize);
+
+	MotionBlur.Initialize(Device,CurViewPort.Width, CurViewPort.Height,
+		D3DFMT_A32B32G32R32F,
+		D3DXCOLOR(0.f, 0.f, 0.f, 0.0f));
+	MotionBlur.DebugBufferInitialize(
+		{ CurViewPort.Width / -2.f + (RenderTargetDebugRenderSize.x * 3.f),
+		  CurViewPort.Height / +2.f - (RenderTargetDebugRenderSize.y * 9.f) },
 		RenderTargetDebugRenderSize);
 }

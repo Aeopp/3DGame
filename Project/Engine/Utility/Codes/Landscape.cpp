@@ -975,48 +975,48 @@ void Engine::Landscape::RenderVelocity(Engine::Renderer* const _Renderer)&
 	if (nullptr == Device)
 		return;
 
-	auto& Renderer = *Engine::Renderer::Instance;
-	Device->SetVertexDeclaration(VtxDecl);
-	auto Fx = VelocityFx.GetHandle();
-	const auto& RenderInfo = _Renderer->GetCurrentRenderInformation();
-	const auto& PrevRenderInfo = _Renderer->GetPrevRenderInformation();
-	Fx->SetMatrix("Projection", &RenderInfo.Projection);
+	//auto& Renderer = *Engine::Renderer::Instance;
+	//Device->SetVertexDeclaration(VtxDecl);
+	//auto Fx = VelocityFx.GetHandle();
+	//const auto& RenderInfo = _Renderer->GetCurrentRenderInformation();
+	//const auto& PrevRenderInfo = _Renderer->GetPrevRenderInformation();
+	//Fx->SetMatrix("Projection", &RenderInfo.Projection);
 
-	for (const auto& [DecoKey, CurDeco] : DecoratorContainer)
-	{
-		for (const auto& CurDecoInstance : CurDeco.Instances)
-		{
-			const Vector3 DecoTfmScale = CurDecoInstance->Scale;
-			const Vector3 DecoTfmLocation = CurDecoInstance->Location;
-			const Vector3 DecoTfmRotation = CurDecoInstance->Rotation;
+	//for (const auto& [DecoKey, CurDeco] : DecoratorContainer)
+	//{
+	//	for (const auto& CurDecoInstance : CurDeco.Instances)
+	//	{
+	//		const Vector3 DecoTfmScale = CurDecoInstance->Scale;
+	//		const Vector3 DecoTfmLocation = CurDecoInstance->Location;
+	//		const Vector3 DecoTfmRotation = CurDecoInstance->Rotation;
 
-			const Matrix DecoWorld =
-				FMath::WorldMatrix(
-					DecoTfmScale,
-					DecoTfmRotation, DecoTfmLocation);
+	//		const Matrix DecoWorld =
+	//			FMath::WorldMatrix(
+	//				DecoTfmScale,
+	//				DecoTfmRotation, DecoTfmLocation);
 
-			uint32 PassNum = 0u;
-			Fx->Begin(&PassNum, 0);
-			for (auto& CurMesh : CurDeco.Meshes)
-			{
-				Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
-				Device->SetIndices(CurMesh.IdxBuf);
-				const Matrix WorldView = DecoWorld * RenderInfo.View;
-				const Matrix PrevWorldView = CurDecoInstance->PrevWorld * PrevRenderInfo.View;
-				Fx->SetMatrix("WorldView", &WorldView);
-				Fx->SetMatrix("PrevWorldView", &PrevWorldView);
-				CurDecoInstance->PrevWorld = DecoWorld;
-				Fx->CommitChanges();
-				for (uint32 i = 0; i < PassNum; ++i)
-				{
-					Fx->BeginPass(i);
-					Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
-						0u, CurMesh.PrimitiveCount);
-					Fx->EndPass();
-				}
-			}
+	//		uint32 PassNum = 0u;
+	//		Fx->Begin(&PassNum, 0);
+	//		for (auto& CurMesh : CurDeco.Meshes)
+	//		{
+	//			Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
+	//			Device->SetIndices(CurMesh.IdxBuf);
+	//			const Matrix WorldView = DecoWorld * RenderInfo.View;
+	//			const Matrix PrevWorldView = CurDecoInstance->PrevWorld * PrevRenderInfo.View;
+	//			Fx->SetMatrix("WorldView", &WorldView);
+	//			Fx->SetMatrix("PrevWorldView", &PrevWorldView);
+	//			CurDecoInstance->PrevWorld = DecoWorld;
+	//			Fx->CommitChanges();
+	//			for (uint32 i = 0; i < PassNum; ++i)
+	//			{
+	//				Fx->BeginPass(i);
+	//				Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
+	//					0u, CurMesh.PrimitiveCount);
+	//				Fx->EndPass();
+	//			}
+	//		}
 
-			Fx->End();
-		}
-	}
+	//		Fx->End();
+	//	}
+	//}
 }
