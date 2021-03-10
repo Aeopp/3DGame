@@ -16,8 +16,6 @@
 #include "ShaderFx.h"
 #include "StringHelper.h"
 
-
-
 namespace Engine
 {
 	struct DLL_DECL AnimationInformation

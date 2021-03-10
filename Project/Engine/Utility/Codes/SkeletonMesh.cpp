@@ -389,7 +389,7 @@ void Engine::SkeletonMesh::AnimationEnd()&
 void Engine::SkeletonMesh::AnimationNotify()&
 {
 	const float AnimDurationNormalize = CurrentAnimMotionTime / AnimInfoTable[AnimIdx].Duration;
-	auto EventIter = CurrentNotify.AnimTimeEventCallMapping.upper_bound(AnimDurationNormalize);
+	auto EventIter = CurrentNotify.AnimTimeEventCallMapping.lower_bound(AnimDurationNormalize);
 
 	if (std::end(CurrentNotify.AnimTimeEventCallMapping) != EventIter)
 	{

@@ -79,8 +79,8 @@ namespace Engine
 	public:
 		Vector3 FogColor{ 0.5f,0.5f,0.5f };
 		float FogDistance = 10000.f;
+		float MotionBlurVelocityScale = 30.f;
 	private:
-		
 		IDirect3DSurface9* CurBackBufSurface{ nullptr };
 		IDirect3DSurface9* CurBackDepthStencil{ nullptr };
 		D3DVIEWPORT9 CurViewPort{};

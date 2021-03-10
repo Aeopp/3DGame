@@ -7,7 +7,7 @@
 #include "StringHelper.h"
 #include "Timer.h"
 #include "Renderer.h"
-
+#include "Timer.h"
 #include "Vertexs.hpp"
 
 static uint32 LightID = 0u;
@@ -100,6 +100,8 @@ void Engine::Light::Render(
 
 void Engine::Light::MotionBlurRender( 	IDirect3DDevice9*const Device,Renderer* const _Renderer)
 {
+	auto& _Timer = Timer::Instance;
+	
 	// 모션 블러
 	{
 		auto Fx = MotionBlurFx.GetHandle();
@@ -111,6 +113,7 @@ void Engine::Light::MotionBlurRender( 	IDirect3DDevice9*const Device,Renderer* c
 			Fx->SetTexture("DeferredTarget", _Renderer->RefDeferredPass().DeferredTarget.GetTexture());
 			Fx->SetTexture("Velocity2_None1_Depth1", _Renderer->RefDeferredPass().Velocity2_None1_Depth1.GetTexture());
 			Fx->SetTexture("VelocityMap", _Renderer->RefDeferredPass().VelocityMap.GetTexture());
+			Fx->SetFloat("VelocityFactor", _Renderer->MotionBlurVelocityScale * _Timer->GetTick());
 			Fx->CommitChanges();
 			Device->SetIndices(IdxBuf);
 			Device->SetStreamSource(0u, VtxBuf, 0u, sizeof(Vertex::Screen));

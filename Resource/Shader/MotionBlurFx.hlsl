@@ -1,6 +1,8 @@
 texture DeferredTarget;
 texture VelocityMap;
 texture Velocity2_None1_Depth1;
+// Scale * Dt
+float VelocityFactor;
 
 sampler Velocity2_None1_Depth1Sampler = sampler_state
 {
@@ -70,11 +72,12 @@ PS_OUT PS_MAIN(PS_IN In)
 {
     PS_OUT Out = (PS_OUT) 0;
   
-    float4  Color = float4(0, 0, 0,0);
+    float4  Color = float4(0,0,0,0);
     /////////
-    int NumBlurSample = 6;
+    int NumBlurSample = 8;
     float4 Velocity = tex2D(VelocityMap_Sampler, In.UV);
-   
+    Velocity.xy *= VelocityFactor;
+    
     // if(Velocity.x>=0.0001f && Velocity.y >=0.0001f)
     {
         Velocity.xy /= (float)NumBlurSample;

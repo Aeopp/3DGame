@@ -76,6 +76,13 @@ void Engine::Renderer::Render()&
 
 	// 렌더링 정보 저장 .
 	SetUpPrevRenderInfo();
+
+	if (Engine::Global::bDebugMode)
+	{
+		ImGui::Begin("Test");
+		ImGui::SliderFloat("VelocityScale", &MotionBlurVelocityScale, 0.0f, 100.f);
+		ImGui::End();
+	}
 };
 
 void Engine::Renderer::Regist(RenderInterface* const Target)
