@@ -143,7 +143,6 @@ PS_OUT PS_MAIN(PS_IN In)
     Out.Velocity.xy = In.Velocity.xy;
     Out.Velocity.z = 1.0f;
     Out.Velocity.w = In.Velocity.z / In.Velocity.w;
-    Out.Velocity.xy *= 1.5f;
     
     return Out;
 }

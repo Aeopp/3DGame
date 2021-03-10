@@ -64,7 +64,6 @@ struct PS_OUT
 {
     vector BackBufferColor : COLOR0;
     vector MotionColor : COLOR1;
-    
 };
 
 PS_OUT PS_MAIN(PS_IN In)
@@ -73,24 +72,23 @@ PS_OUT PS_MAIN(PS_IN In)
   
     float4  Color = float4(0, 0, 0,0);
     /////////
-    int NumBlurSample = 8;
+    int NumBlurSample = 6;
     float4 Velocity = tex2D(VelocityMap_Sampler, In.UV);
    
-    if(Velocity.x!=0.0f)
+    // if(Velocity.x>=0.0001f && Velocity.y >=0.0001f)
     {
-        Velocity.xy /= (float) NumBlurSample;
-        int iCnt = 1;
+        Velocity.xy /= (float)NumBlurSample;
     
         float4 BColor;
-        for (int i = iCnt; i < NumBlurSample; ++i)
+        for (int i = 1; i <= NumBlurSample; ++i)
         {
-            BColor = tex2D(DeferredTargetSampler, In.UV + (Velocity.xy * (float) i));
+            float2 CurrentUV = In.UV + (Velocity.xy * (float) i); 
+            BColor = tex2D(DeferredTargetSampler, CurrentUV);
             BColor.a = 1.f;
-            float BColorDepth = tex2D(Velocity2_None1_Depth1Sampler, In.UV + (Velocity.xy * (float) i)).a;
+            float BColorDepth = tex2D(Velocity2_None1_Depth1Sampler, CurrentUV).a;
         
-            if (Velocity.a < (BColorDepth + 0.04f))
+            if (Velocity.a < (BColorDepth + 0.004f))
             {
-                iCnt++;
                 Color += BColor;
             }
         }
@@ -99,7 +97,7 @@ PS_OUT PS_MAIN(PS_IN In)
    
     Out.MotionColor = Color;
     Out.BackBufferColor= Color;
-    /////// 
+    
     return Out;
 };
 
@@ -108,7 +106,7 @@ technique Default_Device
     pass
     {
         alphablendenable = true;
-        srcblend  = one;
+        srcblend = srcalpha;
         destblend = invsrcalpha;
         zenable = false;
         zwriteenable = false;

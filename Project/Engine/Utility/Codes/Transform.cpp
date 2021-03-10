@@ -313,7 +313,7 @@ void Engine::Transform::MoveUp(const float DeltaTime, const float Speed)
 
  void Engine::Transform::Landing(const float Y)&
  {
-	 SetLocation({ Location.x, Y, Location.z } );
+	 SetLocation({ Location.x, Y  , Location.z });
 	 _PhysicInfo->Velocity.y = 0.0f;
 	 _PhysicInfo->Acceleration.y = 0.0f;
  }

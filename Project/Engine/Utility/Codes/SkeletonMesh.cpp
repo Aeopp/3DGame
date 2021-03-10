@@ -103,11 +103,12 @@ void Engine::SkeletonMesh::Event(Object* Owner)&
 						AnimInfoTable[AnimIdx].TransitionTime = static_cast<double>(FTransitionTime);
 
 						float FDurationTime = AnimInfoTable[AnimIdx].Duration;
-						ImGui::Text("Duration : %.f", FDurationTime);
+						ImGui::Text("Duration : %.3f", FDurationTime);
 
 						const float CurrentMotionNormalizeTime = GetCurrentNormalizeAnimTime(); 
-						ImGui::Text("Current Motion Normalize Time : %.f",CurrentMotionNormalizeTime);
+						ImGui::Text("Current Motion Normalize Time : %.3f",CurrentMotionNormalizeTime);
 
+						
 						std::string PlayMsg = "Play_" + AnimName;
 
 						if (ImGui::Button(PlayMsg.c_str()))
@@ -388,7 +389,7 @@ void Engine::SkeletonMesh::AnimationEnd()&
 void Engine::SkeletonMesh::AnimationNotify()&
 {
 	const float AnimDurationNormalize = CurrentAnimMotionTime / AnimInfoTable[AnimIdx].Duration;
-	auto EventIter = CurrentNotify.AnimTimeEventCallMapping.lower_bound(AnimDurationNormalize);
+	auto EventIter = CurrentNotify.AnimTimeEventCallMapping.upper_bound(AnimDurationNormalize);
 
 	if (std::end(CurrentNotify.AnimTimeEventCallMapping) != EventIter)
 	{

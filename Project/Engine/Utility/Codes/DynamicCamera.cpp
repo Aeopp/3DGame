@@ -96,6 +96,8 @@ void Engine::DynamicCamera::Event()&
 {
 	Super::Event();
 
+	// ShowCursor(!bMouseFix);
+
 	if (_Control->IsDown(DIK_F1))
 	{
 		MouseFixToggle();

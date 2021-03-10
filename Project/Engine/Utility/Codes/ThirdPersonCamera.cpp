@@ -24,6 +24,8 @@ void Engine::ThirdPersonCamera::Event()&
 {
 	Super::Event();
 
+	// ShowCursor(!bCursorMode);
+
 	if (Engine::Global::bDebugMode)
 	{
 		ImGui::SliderFloat3("TargetLocationOffset",_TargetInformation .TargetLocationOffset, 0.0f, 1000.f);
@@ -33,7 +35,7 @@ void Engine::ThirdPersonCamera::Event()&
 
 	auto& _Control = Controller::Instance;
 
-	if (_Control->IsDown(DIK_LALT))
+	if (_Control->IsDown(DIK_P))
 	{
 		bCursorMode = !bCursorMode;
 	}
@@ -73,6 +75,12 @@ void Engine::ThirdPersonCamera::LateUpdate(const float DeltaTime)&
 	Super::LateUpdate(DeltaTime);
 	if (_TargetInformation.TargetObject == nullptr)return;
 
+	if (_TargetInformation.DistancebetweenTarget > _TargetInformation.MaxDistancebetweenTarget)
+	{
+		_TargetInformation.DistancebetweenTarget= 
+			FMath::Lerp(_TargetInformation.DistancebetweenTarget, _TargetInformation.MaxDistancebetweenTarget,
+				DeltaTime*3.33f);
+	}
 	Matrix View;
 	Matrix Projection;
 
@@ -80,7 +88,7 @@ void Engine::ThirdPersonCamera::LateUpdate(const float DeltaTime)&
 		_TargetInformation.TargetObject->GetComponent<Engine::Transform>()->GetLocation() + _TargetInformation.TargetLocationOffset;
 
 	_TargetInformation .CurrentTargetLocation=
-		FMath::Lerp(_TargetInformation.CurrentTargetLocation , TargetLocation, DeltaTime*3.f);
+		FMath::Lerp(_TargetInformation.CurrentTargetLocation , TargetLocation, DeltaTime*6.f);
 
 	_TargetInformation.CurrentViewDirection = FMath::Normalize(
 		FMath::Lerp(_TargetInformation.CurrentViewDirection, _TargetInformation.ViewDirection, DeltaTime * 3.f));

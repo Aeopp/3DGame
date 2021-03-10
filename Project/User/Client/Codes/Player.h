@@ -11,12 +11,15 @@ public:
 public:
 	struct StateDuringSpeed 
 	{
+		// 공중에 체공중이라고 판단하는 스피드 (애니메이션을 위함) 
+		float InTheAirSpeed = 200.f;
+
 		float Run = 400.f; 
-		float ComboEx02 = 200.f;
-		float Attack = 111.f; 
-		float Jump = 111.f;
-		float Rolling = 700.f;
-		float Dash = 2000.f;
+		float ComboEx02 = 80.f;
+		float Attack = 80.f; 
+		float Jump = 222.f;
+		float Rolling = 400.f;
+		float Dash = 1000.f;
 		float LeafReady = 200.f;
 	};
 	enum class State : uint8
@@ -75,6 +78,8 @@ public:
 	virtual void Event()&override;
 	virtual void Update(const float DeltaTime)&;
 	
+	void Edit()&;
+
 	virtual void HitNotify(Object* const Target, const Vector3 PushDir,
 		const float CrossAreaScale)&override;
 	virtual void HitBegin(Object* const Target, const Vector3 PushDir,
@@ -133,7 +138,7 @@ private:
 	void AirCombo04LandingState(const FSMControlInformation& FSMControlInfo)&;
 	void AirCombo04LandingTransition(const FSMControlInformation& FSMControlInfo)&;
 
-	void ComboEx01State(const FSMControlInformation& FSMControlInfo)&;
+	void ComboEx01State(    const FSMControlInformation& FSMControlInfo)&;
 	void ComboEx01Transition(const FSMControlInformation& FSMControlInfo)&;
 
 	void ComboEx02StartState(const FSMControlInformation& FSMControlInfo)&;
@@ -184,10 +189,13 @@ private:
 							const Player::MoveControlInformation& MoveControlInfo ,
 							const float CurrentStateSpeed)&;
 
-	//void Jumping(const FSMControlInformation& FSMControlInfo, 
-	//			 const float Force)&;
+	bool IsSpeedInTheAir(const float YAxisVelocity)&;
 private:
-	Vector3 JumpInitVelocity = {0,1000.f,0};
+	void WeaponPut()&;
+	void WeaponHand()&;
+private:
+	bool bControl    {false};
+	Vector3 JumpInitVelocity = {0,1100.f,0};
 	float PlayerMoveDirectionInterpolateAcceleration = 6.0f;
 	Engine::ThirdPersonCamera* CurrentTPCamera{ nullptr };
 	Vector3 CurrentMoveDirection{ 0.f ,  0.f  , 1.f };

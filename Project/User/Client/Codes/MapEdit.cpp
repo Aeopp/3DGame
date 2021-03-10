@@ -505,9 +505,7 @@ void MapEdit::Landscape()&
 				ImGui::Separator();
 			}
 		}
-		ImGui::Separator();
-		ImGui::Checkbox("bFloatingEnable", &RefLandscape.bFloatingEnable);
-
+		
 		ImGui::Separator();
 		if (ImGui::CollapsingHeader("Spawn Information Edit"))
 		{

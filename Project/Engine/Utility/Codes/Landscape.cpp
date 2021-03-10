@@ -46,7 +46,9 @@ void Engine::Landscape::DecoratorLoad(
 	const std::filesystem::path& LoadPath,
 	const std::filesystem::path& LoadFileName)&
 {
-	if (LoadFileName.extension() == L"zip")return;
+	const auto& Extension = LoadFileName.extension();
+
+	if (Extension  == L"zip" || Extension ==L"fbm")return;
 
 	using VertexType = Vertex::LocationTangentUV2D;
 
@@ -430,6 +432,7 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 		{
 			FloatingDecoInstancesReInit();
 		}
+		ImGui::Checkbox("FloatingEnable",&bFloatingEnable);
 		Engine::Landscape::FloatingInformation::RangeEdit();
 		ImGui::End();
 	};

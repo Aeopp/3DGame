@@ -15,6 +15,7 @@ namespace Engine
 			// 타겟의 위치는 트랜스폼 위치에서 오프셋을 더한 값이 최종. 
 			Vector3 TargetLocationOffset{ 0,0,0 };
 			float DistancebetweenTarget{ 1.f };
+			float MaxDistancebetweenTarget{ 1000.f };
 			Vector3 ViewDirection{ 0.f,-0.707f,0.707f };
 			float RotateResponsiveness = 1.f;
 			float ZoomInOutScale = 1.f;
