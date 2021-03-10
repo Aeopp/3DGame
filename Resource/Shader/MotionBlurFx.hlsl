@@ -6,27 +6,30 @@ sampler Velocity2_None1_Depth1Sampler = sampler_state
 {
     texture = Velocity2_None1_Depth1;
 
-    minfilter = point;
-    magfilter = point;
-    mipfilter = point;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
 };
 
 sampler DeferredTargetSampler = sampler_state
 {
     texture = DeferredTarget;
 
-    minfilter = point;
-    magfilter = point;
-    mipfilter = point;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
 };      
 
 sampler VelocityMap_Sampler = sampler_state
 {
     texture = VelocityMap;
 
-    minfilter = point;
-    magfilter = point;
-    mipfilter = point;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
 };
 
 struct VS_IN
@@ -70,9 +73,8 @@ PS_OUT PS_MAIN(PS_IN In)
   
     float4  Color = float4(0, 0, 0,0);
     /////////
-    int NumBlurSample = 32;
+    int NumBlurSample = 8;
     float4 Velocity = tex2D(VelocityMap_Sampler, In.UV);
-    
    
     if(Velocity.x!=0.0f)
     {

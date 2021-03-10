@@ -275,6 +275,21 @@ void Player::FSM(const float DeltaTime)&
 	case Player::State::AirCombo04Landing:
 		AirCombo04LandingState(CurrentFSMControlInfo);
 		break;
+	case Player::State::LeafAttackReady:
+		LeafAttackReadyState(CurrentFSMControlInfo);
+		break; 
+	case Player::State::LeafAttackStart:
+		LeafAttackStartState(CurrentFSMControlInfo);
+		break;
+	case Player::State::LeafAttackUp:
+		LeafAttackUpState(CurrentFSMControlInfo);
+		break;
+	case Player::State::LeafAttackDown:
+		LeafAttackDownState(CurrentFSMControlInfo);
+		break;
+	case Player::State::LeafAttackLanding:
+		LeafAttackLandingState(CurrentFSMControlInfo);
+		break; 
 	default:
 		break;
 	}
@@ -329,6 +344,12 @@ void Player::CombatWaitState(const FSMControlInformation& FSMControlInfo)&
 	{
 		BasicCombo01Transition(FSMControlInfo);
 		return;
+	}
+
+	if (CheckTheLeafAttackableState(FSMControlInfo))
+	{
+		LeafAttackReadyTransition(FSMControlInfo);
+		return; 
 	}
 
 	if (FSMControlInfo._Controller.IsDown(DIK_J))
@@ -1082,6 +1103,112 @@ void Player::StandBigRightTransition(const FSMControlInformation& FSMControlInfo
 	CurrentState = Player::State::StandBigRight;
 }
 
+void Player::LeafAttackReadyState(const FSMControlInformation& FSMControlInfo)&
+{
+	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+
+	// TODO :: 여기서 움직일 수 있으며 마법진 (?) 을 바닥에 그려주는 인터페이스를 제공하면 좋을듯 !
+	if (auto bIsMove = CheckTheMoveableState(FSMControlInfo);bIsMove )
+	{
+		MoveFromController(FSMControlInfo  , *bIsMove , StateableSpeed.LeafReady);
+	}
+
+	if (FSMControlInfo._Controller.IsUp(DIK_R))
+	{
+		// 여기서 마법진 위치로 계산해서 날아가게 하는 처리를 하면 좋을듯 ! 
+		LeafAttackStartTransition(FSMControlInfo);
+		const float LeafStartTestForce = 333.f;
+		FSMControlInfo.MyTransform->AddVelocity(CurrentMoveDirection * LeafStartTestForce);
+	}
+}
+
+
+void Player::LeafAttackReadyTransition(const FSMControlInformation& FSMControlInfo)&
+{
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = true;
+	_AnimNotify.Name = "LeafAttackReady";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = Player::State::LeafAttackReady;
+}
+
+void Player::LeafAttackStartState(const FSMControlInformation& FSMControlInfo)&
+{
+	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+
+	if (CurAnimNotify.bAnimationEnd)
+	{
+		LeafAttackStartTransition(FSMControlInfo);
+	}
+}
+
+void Player::LeafAttackStartTransition(const FSMControlInformation& FSMControlInfo)&
+{
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = false;
+	_AnimNotify.Name = "LeafAttackStart";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = Player::State::LeafAttackStart;
+}
+
+void Player::LeafAttackUpState(const FSMControlInformation& FSMControlInfo)&
+{
+	// 여기서 중력 가속도가  점프 속도를 초과 해서 음수가나올 경우 애니메이션을 전환해야한다 .
+
+	const auto& _Physic =  FSMControlInfo.MyTransform->RefPhysic();
+	if (_Physic.Velocity.y < 0.0f)
+	{
+		LeafAttackDownTransition(FSMControlInfo);
+	}
+}
+
+void Player::LeafAttackUpTransition(const FSMControlInformation& FSMControlInfo)&
+{
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = true;
+	_AnimNotify.Name = "LeafAttackUp";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = Player::State::LeafAttackUp;
+}
+
+void Player::LeafAttackDownState(const FSMControlInformation& FSMControlInfo)&
+{
+	// 여기서 땅에 닿기 이전까지는 해당 모션을 계속 유지해야 한다.
+	const Vector3 CurLocation   = FSMControlInfo.MyTransform->GetLocation();
+
+	if ( CurLocation.y < TestLandingCheck   )  
+	{
+		LeafAttackLandingTransition(FSMControlInfo);
+	}
+}
+
+void Player::LeafAttackDownTransition(const FSMControlInformation& FSMControlInfo)&
+{
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = true;
+	_AnimNotify.Name = "LeafAttackDown";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = Player::State::LeafAttackDown;
+}
+
+void Player::LeafAttackLandingState(const FSMControlInformation& FSMControlInfo)&
+{
+	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+	if (CurAnimNotify.bAnimationEnd)
+	{
+		CombatWaitTransition(FSMControlInfo); 
+	}
+}
+
+void Player::LeafAttackLandingTransition(const FSMControlInformation& FSMControlInfo)&
+{
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = true;
+	_AnimNotify.Name = "LeafAttackLanding";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = Player::State::LeafAttackLanding;
+}
+
 void Player::StandBigRightState(const FSMControlInformation& FSMControlInfo)&
 {
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
@@ -1109,6 +1236,16 @@ bool Player::CheckTheAttackableState(const FSMControlInformation& FSMControlInfo
 	}
 
 	return false;
+};
+
+bool Player::CheckTheLeafAttackableState(const FSMControlInformation& FSMControlInfo)&
+{
+	if (FSMControlInfo._Controller.IsDown(DIK_R))
+	{
+		return true; 
+	}
+
+	return false; 
 }
 void Player::MoveFromController(const FSMControlInformation& FSMControlInfo,
 	const Player::MoveControlInformation& MoveControlInfo,

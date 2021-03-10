@@ -1,0 +1,270 @@
+[33md91fbd8[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m 간단간단 가속도 중력 구현중
+[33m452444f[m 애니메이션 구현중
+[33mdc916bb[m  깊이저장 잠재적 버그 수정
+[33m2a7324b[m FSM 작성
+[33m68d8af3[m 작성중
+[33m21cceb8[m Jump 하는중
+[33m952618a[m 애니메이션 클라이언트 작업중
+[33m740094f[m 애니메이션 노티파이 작성중
+[33m85c1287[m Player
+[33mc73fdd5[m player animation fbx work end
+[33m7eda991[m ...
+[33m58fbcf3[m 알파블렌딩 버그수정
+[33md4c3306[m 컬링 디버그 로그 버그 수정
+[33mc8512af[m 플레이어 다시 작업중
+[33ma378091[m ...
+[33m2288f0c[m 무기랑 머리 붙임
+[33ma61bf83[m 머리 조립하는 코드....
+[33mf5b942f[m 리팩토링 종료 테스트는 아직 미수행
+[33m874dd6a[m 렌더링 구조 리팩토링 진행중
+[33m8742aaa[m 리팩토링중
+[33m924f2ef[m Desktop
+[33m60fad6b[m  static mesh skeletonmesh 렌더링 작업
+[33m64a3b93[m 플레이어 모델작업 추가
+[33m4515753[m ModelWork
+[33ma572fea[m 테스트 하기전 커밋
+[33m9ecaaf2[m 쉐도우 최종버전
+[33md28466c[m 수정버전
+[33mb72bc7c[m 변경하며 테스트 해보기전 커밋
+[33m08b0f36[m .........
+[33m6526cca[m ...
+[33m62bd6ed[m Shadow Depth Map PCF 구현 완료
+[33m36b9559[m Shadow Depth Mapping PCF
+[33md1876d7[m 그림자매핑
+[33mf0fcf4c[m shadow depth mapping
+[33m7ca6dd3[m 스텐실 버퍼 활용해서 사소한 문제 해결
+[33m197b778[m 버그수정 인덱스버퍼 밀려쓴것이 원인.... 졸릴때는 코딩을 하지말고 얌전히 잡시다
+[33mc55b2a0[m 수정중
+[33m250d684[m ...
+[33m57fce38[m 디퍼드 렌더링 계속 구현중
+[33mfb552fb[m 디퍼드 쉐이딩 구현중:
+[33md21cb36[m 부유물체 구현 스카이 스피어 구현
+[33m99cbfc3[m SkySphere 구현
+[33m188566d[m ReadME Update
+[33mbe21c77[m SkySphere 구현중
+[33mb6279d1[m 스카이 박스를 제외한 맵 구현 완료
+[33ma0aeb8b[m 하늘정원 컨셉 맵 완성 직전
+[33mbe83efc[m 데코레이터 작업중 맵 제작
+[33m928c1e0[m Discord
+[33me9a13be[m GOGO
+[33me4d856f[m 툴 편의성을 위한 여러기능 추가 사소한 버그 수정
+[33m2f6ca83[m ....
+[33m0cd0b18[m ....
+[33m8318871[m ...
+[33m925bb21[m Rea converter FBX Convert Png
+[33m2c3cb56[m Edit Material Texture Register Bind Feature Add
+[33mec5cc0a[m 콜리전 컴포넌트 오프셋 매트릭스 추가로 인한 사소한 버그 수정
+[33md3fedb5[m Object Load
+[33mebec032[m Object Capture Feature Progress 99.%
+[33mbd5c18b[m ... 사소한 버그 수정 오브젝트 스폰 피킹 위치문제
+[33m4f68003[m ...
+[33ma5b4680[m Transform 저장
+[33m4892d84[m assimp importer
+[33m6ac9e6b[m Object Edit Progress.... 50 ??
+[33m8da7cc1[m # 오브젝트랑 데코레이터 마우스 피킹 한 곳에 생성 되게 하기 # 본에 옵션 넣어서 충돌체 달게 하기 # Attach Detach 구현
+[33m34f3d8f[m Skinning Animation so many optimaized
+[33md480d33[m 소프트웨어 스키닝에서 VTF를 활용한 스키닝으로 변경 프레임이 20 배 가까이 상승 (16->300) VTF의 효과는 엄청났다 !
+[33ma9041e2[m 중복된 드로우콜로 인한 Z 파이팅 해결
+[33m7964317[m VTF 구현중
+[33m5fbd5a0[m ..
+[33m321965c[m 애니메이션 블렌딩 구현 완료
+[33me15f2c1[m 애니메이션 블렌드를 구현 하였으나 정책 문제로 부자연 스러워 수정을 해야함 모션이 끝날때의 값을 캐싱하고 하는것이 아니고 이전 모션의 끝시간과 보간하지 않고 애니메이션 변경 하더라도 이전모션의 시간을 흘러가면서 보간
+[33m0142bc1[m 애니메이션 블렌드 구현중
+[33mdcea4ab[m .....
+[33ma21828c[m 머테리얼 전부 수정
+[33m727d741[m 머테리얼이 너어어어무 많다....
+[33m1dd42be[m 디테일 노말 디테일 디퓨즈 추가
+[33md0fe8b6[m Property 세이브
+[33m2e618a3[m 3ds max 머테리얼 확장자 직접 파싱하는 형태로 변경 테스트 완료 하였고 머테리얼 프로퍼티까지파싱하는 구조로 확장해야함
+[33mc0ea7f5[m material info 테스트 직전
+[33mf0cee38[m 메쉬와 머테리얼 분리중
+[33m6db7018[m .mat file parser make..
+[33m4879723[m Backup2
+[33mc2f134f[m Back
+[33ma66caf2[m 데코레이터 세이브 로드 구현 완료 충분히 테스트 완료 랜드스케이프 월드 공간에 종속적이지 않음
+[33m9161bf5[m Save Load 시도중
+[33me705161[m Object Edit Save ...
+[33me5d5842[m Object Tool
+[33m9244646[m 카툰 쉐이딩 하프 램버트 노말매핑 버그 수정 프러스텀 컬링 충분히 테스트 완료 하였고 피킹 준비
+[33m5e3f2f1[m tool
+[33mdb95123[m Obj Tool
+[33m20ec6a3[m Image Button
+[33m6276107[m land scape tool
+[33mc6a2e00[m 리소스 시스템 인서트 버그 수정
+[33m27c41d0[m 랜드스케이프 테스트 직전
+[33m298b71a[m 스키닝패러럴
+[33m62317e3[m 네비메쉬 툴 구현 종료
+[33m153fb80[m 네비메쉬 맵 월드공간에 종속적이지 않게 변경 직전 커밋
+[33m2e56e59[m 네비게이션 메쉬 구현 완료
+[33m37d7f18[m json save ...
+[33mcf09b5d[m HomeWork
+[33m8526f2e[m Terrain Test
+[33m36653c5[m ...
+[33m2dbcb20[m 아이콘 변경
+[33mf3d0984[m 리소스정리
+[33ma854469[m 파일 저장 남음
+[33m4d8d61b[m Navigation Mesh ...
+[33ma2df988[m navimesh ...
+[33m6b2570a[m NaviMesh 구현중
+[33m70e4fcf[m 네비메쉬 리팩토링전 커밋
+[33m372d824[m 네비메쉬 툴 구현중
+[33mc6eb968[m Static Mesh 리팩토링 직전
+[33md7559a8[m SkeletonMesh Final
+[33mc8d522b[m 대공사중
+[33m5069eb0[m 지형 구현중
+[33m5aba47a[m Skeleton Animation Implementation
+[33ma3aa61f[m Push
+[33m37c6374[m 수정중
+[33md767cda[m ....
+[33md2a064d[m 애니메이션 트랙 구현직전 커밋
+[33med923a1[m 스키닝 애니메이션 구현 git add .
+[33m20d4c39[m 구현중
+[33m4af5a40[m 프레임 곱창나네 씨발
+[33m79d0598[m 스키닝 테스트 아직 못함
+[33m0e618ec[m Assimp Anim Impl
+[33m008e29c[m Dynamic Mesh Good
+[33m82b51bc[m 다이나믹 메쉬 버그
+[33mb96cb34[m Dynamic Mesh 구현 하였으나 테스트 필요함
+[33m238456c[m Render 컬링
+[33mc52121b[m 정리종료
+[33mfb3aac3[m 더미 코드 정리중
+[33me87c746[m 스키닝 애니메이션 소프트웨어로 전환중
+[33m261aeee[m Loader 작성중
+[33md1ba787[m DynamicMesh Implementation
+[33m728a6ad[m  DynamicMesh 작성중
+[33m724e4b1[m Bug
+[33m9871477[m Shader 작성중
+[33mf952650[m Animation Time
+[33mb1f981d[m Assimp Animation
+[33m2746968[m 데이터 로딩중
+[33mf3c1324[m Assimp
+[33m7728474[m Update README.md
+[33m7775d68[m Load Assimp Material Loader
+[33m95d2b14[m[33m ([m[1;33mtag: 0.1[m[33m)[m Assimp Debuger
+[33md0cd151[m Readme assimp information update
+[33m5edb271[m Merge branch 'main' of https://github.com/Aeopp/3DGame
+[33med7dbe2[m Assimp Bone Test Print Log
+[33m022eeb1[m Update README.md
+[33m8ea57bb[m Update README.md
+[33m5635aa5[m Update README.md
+[33m2650566[m opengl skining tutorial 공부하다 중지
+[33mffbe1a2[m Model
+[33m687d4d0[m  Model..
+[33m795cdaf[m Model
+[33md97ba82[m Assimp Implementation:
+[33mff7e299[m assimp include directory change
+[33mb0bf0cb[m ASSIMP LIB Directory Change
+[33ma856e98[m ASSIMP Cmake Build Lib File Upload
+[33m928e3b1[m Update README.md
+[33m88dbe8f[m  트랜스폼 기저벡터 갱신 조금 최적화
+[33m3fe0968[m Transform 수정전 커밋
+[33m2285b29[m Engine Global Header add
+[33m5184289[m  OBB 충돌 SA 분리축 후보중 모서리 vs 모서리 계산을 제외해서 최적화
+[33mbe83b32[m Push2
+[33mc10b901[m 도형 밀어내기 끝
+[33m26b2cc3[m SAT 이론 최대한 최적화
+[33mba2cf23[m OBB 밀어내기 구현
+[33md2d74cf[m 충돌체 밀어내기 구현 직전
+[33mc54b2ab[m OBB 구현
+[33m6a8d558[m 트랜스폼 변경전 커밋
+[33m5811ee1[m OBB 구현중
+[33md46560f[m Link Error2
+[33m649bc1f[m Amend Commit
+[33m479ab13[m Debug Mode Create
+[33md156c76[m Component Prototype 으로 바꾸기전 커밋
+[33m23ae7ba[m Transform Update
+[33mfedf48a[m Home
+[33m705e552[m Renderer
+[33m921b138[m Renderer Parrlel
+[33m22458b7[m Collision Update
+[33mf560008[m Collision
+[33md5ceeb4[m Collision
+[33ma6e09ad[m Stone Rendering
+[33mb08abe9[m Good
+[33m6d97187[m Resource Sys
+[33m918745f[m TombStone
+[33m2e1ee51[m memory leak
+[33me84c4a5[m texture load
+[33m3585a8d[m resource system
+[33m2c22e9a[m Resource
+[33m607a695[m resource system
+[33m5eb4ea3[m ...
+[33mf2139ff[m statc mesh ...
+[33m274e625[m Mesh Static Mesh Init
+[33mfe6e7e3[m Commit Test
+[33m6f87bab[m ...
+[33m409e523[m 절두체 컬링 구현 완료 테스팅 완료
+[33m48f22be[m ..
+[33mfa9a894[m 절두체 클래스 작성중
+[33m18b0535[m 렌더러 클래스 동시성 프로그래밍 적용중.
+[33m5231490[m 메모리 릭 발견하여서 이슈 수정,
+[33mce1310b[m 트랜스폼 수정이전 커밋버전
+[33m4dbdcc0[m FindObject 예외사항 적용.
+[33ma4f1420[m ImGui 연동하고 씬전환까지 구현.
+[33m4edfedb[m ImGui 연동 완료
+[33m937546e[m IMGUI 적용전 커밋
+[33m43f24fc[m 클라이언트와 엔진 리소스까지의 경로 통일
+[33m92b4b91[m ..리소스 경로 통일 직전
+[33m97d9091[m 리소스 매니저 정상작동 확인.
+[33md204458[m 리소스 매니저 테스트 완료.
+[33m43d3c0a[m 리소스 가변인자 버전
+[33m3fbedae[m 리소스 매니저 튜플
+[33mb7896a6[m 리소스 매니저 작성 테스트는 아직.
+[33m513f639[m 다이나믹 카메라 테스트 이전
+[33m08bd30f[m 트랜스폼 작성 테스트는 아직.
+[33m4a3e437[m FMath 작성 하였으나 테스트는 하지 않았음 사소한 버그가 존재할 가능성.
+[33mb62ef74[m Camera .h
+[33m47cfaea[m ..
+[33mbf71b9d[m[33m ([m[1;31morigin/Assignment[m[33m)[m 이제 링커가 증분링크를 사용하며 최소 다시 빌드 기능은 다중 프로세서 컴파일 옵션과 호환되지 않으므로 해제
+[33m04e2489[m 병합완료.
+[33m2c83733[m 메인과 병합전 커밋
+[33m110a3b2[m 과제 3인칭 카메라 버전으로 종료.
+[33m19a7835[m 1인칭 카메라버전 과제
+[33m66bcebb[m 지형타는것과 큐브맵까지 구현한 과제.
+[33m1717240[m 게임루프 바뀐이후 테스트까지 끝마치고 커밋
+[33m500a704[m 델타타임 게임 루프 개선.
+[33mfb80117[m 인풋 매니저 업데이트 루프 통제
+[33m5344ace[m 키매니저 사용하기 편한 인터페이스로 구현
+[33md086dff[m  런타임 라이브러리CRT 힙 공유 문제 해결을 위해 정적라이브러리 사용에서 DLL 사용으로 변경
+[33mb9ed741[m 폰트매니저까지 구현완료,
+[33m3ccc308[m 폰트매니저 작성
+[33m3062c27[m 폰트객체까지 구현 테스트는 해보지 않은 상태.
+[33m8750b4d[m 프로토타입 시스템까지 연동.
+[33m4493e85[m 프레임워크 작성중
+[33m632aeb8[m 엔진 프레임워크
+[33md730ab4[m 하이트맵구현이끝난커밋
+[33m823f0e2[m 하이트맵 빠르게 구현완료.
+[33m7287d21[m 높이맵 구현 직
+[33m41d3ef7[m Shader 클래스는 구현을 마쳤으나 Shader 관리 클래스의 구현부는 구현 직전.
+[33mc7bcf09[m 그래픽 디바이스는 쉐이더를 소유해야
+[33m064c24a[m Shader 작성
+[33me41422a[m 싱글턴 구조 갈아엎는중..
+[33m2ffabad[m 싱글턴 구조 갈아엎기 직전
+[33mf4c8345[m Vertexs 작성
+[33mf9e1eac[m 유틸리티 쉐이더 작성 직전
+[33m0f5d190[m 렌더러 클래스 작성중
+[33me2b7ce1[m unique_ptr 이동생성자 문제 해결.
+[33m70a76ea[m ..
+[33ma41850d[m 하이트맵 1인칭 카메라 구현하기 이전.
+[33mb4929dc[m DLL 프로젝트 싱글턴 문제 해결중..
+[33m61d4d8c[m Sound 까지 추가 테스트는 아직.
+[33m837a3f6[m Controller Done.
+[33m081017a[m 엔진 종속적인 구조로 변경
+[33m6619903[m 클라이언트 초기화 로직에서 매니지먼트 초기화 로직으로 변경 직전
+[33mdad2fb4[m 계속 작성중
+[33m44ad427[m 링크에러 해결.
+[33mcd5a7df[m 링크에러
+[33md4a0f56[m 프로젝트 외부에 리소스 폴더 만듬
+[33m7c7ce71[m 작성중
+[33m7fcf301[m 컴포넌트 시스템
+[33m3b4f623[m Layer Add
+[33m654dccc[m 매니지먼트
+[33ma3c0f4f[m 매니지먼트 씬 구현중
+[33mb4524a0[m App
+[33m06f5298[m Client App
+[33m3fececa[m 타이머.
+[33m9f4f99c[m 그래픽 디바이스.
+[33mf9cd92b[m 클라 출력 디렉터리 Run 으로 수정
+[33mc81ea2a[m Project Initialize
+[33m4c5ee12[m git ignore remend
+[33m7d1bb6e[m Initial commit

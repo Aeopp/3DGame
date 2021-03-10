@@ -17,6 +17,7 @@ public:
 		float Jump = 111.f;
 		float Rolling = 700.f;
 		float Dash = 2000.f;
+		float LeafReady = 200.f;
 	};
 	enum class State : uint8
 	{
@@ -57,6 +58,12 @@ public:
 		AirCombo03,
 		AirCombo04,
 		AirCombo04Landing,
+
+		LeafAttackReady,
+		LeafAttackStart,
+		LeafAttackUp,
+		LeafAttackDown,
+		LeafAttackLanding,
 	};
 	void Initialize(const std::optional<Vector3>& Scale,
 					const std::optional<Vector3>& Rotation,
@@ -138,7 +145,7 @@ private:
 
 	void DashState     (const FSMControlInformation& FSMControlInfo)&;
 	void DashTransition(const FSMControlInformation& FSMControlInfo ,
-					const Player::MoveControlInformation& MoveControlInfo)&;
+					    const Player::MoveControlInformation& MoveControlInfo)&;
 	
 	void DashComboState (const FSMControlInformation& FSMControlInfo)&;
 	void DashComboTransition (const FSMControlInformation& FSMControlInfo)&;
@@ -155,11 +162,23 @@ private:
 	void StandBigLeftTransition(const FSMControlInformation& FSMControlInfo)&;
 	void StandBigRightState(const FSMControlInformation& FSMControlInfo)&;
 	void StandBigRightTransition(const FSMControlInformation& FSMControlInfo)&;
+
+	void LeafAttackReadyState(const FSMControlInformation& FSMControlInfo)&;
+	void LeafAttackReadyTransition(const FSMControlInformation& FSMControlInfo)&;
+	void LeafAttackStartState(const FSMControlInformation& FSMControlInfo)&;
+	void LeafAttackStartTransition(const FSMControlInformation& FSMControlInfo)&;
+	void LeafAttackUpState(const FSMControlInformation& FSMControlInfo)&;
+	void LeafAttackUpTransition(const FSMControlInformation& FSMControlInfo)&;
+	void LeafAttackDownState(const FSMControlInformation& FSMControlInfo)&;
+	void LeafAttackDownTransition(const FSMControlInformation& FSMControlInfo)&;
+	void LeafAttackLandingState(const FSMControlInformation& FSMControlInfo)&;
+	void LeafAttackLandingTransition(const FSMControlInformation& FSMControlInfo)&;
 private:
 	std::optional<Player::MoveControlInformation> 
-		CheckTheMoveableState(const FSMControlInformation& FSMControlInfo)&;
+		 CheckTheMoveableState(const FSMControlInformation& FSMControlInfo)&;
 	bool CheckTheJumpableState(const FSMControlInformation& FSMControlInfo)&;
 	bool CheckTheAttackableState(const FSMControlInformation& FSMControlInfo)&;
+	bool CheckTheLeafAttackableState(const FSMControlInformation& FSMControlInfo)&;
 private:
 	void MoveFromController(const FSMControlInformation& FSMControlInfo,
 							const Player::MoveControlInformation& MoveControlInfo ,

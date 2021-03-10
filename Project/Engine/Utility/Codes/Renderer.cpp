@@ -14,15 +14,15 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 	CreateStaticLightResource();
 
 	_Frustum.Initialize();
-	
+
 	_DeferredPass.Initialize(Device.get());
 
 	Engine::Light::LightInformation LightInfo{};
-	LightInfo.Direction = { 0.031f,-0.796f,-0.604f, 0 };
+	const Vector3 LightDirection = FMath::Normalize(Vector3 { 0.031f, -0.796f, -0.604f} );
+	LightInfo.Direction = FMath::ConvertVector4(LightDirection, 0.0f);
 	LightInfo.Location = { 0.0f,2201.835f,1545.454f, 1};
 	LightInfo.ShadowFar = 4000.f;
-	// LightInfo.ShadowDepthBias = 0.014f;
-	LightInfo.ShadowDepthBias = 0.0016f;
+	LightInfo.ShadowDepthBias = 0.0022f;
 
 	LightInfo._LightOpt = Engine::Light::LightOption::Directional;
 	LightInfo.ShadowDepthMapWidth= _DeferredPass.ShadowDepth.Width;
@@ -43,7 +43,7 @@ void Engine::Renderer::Render()&
 {
 	SetUpRenderInfo();
 	FrustumInCheck();
-	RenderReady();
+	RenderReady(); 
 	BackUpCurBackBuffer();
 	ClearAllRenderTarget();
 	BindDeferredPass();

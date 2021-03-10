@@ -38,9 +38,9 @@ namespace Engine
 		};
 		struct FloatingInformation
 		{
-			static inline std::pair<float, float>  VibrationWidthRange{ 0.f,12.f };
-			static inline std::pair<float, float > RotationAccRange  { 0.0f,0.015f};
-			static inline std::pair<float, float>  VibrationAccRange  { 0.0f,0.4f };
+			static inline std::pair<float, float>  VibrationWidthRange{ 0.f,100.f};
+			static inline std::pair<float, float > RotationAccRange  { 0.0f,0.021f};
+			static inline std::pair<float, float>  VibrationAccRange  { 0.0f,0.541f };
 			
 			static void RangeEdit();
 			void Initialize(const Vector3& OriginLocation)&
@@ -162,6 +162,8 @@ namespace Engine
 		void ReInitWorldPlanes()&;
 
 		void FloatingDecoInstancesReInit()&;
+
+		bool bFloatingEnable = true;
 	private:
 		std::string DecoratorSaveInfo{}; 
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr };

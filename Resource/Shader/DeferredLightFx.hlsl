@@ -23,7 +23,7 @@ float ShadowDepthMapHeight;
 float ShadowDepthMapWidth;
 float ShadowDepthBias;
 
-#define PCFCount 5
+#define PCFCount 3
 
 texture Albedo3_Contract1;
 texture Normal3_Power1;
@@ -37,9 +37,9 @@ sampler Albedo3_Contract1Sampler= sampler_state
 {
     texture = Albedo3_Contract1;
 
-    minfilter = anisotropic;
-    magfilter = anisotropic;
-    mipfilter = anisotropic;
+    minfilter = point;
+    magfilter = point;
+    mipfilter = point;
     MaxAnisotropy = 16;
 };
 
@@ -47,9 +47,9 @@ sampler Normal3_Power1Sampler = sampler_state
 {
     texture = Normal3_Power1;
 
-    minfilter = anisotropic;
-    magfilter = anisotropic;
-    mipfilter = anisotropic;
+    minfilter = point;
+    magfilter = point;
+    mipfilter = point;
     MaxAnisotropy = 16;
     
 };
@@ -58,9 +58,9 @@ sampler WorldPos3_Depth1Sampler = sampler_state
 {
     texture = WorldPos3_Depth1;
 
-    minfilter = anisotropic;
-    magfilter = anisotropic;
-    mipfilter = anisotropic;
+    minfilter = point;
+    magfilter = point;
+    mipfilter = point;
     MaxAnisotropy = 16;
 };
 
@@ -69,9 +69,9 @@ sampler CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1Sampler = sampler_state
     texture = CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1;
 
    
-    minfilter = anisotropic;
-    magfilter = anisotropic;
-    mipfilter = anisotropic;
+    minfilter = point;
+    magfilter = point;
+    mipfilter = point;
     MaxAnisotropy = 16;
 };
 
@@ -80,9 +80,9 @@ sampler ShadowDepthSampler = sampler_state
     texture = ShadowDepth;
   
 
-    minfilter = anisotropic;
-    magfilter = anisotropic;
-    mipfilter = anisotropic;
+    minfilter = point;
+    magfilter = point;
+    mipfilter = point;
     MaxAnisotropy = 16;
 
     addressu = border;

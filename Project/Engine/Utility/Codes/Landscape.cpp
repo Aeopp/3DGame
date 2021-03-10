@@ -399,15 +399,15 @@ void Engine::Landscape::Tick(const float Tick)&
 
 		for ( auto& CurDecoInstance : CurDeco.Instances)
 		{
-			if (IsFloatingDeco)
+			if (IsFloatingDeco && bFloatingEnable)
 			{
-				Engine::Landscape::FloatingInformation& FloatingInfoRef = 
+				Engine::Landscape::FloatingInformation& FloatingInfoRef =
 					std::any_cast<Engine::Landscape::FloatingInformation&>
 					(CurDecoInstance->OptionValue);
-
+				
 				CurDecoInstance->Location = FloatingInfoRef.Floating(Tick);
 			}
-		};
+ 		};
 	};
 }
 
