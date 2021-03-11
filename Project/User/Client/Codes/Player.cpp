@@ -22,7 +22,8 @@
 #include "PlayerWeapon.h"
 #include "PlayerHair.h"
 
-const float TestLandingCheck = 22.7667724609375f;
+const float TestGroundY = 22.7667724609375f;
+float TestLandCheckY = 7.f;
 
 void Player::Initialize(
 	const std::optional<Vector3>& Scale,
@@ -184,9 +185,9 @@ void Player::Update(const float DeltaTime)&
 
 	auto _Transform        = GetComponent<Engine::Transform>();
 	const Vector3 Location = _Transform->GetLocation();
-	if (Location.y <= TestLandingCheck)
+	if (Location.y <= TestGroundY)
 	{
-		_Transform->Landing(TestLandingCheck);
+		_Transform->Landing(TestGroundY);
 	}
 
 	auto& _RefPhysic = _Transform->RefPhysic();
@@ -218,7 +219,9 @@ void Player::Edit()&
 		ImGui::SliderFloat("AirCombo01VelocityY", &StateableSpeed.AirCombo01Velocity.y, 0.f, 300.f);
 		ImGui::SliderFloat("AirCombo02VelocityY", &StateableSpeed.AirCombo02Velocity.y, 0.f, 300.f);
 		ImGui::SliderFloat("AirCombo03VelocityY", &StateableSpeed.AirCombo03Velocity.y, 0.f, 300.f);
-		ImGui::SliderFloat("AirCombo04VelocityY", &StateableSpeed.AirCombo04Velocity.y, 0.f, 300.f);
+		ImGui::SliderFloat("AirCombo04VelocityY", &StateableSpeed.AirCombo04Velocity.y, -300.f, 0.f);
+
+		ImGui::SliderFloat("TestLandCheckY", &TestLandCheckY, 0.f, 30.f);
 	}
 };
 
@@ -605,12 +608,12 @@ void Player::JumpDownState(const FSMControlInformation& FSMControlInfo)&
 	auto& CurLocation= _Transform->GetLocation();
 
 	bool bNextJumpMotionChange = false;
-	bNextJumpMotionChange |= CurLocation.y <= TestLandingCheck;
+	bNextJumpMotionChange |=  ( CurLocation.y- TestLandCheckY ) < TestGroundY;
 
 	if (bNextJumpMotionChange)
 	{
 		JumpLandingTransition(FSMControlInfo);
-		_Transform->Landing(TestLandingCheck);
+		_Transform->Landing(TestGroundY);
 		return;
 	}
 
@@ -810,9 +813,14 @@ void Player::AirCombo01State(const FSMControlInformation& FSMControlInfo)&
 		return;
 	}
 
-	if (CurAnimNotify.bAnimationEnd)
+	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
+
+
+	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | (( Location.y  -TestLandCheckY )<TestGroundY)) ;
+
+	if (bLandingChange)
 	{
-		CombatWaitTransition(FSMControlInfo);
+		JumpLandingTransition(FSMControlInfo);
 		return; 
 	}
 };
@@ -840,9 +848,13 @@ void Player::AirCombo02State(const FSMControlInformation& FSMControlInfo)&
 		return;
 	}
 
-	if (CurAnimNotify.bAnimationEnd)
+	const Vector3 Location  =  FSMControlInfo.MyTransform->GetLocation();
+
+	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | ((Location.y - TestLandCheckY) < TestGroundY));
+
+	if (bLandingChange)
 	{
-		CombatWaitTransition(FSMControlInfo);
+		JumpLandingTransition(FSMControlInfo);
 		return;
 	}
 };
@@ -865,10 +877,13 @@ void Player::AirCombo03State(const FSMControlInformation& FSMControlInfo)&
 		AirCombo04Transition(FSMControlInfo);
 		return;
 	}
+	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
 
-	if (CurAnimNotify.bAnimationEnd)
+	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | ((Location.y - TestLandCheckY) < TestGroundY));
+
+	if (bLandingChange)
 	{
-		CombatWaitTransition(FSMControlInfo);
+		JumpLandingTransition(FSMControlInfo);
 		return;
 	}
 };
@@ -907,7 +922,11 @@ void Player::AirCombo04LandingState(const FSMControlInformation& FSMControlInfo)
 {
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 
-	if (CurAnimNotify.bAnimationEnd)
+	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
+
+	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | ((Location.y - TestLandCheckY) < TestGroundY));
+
+	if (bLandingChange)
 	{
 		CombatWaitTransition(FSMControlInfo);
 		return;
@@ -1267,7 +1286,7 @@ void Player::LeafAttackDownState(const FSMControlInformation& FSMControlInfo)&
 	// 여기서 땅에 닿기 이전까지는 해당 모션을 계속 유지해야 한다.
 	const Vector3 CurLocation   = FSMControlInfo.MyTransform->GetLocation();
 
-	if ( CurLocation.y < TestLandingCheck   )  
+	if (  ( CurLocation.y  - TestLandCheckY  ) < TestGroundY)
 	{
 		LeafAttackLandingTransition(FSMControlInfo);
 	}
