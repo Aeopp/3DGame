@@ -193,13 +193,15 @@ private:
 private:
 	void WeaponPut()&;
 	void WeaponHand()&;
+public:
+		Vector3 CurrentMoveDirection{ 0.f ,  0.f  , 1.f };
+		StateDuringSpeed StateableSpeed{};
 private:
 	bool bControl    {false};
 	Vector3 JumpInitVelocity = {0,110.f,0};
 	float PlayerMoveDirectionInterpolateAcceleration = 7.7f;
 	Engine::ThirdPersonCamera* CurrentTPCamera{ nullptr };
-	Vector3 CurrentMoveDirection{ 0.f ,  0.f  , 1.f };
-	StateDuringSpeed StateableSpeed{};
+	
 	State   CurrentState{ Player::State::CombatWait};
 	IDirect3DDevice9* Device{ nullptr };
 };

@@ -20,12 +20,7 @@ namespace Engine
 {
 	struct DLL_DECL AnimationInformation
 	{
-		struct DLL_DECL AnimNotify
-		{
-			std::string IdentificationName{};
-		};
 		std::string Name{}; 
-		std::map<float, AnimNotify> AnimNotifyMap{};
 		double Duration = 1.f;
 		double TickPerSecond = 30.f;
 		double TransitionTime = 0.25f;
@@ -74,7 +69,8 @@ namespace Engine
 			std::string Name{}; 
 			bool bAnimationEnd { false };
 			bool bLoop { false };
-			std::map<float, std::function<void(Engine::SkeletonMesh*const)>> AnimTimeEventCallMapping{};
+			std::map<double, std::function<void(Engine::SkeletonMesh*const)>,std::greater<float>> AnimTimeEventCallMapping{};
+			std::set<double> HavebeenCalledEvent{};
 		};
 
 		Engine::SkeletonMesh::AnimNotify GetCurrentAnimNotify()const&;
@@ -113,7 +109,7 @@ namespace Engine
 		AnimNotify CurrentNotify{};
 	private:
 		std::vector<Matrix> RenderBoneMatricies{};
-		std::set<float> HavebeenCalledEvent{};
+
 
 		std::string RootBoneName{}; 
 		std::shared_ptr<std::set<std::string>> BoneNameSet{}; 

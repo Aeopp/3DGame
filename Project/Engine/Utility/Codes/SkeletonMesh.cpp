@@ -364,7 +364,6 @@ void Engine::SkeletonMesh::PlayAnimation(const uint32 AnimIdx ,
 	this->Acceleration = Acceleration;
 
 	CurrentNotify = _AnimNotify;
-	HavebeenCalledEvent.clear();
 }
 
 void Engine::SkeletonMesh::PlayAnimation(const Engine::SkeletonMesh::AnimNotify& _AnimNotify)&
@@ -391,12 +390,15 @@ void Engine::SkeletonMesh::AnimationNotify()&
 	const float AnimDurationNormalize = CurrentAnimMotionTime / AnimInfoTable[AnimIdx].Duration;
 	auto EventIter = CurrentNotify.AnimTimeEventCallMapping.lower_bound(AnimDurationNormalize);
 
-	if (std::end(CurrentNotify.AnimTimeEventCallMapping) != EventIter)
+	bool bTiming = (std::end(CurrentNotify.AnimTimeEventCallMapping) != EventIter) && 
+		AnimDurationNormalize >= EventIter->first;
+
+	if (bTiming)
 	{
 		// 과거에 호출 한 적이 없으며 함수가 유효한가요 ? 
-		if (!HavebeenCalledEvent.contains(EventIter->first)&& EventIter->second)
+		if (!CurrentNotify.HavebeenCalledEvent.contains(EventIter->first)&& EventIter->second)
 		{
-			HavebeenCalledEvent.insert(EventIter->first);
+			CurrentNotify.HavebeenCalledEvent.insert(EventIter->first);
 			EventIter->second(this);
 		}
 	}

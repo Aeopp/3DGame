@@ -428,11 +428,6 @@ void Player::RunTransition(const FSMControlInformation& FSMControlInfo)&
 	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
 	_AnimNotify.bLoop = true;
 	_AnimNotify.Name = "run";
-
-	_AnimNotify.AnimTimeEventCallMapping[0.90f] = [](Engine::SkeletonMesh* const Mesh)
-	{
-
-	};
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::Run;
 
@@ -1005,21 +1000,27 @@ void Player::RunEndTransition(const FSMControlInformation& FSMControlInfo)&
 	CurrentState = Player::State::RunEnd;
 };
 
+static auto DashVelocityEndCall = [](Player* const _Player)
+{
+	_Player->GetComponent<Engine::Transform>()->AddVelocity(
+		-_Player->CurrentMoveDirection * _Player->StateableSpeed.Dash);
+};
+
 void Player::DashState(const FSMControlInformation& FSMControlInfo)&
 {
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
-	
+
 	if (CheckTheAttackableState(FSMControlInfo))
 	{
 		DashComboTransition(FSMControlInfo);
+		DashVelocityEndCall(this);
 		return;
 	}
-
-
 
 	if (CurAnimNotify.bAnimationEnd) 
 	{
 		CombatWaitTransition(FSMControlInfo);
+		GetComponent<Engine::Transform>()->AddVelocity(-CurrentMoveDirection * StateableSpeed.Dash);
 		return;
 	}
 
@@ -1050,16 +1051,15 @@ void Player::DashTransition(const FSMControlInformation& FSMControlInfo,
 	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
 	_AnimNotify.bLoop = false;
 	_AnimNotify.Name = "dash";
-	_AnimNotify.AnimTimeEventCallMapping[0.4f] = [this](Engine::SkeletonMesh* const SkMesh)
+
+	_AnimNotify.AnimTimeEventCallMapping[0.4f] = 
+		[this](Engine::SkeletonMesh* SkMesh) 
 	{
-		GetComponent<Engine::Transform>()->AddVelocity(-CurrentMoveDirection * StateableSpeed.Dash);
+		DashVelocityEndCall(this);
 	};
+
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::Dash;
-
-	
-
-
 	FSMControlInfo.MyTransform->AddVelocity(CurrentMoveDirection * StateableSpeed.Dash);
 }
 
