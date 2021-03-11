@@ -807,22 +807,29 @@ void Player::AirCombo01State(const FSMControlInformation& FSMControlInfo)&
 {
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 
+	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
+	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | ((Location.y - TestLandCheckY) < TestGroundY));
+
+	if (bLandingChange)
+	{
+		JumpLandingTransition(FSMControlInfo);
+		return;
+	}
+
 	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
 	{
 		AirCombo02Transition(FSMControlInfo);
 		return;
 	}
 
-	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
 
-
-	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | (( Location.y  -TestLandCheckY )<TestGroundY)) ;
-
-	if (bLandingChange)
+	if (auto bMoveInfo = CheckTheMoveableState(FSMControlInfo);
+		bMoveInfo)
 	{
-		JumpLandingTransition(FSMControlInfo);
-		return; 
+		MoveFromController(FSMControlInfo, *bMoveInfo, StateableSpeed.Jump);
 	}
+
+
 };
 void Player::AirCombo01Transition(const FSMControlInformation& FSMControlInfo)& 
 {
@@ -842,13 +849,8 @@ void Player::AirCombo02State(const FSMControlInformation& FSMControlInfo)&
 {
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 
-	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
-	{
-		AirCombo03Transition(FSMControlInfo);
-		return;
-	}
 
-	const Vector3 Location  =  FSMControlInfo.MyTransform->GetLocation();
+	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
 
 	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | ((Location.y - TestLandCheckY) < TestGroundY));
 
@@ -857,6 +859,21 @@ void Player::AirCombo02State(const FSMControlInformation& FSMControlInfo)&
 		JumpLandingTransition(FSMControlInfo);
 		return;
 	}
+
+	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
+	{
+		AirCombo03Transition(FSMControlInfo);
+		return;
+	}
+
+
+	if (auto bMoveInfo = CheckTheMoveableState(FSMControlInfo);
+		bMoveInfo)
+	{
+		MoveFromController(FSMControlInfo, *bMoveInfo, StateableSpeed.Jump);
+	}
+
+
 };
 void Player::AirCombo02Transition(const FSMControlInformation& FSMControlInfo)& 
 {
@@ -872,20 +889,27 @@ void Player::AirCombo03State(const FSMControlInformation& FSMControlInfo)&
 {
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 
-	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
-	{
-		AirCombo04Transition(FSMControlInfo);
-		return;
-	}
 	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
-
 	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | ((Location.y - TestLandCheckY) < TestGroundY));
-
 	if (bLandingChange)
 	{
 		JumpLandingTransition(FSMControlInfo);
 		return;
 	}
+
+	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
+	{
+		AirCombo04Transition(FSMControlInfo);
+		return;
+	}
+
+
+	if (auto bMoveInfo = CheckTheMoveableState(FSMControlInfo);
+		bMoveInfo)
+	{
+		MoveFromController(FSMControlInfo, *bMoveInfo, StateableSpeed.Jump);
+	}
+
 };
 void Player::AirCombo03Transition(const FSMControlInformation& FSMControlInfo)& 
 {
@@ -902,7 +926,10 @@ void Player::AirCombo04State(const FSMControlInformation& FSMControlInfo)&
 {
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 
-	if (CurAnimNotify.bAnimationEnd)
+	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
+	bool bLandingChange = (CurAnimNotify.bAnimationEnd | ((Location.y - TestLandCheckY) < TestGroundY));
+
+	if (bLandingChange)
 	{
 		AirCombo04LandingTransition(FSMControlInfo);
 		return;
@@ -928,7 +955,7 @@ void Player::AirCombo04LandingState(const FSMControlInformation& FSMControlInfo)
 
 	if (bLandingChange)
 	{
-		CombatWaitTransition(FSMControlInfo);
+		JumpLandingTransition(FSMControlInfo);
 		return;
 	}
 };

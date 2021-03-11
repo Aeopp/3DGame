@@ -14,19 +14,19 @@ public:
 		// 공중에 체공중이라고 판단하는 스피드 (애니메이션을 위함) 
 		float InTheAirSpeed = 20.f;
 
-		float Run = 40.f; 
-		float ComboEx02 = 8.f;
+		float Run = 55.f; 
+		float ComboEx02 = 10.f;
 		float Attack = 8.f; 
 		float Jump = 22.2f;
-		float Rolling = 40.f;
-		float Dash = 100.f;
+		float Rolling = 55.f;
+		float Dash = 110.f;
 		float LeafReady = 20.f;
 
 		Vector3 JumpVelocity = { 0.f,110.f,0.f };
 		Vector3 AirCombo01Velocity = { 0.f, 70.f,0.f };
 		Vector3 AirCombo02Velocity = { 0.f, 70.f,0.f };
 		Vector3 AirCombo03Velocity = { 0.f, 70.f,0.f };
-		Vector3 AirCombo04Velocity = { 0.f, -100.f,0.f };
+		Vector3 AirCombo04Velocity = { 0.f, -10.f,0.f };
 	};
 	enum class State : uint8
 	{
