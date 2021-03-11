@@ -26,7 +26,7 @@ public:
 		Vector3 AirCombo01Velocity = { 0.f, 70.f,0.f };
 		Vector3 AirCombo02Velocity = { 0.f, 70.f,0.f };
 		Vector3 AirCombo03Velocity = { 0.f, 70.f,0.f };
-		Vector3 AirCombo04Velocity = { 0.f, -10.f,0.f };
+		Vector3 AirCombo04Velocity = { 0.f, -100.f,0.f };
 	};
 	enum class State : uint8
 	{

@@ -66,7 +66,7 @@
         {
             "Index": 9,
             "Name": "dash",
-            "Acceleration": 30.167999267578126,
+            "Acceleration": 30.16799926757813,
             "TransitionTime": 0.17900000512599946,
             "Duration": 40.0
         },
@@ -248,35 +248,35 @@
         {
             "Index": 35,
             "Name": "AirCombo01",
-            "Acceleration": 30.0,
+            "Acceleration": 39.845001220703128,
             "TransitionTime": 0.25,
             "Duration": 50.0
         },
         {
             "Index": 36,
             "Name": "AirCombo02",
-            "Acceleration": 30.0,
+            "Acceleration": 39.845001220703128,
             "TransitionTime": 0.25,
             "Duration": 58.0
         },
         {
             "Index": 37,
             "Name": "AirCombo03",
-            "Acceleration": 30.0,
+            "Acceleration": 40.4900016784668,
             "TransitionTime": 0.25,
             "Duration": 69.0
         },
         {
             "Index": 38,
             "Name": "AirCombo04",
-            "Acceleration": 30.0,
-            "TransitionTime": 0.25,
+            "Acceleration": 59.84299850463867,
+            "TransitionTime": 0.05299999937415123,
             "Duration": 42.0
         },
         {
             "Index": 39,
             "Name": "AirCombo04Landing",
-            "Acceleration": 30.0,
+            "Acceleration": 56.617000579833987,
             "TransitionTime": 0.25,
             "Duration": 105.0
         },

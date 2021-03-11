@@ -947,23 +947,24 @@ void Player::AirCombo04Transition(const FSMControlInformation& FSMControlInfo)&
 };
 void Player::AirCombo04LandingState(const FSMControlInformation& FSMControlInfo)& 
 {
-	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+	const float AnimTime = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
 
-	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
-
-	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | ((Location.y - TestLandCheckY) < TestGroundY));
-
-	if (bLandingChange)
+	if (AnimTime > 0.97f)
 	{
-		JumpLandingTransition(FSMControlInfo);
+		CombatWaitTransition(FSMControlInfo);
 		return;
 	}
 };
 void Player::AirCombo04LandingTransition(const FSMControlInformation& FSMControlInfo)&
 {
 	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
-	_AnimNotify.bLoop = false;
+	_AnimNotify.bLoop = true;
 	_AnimNotify.Name = "AirCombo04Landing";
+	/*_AnimNotify.AnimTimeEventCallMapping[0.97f] = 
+		[this, FSMControlInfo](Engine::SkeletonMesh*const  SkMesh)
+	{
+		this->(FSMControlInfo);
+	};*/
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::AirCombo04Landing;
 
