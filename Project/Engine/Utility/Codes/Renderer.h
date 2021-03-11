@@ -14,7 +14,6 @@
 #include "Sky.h"
 #include "DeferredPass.h"
 
-
 namespace Engine
 {
 	class DLL_DECL Renderer : public SingletonInterface<Renderer>
@@ -77,9 +76,11 @@ namespace Engine
 		void RenderAlphaTest()&;
 		void RenderUI()&;
 	public:
-		Vector3 FogColor{ 0.5f,0.5f,0.5f };
-		float FogDistance = 10000.f;
-		float MotionBlurVelocityScale = 30.f;
+		Vector3 FogColor{ 0.2901f,0.2901f,0.2901f };
+		float FogDistance = 1024.465f;
+		float MotionBlurVelocityScale = 0.042f;
+		float MotionBlurDepthBias = 0.0001f;
+		float MotionBlurLengthMin = 0.000f;
 	private:
 		IDirect3DSurface9* CurBackBufSurface{ nullptr };
 		IDirect3DSurface9* CurBackDepthStencil{ nullptr };

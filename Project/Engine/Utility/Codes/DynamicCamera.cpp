@@ -129,10 +129,12 @@ void Engine::DynamicCamera::Event()&
 		{
 			ImGui::SliderFloat("Fov", &FovY,20.f,90.f);
 			ImGui::SliderFloat("Speed", &Speed, 1.f, 1000.f);
+			ImGui::SliderFloat("Near", &Near, 0.1f, 1000.f);
 			ImGui::SliderFloat("Far", &Far, 1.f, 100000.f);
-
+			
 			ImGui::InputFloat("Fov.", &FovY);
 			ImGui::InputFloat("Speed.", &Speed);
+			ImGui::InputFloat("Near", &Near);
 			ImGui::InputFloat("Far.", &Far);
 		}
 	}

@@ -113,12 +113,15 @@ void Engine::Light::MotionBlurRender( 	IDirect3DDevice9*const Device,Renderer* c
 			Fx->SetTexture("DeferredTarget", _Renderer->RefDeferredPass().DeferredTarget.GetTexture());
 			Fx->SetTexture("Velocity2_None1_Depth1", _Renderer->RefDeferredPass().Velocity2_None1_Depth1.GetTexture());
 			Fx->SetTexture("VelocityMap", _Renderer->RefDeferredPass().VelocityMap.GetTexture());
-			Fx->SetFloat("VelocityFactor", _Renderer->MotionBlurVelocityScale * _Timer->GetTick());
+			Fx->SetFloat("VelocityFactor", _Renderer->MotionBlurVelocityScale *  (1.f / _Timer->GetTick()));
+			Fx->SetFloat("MotionBlurDepthBias", _Renderer->MotionBlurDepthBias);
+			Fx->SetFloat("MotionBlurLengthMin", _Renderer->MotionBlurLengthMin);
 			Fx->CommitChanges();
 			Device->SetIndices(IdxBuf);
 			Device->SetStreamSource(0u, VtxBuf, 0u, sizeof(Vertex::Screen));
 			Device->SetVertexDeclaration(VtxDecl);
-			Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, 4u, 0u, 2u);
+			Device->DrawIndexedPrimitive
+			(D3DPT_TRIANGLELIST, 0u, 0u, 4u, 0u, 2u);
 			Fx->EndPass();
 		};
 		Fx->End();

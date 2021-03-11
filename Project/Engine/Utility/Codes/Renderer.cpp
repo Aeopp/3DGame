@@ -18,20 +18,14 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 	_DeferredPass.Initialize(Device.get());
 
 	Engine::Light::LightInformation LightInfo{};
-	const Vector3 LightDirection = FMath::Normalize(Vector3 { 0.031f, -0.796f, -0.604f} );
-	LightInfo.Direction = FMath::ConvertVector4(LightDirection, 0.0f);
-	LightInfo.Location = { 0.0f,2201.835f,1545.454f, 1};
-	LightInfo.ShadowFar = 4000.f;
-	LightInfo.ShadowDepthBias = 0.0022f;
+	const Vector3 LightDirection = 
+		FMath::Normalize(Vector3 { 0.151f, -0.658f, -0.738f} );
 
 	LightInfo._LightOpt = Engine::Light::LightOption::Directional;
 	LightInfo.ShadowDepthMapWidth= _DeferredPass.ShadowDepth.Width;
 	LightInfo.ShadowDepthMapHeight = _DeferredPass.ShadowDepth.Height;
-	LightInfo.ShadowOrthoProjectionFactor= 3.15f;
 
 	_DirectionalLight.Initialize(Device.get(), LightInfo);
-
-	
 };
 
 void Engine::Renderer::Update(const float DeltaTime)&
@@ -79,8 +73,15 @@ void Engine::Renderer::Render()&
 
 	if (Engine::Global::bDebugMode)
 	{
-		ImGui::Begin("Test");
-		ImGui::SliderFloat("VelocityScale", &MotionBlurVelocityScale, 0.0f, 100.f);
+		ImGui::Begin("ShaderOption");
+		if (ImGui::TreeNode("MotionBlur"))
+		{
+			ImGui::SliderFloat("VelocityScale", &MotionBlurVelocityScale, 0.00f, 1.f);
+			ImGui::InputFloat("MotionBlurDepthBias", &MotionBlurDepthBias, 0.00f, 1.f);
+			ImGui::InputFloat("MotionBlurLengthMin ", &MotionBlurLengthMin);
+			ImGui::TreePop();
+		}
+
 		ImGui::End();
 	}
 };

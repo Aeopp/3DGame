@@ -22,7 +22,7 @@
 #include "PlayerWeapon.h"
 #include "PlayerHair.h"
 
-const float TestLandingCheck = 227.667724609375f;
+const float TestLandingCheck = 22.7667724609375f;
 
 void Player::Initialize(
 	const std::optional<Vector3>& Scale,
@@ -45,7 +45,7 @@ void Player::Initialize(
 	
 	_Transform->SetLocation(SpawnLocation);
 	Engine::Transform::PhysicInformation InitPhysic;
-	InitPhysic.Gravity = 2200.f;
+	InitPhysic.Gravity = 220.f;
 	_Transform->EnablePhysic(InitPhysic );
 	auto _SkeletonMesh = AddComponent<Engine::SkeletonMesh>(L"Player");
 
@@ -133,16 +133,16 @@ void Player::Initialize(
 
 		CurrentTPCamera = Manager.NewObject<Engine::NormalLayer, 
 			Engine::ThirdPersonCamera>(L"Static", L"ThirdPersonCamera",
-			FMath::PI / 4.f, 0.1f, 7777.f, Aspect).get();
+			FMath::PI / 4.f, 0.1f, 777.f, Aspect).get();
 
 		Engine::ThirdPersonCamera::TargetInformation InitTargetInfo{};
-		InitTargetInfo.DistancebetweenTarget = 1428.f;
-		InitTargetInfo.TargetLocationOffset = { 0,100.f,0.f };
+		InitTargetInfo.DistancebetweenTarget = 142.8f;
+		InitTargetInfo.TargetLocationOffset = { 0,10.f,0.f };
 		InitTargetInfo.TargetObject = this;
 		InitTargetInfo.ViewDirection = { -0.0120002348f,-0.9999893427f,-0.00832065567f};
 		InitTargetInfo.RotateResponsiveness = 0.01f;
 		InitTargetInfo.ZoomInOutScale = 0.1f;
-		InitTargetInfo.MaxDistancebetweenTarget = 1500.f ;
+		InitTargetInfo.MaxDistancebetweenTarget = 150.f ;
 
 		Manager.FindObject<Engine::NormalLayer, Engine::ThirdPersonCamera>(L"ThirdPersonCamera")->SetUpTarget(InitTargetInfo);
 	}
@@ -182,6 +182,8 @@ void Player::Update(const float DeltaTime)&
 	Super::Update(DeltaTime);
 	FSM(DeltaTime);
 
+
+
 	auto _Transform       = GetComponent<Engine::Transform>();
 	const Vector3 Location = _Transform->GetLocation();
 	if (Location.y <= TestLandingCheck)
@@ -190,6 +192,18 @@ void Player::Update(const float DeltaTime)&
 	}
 
 	auto& _RefPhysic = _Transform->RefPhysic();
+
+
+	auto& Control = RefControl();
+	if (Control.IsDown(DIK_Z))
+	{
+		_Transform->Move({ 0,1,0 }, DeltaTime, StateableSpeed.Run);
+	}
+
+	if (Control.IsDown(DIK_X))
+	{
+		_Transform->Move({ 0,-1,0 }, DeltaTime, StateableSpeed.Run);
+	}
 }
 
 void Player::Edit()&
@@ -199,11 +213,11 @@ void Player::Edit()&
 		auto _Transform = GetComponent<Engine::Transform>();
 		auto& _Physic = _Transform->RefPhysic();
 
-		ImGui::SliderFloat("JumpInitSpeedY", &JumpInitVelocity.y, 0.f, 3000.f);
-		ImGui::SliderFloat("Gravity", &_Physic.Gravity, 0.f, 3000.f);
-		ImGui::SliderFloat("InTheAirSpeed", &StateableSpeed.InTheAirSpeed, 0.f , 1000.f);
-		ImGui::SliderFloat("DashInitSpeed", &StateableSpeed.Dash, 0.0f, 1000.f);
-		ImGui::SliderFloat("RollingInitSpeed", &StateableSpeed.Rolling, 0.0f, 1000.f);
+		ImGui::SliderFloat("JumpInitSpeedY", &JumpInitVelocity.y, 0.f, 300.f);
+		ImGui::SliderFloat("Gravity", &_Physic.Gravity, 0.f, 300.f);
+		ImGui::SliderFloat("InTheAirSpeed", &StateableSpeed.InTheAirSpeed, 0.f , 100.f);
+		ImGui::SliderFloat("DashInitSpeed", &StateableSpeed.Dash, 0.0f, 100.f);
+		ImGui::SliderFloat("RollingInitSpeed", &StateableSpeed.Rolling, 0.0f, 100.f);
 	}
 };
 
@@ -1173,7 +1187,7 @@ void Player::LeafAttackReadyState(const FSMControlInformation& FSMControlInfo)&
 	{
 		// 여기서 마법진 위치로 계산해서 날아가게 하는 처리를 하면 좋을듯 ! 
 		LeafAttackStartTransition(FSMControlInfo);
-		const float LeafStartTestForce = 333.f;
+		const float LeafStartTestForce = 33.3f;
 		FSMControlInfo.MyTransform->AddVelocity(CurrentMoveDirection * LeafStartTestForce);
 	}
 }

@@ -27,14 +27,14 @@ namespace Engine
 		struct LightInformation
 		{
 			LightOption _LightOpt = { LightOption::Directional };
-			Vector4 Location{ 0,0,0 ,1}; 
-			Vector4 Direction{ 0,-1,0,0 };
+			Vector4 Location{ 0.000f,226.804f,181.818f ,1}; 
+			Vector4 Direction{ 0.151f,-0.658f,-0.738f,0 };
 			Vector4 LightColor{ 1,1,1 ,1}; 
-			float ShadowDepthBias = { 0.0f };
-			float ShadowFar{10000.f};
+			float ShadowDepthBias = { 0.001f};
+			float ShadowFar{993.884f};
 			float ShadowDepthMapWidth= 1920.f;
 			float ShadowDepthMapHeight = 1080.f;
-			float ShadowOrthoProjectionFactor = 1.f;
+			float ShadowOrthoProjectionFactor = 0.344f;
 		};
 		void Initialize(IDirect3DDevice9* const Device,
 			const LightInformation& SetLightInformation)&;

@@ -12,15 +12,15 @@ public:
 	struct StateDuringSpeed 
 	{
 		// 공중에 체공중이라고 판단하는 스피드 (애니메이션을 위함) 
-		float InTheAirSpeed = 200.f;
+		float InTheAirSpeed = 20.f;
 
-		float Run = 400.f; 
-		float ComboEx02 = 80.f;
-		float Attack = 80.f; 
-		float Jump = 222.f;
-		float Rolling = 400.f;
-		float Dash = 1000.f;
-		float LeafReady = 200.f;
+		float Run = 40.f; 
+		float ComboEx02 = 8.f;
+		float Attack = 8.f; 
+		float Jump = 22.2f;
+		float Rolling = 40.f;
+		float Dash = 100.f;
+		float LeafReady = 20.f;
 	};
 	enum class State : uint8
 	{
@@ -195,8 +195,8 @@ private:
 	void WeaponHand()&;
 private:
 	bool bControl    {false};
-	Vector3 JumpInitVelocity = {0,1100.f,0};
-	float PlayerMoveDirectionInterpolateAcceleration = 6.0f;
+	Vector3 JumpInitVelocity = {0,110.f,0};
+	float PlayerMoveDirectionInterpolateAcceleration = 7.7f;
 	Engine::ThirdPersonCamera* CurrentTPCamera{ nullptr };
 	Vector3 CurrentMoveDirection{ 0.f ,  0.f  , 1.f };
 	StateDuringSpeed StateableSpeed{};

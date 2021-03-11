@@ -3,6 +3,8 @@ texture VelocityMap;
 texture Velocity2_None1_Depth1;
 // Scale * Dt
 float VelocityFactor;
+float MotionBlurDepthBias;
+float MotionBlurLengthMin;
 
 sampler Velocity2_None1_Depth1Sampler = sampler_state
 {
@@ -74,12 +76,12 @@ PS_OUT PS_MAIN(PS_IN In)
   
     float4  Color = float4(0,0,0,0);
     /////////
-    int NumBlurSample = 8;
+    int NumBlurSample = 64;
     float4 Velocity = tex2D(VelocityMap_Sampler, In.UV);
-    Velocity.xy *= VelocityFactor;
     
-    // if(Velocity.x>=0.0001f && Velocity.y >=0.0001f)
+    if (length(Velocity.xy) > MotionBlurLengthMin)
     {
+        Velocity.xy *= VelocityFactor;
         Velocity.xy /= (float)NumBlurSample;
     
         float4 BColor;
@@ -88,9 +90,9 @@ PS_OUT PS_MAIN(PS_IN In)
             float2 CurrentUV = In.UV + (Velocity.xy * (float) i); 
             BColor = tex2D(DeferredTargetSampler, CurrentUV);
             BColor.a = 1.f;
-            float BColorDepth = tex2D(Velocity2_None1_Depth1Sampler, CurrentUV).a;
+            float BColorDepth = tex2D(Velocity2_None1_Depth1Sampler, CurrentUV).w;
         
-            if (Velocity.a < (BColorDepth + 0.004f))
+            if (Velocity.a < (BColorDepth + MotionBlurDepthBias))
             {
                 Color += BColor;
             }
@@ -109,7 +111,7 @@ technique Default_Device
     pass
     {
         alphablendenable = true;
-        srcblend = srcalpha;
+        srcblend = one;
         destblend = invsrcalpha;
         zenable = false;
         zwriteenable = false;

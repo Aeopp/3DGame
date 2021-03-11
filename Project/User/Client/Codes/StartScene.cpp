@@ -78,7 +78,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 
 	// ¸Ê Á¤º¸ ·Îµù
 	{
-		MapScale = { 1.f , 1.f , 1.f };
+		MapScale = { 0.1f , 0.1f, 0.1f };
 		MapRotation = { 3.14f / 2.f,0.f,0.f };
 		MapLocation = { 0,0,0 };
 

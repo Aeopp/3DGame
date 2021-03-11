@@ -75,11 +75,11 @@ void MapEdit::Initialize(IDirect3DDevice9* const Device)&
 
 		Manager.NewObject<Engine::NormalLayer, Engine::DynamicCamera>(
 			L"Static", L"Camera",
-			FMath::PI / 4.f, 0.1f, 20000.f, Aspect, 333.f, &Control);
+			FMath::PI / 4.f, 0.1f, 2000.f, Aspect, 66.f, &Control);
 	}
 
 	{
-		 MapScale     = { 1.f , 1.f, 1.f };
+		 MapScale     = { 0.1f , 0.1f, 0.1f };
 		 MapRotation = { 3.14f / 2.f,0.f,0.f };
 		 MapLocation = { 0,0,0 };
 
@@ -517,7 +517,7 @@ void MapEdit::Landscape()&
 
 			if (ImGui::CollapsingHeader("Scale"))
 			{
-				ImGui::SliderFloat3("Scale", (float*)&(SpawnEditScale), 0.01f, +100.f);
+				ImGui::SliderFloat3("Scale", (float*)&(SpawnEditScale), 0.001f, +10.f);
 				ImGui::InputFloat3("_Scale", (float*)(SpawnEditScale));
 			}
 			if (ImGui::CollapsingHeader("Rotation"))
@@ -533,14 +533,14 @@ void MapEdit::Landscape()&
 			}
 			if (ImGui::CollapsingHeader("Location"))
 			{
-				ImGui::SliderFloat3("Location", (float*)&(SpawnEditLocation), -10000.f, +10000.f);
+				ImGui::SliderFloat3("Location", (float*)&(SpawnEditLocation), -3333.f, +3333.f);
 				ImGui::InputFloat3("_Location", (float*)SpawnEditLocation);
 			}
 
 			switch (SpawnTransformComboSelectItem)
 			{
 			case MapEdit::SpawnTransformItem::InFrontOf:
-				ImGui::VSliderFloat("In front Of Scale", { 30,100 }, &InfrontOfScale, 1.f, 10000.f);
+				ImGui::VSliderFloat("In front Of Scale", { 30,100 }, &InfrontOfScale, 0.01f, 10.f);
 			default:
 				break;
 			}
@@ -659,16 +659,16 @@ void MapEdit::Landscape()&
 	ImGui::End();
 
 	ImGui::Begin("RenderOption");
-	ImGui::SliderFloat("FogDistance", &Renderer.FogDistance, 0.0f, 10000.f);
+	ImGui::SliderFloat("FogDistance", &Renderer.FogDistance, 0.0f, 2000.f);
 	ImGui::ColorEdit3("FogColor", (float*)&Renderer.FogColor );
 	if (ImGui::TreeNode("DirectionalLight"))
 	{
 		ImGui::DragFloat4
-		("Direction", (float*)&Renderer._DirectionalLight._LightInfo.Direction, 0.1f, -1.f, 1.f);
+		("Direction", (float*)&Renderer._DirectionalLight._LightInfo.Direction, 0.01f, -1.f, 1.f);
 		D3DXVec4Normalize(&Renderer._DirectionalLight._LightInfo.Direction, &Renderer._DirectionalLight._LightInfo.Direction);
-		ImGui::SliderFloat3("Location", (float*)&Renderer._DirectionalLight._LightInfo.Location, -10000.f, 10000.f);
-		ImGui::SliderFloat("Shadow Distance", (float*)&Renderer._DirectionalLight._LightInfo.ShadowFar, 1000.f, 100000.f);
-		ImGui::SliderFloat("Shadow OrthoProjectionFactor", (float*)&Renderer._DirectionalLight._LightInfo.ShadowOrthoProjectionFactor, 1.f, 5.f);
+		ImGui::SliderFloat3("Location", (float*)&Renderer._DirectionalLight._LightInfo.Location, -1000.f, 1000.f);
+		ImGui::SliderFloat("Shadow Distance", (float*)&Renderer._DirectionalLight._LightInfo.ShadowFar, 0.0f, 3000.f);
+		ImGui::SliderFloat("Shadow OrthoProjectionFactor", (float*)&Renderer._DirectionalLight._LightInfo.ShadowOrthoProjectionFactor, 0.0f, 5.f);
 
 		
 		ImGui::InputFloat("Shadow Depth Bias",

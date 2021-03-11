@@ -60,12 +60,12 @@ void ObjectEdit::Initialize(IDirect3DDevice9* const Device)&
 
 		Manager.NewObject<Engine::NormalLayer, Engine::DynamicCamera>(
 			L"Static", L"Camera",
-			FMath::PI / 4.f, 0.1f, 20000.f, Aspect, 333.f, &Control);
+			FMath::PI / 4.f, 0.1f, 1000.f, Aspect, 66.f, &Control);
 	}
 
 	// 랜드스케이프. 
 	{
-		MapScale    = { 1.f , 1.f , 1.f };
+		MapScale    = { 0.1f , 0.1f, 0.1f };
 		MapRotation = { 3.14f / 2.f,0.f,0.f };
 		MapLocation = { 0,0,0 };
 
