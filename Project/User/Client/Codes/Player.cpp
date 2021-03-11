@@ -168,8 +168,8 @@ void Player::Event()&
 {
 	Super::Event();
 	Edit();
-	auto _SkeletonMeshComponent = GetComponent<Engine::SkeletonMesh>();
 
+	auto _SkeletonMeshComponent = GetComponent<Engine::SkeletonMesh>();
 	auto& _Control =RefControl();
 	if (_Control.IsDown(DIK_O))
 	{
@@ -182,9 +182,7 @@ void Player::Update(const float DeltaTime)&
 	Super::Update(DeltaTime);
 	FSM(DeltaTime);
 
-
-
-	auto _Transform       = GetComponent<Engine::Transform>();
+	auto _Transform        = GetComponent<Engine::Transform>();
 	const Vector3 Location = _Transform->GetLocation();
 	if (Location.y <= TestLandingCheck)
 	{
@@ -192,8 +190,6 @@ void Player::Update(const float DeltaTime)&
 	}
 
 	auto& _RefPhysic = _Transform->RefPhysic();
-
-
 	auto& Control = RefControl();
 	if (Control.IsDown(DIK_Z))
 	{
@@ -213,11 +209,16 @@ void Player::Edit()&
 		auto _Transform = GetComponent<Engine::Transform>();
 		auto& _Physic = _Transform->RefPhysic();
 
-		ImGui::SliderFloat("JumpInitSpeedY", &JumpInitVelocity.y, 0.f, 300.f);
+		ImGui::SliderFloat("JumpVelocityY", &StateableSpeed.JumpVelocity.y, 0.f, 300.f);
 		ImGui::SliderFloat("Gravity", &_Physic.Gravity, 0.f, 300.f);
 		ImGui::SliderFloat("InTheAirSpeed", &StateableSpeed.InTheAirSpeed, 0.f , 100.f);
 		ImGui::SliderFloat("DashInitSpeed", &StateableSpeed.Dash, 0.0f, 100.f);
 		ImGui::SliderFloat("RollingInitSpeed", &StateableSpeed.Rolling, 0.0f, 100.f);
+
+		ImGui::SliderFloat("AirCombo01VelocityY", &StateableSpeed.AirCombo01Velocity.y, 0.f, 300.f);
+		ImGui::SliderFloat("AirCombo02VelocityY", &StateableSpeed.AirCombo02Velocity.y, 0.f, 300.f);
+		ImGui::SliderFloat("AirCombo03VelocityY", &StateableSpeed.AirCombo03Velocity.y, 0.f, 300.f);
+		ImGui::SliderFloat("AirCombo04VelocityY", &StateableSpeed.AirCombo04Velocity.y, 0.f, 300.f);
 	}
 };
 
@@ -408,7 +409,7 @@ void Player::CombatWaitState(const FSMControlInformation& FSMControlInfo)&
 
 	if (auto bMoveable =CheckTheMoveableState(FSMControlInfo))
 	{
-        RunTransition(FSMControlInfo);
+        RunTransition(FSMControlInfo ,bMoveable);
 	}
 };
 
@@ -422,7 +423,9 @@ void Player::CombatWaitTransition(const FSMControlInformation& FSMControlInfo)&
 	WeaponPut();
 };
 
-void Player::RunTransition(const FSMControlInformation& FSMControlInfo)&
+void Player::RunTransition(const FSMControlInformation& FSMControlInfo,
+						   const std::optional<Player::MoveControlInformation>&
+							MoveInfo)&
 {
 	WeaponPut();
 	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
@@ -431,17 +434,23 @@ void Player::RunTransition(const FSMControlInformation& FSMControlInfo)&
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::Run;
 
-	const auto& ViewPlayerInfo = CurrentTPCamera->GetTargetInformation();
-	Vector3 ViewDirection = ViewPlayerInfo.CurrentViewDirection;
-	ViewDirection.y = 0.0f;
-	ViewDirection = FMath::Normalize(ViewDirection);
+	if (MoveInfo.has_value())
+	{
+		CurrentMoveDirection =std::accumulate(
+			std::begin(MoveInfo->ControlDirections),
+			std::end(MoveInfo->ControlDirections), 
+			Vector3{ 0, 0, 0 }) 
+						/
+			static_cast<float> (MoveInfo->ControlDirections.size()); 
+
+		CurrentMoveDirection = FMath::Normalize(CurrentMoveDirection); 
+	}
 
 	auto _Transform = GetComponent<Engine::Transform>();
 	Vector3 NewRotation = _Transform->GetRotation();
 	const float Yaw = std::atan2f(CurrentMoveDirection.x, CurrentMoveDirection.z);
 	NewRotation.y = Yaw - FMath::PI / 2.f;
 	_Transform->SetRotation(NewRotation);
-	CurrentMoveDirection = ViewDirection;
 };
 
 void Player::RunEndState(const FSMControlInformation& FSMControlInfo)&
@@ -496,9 +505,9 @@ void Player::JumpStartTransition(const FSMControlInformation& FSMControlInfo)&
 	CurrentState = Player::State::JumpStart;
 
 	Vector3 CurLocation = FSMControlInfo.MyTransform->GetLocation();
-	CurLocation += (JumpInitVelocity  * FSMControlInfo.DeltaTime);
+	CurLocation += (StateableSpeed.JumpVelocity * FSMControlInfo.DeltaTime);
 	FSMControlInfo.MyTransform->SetLocation(CurLocation);
-	FSMControlInfo.MyTransform->AddVelocity(JumpInitVelocity);
+	FSMControlInfo.MyTransform->AddVelocity(StateableSpeed.JumpVelocity);
 }
 void Player::JumpUpState(const FSMControlInformation& FSMControlInfo)&
 {
@@ -798,6 +807,7 @@ void Player::AirCombo01State(const FSMControlInformation& FSMControlInfo)&
 	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
 	{
 		AirCombo02Transition(FSMControlInfo);
+		return;
 	}
 
 	if (CurAnimNotify.bAnimationEnd)
@@ -815,6 +825,9 @@ void Player::AirCombo01Transition(const FSMControlInformation& FSMControlInfo)&
 	_AnimNotify.Name = "AirCombo01";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::AirCombo01;
+	FSMControlInfo.MyTransform->ClearVelocity();
+
+	FSMControlInfo.MyTransform->AddVelocity(StateableSpeed.AirCombo01Velocity);
 };
 
 void Player::AirCombo02State(const FSMControlInformation& FSMControlInfo)& 
@@ -824,6 +837,7 @@ void Player::AirCombo02State(const FSMControlInformation& FSMControlInfo)&
 	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
 	{
 		AirCombo03Transition(FSMControlInfo);
+		return;
 	}
 
 	if (CurAnimNotify.bAnimationEnd)
@@ -839,6 +853,8 @@ void Player::AirCombo02Transition(const FSMControlInformation& FSMControlInfo)&
 	_AnimNotify.Name = "AirCombo02";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::AirCombo02;
+	FSMControlInfo.MyTransform->ClearVelocity();
+	FSMControlInfo.MyTransform->AddVelocity(StateableSpeed.AirCombo02Velocity);
 };
 void Player::AirCombo03State(const FSMControlInformation& FSMControlInfo)& 
 {
@@ -847,6 +863,7 @@ void Player::AirCombo03State(const FSMControlInformation& FSMControlInfo)&
 	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
 	{
 		AirCombo04Transition(FSMControlInfo);
+		return;
 	}
 
 	if (CurAnimNotify.bAnimationEnd)
@@ -862,19 +879,17 @@ void Player::AirCombo03Transition(const FSMControlInformation& FSMControlInfo)&
 	_AnimNotify.Name = "AirCombo03";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::AirCombo03;
+	FSMControlInfo.MyTransform->ClearVelocity();
+
+	FSMControlInfo.MyTransform->AddVelocity(StateableSpeed.AirCombo03Velocity);
 };
 void Player::AirCombo04State(const FSMControlInformation& FSMControlInfo)& 
 {
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 
-	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
-	{
-		AirCombo04LandingTransition(FSMControlInfo);
-	}
-
 	if (CurAnimNotify.bAnimationEnd)
 	{
-		CombatWaitTransition(FSMControlInfo);
+		AirCombo04LandingTransition(FSMControlInfo);
 		return;
 	}
 };
@@ -885,6 +900,8 @@ void Player::AirCombo04Transition(const FSMControlInformation& FSMControlInfo)&
 	_AnimNotify.Name = "AirCombo04";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::AirCombo04;
+	FSMControlInfo.MyTransform->ClearVelocity();
+	FSMControlInfo.MyTransform->AddVelocity(StateableSpeed.AirCombo04Velocity);
 };
 void Player::AirCombo04LandingState(const FSMControlInformation& FSMControlInfo)& 
 {
@@ -903,6 +920,7 @@ void Player::AirCombo04LandingTransition(const FSMControlInformation& FSMControl
 	_AnimNotify.Name = "AirCombo04Landing";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::AirCombo04Landing;
+
 }
 
 void Player::BasicCombo01Transition(const FSMControlInformation& FSMControlInfo)&
@@ -931,6 +949,7 @@ void Player::BasicCombo02State(const FSMControlInformation& FSMControlInfo)&
 		if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
 		{
 			BasicCombo03Transition(FSMControlInfo);
+			return;
 		}
 	}
 
@@ -1000,11 +1019,6 @@ void Player::RunEndTransition(const FSMControlInformation& FSMControlInfo)&
 	CurrentState = Player::State::RunEnd;
 };
 
-static auto DashVelocityEndCall = [](Player* const _Player)
-{
-	_Player->GetComponent<Engine::Transform>()->AddVelocity(
-		-_Player->CurrentMoveDirection * _Player->StateableSpeed.Dash);
-};
 
 void Player::DashState(const FSMControlInformation& FSMControlInfo)&
 {
@@ -1013,18 +1027,26 @@ void Player::DashState(const FSMControlInformation& FSMControlInfo)&
 	if (CheckTheAttackableState(FSMControlInfo))
 	{
 		DashComboTransition(FSMControlInfo);
-		DashVelocityEndCall(this);
+		FSMControlInfo.MyTransform->ClearVelocity();
 		return;
 	}
 
 	if (CurAnimNotify.bAnimationEnd) 
 	{
 		CombatWaitTransition(FSMControlInfo);
-		GetComponent<Engine::Transform>()->AddVelocity(-CurrentMoveDirection * StateableSpeed.Dash);
 		return;
 	}
+	const float CurNormalzieAnimTime = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
 
-	
+	if (CurNormalzieAnimTime > 0.4f )
+	{
+		if (auto bMoveable = CheckTheMoveableState(FSMControlInfo);
+			bMoveable)
+		{
+			RunTransition(FSMControlInfo,std::nullopt);
+			return; 
+		}
+	}
 }
 
 void Player::DashTransition(const FSMControlInformation& FSMControlInfo,
@@ -1038,29 +1060,26 @@ void Player::DashTransition(const FSMControlInformation& FSMControlInfo,
 			std::end(MoveControlInfo.ControlDirections),
 			Vector3{ 0.f,0.f,0.f })
 		/ static_cast<float>(MoveControlInfo.ControlDirections.size()));
-
+	
+	CurrentMoveDirection = ControlMoveDirection;
+	CurrentMoveDirection.y = 0.0f;
+	DashDirection  = CurrentMoveDirection = FMath::Normalize(CurrentMoveDirection);
 	Vector3 NewRotation = FSMControlInfo.MyTransform->GetRotation();
 	const float Yaw = std::atan2f(CurrentMoveDirection.x, CurrentMoveDirection.z);
 	NewRotation.y = Yaw - FMath::PI / 2.f;
 	FSMControlInfo.MyTransform->SetRotation(NewRotation);
 
-	CurrentMoveDirection = ControlMoveDirection;
-	CurrentMoveDirection.y = 0.0f;
-	CurrentMoveDirection = FMath::Normalize(CurrentMoveDirection);
-
 	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
 	_AnimNotify.bLoop = false;
 	_AnimNotify.Name = "dash";
-
 	_AnimNotify.AnimTimeEventCallMapping[0.4f] = 
-		[this](Engine::SkeletonMesh* SkMesh) 
-	{
-		DashVelocityEndCall(this);
+		[this](Engine::SkeletonMesh * const SkMesh) {
+		GetComponent<Engine::Transform>()->ClearVelocity();
 	};
 
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::Dash;
-	FSMControlInfo.MyTransform->AddVelocity(CurrentMoveDirection * StateableSpeed.Dash);
+	FSMControlInfo.MyTransform->AddVelocity(DashDirection * StateableSpeed.Dash);
 }
 
 std::optional<Player::MoveControlInformation>   
@@ -1416,17 +1435,18 @@ void Player::StandUpRollingState(const FSMControlInformation& FSMControlInfo)&
 
 	if (CurAnimNotify.bAnimationEnd)
 	{
-		auto& _RefPhysic = FSMControlInfo.MyTransform->RefPhysic();
-		_RefPhysic.Velocity.x = 0.0f;
-		_RefPhysic.Velocity.z = 0.0f;
+		CombatWaitTransition(FSMControlInfo);
+		return;
+	}
+	const float CurNormalzieAnimTime = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
 
-		if (CheckTheMoveableState(FSMControlInfo)  ) 
+	if (CurNormalzieAnimTime > 0.3f)
+	{
+		if (auto bMoveable = CheckTheMoveableState(FSMControlInfo);
+			bMoveable)
 		{
-			RunTransition(FSMControlInfo ); 
-		}
-		else
-		{
-			CombatWaitTransition(FSMControlInfo);
+			RunTransition(FSMControlInfo, std::nullopt);
+			return;
 		}
 	}
 }
@@ -1443,28 +1463,25 @@ void Player::StandUpRollingTransition(const FSMControlInformation& FSMControlInf
 			Vector3{ 0.f,0.f,0.f })
 		/ static_cast<float>(MoveControlInfo.ControlDirections.size()));
 
+	CurrentMoveDirection = ControlMoveDirection;
+	CurrentMoveDirection.y = 0.0f;
+	DashDirection = CurrentMoveDirection = FMath::Normalize(CurrentMoveDirection);
 	Vector3 NewRotation = FSMControlInfo.MyTransform->GetRotation();
 	const float Yaw = std::atan2f(CurrentMoveDirection.x, CurrentMoveDirection.z);
 	NewRotation.y = Yaw - FMath::PI / 2.f;
 	FSMControlInfo.MyTransform->SetRotation(NewRotation);
 
-	// ½ºÅÄµå ¾÷ ?? 
-
-	CurrentMoveDirection = ControlMoveDirection;
-	CurrentMoveDirection.y = 0.0f;
-	CurrentMoveDirection = FMath::Normalize(CurrentMoveDirection);
-
 	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
 	_AnimNotify.bLoop = false;
 	_AnimNotify.Name = "StandUpRolling";
-	_AnimNotify.AnimTimeEventCallMapping[0.3f] = [this](Engine::SkeletonMesh* const SkMesh)
-	{
-		GetComponent<Engine::Transform>()->AddVelocity(-CurrentMoveDirection * StateableSpeed.Rolling);
+	_AnimNotify.AnimTimeEventCallMapping[0.3f] =
+		[this](Engine::SkeletonMesh* const SkMesh) {
+		GetComponent<Engine::Transform>()->ClearVelocity();
 	};
 
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::StandUpRolling;
-	FSMControlInfo.MyTransform->AddVelocity(CurrentMoveDirection * StateableSpeed.Rolling);
+	FSMControlInfo.MyTransform->AddVelocity(DashDirection * StateableSpeed.Rolling);
 }
 
 void Player::DashComboTransition(const FSMControlInformation& FSMControlInfo)&

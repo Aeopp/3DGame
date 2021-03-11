@@ -21,6 +21,12 @@ public:
 		float Rolling = 40.f;
 		float Dash = 100.f;
 		float LeafReady = 20.f;
+
+		Vector3 JumpVelocity = { 0.f,110.f,0.f };
+		Vector3 AirCombo01Velocity = { 0.f, 50.f,0.f };
+		Vector3 AirCombo02Velocity = { 0.f, 50.f,0.f };
+		Vector3 AirCombo03Velocity = { 0.f, 50.f,0.f };
+		Vector3 AirCombo04Velocity = { 0.f, -50.f,0.f };
 	};
 	enum class State : uint8
 	{
@@ -105,7 +111,8 @@ private:
 	void CombatWaitTransition(const FSMControlInformation& FSMControlInfo)&;
 	void CombatWaitState(     const FSMControlInformation& FSMControlInfo)&;
 	void RunState(            const FSMControlInformation& FSMControlInfo)&;
-	void RunTransition(       const FSMControlInformation& FSMControlInfo)&;
+	void RunTransition(const FSMControlInformation& FSMControlInfo,
+						const std::optional<Player::MoveControlInformation>& MoveInfo)&;
 	void RunEndState(         const FSMControlInformation& FSMControlInfo)&;
 	void RunEndTransition(    const FSMControlInformation& FSMControlInfo)&;
 
@@ -180,8 +187,8 @@ private:
 	void LeafAttackLandingTransition(const FSMControlInformation& FSMControlInfo)&;
 private:
 	std::optional<Player::MoveControlInformation> 
-		 CheckTheMoveableState(const FSMControlInformation& FSMControlInfo)&;
-	bool CheckTheJumpableState(const FSMControlInformation& FSMControlInfo)&;
+		 CheckTheMoveableState  (const FSMControlInformation& FSMControlInfo)&;
+	bool CheckTheJumpableState  (const FSMControlInformation& FSMControlInfo)&;
 	bool CheckTheAttackableState(const FSMControlInformation& FSMControlInfo)&;
 	bool CheckTheLeafAttackableState(const FSMControlInformation& FSMControlInfo)&;
 private:
@@ -194,14 +201,14 @@ private:
 	void WeaponPut()&;
 	void WeaponHand()&;
 public:
-		Vector3 CurrentMoveDirection{ 0.f ,  0.f  , 1.f };
-		StateDuringSpeed StateableSpeed{};
+	Vector3 CurrentMoveDirection{ 0.f,0.f,1.f };
+	StateDuringSpeed StateableSpeed{};
 private:
+	Vector3 DashDirection{ 0,0,1 };
 	bool bControl    {false};
-	Vector3 JumpInitVelocity = {0,110.f,0};
+
 	float PlayerMoveDirectionInterpolateAcceleration = 7.7f;
 	Engine::ThirdPersonCamera* CurrentTPCamera{ nullptr };
-	
 	State   CurrentState{ Player::State::CombatWait};
 	IDirect3DDevice9* Device{ nullptr };
 };
