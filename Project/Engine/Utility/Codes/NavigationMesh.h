@@ -42,11 +42,13 @@ namespace Engine
 		// 반환값이 0 일 경우 마커 선택이 실패.
 		void Initialize(IDirect3DDevice9* Device)&;
 		void Render(IDirect3DDevice9* const Device)&; 
-		std::optional<std::pair<Vector3,const Cell*>>
+	/*	std::optional<std::pair<Vector3,const Cell*>>
 			MoveOnNavigation(
-				const Vector3 TargetDirection,
+				const Vector3 Velocity,
 				const Vector3 TargetLocation,
-				const Cell* CurrentPlacedCell)const&;
+				const Cell* CurrentPlacedCell)const&;*/
+		Cell* GetCellFromXZLocation(const Vector2& Position2D) const&;
+		std::vector<Cell*> GetCellFromMarkerIdx(const uint32 MarkerIdx)const&;
 		// 파일 로딩시 버텍스버퍼 정보 제대로 채우기.
 	public:
 		std::unordered_map<uint32,std::shared_ptr<Marker>> CurrentMarkers{};

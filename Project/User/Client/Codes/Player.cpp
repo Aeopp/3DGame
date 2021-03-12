@@ -21,6 +21,8 @@
 #include "PlayerHead.h"
 #include "PlayerWeapon.h"
 #include "PlayerHair.h"
+#include "NavigationMesh.h"
+
 
 const float TestGroundY = 22.7667724609375f;
 float TestLandCheckY = 7.f;
@@ -152,7 +154,9 @@ void Player::Initialize(
 		Manager.FindObject<Engine::NormalLayer, Engine::ThirdPersonCamera>(L"ThirdPersonCamera")->SetUpTarget(InitTargetInfo);
 	}
 
-
+	auto&  _NaviMesh  = RefNaviMesh();
+	Vector2 SpawnLocation2D = {SpawnLocation.x, SpawnLocation.z};
+	CurrentCell = _NaviMesh.GetCellFromXZLocation(SpawnLocation2D);
 };
 
 void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
@@ -572,6 +576,7 @@ void Player::JumpUpTransition(const FSMControlInformation& FSMControlInfo)&
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::JumpUp;
 }
+
 void Player::JumpState(const FSMControlInformation& FSMControlInfo)&
 {
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
@@ -1483,8 +1488,7 @@ void Player::DashComboState(const FSMControlInformation& FSMControlInfo)&
 		return; 
 	}
 
-
-	if (CheckTheJumpableState(FSMControlInfo) && bAttackMotionEnd)
+	if (CheckTheJumpableState(FSMControlInfo))
 	{
 		JumpStartTransition(FSMControlInfo);
 		return;
@@ -1598,6 +1602,20 @@ std::function<Engine::Object::SpawnReturnValue(
 	else
 	{
 		return {};
+	}
+}
+void Player::LateUpdate(const float DeltaTime)&
+{
+	Super::LateUpdate(DeltaTime);
+	auto _Transform = GetComponent<Engine::Transform>();
+	const Vector3 Location = _Transform->GetLocation();
+
+	auto bCellResult = CurrentCell->Compare(Location);
+	if (bCellResult)
+	{
+		const Engine::Cell::CompareType _CompareType = bCellResult->_Compare;
+		CurrentCell = bCellResult->Target;
+		_Transform->SetLocation({Location.x,  bCellResult->Y, Location.z});
 	}
 };
 

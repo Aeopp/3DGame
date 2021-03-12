@@ -581,8 +581,8 @@ void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 
 		Vertex::LocationColor* VtxBufPtr{ nullptr };
 		VertexBuffer->Lock(0u,
-		sizeof(Vertex::LocationColor) * 3u * CellContainer.size(), reinterpret_cast<void**>(&VtxBufPtr),NULL);
-		
+			sizeof(Vertex::LocationColor) * 3u * CellContainer.size(), reinterpret_cast<void**>(&VtxBufPtr), NULL);
+
 		uint32 Idx = 0u;
 		for (const auto& [CellKey, _Cell] : CellContainer)
 		{
@@ -596,7 +596,7 @@ void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 
 			for (uint32 i = 0; i < 3; ++i)
 			{
-				const uint32 TargetBufferIdx =Idx * 3u + i;
+				const uint32 TargetBufferIdx = Idx * 3u + i;
 				if (i == 0)
 					VtxBufPtr[TargetBufferIdx].Location = _Cell->PointA;
 				if (i == 1)
@@ -629,51 +629,81 @@ void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 			Fx->EndPass();
 		};
 		Fx->End();
-		
+
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 
 		auto DebugSphereMesh = ResourceSystem::Instance->Get<ID3DXMesh>(L"SphereMesh");
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-		for (auto& [MarkerKey,DrawMarkerDebugSphere]: CurrentMarkers)
+		for (auto& [MarkerKey, DrawMarkerDebugSphere] : CurrentMarkers)
 		{
 			const float Scale = DrawMarkerDebugSphere->_Sphere.Radius;
-			const Matrix World = FMath::WorldMatrix({ Scale,Scale,Scale }, 
-													{ 0,0,0 }, 
-													{DrawMarkerDebugSphere->_Sphere.Center });
+			const Matrix World = FMath::WorldMatrix({ Scale,Scale,Scale },
+				{ 0,0,0 },
+				{ DrawMarkerDebugSphere->_Sphere.Center });
 			Device->SetTransform(D3DTS_WORLD, &World);
 			DebugSphereMesh->DrawSubset(0);
 		}
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 
+		DWORD bZEnable{ 0u };
+		Device->GetRenderState(D3DRS_ZENABLE, &bZEnable);
+		Device->SetRenderState(D3DRS_ZENABLE, false);
 		for (auto& [CellKey, CurCell] : CellContainer)
 		{
 			CurCell->Render(Device);
 		}
+		Device->SetRenderState(D3DRS_ZENABLE, bZEnable);
 	}
 }
 
+//
+//  std::optional<std::pair<Vector3, const Engine::Cell*>> 
+//	Engine::NavigationMesh::MoveOnNavigation(
+//		const Vector3 Velocity,
+//		const Vector3 TargetLocation, 
+//		const Cell* CurrentPlacedCell) const&
+//{
+//	const Vector3 EndLocation = TargetLocation + Velocity;
+//	const auto [_Result, NewPlacedCell] =
+//		CurrentPlacedCell->Compare(EndLocation);
+//
+//	switch (_Result)
+//	{
+//	case Engine::Cell::CompareType::Moving:
+//		return { { Velocity,NewPlacedCell } };
+//		break;
+//	case Engine::Cell::CompareType::Stop:
+//		return std::nullopt;
+//		break;
+//	default:
+//		return std::nullopt;
+//		break;
+//	}
+//}
 
-
-std::optional<std::pair<Vector3, const Engine::Cell*>> 
-	Engine::NavigationMesh::MoveOnNavigation(
-		const Vector3 TargetDirection, 
-		const Vector3 TargetLocation, 
-		const Cell* CurrentPlacedCell) const&
+Engine::Cell* Engine::NavigationMesh::GetCellFromXZLocation(const Vector2& Position2D) const&
 {
-	const Vector3 EndLocation = TargetLocation + TargetDirection;
-	const auto [_Result, NewPlacedCell] =
-		CurrentPlacedCell->Compare(EndLocation);
-
-	switch (_Result)
+	for (const auto& [CellKey, _Cell] : CellContainer)
 	{
-	case Engine::Cell::CompareType::Moving:
-		return { { TargetDirection,NewPlacedCell } };
-		break;
-	case Engine::Cell::CompareType::Stop:
-		return std::nullopt;
-		break;
-	default:
-		return std::nullopt;
-		break;
+		if (false == _Cell->IsOutLine(Position2D))
+		{
+			return _Cell.get();
+		}
 	}
+
+	return nullptr;
+}
+
+std::vector<Engine::Cell*> Engine::NavigationMesh::GetCellFromMarkerIdx(const uint32 MarkerIdx) const&
+{
+	std::vector<Cell*> CellList{};
+
+	const auto& TargetMarker = CurrentMarkers.find(MarkerIdx)->second;
+	for (const uint32 SharedCellKey : TargetMarker->SharedCellKeys)
+	{
+		const auto& TargetCell = CellContainer.find(SharedCellKey)->second;
+		CellList.push_back(TargetCell.get( ) );
+	}
+
+	return CellList; 
 }

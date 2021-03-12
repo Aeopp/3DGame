@@ -505,16 +505,16 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 					Fx->SetFloat("CavityCoefficient", CurMesh.MaterialInfo.CavityCoefficient);
 					Fx->SetFloat("AlphaAddtive", CurMesh.MaterialInfo.AlphaAddtive);
 
-					if (Engine::Global::bDebugMode
-						&& (PickDecoInstancePtr == CurDecoInstance.get()))
+					const bool bPickRender = Engine::Global::bDebugMode
+						&& (PickDecoInstancePtr == CurDecoInstance.get());
+
+					if (bPickRender)
 					{
-						const Vector4 PickAccentAmbient{ 25.f,0.f,255.f,1.f };
-						Fx->SetVector("AmbientColor", &PickAccentAmbient);
+						const Vector3 PickAccentAmbient{ 25.f,0.f,255.f};
+						Fx->SetFloatArray("AddAlbedo", PickAccentAmbient, 3u);
 					}
-					else
-					{
-						Fx->SetVector("AmbientColor", &CurMesh.MaterialInfo.AmbientColor);
-					}
+
+					Fx->SetVector("AmbientColor", &CurMesh.MaterialInfo.AmbientColor);
 					
 					 CurMesh.MaterialInfo.BindingTexture(Fx);
 					 Fx->CommitChanges();
@@ -525,6 +525,12 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 						Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
 							0u, CurMesh.PrimitiveCount);
 						Fx->EndPass();
+					}
+
+					if (bPickRender)
+					{
+						const Vector3 PickAccentAddAlbedo{ 0.f ,0.f,0.f };
+						Fx->SetFloatArray("AddAlbedo", PickAccentAddAlbedo, 3u);
 					}
 				}
 			}
@@ -685,6 +691,15 @@ void Engine::Landscape::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engin
 					Fx->SetFloat("RimInnerWidth", CurMesh.MaterialInfo.RimInnerWidth);
 					Fx->SetVector("RimAmtColor", &CurMesh.MaterialInfo.RimAmtColor);
 					
+
+					const bool bPickRender = Engine::Global::bDebugMode
+						&& (PickDecoInstancePtr == CurDecoInstance.get());
+
+					if (bPickRender)
+					{
+						const Vector3 PickAccentAmbient{ 25.f,0.f,255.f };
+						Fx->SetFloatArray("AddAlbedo", PickAccentAmbient, 3u);
+					}
 					CurMesh.MaterialInfo.BindingTexture(Fx);
 					Fx->CommitChanges();
 
@@ -694,6 +709,13 @@ void Engine::Landscape::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engin
 						Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, CurMesh.VtxCount,
 							0u, CurMesh.PrimitiveCount);
 						Fx->EndPass();
+					}
+
+
+					if (bPickRender)
+					{
+						const Vector3 PickAccentAmbient{ 0.f,0.f,0.f };
+						Fx->SetFloatArray("AddAlbedo", PickAccentAmbient, 3u);
 					}
 				}
 			}

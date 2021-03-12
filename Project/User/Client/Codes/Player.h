@@ -3,8 +3,9 @@
 #include "Object.h"
 #include "SkeletonMesh.h"
 #include "ThirdPersonCamera.h"
+#include "Cell.h"
 
-class Player final: public Engine::Object
+class Player final : public Engine::Object
 {
 public:
 	using Super = Engine::Object;
@@ -113,7 +114,8 @@ public:
 public:
 	virtual void Event()&override;
 	virtual void Update(const float DeltaTime)&;
-	
+	virtual void LateUpdate(const float DeltaTime)&;
+
 	void Edit()&;
 
 	virtual void HitNotify(Object* const Target, const Vector3 PushDir,
@@ -185,11 +187,11 @@ private:
 	void ComboEx02EndState(const FSMControlInformation& FSMControlInfo)&;
 	void ComboEx02EndTransition(const FSMControlInformation& FSMControlInfo)&;
 
-	void DashState     (const FSMControlInformation& FSMControlInfo)&;
-	void DashTransition(const FSMControlInformation& FSMControlInfo ,
-					    const Player::MoveControlInformation& MoveControlInfo)&;
+	void DashState     (      const FSMControlInformation& FSMControlInfo)&;
+	void DashTransition(      const FSMControlInformation& FSMControlInfo ,
+					          const Player::MoveControlInformation& MoveControlInfo)&;
 	
-	void DashComboState (const FSMControlInformation& FSMControlInfo)&;
+	void DashComboState (     const FSMControlInformation& FSMControlInfo)&;
 	void DashComboTransition (const FSMControlInformation& FSMControlInfo)&;
 
 	void StandUpRollingState(const FSMControlInformation& FSMControlInfo )&; 
@@ -234,6 +236,7 @@ public:
 	Vector3 CurrentMoveDirection{ 0.f,0.f,1.f };
 	StateDuringSpeed StateableSpeed{};
 private:
+	const Engine::Cell* CurrentCell{nullptr};
 	LeafAttackInformation _LeafAttackInfo{};
 	Vector3 DashDirection{ 0,0,1 };
 	bool bControl    {false};

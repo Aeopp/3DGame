@@ -5,6 +5,7 @@ matrix Projection;
 matrix PrevWorldViewProjection;
 
 float  DetailScale;
+float3 AddAlbedo = float3(0, 0, 0);
 
 float  Contract;
 float  Power;
@@ -170,7 +171,7 @@ PS_OUT AlbedoNormalWorldPosDepthSpecular(PS_IN In)
     DetailDiffuseColor *= DetailDiffuseIntensity;
     DiffuseColor = DiffuseColor * DetailDiffuseColor;
     DiffuseColor.rgb *= CavityColor.rgb;
-    Out.Albedo3_Contract1.rgb = DiffuseColor.rgb;
+    Out.Albedo3_Contract1.rgb = DiffuseColor.rgb + AddAlbedo.rgb;
     Out.Albedo3_Contract1.a = Contract;
     // 
     

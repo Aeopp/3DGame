@@ -2,6 +2,7 @@
 #include "StartScene.h"
 #include "ThirdPersonCamera.h"
 #include "PlayerHead.h"
+#include "NavigationMesh.h"
 #include "Controller.h"
 #include "Player.h"
 #include "Shader.h"
@@ -43,6 +44,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	auto& Manager = RefManager();
 	auto& Proto =   RefProto();
 	auto& Renderer = RefRenderer();
+	auto& NaviMesh = RefNaviMesh();
 
 	// 텍스쳐 리소스 추가. 
 	{
@@ -106,6 +108,8 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 		}
 
 		RefLandscape.Load(App::ResourcePath / L"MapLoadInfo" / "SkyGarden.json");
+		const Matrix MapWorld = FMath::WorldMatrix(MapScale, MapRotation, MapLocation);
+		NaviMesh.Load(App::ResourcePath / "NaviMesh" / "SkyGarden.json", MapWorld);
 	}
 
 	// 오브젝트 스폰

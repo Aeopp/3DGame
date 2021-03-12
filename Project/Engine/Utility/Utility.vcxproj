@@ -215,6 +215,7 @@
     <ClCompile Include="Codes\MaterialInformation.cpp" />
     <ClCompile Include="Codes\Mesh.cpp" />
     <ClCompile Include="Codes\NavigationMesh.cpp" />
+    <ClCompile Include="Codes\NaviMeshComponent.cpp" />
     <ClCompile Include="Codes\NormalLayer.cpp" />
     <ClCompile Include="Codes\RenderObject.cpp" />
     <ClCompile Include="Codes\Layer.cpp" />
@@ -255,6 +256,7 @@
     <ClInclude Include="Codes\MaterialInformation.h" />
     <ClInclude Include="Codes\Mesh.h" />
     <ClInclude Include="Codes\NavigationMesh.h" />
+    <ClInclude Include="Codes\NaviMeshComponent.h" />
     <ClInclude Include="Codes\NormalLayer.h" />
     <ClInclude Include="Codes\RenderObject.h" />
     <ClInclude Include="Codes\Layer.h" />

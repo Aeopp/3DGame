@@ -4,7 +4,9 @@ matrix Projection;
 
 matrix LightViewProjection;
 
+
 float DetailScale;
+float3 AddAlbedo = float3(0, 0, 0);
 float4 LightColor;
 float4 CameraLocation;
 float4 LightDirection;
@@ -358,6 +360,8 @@ PS_OUT PS_MAIN(PS_IN In)
    
     Out.Color.rgba += RimAmt * RimAmtColor.rgba;
     Out.Color.rgb += AmbientColor.xyz;
+    Out.Color.rgb += AddAlbedo.rgb;
+    
     ShadowFactor = saturate(ShadowFactor);
     Out.Color.rgb *= ShadowFactor;
     float Distance = length(In.WorldLocation.xyz - CameraLocation.xyz);

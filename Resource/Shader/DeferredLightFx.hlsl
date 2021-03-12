@@ -217,7 +217,7 @@ PS_OUT PS_MAIN(PS_IN In)
     Specular = pow((Specular),(Power));
     
     Out.BackBufferColor = float4(Albedo.rgb * LightColor.rgb * Diffuse +
-                       CavityColor.rgb * LightColor.rgb * Specular, 1.0f);
+                                CavityColor.rgb * LightColor.rgb * Specular, 1.0f);
     
     Out.BackBufferColor.rgb += RimAmt * RimLightColor.rgb;
     Out.BackBufferColor.rgb += AmbientColor.rgb;

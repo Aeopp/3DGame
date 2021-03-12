@@ -27,7 +27,7 @@ namespace Vertex
 	struct Skeleton
 	{
 		Vector3 Location{ 0,0,0 };
-		Vector3 Normal3_Power1{ 0 , 0,  0 };
+		Vector3 Normal{ 0 , 0,  0 };
 		Vector2 UV{ 0,0 };
 		static inline Skeleton MakeFromAssimpMesh(const aiMesh* const AiMesh,const uint32 CurrentIdx)
 		{
@@ -44,7 +44,7 @@ namespace Vertex
 	struct LocationNormalUV2D
 	{
 		Vector3 Location{ 0,0,0 };
-		Vector3 Normal3_Power1{ 0 , 0,  0 };
+		Vector3 Normal{ 0 , 0,  0 };
 		Vector2 UV{ 0,0 };
 		static inline LocationNormalUV2D MakeFromAssimpMesh(const aiMesh* const AiMesh,
 			const uint32 CurrentIdx)
@@ -105,7 +105,7 @@ namespace Vertex
 	struct LocationNormal
 	{
 		Vector3 Location{ 0,0,0 };
-		Vector3 Normal3_Power1{ 0 , 0,  0 };
+		Vector3 Normal{ 0 , 0,  0 };
 		static inline LocationNormal MakeFromAssimpMesh(const aiMesh* const AiMesh,
 			const uint32 CurrentIdx)
 		{
@@ -141,7 +141,7 @@ namespace Vertex
 	struct Animation
 	{
 		Vector3 Location{}; 
-		Vector3 Normal3_Power1{}; 
+		Vector3 Normal{};
 		Vector2 UV{}; 
 		Vector4 BoneIds{0,0,0,0};
 		Vector4 BoneWeights{0,0,0,0};
@@ -158,7 +158,7 @@ namespace Vertex
 	struct Texture
 	{
 		Vector3 Location;
-		Vector3 Normal3_Power1;
+		Vector3 Normal;
 		Vector2 TexCoord;
 		static const DWORD FVF = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1;
 		static IDirect3DVertexDeclaration9* const
@@ -174,7 +174,7 @@ namespace Vertex
 	struct TextureTangent
 	{
 		Vector3 Location;
-		Vector3 Normal3_Power1;
+		Vector3 Normal;
 		Vector3 Tangent;
 		Vector3 BiNormal;
 		Vector2 TexCoord;
@@ -185,7 +185,7 @@ namespace Vertex
 	struct OnlyLocationTangent
 	{
 		Vector3 Location;
-		Vector3 Normal3_Power1;
+		Vector3 Normal;
 		Vector3 Tangent;
 		Vector3 BiNormal;
 		Vector2 TexCoord;
@@ -196,7 +196,7 @@ namespace Vertex
 	struct Location3DUVTangent
 	{
 		Vector3 Location;
-		Vector3 Normal3_Power1;
+		Vector3 Normal;
 		Vector3 Tangent;
 		Vector3 BiNormal;
 		Vector2 TexCoord;
@@ -209,7 +209,7 @@ namespace Vertex
 		using VtxType = LocationTangentUV2D;
 
 		Vector3 Location;
-		Vector3 Normal3_Power1;
+		Vector3 Normal;
 		Vector3 Tangent;
 		Vector3 BiNormal;
 		Vector2 TexCoord;
@@ -248,7 +248,7 @@ namespace Vertex
 		using VtxType = LocationTangentUV2DSkinning;
 
 		Vector3 Location;
-		Vector3 Normal3_Power1;
+		Vector3 Normal;
 		Vector3 Tangent;
 		Vector3 BiNormal;
 		Vector2 TexCoord;

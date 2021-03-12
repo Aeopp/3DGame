@@ -6,6 +6,7 @@
 #include <array>
 #include "NavigationMesh.h"
 
+
 void Engine::Cell::Initialize(
 	Engine::NavigationMesh* const NaviMesh,
 	const Vector3& PointA,
@@ -14,6 +15,7 @@ void Engine::Cell::Initialize(
 	IDirect3DDevice9*const Device,
 	const std::array<uint32,3u>& MarkerKeys)&
 {
+	this->NaviMesh = NaviMesh;
 	this->MarkerKeys = MarkerKeys; 
 	this->PointA = PointA;
 	this->PointB = PointB;
@@ -22,18 +24,15 @@ void Engine::Cell::Initialize(
 	const Vector2 PointA_XZ  { PointA.x,PointA.z}; 
 	const Vector2 PointB_XZ  { PointB.x,PointB.z };
 	const Vector2 PointC_XZ  { PointC.x,PointC.z };
+
 	Segment2DAB = Segment2DAndNormal::Make(PointA_XZ, PointB_XZ);
 	Segment2DBC = Segment2DAndNormal::Make(PointB_XZ, PointC_XZ);
 	Segment2DCA = Segment2DAndNormal::Make(PointC_XZ, PointA_XZ);
 
 	static uint32 LineResourceIdx = 0u; 
-
-	if (Engine::Global::bDebugMode)
-	{
-		D3DXCreateLine(Device, &Line);
-		ResourceSystem::Instance->Insert<ID3DXLine>(L"Line"+std::to_wstring(LineResourceIdx++), Line);
-		Line->SetWidth(2.5f);
-	}
+	D3DXCreateLine(Device, &Line);
+	ResourceSystem::Instance->Insert<ID3DXLine>(L"Line"+std::to_wstring(LineResourceIdx++), Line);
+	Line->SetWidth(5.f);
 }
 
 bool Engine::Cell::FindNeighbor(
@@ -119,48 +118,44 @@ void Engine::Cell::Render(IDirect3DDevice9* Device)&
 	
 }
 
-std::pair<Engine::Cell::CompareType,const Engine::Cell*>
+      std::optional<Engine::Cell::Result>
 Engine::Cell::Compare(const Vector3& EndPosition) const&
 {
-	const Vector2 EndPosition2D = { EndPosition.x, EndPosition.z };
+	const Vector2 EndPosition2D{ EndPosition .x, EndPosition .z};
 
-	auto IsOutLine = [EndPosition2D,this](const Segment2DAndNormal& TargetSegment)
+	if (IsOutLine(EndPosition2D) == false)
 	{
-		const Vector2 ToEnd = EndPosition2D - TargetSegment.Begin;
-		const float d = D3DXVec2Dot(&TargetSegment.Normal3_Power1, &ToEnd);
-		return (d >= 0.0f); 
-	};
+		const Vector3 ProjectionXZLocation = FMath::ProjectionPointFromFace(_Plane._Plane, EndPosition);
+		return    { {this,Engine::Cell::CompareType::Moving , ProjectionXZLocation.y  } };
+	}
+	else
+	{
+		// 해당 선분 바깥으로 나간 경우이므로 
+		// 해당 선분과 이웃인 셀중 이웃이 존재하는지 검사한 이후에
+		// 이웃이 없다면 이동 불가. 이웃이 존재한다면 이웃으로 셀 교체 한 이후에 이동. 
+		for (const auto& NeighborCell : Neighbors)
+		{
+			if (false == NeighborCell->IsOutLine(EndPosition2D))
+			{
+				const Vector3 ProjectionXZLocation = 
+					FMath::ProjectionPointFromFace(NeighborCell->_Plane._Plane, EndPosition);
+				return {  {NeighborCell,Engine::Cell::CompareType::Moving,ProjectionXZLocation.y } };
+			};
+		}
 
-	static auto CompareImplementation = 
-		[](Engine::Cell* TargetNeighbor)
-				-> std::pair<Engine::Cell::CompareType, const Engine::Cell*>
-	{
-			if (nullptr == TargetNeighbor)
-				return  { Cell::CompareType::Stop  , 0u };
-			else 
-				return  { Cell::CompareType::Moving ,TargetNeighbor };
-	};
-	// 방향과 노말 내적 해서 부호가 예각이면 바깥 라인 
-	// 둔각이면 아래 라인
-	for (uint32 i = 0; i < 4; ++i)
-	{
-		/*if (IsOutLine(Segment2DAB))
-		{
-			return CompareImplementation(NeighborAB);
-		}
-		else if (IsOutLine(Segment2DBC))
-		{
-			return CompareImplementation(NeighborBC);
-		}
-		else if (IsOutLine(Segment2DCA))
-		{
-			return CompareImplementation(NeighborCA);
-		}*/
+		//// 이웃들에서도 이동이 실패 하였으므로 이웃의 이웃에서 검색 시작. (재귀 시작)
+		//for (const auto& NeighborCell : Neighbors)
+		//{
+		//	auto NeighborResult = NeighborCell->Compare(EndPosition);
+		//	if  (NeighborResult)
+		//	{
+		//		return NeighborResult;
+		//	}
+		//}
 	}
 
-	return { Engine::Cell::CompareType::Moving,this};
-}
-
+	return std::nullopt;
+};
 void Engine::Cell::ReCalculateSegment2D()&
 {
 	const Vector2 PointA_XZ{ PointA.x,PointA.z };
@@ -170,6 +165,26 @@ void Engine::Cell::ReCalculateSegment2D()&
 	Segment2DBC = Segment2DAndNormal::Make(PointB_XZ, PointC_XZ);
 	Segment2DCA = Segment2DAndNormal::Make(PointC_XZ, PointA_XZ);
 	_Plane = PlaneInfo::Make({ PointA, PointB, PointC } );
+}
+
+ bool Engine::Cell::IsOutLine(const Vector2& EndPosition2D) const&
+{
+	auto IsOutLineImplementation =
+		[EndPosition2D](const Segment2DAndNormal& TargetSegment)
+	{
+		const Vector2 ToEnd = EndPosition2D - TargetSegment.Begin;
+		const float d = D3DXVec2Dot(&TargetSegment.Normal, &ToEnd);
+		return (d > 0.0f);
+	};
+
+	if (IsOutLineImplementation(Segment2DAB) ||
+		IsOutLineImplementation(Segment2DBC) ||
+		IsOutLineImplementation(Segment2DCA))
+	{
+		return true;
+	}
+
+	return false;
 }
 
 

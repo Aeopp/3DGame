@@ -4,6 +4,9 @@ matrix Projection;
 
 matrix LightViewProjection;
 
+float3 AddAlbedo = float3(0, 0, 0);
+
+
 float DetailScale;
 float4 LightColor;
 float4 CameraLocation;
@@ -298,6 +301,8 @@ PS_OUT PS_MAIN(PS_IN In)
     ShadowFactor = saturate(ShadowFactor);
    
     Out.Color.rgb += AmbientColor.xyz;
+    Out.Color.rgb += AddAlbedo.rgb;
+    
     Out.Color.rgb *= ShadowFactor;
     float Distance = length(In.WorldLocation.xyz - CameraLocation.xyz);
     float FogFactor = saturate((FogDistance - Distance) / FogDistance);

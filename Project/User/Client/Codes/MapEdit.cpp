@@ -40,8 +40,6 @@
 #include "StringHelper.h"
 #include <array>
 
-
-
 void MapEdit::Initialize(IDirect3DDevice9* const Device)&
 {
      Super::Initialize(Device);
@@ -49,7 +47,7 @@ void MapEdit::Initialize(IDirect3DDevice9* const Device)&
 	auto& FontMgr =     RefFontManager();
 	auto& Control =     RefControl();
 	auto& ResourceSys = RefResourceSys();
-	auto& Manager = RefManager();
+	auto& Manager =     RefManager();
 	auto& Proto =       RefProto();
 	auto& Renderer =    RefRenderer(); 
 
@@ -84,8 +82,6 @@ void MapEdit::Initialize(IDirect3DDevice9* const Device)&
 		 MapLocation = { 0,0,0 };
 
 		auto& RefLandscape = Renderer.RefLandscape();
-		/*RefLandscape.Initialize(Device, MapScale, MapRotation,MapLocation, App::ResourcePath /
-			L"Mesh" / L"StaticMesh" / L"Landscape", L"Mountain.fbx");*/
 		RefLandscape.Initialize(Device, MapScale, MapRotation, MapLocation);
 		
 		std::vector<std::filesystem::path>DecoratorPaths

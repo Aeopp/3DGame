@@ -115,6 +115,9 @@
     <Filter Include="DeferredPass">
       <UniqueIdentifier>{9cff8fc2-ad3a-4d52-b815-1ebe7c1b4fad}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utility\NavigationMesh">
+      <UniqueIdentifier>{7f80748b-2410-4cc9-9800-2708bba26d5a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
@@ -192,9 +195,6 @@
     <ClInclude Include="Codes\Bone.h">
       <Filter>Component\Render\Mesh\Skeleton</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\NavigationMesh.h">
-      <Filter>Utility</Filter>
-    </ClInclude>
     <ClInclude Include="Codes\Cell.h">
       <Filter>Utility\Cell</Filter>
     </ClInclude>
@@ -267,6 +267,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Resource\Shader\MotionBlurFx.hlsl">
       <Filter>Shader\HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\NaviMeshComponent.h">
+      <Filter>Utility\NavigationMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\NavigationMesh.h">
+      <Filter>Utility\NavigationMesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -360,9 +366,6 @@
     <ClCompile Include="Codes\Bone.cpp">
       <Filter>Component\Render\Mesh\Skeleton</Filter>
     </ClCompile>
-    <ClCompile Include="Codes\NavigationMesh.cpp">
-      <Filter>Utility</Filter>
-    </ClCompile>
     <ClCompile Include="Codes\Cell.cpp">
       <Filter>Utility\Cell</Filter>
     </ClCompile>
@@ -395,6 +398,12 @@
     </ClCompile>
     <ClCompile Include="Codes\ThirdPersonCamera.cpp">
       <Filter>Object\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\NavigationMesh.cpp">
+      <Filter>Utility\NavigationMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\NaviMeshComponent.cpp">
+      <Filter>Utility\NavigationMesh</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
