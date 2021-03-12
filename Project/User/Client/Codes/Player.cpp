@@ -46,7 +46,11 @@ void Player::Initialize(
 	
 	_Transform->SetLocation(SpawnLocation);
 	Engine::Transform::PhysicInformation InitPhysic;
+	InitPhysic.CurrentGroundY = TestGroundY;
 	InitPhysic.Gravity = 220.f;
+	InitPhysic.bGravityEnable = true;
+	InitPhysic.Velocity = { 0,0,0 };
+	InitPhysic.Acceleration = { 0,0,0 };
 	_Transform->EnablePhysic(InitPhysic );
 	auto _SkeletonMesh = AddComponent<Engine::SkeletonMesh>(L"Player");
 
@@ -147,6 +151,8 @@ void Player::Initialize(
 
 		Manager.FindObject<Engine::NormalLayer, Engine::ThirdPersonCamera>(L"ThirdPersonCamera")->SetUpTarget(InitTargetInfo);
 	}
+
+
 };
 
 void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
@@ -185,13 +191,29 @@ void Player::Update(const float DeltaTime)&
 
 	auto _Transform        = GetComponent<Engine::Transform>();
 	const Vector3 Location = _Transform->GetLocation();
-	if (Location.y <= TestGroundY)
-	{
-		_Transform->Landing(TestGroundY);
-	}
 
 	auto& _RefPhysic = _Transform->RefPhysic();
 	auto& Control = RefControl();
+
+	// 테스트 
+	if (Control.IsDown(DIK_DELETE))
+	{
+		_LeafAttackInfo.Reset(Location, {-423.641f,22.257f,431.255f}, 300.f, 7.f, 0.0f);
+		_RefPhysic.bGravityEnable = false;
+	};
+
+	auto bMoveLocation = _LeafAttackInfo.Move(DeltaTime);
+
+	if (bMoveLocation)
+	{
+		_Transform->SetLocation(*bMoveLocation);
+	}
+	else
+	{
+		_RefPhysic.bGravityEnable = true;
+	}
+	//
+
 	if (Control.IsDown(DIK_Z))
 	{
 		_Transform->Move({ 0,1,0 }, DeltaTime, StateableSpeed.Run);
@@ -613,7 +635,6 @@ void Player::JumpDownState(const FSMControlInformation& FSMControlInfo)&
 	if (bNextJumpMotionChange)
 	{
 		JumpLandingTransition(FSMControlInfo);
-		_Transform->Landing(TestGroundY);
 		return;
 	}
 
@@ -717,12 +738,6 @@ void Player::ComboEx02EndState(const FSMControlInformation& FSMControlInfo)&
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
 
-	if (auto bMoveInfo = CheckTheMoveableState(FSMControlInfo);
-		bMoveInfo)
-	{
-		MoveFromController(FSMControlInfo, *bMoveInfo, StateableSpeed.ComboEx02);
-	};
-
 	if (CurAnimNotify.bAnimationEnd )
 	{
 		CombatWaitTransition(FSMControlInfo);
@@ -745,18 +760,12 @@ void Player::ComboEx01State(const FSMControlInformation& FSMControlInfo)&
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
 
-	if (auto bMoveInfo = CheckTheMoveableState(FSMControlInfo);
-		bMoveInfo)
-	{
-		MoveFromController(FSMControlInfo, *bMoveInfo, StateableSpeed.Attack);
-	}
-
 	if (AnimTimeNormal < 0.7f)
 	{
-		if (FSMControlInfo._Controller.IsDown(DIK_SPACE) && bControl)
+		if (CheckTheJumpableState(FSMControlInfo))
 		{
-			// 여기서 적을 추적해서 점프.... 
-			JumpTransition(FSMControlInfo);
+			JumpStartTransition(FSMControlInfo);
+			return;
 		}
 	}
 
@@ -1411,11 +1420,12 @@ bool Player::IsSpeedInTheAir(const float YAxisVelocity)&
 {
 	if (std::fabsf(YAxisVelocity) < StateableSpeed.InTheAirSpeed)
 	{
-		return true; 
+		return true;
 	}
 
 	return false;
 };
+
 
 // Weapon_Hand_R
 // Weapon_Pelvis_R
@@ -1452,27 +1462,32 @@ void Player::WeaponPut()&
 
 void Player::WeaponHand()&
 {
-	WeaponAttachImplementation(this, "Weapon_Hand_R" , 
-	{1,1,1},
-	{0,0,0},
-	{0,0,0});
+	WeaponAttachImplementation(this, "Weapon_Hand_R",
+		{ 1,1,1 },
+		{ 0,0,0 },
+		{ 0,0,0 });
 };
+
+
 
 void Player::DashComboState(const FSMControlInformation& FSMControlInfo)&
 {
 	const bool bAttackMotionEnd =
 		(FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime() > 0.5f);
 
-	if (CheckTheJumpableState(FSMControlInfo) && bAttackMotionEnd)
-	{
-		JumpStartState(FSMControlInfo);
-		return;
-	}
-
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+
 	if (CurAnimNotify.bAnimationEnd)
 	{
 		CombatWaitTransition(FSMControlInfo);
+		return; 
+	}
+
+
+	if (CheckTheJumpableState(FSMControlInfo) && bAttackMotionEnd)
+	{
+		JumpStartTransition(FSMControlInfo);
+		return;
 	}
 }
 
@@ -1601,4 +1616,58 @@ Player::InitializeFromEditSpawnParam(const SpawnParam& _SpawnParam)&
 		_SpawnParam.Location);
 
 	return { Engine::Object::SpawnReturnValue{} };
+}
+
+void Player::LeafAttackInformation::Reset(
+	const Vector3& StartLocation, 
+	const Vector3& DestLocation, 
+	const float Heighest,
+	const float HeighestTime, 
+	const float t)&
+{
+	this->StartLocation = StartLocation;
+	this->DestLocation= DestLocation;
+	this->Heighest = Heighest;
+	this->HeighestTime = HeighestTime;
+	this->t = t;
+
+	PreCalculate();
+}
+
+void Player::LeafAttackInformation::PreCalculate()&
+{
+	DestHeight = DestLocation.y - StartLocation.y;
+	ReachHeightTime = Heighest - StartLocation.y;
+	Gravity= 2.f * ReachHeightTime / (HeighestTime * HeighestTime);
+
+	Velocity.y = std::sqrtf(2.f * Gravity * ReachHeightTime);
+
+	float b = -2.f* Velocity.y;
+	float c = 2.f * DestHeight;
+
+	ReachDestLocationTime = (-b + std::sinf(b * b - 4.f * Gravity * c)) / (2.f * Gravity);
+
+	Velocity.x = -(StartLocation.x - DestLocation.x) / ReachDestLocationTime;
+	Velocity.z = -(StartLocation.z - DestLocation.z) / ReachDestLocationTime;
+
+	//Velocity.x *= 1.f;
+	//Velocity.z *= 1.f;
+	// Velocity.y *= 2.f;
+}
+
+std::optional<Vector3 > Player::LeafAttackInformation::Move(const float DeltaTime)
+{
+	t += DeltaTime;
+	// 도착 예정시간을 넘어섰음.
+	if (t >  (ReachDestLocationTime))return {};
+
+	Vector3 MoveLocation;
+
+	const float YAxisTime = t * 2.f;
+
+	MoveLocation.x = StartLocation.x + Velocity.x * t;
+	MoveLocation.z = StartLocation.z + Velocity.z * t;
+	MoveLocation.y = StartLocation.y + Velocity.y * YAxisTime - 0.5f * Gravity* YAxisTime * YAxisTime;
+
+	return  { MoveLocation };
 }

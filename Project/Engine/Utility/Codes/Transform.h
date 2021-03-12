@@ -13,6 +13,8 @@ namespace Engine
 			float Gravity{ 9.8f }; 
 			Vector3 Acceleration{ 0,0,0 }; 
 			Vector3 Velocity    { 0,0,0 };
+			float CurrentGroundY = 0.0f;
+			bool bGravityEnable = true;
 		};
 		struct EditProperty
 		{
@@ -65,7 +67,6 @@ namespace Engine
 		// 먼저 Enable 하였는지 생각해보기. 
 		void EnablePhysic(Engine::Transform::PhysicInformation _PhysicInfo)&;
 
-		void Landing(const float Y)&;
 		void AddVelocity(const Vector3& Velocity)&; 
 		void AddAcceleration(const Vector3& Acceleration)&;
 		void ClearVelocity()&;

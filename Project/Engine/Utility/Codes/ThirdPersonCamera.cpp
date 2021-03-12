@@ -79,7 +79,7 @@ void Engine::ThirdPersonCamera::LateUpdate(const float DeltaTime)&
 	{
 		_TargetInformation.DistancebetweenTarget= 
 			FMath::Lerp(_TargetInformation.DistancebetweenTarget, _TargetInformation.MaxDistancebetweenTarget,
-				DeltaTime*3.33f);
+				DeltaTime* (1.f / 3.33f));
 	}
 	Matrix View;
 	Matrix Projection;

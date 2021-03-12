@@ -130,8 +130,7 @@ void Engine::Renderer::SetUpRenderInfo()&
 	CurrentRenderInformation.View = View;
 	CurrentRenderInformation.Projection = Projection;
 	CurrentRenderInformation.ViewProjection = View * Projection;
-	CurrentRenderInformation.InverseViewProjection = 
-			std::move(FMath::Inverse(CurrentRenderInformation.ViewProjection));
+	CurrentRenderInformation.InverseViewProjection =FMath::Inverse(CurrentRenderInformation.ViewProjection);
 
 	CurrentRenderInformation.LightViewProjection = _DirectionalLight.CalcLightViewProjection();
 	_Frustum.Make(CameraWorld, Projection);

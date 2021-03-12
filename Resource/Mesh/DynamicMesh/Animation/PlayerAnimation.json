@@ -269,8 +269,8 @@
         {
             "Index": 38,
             "Name": "AirCombo04",
-            "Acceleration": 59.84299850463867,
-            "TransitionTime": 0.05299999937415123,
+            "Acceleration": 70.0,
+            "TransitionTime": 0.05,
             "Duration": 42.0
         },
         {

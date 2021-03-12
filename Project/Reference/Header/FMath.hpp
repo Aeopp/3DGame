@@ -30,6 +30,7 @@ public:
 	static inline Vector3 GetNormalFromFace(const Vector3& p0,
 		const Vector3& p1, const Vector3& p2);
 
+
 	static inline Vector4 ConvertVector4(const Vector3& Lhs, const float w);;
 	static inline Vector3 Mul(const Vector3& Lhs, const Matrix& Rhs);
 	static inline Vector3 MulNormal(const Vector3& Lhs, const Matrix& Rhs);
@@ -371,8 +372,9 @@ inline float FMath::LengthSq(const Vector4& Lhs)
 
 inline Matrix FMath::Inverse(const Matrix& _Matrix)
 {
-	Matrix InverseMatrix;
-	return *D3DXMatrixInverse(&InverseMatrix, nullptr, &_Matrix);;
+	Matrix InverseMatrix = _Matrix; 
+	D3DXMatrixInverse(&InverseMatrix, nullptr, &_Matrix);
+	return InverseMatrix;
 }
 
 inline Matrix FMath::Transpose(const Matrix& _Matrix)
@@ -697,5 +699,6 @@ inline std::optional<std::pair<float, Vector3>> FMath::IsSphereToOBB(const Vecto
 
 	return   { { SphereRadius - ToNearestPointDistance ,
 				 -FMath::Normalize(ToNearestPoint)} };
-
 }
+
+

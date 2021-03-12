@@ -30,10 +30,20 @@ void Engine::Transform::Update(Object* const Owner, const float DeltaTime)&
 	if (_PhysicInfo)
 	{
 		_PhysicInfo->Velocity += (_PhysicInfo->Acceleration * DeltaTime);
-		_PhysicInfo->Velocity.y -= (_PhysicInfo->Gravity * DeltaTime);
 
+		if (_PhysicInfo->bGravityEnable)
+		{
+			_PhysicInfo->Velocity.y -= (_PhysicInfo->Gravity * DeltaTime);
+		}
 
 		Move(_PhysicInfo->Velocity, DeltaTime);
+
+		if (Location.y <= _PhysicInfo->CurrentGroundY)
+		{
+			SetLocation({ Location.x,_PhysicInfo->CurrentGroundY,Location.z });
+			_PhysicInfo->Velocity.y = 0.0f;
+			_PhysicInfo->Acceleration.y = 0.0f;			
+		}	
 	}
 };
 
@@ -304,19 +314,13 @@ void Engine::Transform::MoveUp(const float DeltaTime, const float Speed)
 	 AttachBoneToRoot = TargetBoneToRoot;
  }
 
+ 
 
  void Engine::Transform::AttachTransform(const Matrix* const TargetParentTransform)&
  {
 	 OwnerTransform = TargetParentTransform;
-
  };
 
- void Engine::Transform::Landing(const float Y)&
- {
-	 SetLocation({ Location.x, Y  , Location.z });
-	 _PhysicInfo->Velocity.y = 0.0f;
-	 _PhysicInfo->Acceleration.y = 0.0f;
- }
 
  void Engine::Transform::AddVelocity(const Vector3& Velocity)&
  {

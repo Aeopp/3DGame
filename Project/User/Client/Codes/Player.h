@@ -9,6 +9,36 @@ class Player final: public Engine::Object
 public:
 	using Super = Engine::Object;
 public:
+	struct LeafAttackInformation
+	{
+	public:
+		void Reset( const Vector3& StartLocation, 
+					const Vector3& DestLocation,
+					const float Heighest,
+					const float HeighestTime,
+					const float t = 0.0f)&;
+		std::optional<Vector3> Move(const float DeltaTime);
+		Vector3 DestLocation = { 0,0,0 };
+		Vector3 StartLocation = {0,0,0};
+		// 최고점 높이
+		float Heighest= 0.0f ;
+		// 최고점 도달시간
+		float HeighestTime = 0.0f ;
+		float t;
+	private:
+		// 아래의 변수 들은 사용자의 매개변수에 의해 계산됨 
+		Vector3 Velocity{ 0,0,0 };
+		// 중력 가속도 
+		float Gravity; 
+		// 도착점 도달시간
+		float ReachDestLocationTime = -1.f;
+		// 최고점 - 시작점 (높이) 
+		float ReachHeightTime;
+		// 도착점 높이 
+		float DestHeight;
+	private:
+		void PreCalculate()&;
+	};
 	struct StateDuringSpeed 
 	{
 		// 공중에 체공중이라고 판단하는 스피드 (애니메이션을 위함) 
@@ -23,9 +53,9 @@ public:
 		float LeafReady = 20.f;
 
 		Vector3 JumpVelocity = { 0.f,110.f,0.f };
-		Vector3 AirCombo01Velocity = { 0.f, 70.f,0.f };
-		Vector3 AirCombo02Velocity = { 0.f, 70.f,0.f };
-		Vector3 AirCombo03Velocity = { 0.f, 70.f,0.f };
+		Vector3 AirCombo01Velocity = { 0.f, 80.f,0.f };
+		Vector3 AirCombo02Velocity = { 0.f, 80.f,0.f };
+		Vector3 AirCombo03Velocity = { 0.f, 80.f,0.f };
 		Vector3 AirCombo04Velocity = { 0.f, -100.f,0.f };
 	};
 	enum class State : uint8
@@ -204,9 +234,9 @@ public:
 	Vector3 CurrentMoveDirection{ 0.f,0.f,1.f };
 	StateDuringSpeed StateableSpeed{};
 private:
+	LeafAttackInformation _LeafAttackInfo{};
 	Vector3 DashDirection{ 0,0,1 };
 	bool bControl    {false};
-
 	float PlayerMoveDirectionInterpolateAcceleration = 7.7f;
 	Engine::ThirdPersonCamera* CurrentTPCamera{ nullptr };
 	State   CurrentState{ Player::State::CombatWait};
