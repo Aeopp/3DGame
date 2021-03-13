@@ -236,6 +236,8 @@ public:
 	Vector3 CurrentMoveDirection{ 0.f,0.f,1.f };
 	StateDuringSpeed StateableSpeed{};
 private:
+	Vector3 PrevLocation{};
+	float LandCheckHighRange = 7.f;
 	const Engine::Cell* CurrentCell{nullptr};
 	LeafAttackInformation _LeafAttackInfo{};
 	Vector3 DashDirection{ 0,0,1 };

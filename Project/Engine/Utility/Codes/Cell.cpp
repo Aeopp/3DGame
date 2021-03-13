@@ -143,6 +143,9 @@ Engine::Cell::Compare(const Vector3& EndPosition) const&
 			};
 		}
 
+		
+
+
 		//// 이웃들에서도 이동이 실패 하였으므로 이웃의 이웃에서 검색 시작. (재귀 시작)
 		//for (const auto& NeighborCell : Neighbors)
 		//{
@@ -152,6 +155,9 @@ Engine::Cell::Compare(const Vector3& EndPosition) const&
 		//		return NeighborResult;
 		//	}
 		//}
+
+		// 이웃들 중에서도 검색에서 실패하였다 .
+		return  { { nullptr,Engine::Cell::CompareType::Stop, EndPosition.y } };
 	}
 
 	return std::nullopt;

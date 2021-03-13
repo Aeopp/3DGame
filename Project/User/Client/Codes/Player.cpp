@@ -24,8 +24,9 @@
 #include "NavigationMesh.h"
 
 
-const float TestGroundY = 22.7667724609375f;
-float TestLandCheckY = 7.f;
+
+
+
 
 void Player::Initialize(
 	const std::optional<Vector3>& Scale,
@@ -47,13 +48,7 @@ void Player::Initialize(
 	}
 	
 	_Transform->SetLocation(SpawnLocation);
-	Engine::Transform::PhysicInformation InitPhysic;
-	InitPhysic.CurrentGroundY = TestGroundY;
-	InitPhysic.Gravity = 220.f;
-	InitPhysic.bGravityEnable = true;
-	InitPhysic.Velocity = { 0,0,0 };
-	InitPhysic.Acceleration = { 0,0,0 };
-	_Transform->EnablePhysic(InitPhysic );
+	
 	auto _SkeletonMesh = AddComponent<Engine::SkeletonMesh>(L"Player");
 
 	auto _Collision =    AddComponent<Engine::Collision>
@@ -134,29 +129,49 @@ void Player::Initialize(
 
 	auto& Manager = RefManager(); 
 
-	if (Engine::Global::bDebugMode==false)
+	if (Engine::Global::bDebugMode == false)
 	{
 		bControl = true;
 
-		CurrentTPCamera = Manager.NewObject<Engine::NormalLayer, 
+		CurrentTPCamera = Manager.NewObject<Engine::NormalLayer,
 			Engine::ThirdPersonCamera>(L"Static", L"ThirdPersonCamera",
-			FMath::PI / 4.f, 0.1f, 777.f, Aspect).get();
+				FMath::PI / 4.f, 0.1f, 777.f, Aspect).get();
 
 		Engine::ThirdPersonCamera::TargetInformation InitTargetInfo{};
 		InitTargetInfo.DistancebetweenTarget = 142.8f;
 		InitTargetInfo.TargetLocationOffset = { 0,10.f,0.f };
 		InitTargetInfo.TargetObject = this;
-		InitTargetInfo.ViewDirection = { -0.0120002348f,-0.9999893427f,-0.00832065567f};
+		InitTargetInfo.ViewDirection = { -0.0120002348f,-0.9999893427f,-0.00832065567f };
 		InitTargetInfo.RotateResponsiveness = 0.01f;
 		InitTargetInfo.ZoomInOutScale = 0.1f;
-		InitTargetInfo.MaxDistancebetweenTarget = 150.f ;
+		InitTargetInfo.MaxDistancebetweenTarget = 150.f;
 
 		Manager.FindObject<Engine::NormalLayer, Engine::ThirdPersonCamera>(L"ThirdPersonCamera")->SetUpTarget(InitTargetInfo);
 	}
 
 	auto&  _NaviMesh  = RefNaviMesh();
 	Vector2 SpawnLocation2D = {SpawnLocation.x, SpawnLocation.z};
+
+
+	Engine::Transform::PhysicInformation InitPhysic;
+	InitPhysic.Gravity = 220.f;
+	InitPhysic.bGravityEnable = true;
+	InitPhysic.Velocity = { 0,0,0 };
+	InitPhysic.Acceleration = { 0,0,0 };
+
 	CurrentCell = _NaviMesh.GetCellFromXZLocation(SpawnLocation2D);
+	const Vector3 Location = _Transform->GetLocation();
+	auto bCellResult = CurrentCell->Compare(Location);
+	if (bCellResult)
+	{
+		const Engine::Cell::CompareType _CompareType = bCellResult->_Compare;
+		CurrentCell = bCellResult->Target;
+		InitPhysic.CurrentGroundY = bCellResult->Y;
+	};
+
+	_Transform->EnablePhysic(InitPhysic);
+
+	PrevLocation = _Transform->GetLocation();
 };
 
 void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
@@ -178,7 +193,10 @@ void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
 void Player::Event()&
 {
 	Super::Event();
+	auto _Transform = GetComponent<Engine::Transform>();
+	PrevLocation = _Transform->GetLocation();
 	Edit();
+	
 
 	auto _SkeletonMeshComponent = GetComponent<Engine::SkeletonMesh>();
 	auto& _Control =RefControl();
@@ -191,16 +209,17 @@ void Player::Event()&
 void Player::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
+	
 	FSM(DeltaTime);
 
-	auto _Transform        = GetComponent<Engine::Transform>();
+	auto _Transform = GetComponent<Engine::Transform>();
 	const Vector3 Location = _Transform->GetLocation();
 
 	auto& _RefPhysic = _Transform->RefPhysic();
 	auto& Control = RefControl();
 
 	// 테스트 
-	if (Control.IsDown(DIK_DELETE))
+	/*if (Control.IsDown(DIK_DELETE))
 	{
 		_LeafAttackInfo.Reset(Location, {-423.641f,22.257f,431.255f}, 300.f, 7.f, 0.0f);
 		_RefPhysic.bGravityEnable = false;
@@ -215,8 +234,7 @@ void Player::Update(const float DeltaTime)&
 	else
 	{
 		_RefPhysic.bGravityEnable = true;
-	}
-	//
+	}*/
 
 	if (Control.IsDown(DIK_Z))
 	{
@@ -247,7 +265,7 @@ void Player::Edit()&
 		ImGui::SliderFloat("AirCombo03VelocityY", &StateableSpeed.AirCombo03Velocity.y, 0.f, 300.f);
 		ImGui::SliderFloat("AirCombo04VelocityY", &StateableSpeed.AirCombo04Velocity.y, -300.f, 0.f);
 
-		ImGui::SliderFloat("TestLandCheckY", &TestLandCheckY, 0.f, 30.f);
+		ImGui::SliderFloat("LandCheckHighRange", &LandCheckHighRange, 0.f, 30.f);
 	}
 };
 
@@ -537,7 +555,8 @@ void Player::JumpStartTransition(const FSMControlInformation& FSMControlInfo)&
 	CurLocation += (StateableSpeed.JumpVelocity * FSMControlInfo.DeltaTime);
 	FSMControlInfo.MyTransform->SetLocation(CurLocation);
 	FSMControlInfo.MyTransform->AddVelocity(StateableSpeed.JumpVelocity);
-}
+};
+
 void Player::JumpUpState(const FSMControlInformation& FSMControlInfo)&
 {
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
@@ -634,8 +653,10 @@ void Player::JumpDownState(const FSMControlInformation& FSMControlInfo)&
 	auto _Transform = FSMControlInfo.MyTransform;
 	auto& CurLocation= _Transform->GetLocation();
 
+	const auto& Physic = _Transform->RefPhysic();
+
 	bool bNextJumpMotionChange = false;
-	bNextJumpMotionChange |=  ( CurLocation.y- TestLandCheckY ) < TestGroundY;
+	bNextJumpMotionChange |= (CurLocation.y - LandCheckHighRange) < Physic.CurrentGroundY;
 
 	if (bNextJumpMotionChange)
 	{
@@ -822,7 +843,10 @@ void Player::AirCombo01State(const FSMControlInformation& FSMControlInfo)&
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 
 	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
-	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | ((Location.y - TestLandCheckY) < TestGroundY));
+	
+	const auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
+
+	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | ((Location.y - LandCheckHighRange) < Physic.CurrentGroundY));
 
 	if (bLandingChange)
 	{
@@ -865,8 +889,9 @@ void Player::AirCombo02State(const FSMControlInformation& FSMControlInfo)&
 
 
 	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
+	const auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
 
-	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | ((Location.y - TestLandCheckY) < TestGroundY));
+	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | ((Location.y - LandCheckHighRange) < Physic.CurrentGroundY));
 
 	if (bLandingChange)
 	{
@@ -904,7 +929,8 @@ void Player::AirCombo03State(const FSMControlInformation& FSMControlInfo)&
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 
 	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
-	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | ((Location.y - TestLandCheckY) < TestGroundY));
+	const auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
+	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | ((Location.y - LandCheckHighRange) < Physic.CurrentGroundY));
 	if (bLandingChange)
 	{
 		JumpLandingTransition(FSMControlInfo);
@@ -939,9 +965,11 @@ void Player::AirCombo03Transition(const FSMControlInformation& FSMControlInfo)&
 void Player::AirCombo04State(const FSMControlInformation& FSMControlInfo)& 
 {
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
-
+	
 	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
-	bool bLandingChange = (CurAnimNotify.bAnimationEnd | ((Location.y - TestLandCheckY) < TestGroundY));
+	const auto & Physic  = FSMControlInfo.MyTransform->RefPhysic();
+
+	bool bLandingChange = (CurAnimNotify.bAnimationEnd | ((Location.y - LandCheckHighRange) < Physic.CurrentGroundY));
 
 	if (bLandingChange)
 	{
@@ -1327,8 +1355,9 @@ void Player::LeafAttackDownState(const FSMControlInformation& FSMControlInfo)&
 {
 	// 여기서 땅에 닿기 이전까지는 해당 모션을 계속 유지해야 한다.
 	const Vector3 CurLocation   = FSMControlInfo.MyTransform->GetLocation();
-
-	if (  ( CurLocation.y  - TestLandCheckY  ) < TestGroundY)
+	const auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
+	
+	if (  ( CurLocation.y  - LandCheckHighRange  ) < Physic.CurrentGroundY)
 	{
 		LeafAttackLandingTransition(FSMControlInfo);
 	}
@@ -1607,15 +1636,52 @@ std::function<Engine::Object::SpawnReturnValue(
 void Player::LateUpdate(const float DeltaTime)&
 {
 	Super::LateUpdate(DeltaTime);
+
+
 	auto _Transform = GetComponent<Engine::Transform>();
 	const Vector3 Location = _Transform->GetLocation();
 
-	auto bCellResult = CurrentCell->Compare(Location);
-	if (bCellResult)
+	if (CurrentCell == nullptr)
 	{
-		const Engine::Cell::CompareType _CompareType = bCellResult->_Compare;
-		CurrentCell = bCellResult->Target;
-		_Transform->SetLocation({Location.x,  bCellResult->Y, Location.z});
+		auto & NaviMesh = RefNaviMesh();
+		CurrentCell=NaviMesh.GetCellFromXZLocation({Location.x , Location.z});
+	}
+
+	if (CurrentCell)
+	{
+		auto bCellResult = CurrentCell->Compare(Location);
+		if (bCellResult)
+		{
+			const Engine::Cell::CompareType _CompareType = bCellResult->_Compare;
+
+			if (_CompareType == Engine::Cell::CompareType::Moving)
+			{
+				CurrentCell = bCellResult->Target;
+				_Transform->RefPhysic().CurrentGroundY = bCellResult->Y;
+				ImGui::Text("State : Move ,  Y : %.3f , Address : %d", bCellResult->Y, CurrentCell);
+			}
+			else if (_CompareType == Engine::Cell::CompareType::Stop)
+			{
+				CurrentCell = bCellResult->Target;
+				_Transform->RefPhysic().CurrentGroundY = -1000.f;
+				ImGui::Text("State : Stop , Y : %.3f , Address : %d", bCellResult->Y, CurrentCell);
+			}
+		}
+	}
+
+	if (Location.y < 0.0f)
+	{
+		auto& Control = RefControl();
+		FSMControlInformation FSMControlInfo{ _Transform  ,Control, GetComponent<Engine::SkeletonMesh>(), DeltaTime };
+		JumpDownTransition(FSMControlInfo);
+	}
+
+	
+
+	if (Location.y < -900.f)
+	{
+		_Transform->SetLocation(_Transform->RefPhysic().GetLastLandLocation());
+		
 	}
 };
 

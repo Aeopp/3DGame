@@ -14,7 +14,11 @@ namespace Engine
 			Vector3 Acceleration{ 0,0,0 }; 
 			Vector3 Velocity    { 0,0,0 };
 			float CurrentGroundY = 0.0f;
-			bool bGravityEnable = true;
+			bool bGravityEnable = true; 
+			void SetLastLandLocation(const Vector3& Location)& { LastLandingLocation=Location;  };
+			Vector3 GetLastLandLocation() const& { return LastLandingLocation; };
+		private:
+			Vector3 LastLandingLocation{0,0,0};
 		};
 		struct EditProperty
 		{
