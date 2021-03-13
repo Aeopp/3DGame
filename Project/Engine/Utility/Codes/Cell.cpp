@@ -121,8 +121,8 @@ void Engine::Cell::Render(IDirect3DDevice9* Device)&
 	
 }
 
-      std::optional<Engine::Cell::Result>
-Engine::Cell::Compare(const Vector3& EndPosition) const&
+std::optional<Engine::Cell::Result>
+	Engine::Cell::Compare(const Vector3& EndPosition) const&
 {
 	const Vector2 EndPosition2D{ EndPosition .x, EndPosition .z};
 	auto bOutLine = IsOutLine(EndPosition2D);
@@ -171,7 +171,8 @@ Engine::Cell::Compare(const Vector3& EndPosition) const&
 		}
 
 		// Begin + 슬라이딩 벡터이므로 타겟이 미끄러진 이후의 위치 .
-		Vector3 SlidingAfterLocation = OutlineSegmentSlidingVector + Vector3{ bOutLine->Begin.x , 0.f , bOutLine->Begin.y };
+		Vector3 SlidingAfterLocation = OutlineSegmentSlidingVector + 
+								Vector3{ bOutLine->Begin.x , 0.f , bOutLine->Begin.y };
 		// 셀 삼각형에 투영시켜 Y Axis 위치를 구하기 직전 노말 반대로 아주 살짝 밀어서 반드시 셀 삼각형 내부에 위치하도록 할거임 .
 		// Vector2 InnerTriangleCorrectionVector = (bOutLine->Normal  *0.000001f);
 		// SlidingAfterLocation.x -= InnerTriangleCorrectionVector.x;

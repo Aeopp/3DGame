@@ -190,7 +190,7 @@ void Engine::Management::Render()&
 	_ShaderManager->Update(CameraLocation, LightLocation);
 	_GraphicDevice->Begin();
 	_Renderer->Render();
-	_NaviMesh->Render(Device);
+	
 	_CurrentScene->Render();
 	// 폰트 드로우콜
 	{

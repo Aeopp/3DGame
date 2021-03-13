@@ -1657,7 +1657,8 @@ void Player::LateUpdate(const float DeltaTime)&
 			{
 				CurrentCell = bCellResult->Target;
 				_Transform->RefPhysic().CurrentGroundY = bCellResult->ProjectLocation.y;
-				ImGui::Text("State : Move ,  Y : %.3f , Address : %d", bCellResult->ProjectLocation.y, CurrentCell);
+				ImGui::Text("State : Move ,  Y : %.3f , Address : %d", 
+					bCellResult->ProjectLocation.y, CurrentCell);
 			}
 
 			else if (_CompareType == Engine::Cell::CompareType::Stop)
@@ -1670,20 +1671,23 @@ void Player::LateUpdate(const float DeltaTime)&
 				else
 				{
 					_Transform->RefPhysic().CurrentGroundY = bCellResult->ProjectLocation.y;
-					_Transform->SetLocation({ bCellResult->ProjectLocation.x , Location.y ,bCellResult->ProjectLocation.z } );
+					_Transform->SetLocation(
+						{ bCellResult->ProjectLocation.x , Location.y ,bCellResult->ProjectLocation.z } );
 				}
 				
-				ImGui::Text("State : Stop , Y : %.3f , Address : %d", bCellResult->ProjectLocation.y, CurrentCell);
+				ImGui::Text("State : Stop , Y : %.3f , Address : %d",
+								bCellResult->ProjectLocation.y, CurrentCell);
 			}
 		}
 	}
 
-	if (Location.y < 0.0f)
+	/*if (Location.y < 0.0f)
 	{
 		auto& Control = RefControl();
-		FSMControlInformation FSMControlInfo{ _Transform  ,Control, GetComponent<Engine::SkeletonMesh>(), DeltaTime };
+		FSMControlInformation FSMControlInfo
+			{ _Transform  ,Control, GetComponent<Engine::SkeletonMesh>(), DeltaTime };
 		JumpDownTransition(FSMControlInfo);
-	}
+	}*/
 
 	if (Location.y < -900.f)
 	{

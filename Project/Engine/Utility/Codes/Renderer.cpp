@@ -7,6 +7,8 @@
 #include "ResourceSystem.h"
 #include "Vertexs.hpp"
 #include "Timer.h"
+#include "NavigationMesh.h"
+
 
 void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)&
 {
@@ -56,6 +58,8 @@ void Engine::Renderer::Render()&
 	RenderAlphaTest();
 	RenderAlphaBlend();
 	RenderUI();
+	
+	NavigationMesh::Instance->Render(Device.get());
 	RenderDebugCollision();
 	RenderSky();
 

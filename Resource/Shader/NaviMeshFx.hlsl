@@ -57,7 +57,7 @@ technique Default_Device
 		alphablendenable = true;
 		srcblend = srcalpha;
 		destblend = invsrcalpha;
-        zenable = true;
+        zenable = false;
         zwriteenable = true;
         cullmode = ccw;
         fillmode = solid;
