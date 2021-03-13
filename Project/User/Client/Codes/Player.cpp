@@ -1665,11 +1665,12 @@ void Player::LateUpdate(const float DeltaTime)&
 			{
 				if (CurrentCell->bEnableJumping)
 				{
-					CurrentCell = bCellResult->Target;
+					CurrentCell = nullptr;
 					_Transform->RefPhysic().CurrentGroundY = -1000.f;
 				}
 				else
 				{
+					CurrentCell = bCellResult->Target;
 					_Transform->RefPhysic().CurrentGroundY = bCellResult->ProjectLocation.y;
 					_Transform->SetLocation(
 						{ bCellResult->ProjectLocation.x , Location.y ,bCellResult->ProjectLocation.z } );
@@ -1681,13 +1682,13 @@ void Player::LateUpdate(const float DeltaTime)&
 		}
 	}
 
-	/*if (Location.y < 0.0f)
+	if (Location.y < -100.f)
 	{
 		auto& Control = RefControl();
 		FSMControlInformation FSMControlInfo
 			{ _Transform  ,Control, GetComponent<Engine::SkeletonMesh>(), DeltaTime };
 		JumpDownTransition(FSMControlInfo);
-	}*/
+	}
 
 	if (Location.y < -900.f)
 	{
