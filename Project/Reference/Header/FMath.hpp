@@ -43,6 +43,9 @@ public:
 	// 임의의 위치 벡터를 평면에 투영시킨 위치 벡터를 반환.
 	static inline Vector3 ProjectionPointFromFace(const D3DXPLANE _Plane, const Vector3& Point);
 
+	static inline Vector3 Sliding
+	(const Vector3& Force /*힘*/, const Vector3& Normal/*평면 노말*/);
+
 	// 삼각형을 둘러치는 선분 3개.
 	static inline std::array<Segment, 3ul>
 		MakeSegmentFromFace(const std::array<Vector3, 3ul>& Face);
@@ -702,3 +705,9 @@ inline std::optional<std::pair<float, Vector3>> FMath::IsSphereToOBB(const Vecto
 }
 
 
+
+inline Vector3 FMath::Sliding
+(const Vector3& Force /*힘*/, const Vector3& Normal/*평면 노말*/)
+{
+	return (Force - (Normal * FMath::Dot(Force, Normal)));
+}

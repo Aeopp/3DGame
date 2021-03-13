@@ -16,7 +16,7 @@ namespace Engine
 		{
 			const Cell* Target = nullptr;
 			Cell::CompareType _Compare = Cell::CompareType::Stop;
-			float Y = 0.0f;
+			Vector3 ProjectLocation{ 0,0,0 };
 		};
 		struct Segment2DAndNormal
 		{
@@ -35,7 +35,8 @@ namespace Engine
 			const Vector3& PointB,
 			const Vector3& PointC ,
 			IDirect3DDevice9* const Device,
-			const std::array<uint32,3u>& MarkerKeys)&;
+			const std::array<uint32,3u>& MarkerKeys ,
+			const bool bEnableJumping)&;
 		bool FindNeighbor(
 			const Vector3& PointFirst,
 			const Vector3& PointSecond,
@@ -46,8 +47,10 @@ namespace Engine
 			Compare(const Vector3& EndPosition)const&;
 		void ReCalculateSegment2D()&;
 
-		bool IsOutLine(const Vector2& EndPosition2D)const&;
+		// 옵셔널 존재할경우 아웃라인. 옵셔널 벡터는 아웃라인인 선분의 2D 노말을 의미. 
+		std::optional<Engine::Cell::Segment2DAndNormal> IsOutLine(const Vector2& EndPosition2D)const&;
 	public:
+		bool bEnableJumping = false;
 		/*
 		A->B 
 		B->C 

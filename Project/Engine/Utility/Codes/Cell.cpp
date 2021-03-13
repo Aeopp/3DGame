@@ -13,13 +13,16 @@ void Engine::Cell::Initialize(
 	const Vector3& PointB, 
 	const Vector3& PointC,
 	IDirect3DDevice9*const Device,
-	const std::array<uint32,3u>& MarkerKeys)&
+	const std::array<uint32,3u>& MarkerKeys,
+	const bool bEnableJumping)&
 {
 	this->NaviMesh = NaviMesh;
 	this->MarkerKeys = MarkerKeys; 
 	this->PointA = PointA;
 	this->PointB = PointB;
 	this->PointC = PointC;
+	this->bEnableJumping = bEnableJumping;
+
 	_Plane = PlaneInfo::Make({ PointA, PointB, PointC });
 	const Vector2 PointA_XZ  { PointA.x,PointA.z}; 
 	const Vector2 PointB_XZ  { PointB.x,PointB.z };
@@ -122,11 +125,12 @@ void Engine::Cell::Render(IDirect3DDevice9* Device)&
 Engine::Cell::Compare(const Vector3& EndPosition) const&
 {
 	const Vector2 EndPosition2D{ EndPosition .x, EndPosition .z};
+	auto bOutLine = IsOutLine(EndPosition2D);
 
-	if (IsOutLine(EndPosition2D) == false)
+	if ( bOutLine.has_value()==false)
 	{
-		const Vector3 ProjectionXZLocation = FMath::ProjectionPointFromFace(_Plane._Plane, EndPosition);
-		return    { {this,Engine::Cell::CompareType::Moving , ProjectionXZLocation.y  } };
+		const Vector3 ProjectLocation = FMath::ProjectionPointFromFace(_Plane._Plane, EndPosition);
+		return    { {this,Engine::Cell::CompareType::Moving , ProjectLocation } };
 	}
 	else
 	{
@@ -135,15 +139,14 @@ Engine::Cell::Compare(const Vector3& EndPosition) const&
 		// 이웃이 없다면 이동 불가. 이웃이 존재한다면 이웃으로 셀 교체 한 이후에 이동. 
 		for (const auto& NeighborCell : Neighbors)
 		{
-			if (false == NeighborCell->IsOutLine(EndPosition2D))
+			if (auto bNeighborOutLine = NeighborCell->IsOutLine(EndPosition2D) ;
+					bNeighborOutLine.has_value()==false)
 			{
-				const Vector3 ProjectionXZLocation = 
+				const Vector3 ProjectLocation = 
 					FMath::ProjectionPointFromFace(NeighborCell->_Plane._Plane, EndPosition);
-				return {  {NeighborCell,Engine::Cell::CompareType::Moving,ProjectionXZLocation.y } };
+				return {  {NeighborCell,Engine::Cell::CompareType::Moving,ProjectLocation } };
 			};
 		}
-
-		
 
 
 		//// 이웃들에서도 이동이 실패 하였으므로 이웃의 이웃에서 검색 시작. (재귀 시작)
@@ -156,8 +159,26 @@ Engine::Cell::Compare(const Vector3& EndPosition) const&
 		//	}
 		//}
 
-		// 이웃들 중에서도 검색에서 실패하였다 .
-		return  { { nullptr,Engine::Cell::CompareType::Stop, EndPosition.y } };
+		// 이웃들 중에서도 검색에서 실패하였다.
+		Vector3 Force = EndPosition - Vector3{ bOutLine->Begin.x , 0.f , bOutLine->Begin.y };
+		Vector3 OutlineSegmentSlidingVector =FMath::Sliding(Force, { bOutLine->Normal.x ,0.f,bOutLine->Normal.y} );
+		Force.y = 0.0f;
+
+		const Vector3 ToEnd3D = { bOutLine->ToEnd.x  , 0.f , bOutLine->ToEnd.y  };
+		if (FMath::Length(OutlineSegmentSlidingVector) >= FMath::Length(ToEnd3D))
+		{
+			OutlineSegmentSlidingVector = ToEnd3D;
+		}
+
+		// Begin + 슬라이딩 벡터이므로 타겟이 미끄러진 이후의 위치 .
+		Vector3 SlidingAfterLocation = OutlineSegmentSlidingVector + Vector3{ bOutLine->Begin.x , 0.f , bOutLine->Begin.y };
+		// 셀 삼각형에 투영시켜 Y Axis 위치를 구하기 직전 노말 반대로 아주 살짝 밀어서 반드시 셀 삼각형 내부에 위치하도록 할거임 .
+		// Vector2 InnerTriangleCorrectionVector = (bOutLine->Normal  *0.000001f);
+		// SlidingAfterLocation.x -= InnerTriangleCorrectionVector.x;
+		// SlidingAfterLocation.z -= InnerTriangleCorrectionVector.y;
+		SlidingAfterLocation.y = EndPosition.y;
+		SlidingAfterLocation=FMath::ProjectionPointFromFace(_Plane._Plane, SlidingAfterLocation);
+		return  { { nullptr,Engine::Cell::CompareType::Stop, SlidingAfterLocation} };
 	}
 
 	return std::nullopt;
@@ -173,24 +194,45 @@ void Engine::Cell::ReCalculateSegment2D()&
 	_Plane = PlaneInfo::Make({ PointA, PointB, PointC } );
 }
 
- bool Engine::Cell::IsOutLine(const Vector2& EndPosition2D) const&
+ std::optional<Engine::Cell::Segment2DAndNormal> Engine::Cell::IsOutLine(const Vector2& EndPosition2D) const&
 {
 	auto IsOutLineImplementation =
 		[EndPosition2D](const Segment2DAndNormal& TargetSegment)
+		->std::optional<Engine::Cell::Segment2DAndNormal>
 	{
 		const Vector2 ToEnd = EndPosition2D - TargetSegment.Begin;
 		const float d = D3DXVec2Dot(&TargetSegment.Normal, &ToEnd);
-		return (d > 0.0f);
+		if (d > 0.0f)
+		{
+			return { TargetSegment };
+		}
+		else
+		{
+			return std::nullopt;
+		}
 	};
 
-	if (IsOutLineImplementation(Segment2DAB) ||
-		IsOutLineImplementation(Segment2DBC) ||
-		IsOutLineImplementation(Segment2DCA))
+	std::optional<Engine::Cell::Segment2DAndNormal>	bOutLine = std::nullopt;
+
+	if (bOutLine = IsOutLineImplementation(Segment2DAB);
+		bOutLine)
 	{
-		return true;
+		return bOutLine;
 	}
 
-	return false;
+	if (bOutLine = IsOutLineImplementation(Segment2DBC);
+		bOutLine)
+	{
+		return bOutLine;
+	}
+
+	if (bOutLine = IsOutLineImplementation(Segment2DCA);
+		bOutLine)
+	{
+		return bOutLine;
+	}
+
+	return bOutLine;
 }
 
 

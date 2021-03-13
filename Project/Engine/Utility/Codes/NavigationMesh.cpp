@@ -110,6 +110,10 @@ void Engine::NavigationMesh::Save(const std::filesystem::path SavePath,const Mat
 				}
 				Writer.EndArray();
 			}
+			{
+				Writer.Key("bEnableJumping");
+				Writer.Bool(_Cell->bEnableJumping);
+			}
 			Writer.Key("NeighborList");
 			Writer.StartArray();
 			{
@@ -225,7 +229,15 @@ void Engine::NavigationMesh::Load(const std::filesystem::path LoadPath,const Mat
 
 		const Vector3 WorldPointA =FMath::Mul(LocalPointA,MapWorld); 
 		const Vector3 WorldPointB =FMath::Mul(LocalPointB,MapWorld); 
-		const Vector3 WorldPointC =FMath::Mul(LocalPointC,MapWorld) ; 
+		const Vector3 WorldPointC =FMath::Mul(LocalPointC,MapWorld); 
+
+		bool bEnableJumping = false;
+
+		if (CellIterator->HasMember("bEnableJumping"))
+		{
+			bEnableJumping =CellIterator->FindMember("bEnableJumping")->value.GetBool();
+		}
+
 
 		std::array<uint32,3u> MarkerKeySet{};
 		const auto MarkerSet = CellIterator->FindMember("MarkerSet")->value.GetArray();
@@ -233,7 +245,7 @@ void Engine::NavigationMesh::Load(const std::filesystem::path LoadPath,const Mat
 		{
 			MarkerKeySet[i] = MarkerSet[i].GetUint();
 		}
-		PushCell->Initialize(this, WorldPointA, WorldPointB, WorldPointC, Device,MarkerKeySet);
+		PushCell->Initialize(this, WorldPointA, WorldPointB, WorldPointC, Device,MarkerKeySet , bEnableJumping);
 		CellContainer.insert({ CellIndex ,std::move(PushCell) });
 	}
 	const Value& MarkerList = _Document["MarkerList"];
@@ -299,12 +311,16 @@ void Engine::NavigationMesh::DebugLog()&
 	if (auto iter = CellContainer.find(CurSelectCellKey);
 		iter != std::end( CellContainer ))
 	{
+		auto SelectCell = iter->second;
+
 		ImGui::Separator();
-		ImGui::Text("Select Cell Information"); 
+		ImGui::Text("Select Cell Edit"); 
 		ImGui::Text("Cell Index : %d ", CurSelectCellKey);
+		ImGui::SameLine();
+		ImGui::Checkbox("bEnableJumping", &SelectCell->bEnableJumping);
 		ImGui::Text("Marker Index..."); 	ImGui::SameLine();
 	
-		auto SelectCell = iter->second;
+		
 		for (const uint32 MarkerKey : SelectCell->MarkerKeys)
 		{
 			ImGui::SameLine();
@@ -431,7 +447,8 @@ void Engine::NavigationMesh::MarkerMove(const uint32 MarkerKey, const Vector3 Ve
 	}
 }
 
-uint32 Engine::NavigationMesh::InsertPointFromMarkers(const Ray WorldRay)&
+uint32 Engine::NavigationMesh::InsertPointFromMarkers(const Ray WorldRay ,
+	const bool bEnableJumping)&
 {
 	for (auto& [MarkerKey, CurTargetMarker] : CurrentMarkers)
 	{
@@ -461,8 +478,9 @@ uint32 Engine::NavigationMesh::InsertPointFromMarkers(const Ray WorldRay)&
 					          Device,
 					{   CurrentPickPoints[0].first ,
 						CurrentPickPoints[1].first,
-						CurrentPickPoints[2].first }
-				);
+						CurrentPickPoints[2].first },
+					bEnableJumping
+				); 
 				const uint32 CurrentCellKey = CellKey++;  
 				CellContainer.insert({ CurrentCellKey ,std::move(_InsertCell) });
 				// ¼¿À» Çª½ÃÇÏ¸é¼­ ¼¿¿¡ ÇØ´çÇÏ´Â ¸¶Ä¿¿¡ ¼¿ ÀÎµ¦½º Çª½Ã.
@@ -507,7 +525,7 @@ uint32 Engine::NavigationMesh::SelectCellFromRay(const Ray WorldRay)&
 	return  0u;
 }
 
-uint32 Engine::NavigationMesh::InsertPoint(const Vector3 Point)&
+uint32 Engine::NavigationMesh::InsertPoint(const Vector3 Point , const bool bEnableJumping)&
 {
 	auto _Marker = std::make_shared<Marker>();
 	_Marker->_Sphere.Radius = 1.f;
@@ -527,7 +545,8 @@ uint32 Engine::NavigationMesh::InsertPoint(const Vector3 Point)&
 				Device,
 			{   CurrentPickPoints[0].first ,
 				CurrentPickPoints[1].first,
-				CurrentPickPoints[2].first }
+				CurrentPickPoints[2].first },
+			bEnableJumping
 		);
 		
 		const uint32 CurrentCellKey = CellKey++;
@@ -586,12 +605,18 @@ void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 		uint32 Idx = 0u;
 		for (const auto& [CellKey, _Cell] : CellContainer)
 		{
+			static const Vector4 EnableJumpingColor = {0.55f,0.12f,0.24f,0.15f };
 			Vector4 Diffuse = FilterAfterNeighborKeys.contains(CellKey) ?
 				NeighborColor : DefaultColor;
 
 			if (CellKey == CurSelectCellKey)
 			{
 				Diffuse = SelectColor;
+			}
+
+			if (_Cell->bEnableJumping)
+			{
+				Diffuse += EnableJumpingColor;
 			}
 
 			for (uint32 i = 0; i < 3; ++i)
@@ -647,7 +672,7 @@ void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 
 		DWORD bZEnable{ 0u };
 		Device->GetRenderState(D3DRS_ZENABLE, &bZEnable);
-		Device->SetRenderState(D3DRS_ZENABLE, false);
+		Device->SetRenderState(D3DRS_ZENABLE, true);
 		for (auto& [CellKey, CurCell] : CellContainer)
 		{
 			CurCell->Render(Device);
@@ -656,36 +681,12 @@ void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 	}
 }
 
-//
-//  std::optional<std::pair<Vector3, const Engine::Cell*>> 
-//	Engine::NavigationMesh::MoveOnNavigation(
-//		const Vector3 Velocity,
-//		const Vector3 TargetLocation, 
-//		const Cell* CurrentPlacedCell) const&
-//{
-//	const Vector3 EndLocation = TargetLocation + Velocity;
-//	const auto [_Result, NewPlacedCell] =
-//		CurrentPlacedCell->Compare(EndLocation);
-//
-//	switch (_Result)
-//	{
-//	case Engine::Cell::CompareType::Moving:
-//		return { { Velocity,NewPlacedCell } };
-//		break;
-//	case Engine::Cell::CompareType::Stop:
-//		return std::nullopt;
-//		break;
-//	default:
-//		return std::nullopt;
-//		break;
-//	}
-//}
 
 Engine::Cell* Engine::NavigationMesh::GetCellFromXZLocation(const Vector2& Position2D) const&
 {
 	for (const auto& [CellKey, _Cell] : CellContainer)
 	{
-		if (false == _Cell->IsOutLine(Position2D))
+		if (_Cell->IsOutLine(Position2D).has_value()==false)
 		{
 			return _Cell.get();
 		}

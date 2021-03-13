@@ -166,7 +166,7 @@ void Player::Initialize(
 	{
 		const Engine::Cell::CompareType _CompareType = bCellResult->_Compare;
 		CurrentCell = bCellResult->Target;
-		InitPhysic.CurrentGroundY = bCellResult->Y;
+		InitPhysic.CurrentGroundY = bCellResult->ProjectLocation.y;
 	};
 
 	_Transform->EnablePhysic(InitPhysic);
@@ -1637,7 +1637,6 @@ void Player::LateUpdate(const float DeltaTime)&
 {
 	Super::LateUpdate(DeltaTime);
 
-
 	auto _Transform = GetComponent<Engine::Transform>();
 	const Vector3 Location = _Transform->GetLocation();
 
@@ -1657,14 +1656,24 @@ void Player::LateUpdate(const float DeltaTime)&
 			if (_CompareType == Engine::Cell::CompareType::Moving)
 			{
 				CurrentCell = bCellResult->Target;
-				_Transform->RefPhysic().CurrentGroundY = bCellResult->Y;
-				ImGui::Text("State : Move ,  Y : %.3f , Address : %d", bCellResult->Y, CurrentCell);
+				_Transform->RefPhysic().CurrentGroundY = bCellResult->ProjectLocation.y;
+				ImGui::Text("State : Move ,  Y : %.3f , Address : %d", bCellResult->ProjectLocation.y, CurrentCell);
 			}
+
 			else if (_CompareType == Engine::Cell::CompareType::Stop)
 			{
-				CurrentCell = bCellResult->Target;
-				_Transform->RefPhysic().CurrentGroundY = -1000.f;
-				ImGui::Text("State : Stop , Y : %.3f , Address : %d", bCellResult->Y, CurrentCell);
+				if (CurrentCell->bEnableJumping)
+				{
+					CurrentCell = bCellResult->Target;
+					_Transform->RefPhysic().CurrentGroundY = -1000.f;
+				}
+				else
+				{
+					_Transform->RefPhysic().CurrentGroundY = bCellResult->ProjectLocation.y;
+					_Transform->SetLocation({ bCellResult->ProjectLocation.x , Location.y ,bCellResult->ProjectLocation.z } );
+				}
+				
+				ImGui::Text("State : Stop , Y : %.3f , Address : %d", bCellResult->ProjectLocation.y, CurrentCell);
 			}
 		}
 	}
@@ -1676,12 +1685,9 @@ void Player::LateUpdate(const float DeltaTime)&
 		JumpDownTransition(FSMControlInfo);
 	}
 
-	
-
 	if (Location.y < -900.f)
 	{
-		_Transform->SetLocation(_Transform->RefPhysic().GetLastLandLocation());
-		
+		_Transform->SetLocation(_Transform->RefPhysic().GetLastLandLocation());		
 	}
 };
 

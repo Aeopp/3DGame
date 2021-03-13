@@ -224,6 +224,10 @@ void MapEdit::NaviMeshTool()&
 		{
 			NaviMesh.Clear();
 		}ImGui::Separator();
+
+		ImGui::Checkbox("bNaviMeshCurCellEnableJumping", &bNaviMeshCurCellEnableJumping);
+		ImGui::Separator();
+
 		if (ImGui::Button("Connecting Neighbors of Cells"))
 		{
 			NaviMesh.CellNeighborLink();
@@ -298,7 +302,7 @@ void MapEdit::NaviMeshTool()&
 	{
 		if (NavigationMeshModeSelect == 0u)
 		{
-			NaviMeshCurrentSelectMarkeyKey = NaviMesh.InsertPointFromMarkers(_Ray);
+			NaviMeshCurrentSelectMarkeyKey = NaviMesh.InsertPointFromMarkers(_Ray , bNaviMeshCurCellEnableJumping);
 			if (NaviMeshCurrentSelectMarkeyKey == 0u)
 			{
 				std::map<float, Vector3> IntersectResults{}; 
@@ -314,7 +318,7 @@ void MapEdit::NaviMeshTool()&
 				if (false == IntersectResults.empty())
 				{
 					const Vector3 TheMostNearIntersectPt = IntersectResults.begin()->second; 
-					NaviMeshCurrentSelectMarkeyKey = NaviMesh.InsertPoint(TheMostNearIntersectPt);
+					NaviMeshCurrentSelectMarkeyKey = NaviMesh.InsertPoint(TheMostNearIntersectPt , bNaviMeshCurCellEnableJumping);
 				}
 				
 			}

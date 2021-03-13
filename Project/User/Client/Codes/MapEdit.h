@@ -66,6 +66,7 @@ private:
 
 
 	ID3DXLine* LinearSpace{};
+	bool bNaviMeshCurCellEnableJumping = false;
 	uint32 NaviMeshCurrentSelectMarkeyKey{ 0u };
 	uint32 NaviMeshCurrentSelectCellKey{ 0u };
 	Engine::NavigationMesh* _NaviMesh{ nullptr };

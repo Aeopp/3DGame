@@ -76,6 +76,8 @@ namespace Engine
 		void ClearVelocity()&;
 
 		Engine::Transform::PhysicInformation& RefPhysic()&;
+
+		Vector3 PrevLocation{};
 	private:
 		std::optional<Engine::Transform::PhysicInformation> _PhysicInfo{};
 		EditProperty _EditProperty{};
