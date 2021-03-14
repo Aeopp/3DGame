@@ -1,3 +1,145 @@
 Belatos Animation Key Frame
 
 GOGO ! 
+
+
+ 
+0~16 Air_Belatos_Twohandedsword
+(피격 상태 아닌 점프 중 루프)
+
+30~36 Down_B_Belatos_Twohandedsword
+(얼굴이 바닥을 향하는  피격후 누워있는 상태)
+
+50~55 Down_F_Belatos_Twohandedsword
+(얼굴 하늘을 향하는 피격후 누워있는 상태)
+
+70~213 Respawn_Belatos_Twohandedsword
+(공중에서 내려오며 등장)
+
+230~236 RTChase_Big_B_Belatos_Twohandedsword
+(회전하며 날아가는 루프 Z축 음의 방향으로)
+
+250~256 RTChase_Big_F_Belatos_Twohandedsword
+(회전하며 날아가는 루플 Z축 양의 방향으로)
+
+
+280~286
+RTChase_Big_L_Belatos_Twohandedsword
+(회전하며 날아가는 루플 X축 음의 방향으로)
+
+
+300~306
+RTChase_Big_R_Belatos_Twohandedsword
+(회전하며 날아가는 루플 X축 양의 방향으로)
+
+330~336 
+RTChase_Small_B_Belatos_Twohandedsword
+(공중으로 치솟으며 회전) 
+
+350 362
+RTDown_Air_Fall_B_Belatos_Twohandedsword.xaf
+(피격 당한후 공중에서 내려오는 상태 머리가 
+바닥을 향함)
+
+380~392
+RTDown_Air_Fall_F_Belatos_Twohandedsword
+(피격 당한후 공중에서 내려오는 상태 머리가 
+공중을 향함)
+
+420~452
+RTDown_Air_Landing_B_Belatos_Twohandedsword
+(RTDown_Air_Fall_B_Belatos_Twohandedsword
+에서 이어지는 모션
+ 바닥에 쳐박하고 살짝 튕기고 누워 있음)
+
+480~510
+RTDown_Air_Landing_B_L_Belatos_Twohandedsword
+(RTDown_Air_Fall_F_Belatos_Twohandedsword
+에서 이어지는 모션
+ 바닥에 쳐박히고 살짝 튕기고 누워 있음)
+
+RTDown_B_Belatos_Twohandedsword
+530~560
+(서있다가 얻어맞고 바닥에 살짝 튕기고 누워있음
+머리가 바닥을 향함)
+
+RTDown_F_Belatos_Twohandedsword
+590~620
+(서있다 얻어맞고 바닥에 살짝 튕기고 누워있음
+머리가 하늘을 향함)
+
+RTStand_Air_Big_F_Belatos_Twohandedsword
+650~656
+(피격 당하고 공중에서 날아가는 상태
+Z축 양의방향으로)
+
+RTStand_Air_Big_B_Belatos_Twohandedsword
+670~682
+(피격 당하고 공중에서 날아가는 상태
+Z축 음의방향으로)
+
+RTStand_Air_Fall_Belatos_Twohandedsword
+700~712
+(맞아서 치솟다가 낙법)
+
+RTStand_Air_Landing_Belatos_Twohandedsword
+730~755
+(공중에서 안전하게 착지)
+
+RTStand_Air_Small_Belatos_Twohandedsword
+780~786
+(피격당하고 공중에서 치솟는중)
+
+
+RTStand_Belatos_Twohandedsword
+810~840
+(서있던 상태에서 맞아버림 ㅠㅠ)
+
+Run_Belatos_Twohandedsword
+870~900
+(뛰어감 Z음의 방향)
+
+Run_End_Belatos_Twohandedsword
+920~950
+(뛰어가다 멈춤 Z음의 방향)
+
+Skill_01_1_Belatos_Twohandedsword
+980~1079
+(2타 공격)
+
+Skill_01_2_Belatos_Twohandedsword
+1100~1166
+(강하게 칼로  내려찍기)
+
+
+StandUp_B_Belatos_Twohadnedsword
+1200 1249
+(땅에 얼굴 쳐박히던 다운 상태에서 
+일어남 )
+
+StandUp_F_Belatos_Twohadnedsword 
+1300 1357
+(얼굴 하늘 향하던 다운 상태에서 일어남)
+
+Tired_Belatos_Twohandedsword
+1380~1518
+(탈진)
+
+Wait_Belatos_Twohandedsword
+1550 1590
+(아이들)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
