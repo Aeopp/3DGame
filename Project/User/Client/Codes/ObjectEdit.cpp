@@ -31,6 +31,7 @@
 #include <rapidjson/ostreamwrapper.h>
 #include <rapidjson/istreamwrapper.h>
 #include "StringHelper.h"
+#include "EnemyLayer.h"
 
 
 
@@ -46,6 +47,7 @@ void ObjectEdit::Initialize(IDirect3DDevice9* const Device)&
 
 	// 현재 씬 레이어 추가.
 	{
+		Manager.NewLayer<EnemyLayer>();
 		Manager.NewLayer<Engine::NormalLayer>();
 	}
 

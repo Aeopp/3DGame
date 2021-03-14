@@ -79,8 +79,13 @@ void Engine::ThirdPersonCamera::LateUpdate(const float DeltaTime)&
 	{
 		_TargetInformation.DistancebetweenTarget= 
 			FMath::Lerp(_TargetInformation.DistancebetweenTarget, _TargetInformation.MaxDistancebetweenTarget,
-				DeltaTime* (1.f / 3.33f));
+				DeltaTime* (1.f / 4.f));
 	}
+
+	_TargetInformation.CurrentDistancebetweenTarget =
+		FMath::Lerp(_TargetInformation.CurrentDistancebetweenTarget, _TargetInformation.DistancebetweenTarget,
+			DeltaTime * (1.f));
+
 	Matrix View;
 	Matrix Projection;
 
@@ -94,7 +99,7 @@ void Engine::ThirdPersonCamera::LateUpdate(const float DeltaTime)&
 		FMath::Lerp(_TargetInformation.CurrentViewDirection, _TargetInformation.ViewDirection, DeltaTime * 2.5f));
 
 	const Vector3 EyeLocation = _TargetInformation.CurrentTargetLocation + 
-		(-_TargetInformation.CurrentViewDirection* _TargetInformation.DistancebetweenTarget);
+		(-_TargetInformation.CurrentViewDirection* _TargetInformation.CurrentDistancebetweenTarget);
 
 	static const Vector3 Up = {0,1,0}; 
 	D3DXMatrixLookAtLH(&View, &EyeLocation, &TargetLocation, &Up);

@@ -74,13 +74,12 @@ void PlayerWeapon::Initialize(
 
 	_Collision->RefCollisionables().insert(
 		{
-			Engine::CollisionTag::Enemy ,
-			Engine::CollisionTag::EnemyAttack
+			Engine::CollisionTag::Enemy 
 		});
 
 	_Collision->RefPushCollisionables().insert(
 		{
-		   Engine::CollisionTag::Enemy
+
 		});
 }
 
@@ -88,7 +87,7 @@ void PlayerWeapon::PrototypeInitialize(IDirect3DDevice9* const Device)&
 {
 	Super::PrototypeInitialize();
 	this->Device = Device;
-	bCapturable = false;
+	bCapturable = true;
 	auto _StaticMeshProto = std::make_shared<Engine::StaticMesh>();
 
 	_StaticMeshProto->Load<Vertex::LocationTangentUV2D>(Device,
@@ -126,6 +125,7 @@ void PlayerWeapon::HitEnd(Object* const Target)&
 {
 	Super::HitEnd(Target);
 }
+
 std::function<Engine::Object::SpawnReturnValue(const Engine::Object::SpawnParam&)> 
 PlayerWeapon::PrototypeEdit()&
 {

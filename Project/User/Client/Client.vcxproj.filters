@@ -38,6 +38,9 @@
     <Filter Include="Object\Player">
       <UniqueIdentifier>{cdf652ac-5e5d-4d93-9caf-eae551d4888c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Object\Monster">
+      <UniqueIdentifier>{ce6e6acf-5631-4bd4-b5c5-491840fc385b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -91,6 +94,12 @@
     <ClInclude Include="Codes\StartScene.h">
       <Filter>Scene</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\Monster.h">
+      <Filter>Object\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\Belatos.h">
+      <Filter>Object\Monster</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -131,6 +140,12 @@
     </ClCompile>
     <ClCompile Include="Codes\StartScene.cpp">
       <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Monster.cpp">
+      <Filter>Object\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\Belatos.cpp">
+      <Filter>Object\Monster</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

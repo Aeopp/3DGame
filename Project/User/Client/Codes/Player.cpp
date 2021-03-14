@@ -23,11 +23,6 @@
 #include "PlayerHair.h"
 #include "NavigationMesh.h"
 
-
-
-
-
-
 void Player::Initialize(
 	const std::optional<Vector3>& Scale,
 	const std::optional<Vector3>& Rotation,
@@ -99,11 +94,7 @@ void Player::Initialize(
 	       Engine::CollisionTag::Enemy
 		});
 
-	std::shared_ptr<PlayerWeapon> _PlayerWeapon =
-		RefManager().NewObject<Engine::NormalLayer, PlayerWeapon >(L"Static",
-			Name + L"_Weapon", Vector3{ 1.f,1.f,1.f }, Vector3{ 0,0,0 }, Vector3{ 0,0,0 });
-	
-	WeaponPut();
+
 
 	std::shared_ptr<PlayerHead> _PlayerHead = 
 		RefManager().NewObject<Engine::NormalLayer, PlayerHead>(L"Static", Name+L"_Head",
@@ -161,7 +152,9 @@ void Player::Initialize(
 
 	CurrentCell = _NaviMesh.GetCellFromXZLocation(SpawnLocation2D);
 	const Vector3 Location = _Transform->GetLocation();
+
 	auto bCellResult = CurrentCell->Compare(Location);
+
 	if (bCellResult)
 	{
 		const Engine::Cell::CompareType _CompareType = bCellResult->_Compare;
@@ -171,7 +164,7 @@ void Player::Initialize(
 
 	_Transform->EnablePhysic(InitPhysic);
 
-	PrevLocation = _Transform->GetLocation();
+	
 };
 
 void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
@@ -194,8 +187,27 @@ void Player::Event()&
 {
 	Super::Event();
 	auto _Transform = GetComponent<Engine::Transform>();
-	PrevLocation = _Transform->GetLocation();
 	Edit();
+
+	if (bWeaponAcquisition == false)
+	{
+		auto& _Manager = RefManager();
+		auto  Weapons = _Manager.FindObjects<Engine::NormalLayer, PlayerWeapon>();
+		for (auto& _Weapon : Weapons)
+		{
+			if (_Weapon->GetName().find(L"PlayerWeapon") != std::wstring::npos)
+			{
+				const Vector3 WeaponLocation =
+					_Weapon->GetComponent<Engine::Transform>()->GetLocation();
+
+				if (FMath::Length(WeaponLocation - _Transform->GetLocation()) < 20.f)
+				{
+					WeaponAcquisition();
+					_Weapon->Kill();
+				}
+			}
+		}
+	}
 	
 
 	auto _SkeletonMeshComponent = GetComponent<Engine::SkeletonMesh>();
@@ -1411,7 +1423,8 @@ bool Player::CheckTheJumpableState(const FSMControlInformation& FSMControlInfo)&
 
 bool Player::CheckTheAttackableState(const FSMControlInformation& FSMControlInfo)&
 {
-	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
+	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl 
+					&&bWeaponAcquisition)
 	{
 		return true;
 	}
@@ -1485,6 +1498,20 @@ static void WeaponAttachImplementation(Player* const _Player,
 		PlayerWeapon->SetLocation(OffsetLocation);
 	}
 };
+
+void Player::WeaponAcquisition()&
+{
+	bWeaponAcquisition = true;
+
+	std::shared_ptr<PlayerWeapon> _PlayerWeapon =
+		RefManager().NewObject<Engine::NormalLayer,PlayerWeapon>(L"Static",
+			Name + L"_Weapon", 
+			Vector3{ 1.f,1.f,1.f }, 
+			Vector3{ 0,0,0 }, 
+			Vector3{ 0,0,0 });
+
+	WeaponPut();
+}
 
 void Player::WeaponPut()&
 {
@@ -1643,7 +1670,7 @@ void Player::LateUpdate(const float DeltaTime)&
 	if (CurrentCell == nullptr)
 	{
 		auto & NaviMesh = RefNaviMesh();
-		CurrentCell=NaviMesh.GetCellFromXZLocation({Location.x , Location.z});
+		CurrentCell=NaviMesh.GetJumpingCellFromXZLocation({Location.x , Location.z});
 	}
 
 	if (CurrentCell)

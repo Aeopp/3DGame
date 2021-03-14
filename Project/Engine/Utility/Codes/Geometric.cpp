@@ -77,29 +77,7 @@ Engine::Geometric::Type Engine::OBB::GetType() const&
 	return Engine::Geometric::Type::OBB;
 };
 
-void Engine::OBB::Update(const Vector3 Scale, const Vector3 Rotation, const Vector3 Location,
-	const Matrix& OffsetMatrix, const Vector3& OffsetScale)&
-{
-	const Matrix ToWorld =  OffsetMatrix*FMath::WorldMatrix(Scale, Rotation, Location);
-	WorldCenter = FMath::Mul(LocalCenter, ToWorld);
-	std::transform(std::begin(LocalFaceNormals), std::end(LocalFaceNormals), std::begin(WorldFaceNormals),
-		[ToWorld](const Vector3& LocalFaceNormal) {
-			return  FMath::Normalize(FMath::MulNormal(LocalFaceNormal, ToWorld));
-		});
-	std::transform(std::begin(LocalPoints), std::end(LocalPoints), std::begin(WorldPoints),
-		[ToWorld](const Vector3& LocalPoint) {
-			return FMath::Mul(LocalPoint, ToWorld);
-		});
-	const Vector3 FinalScale = { OffsetScale.x * Scale.x , OffsetScale.y * Scale.y ,OffsetScale.z * Scale.z };
-
-	WorldSphere.Center = FMath::Mul(LocalSphere.Center, ToWorld);
-	WorldSphere.Radius = LocalSphere.Radius * FMath::MaxScala(FinalScale);
-	WorldHalfDistances = { LocalHalfDistances.x * FinalScale.x  ,
-						   LocalHalfDistances.y * FinalScale.y  ,
-						   LocalHalfDistances.z * FinalScale.z };
-}
-
-void Engine::OBB::Update(const Matrix& ToOwnerWorld, const Vector3& OwnerScale , const Matrix& OffsetMatrix ,const Vector3& OffsetScale )&
+void Engine::OBB::Update(const Matrix& ToOwnerWorld)&
 {
 	WorldCenter = FMath::Mul(LocalCenter, ToOwnerWorld);
 	std::transform(std::begin(LocalFaceNormals), std::end(LocalFaceNormals), std::begin(WorldFaceNormals),
@@ -110,14 +88,14 @@ void Engine::OBB::Update(const Matrix& ToOwnerWorld, const Vector3& OwnerScale ,
 		[ToOwnerWorld](const Vector3& LocalPoint) {
 			return FMath::Mul(LocalPoint, ToOwnerWorld);
 		});
-	const Vector3 FinalScale = { OffsetScale.x * OwnerScale.x , OffsetScale.y * OwnerScale.y ,OffsetScale.z * OwnerScale.z };
 
 	WorldSphere.Center = FMath::Mul(LocalSphere.Center, ToOwnerWorld);
-	WorldSphere.Radius = LocalSphere.Radius * FMath::MaxScala(FinalScale);
-	WorldHalfDistances = { LocalHalfDistances.x * FinalScale.x  ,
-						   LocalHalfDistances.y * FinalScale.y  ,
-						   LocalHalfDistances.z * FinalScale.z };
-}
+	WorldHalfDistances = LocalHalfDistances;
+	WorldHalfDistances.x *=  FMath::Length({ ToOwnerWorld._11, ToOwnerWorld._12, ToOwnerWorld._13 });
+	WorldHalfDistances.y *=  FMath::Length({ ToOwnerWorld._21, ToOwnerWorld._22, ToOwnerWorld._23 });
+	WorldHalfDistances.z *=  FMath::Length({ ToOwnerWorld._31, ToOwnerWorld._32, ToOwnerWorld._33 });
+	WorldSphere.Radius = LocalSphere.Radius * FMath::Length(WorldHalfDistances);
+};
 
 void Engine::OBB::Render(IDirect3DDevice9* const Device , const bool bCurrentUpdateCollision)&
 {
@@ -250,21 +228,19 @@ Engine::Geometric::Type Engine::GSphere::GetType() const&
 	return Engine::Geometric::Type::Sphere;
 }
 
-void Engine::GSphere::Update(const Vector3 Scale, const Vector3 Rotation, const Vector3 Location,
-							const Matrix& OffsetMatrix , const Vector3& OffsetScale )&
-{
-	const Matrix ToWorld = OffsetMatrix * FMath::WorldMatrix(Scale, Rotation, Location);
-	WorldSphere.Center = FMath::Mul(LocalSphere.Center, ToWorld);
-	const Vector3 FinalScale = { OffsetScale.x * Scale.x , OffsetScale.y * Scale.y ,OffsetScale.z * Scale.z };
-	WorldSphere.Radius = LocalSphere.Radius * FMath::MaxScala(FinalScale);
-}
 
-void Engine::GSphere::Update(const Matrix& ToOwnerWorld, const Vector3& OwnerScale, const Matrix& OffsetMatrix , const Vector3& OffsetScale)&
+void Engine::GSphere::Update(const Matrix& ToOwnerWorld)&
 {
-	const Vector3 FinalScale = { OffsetScale.x * OwnerScale.x , OffsetScale.y * OwnerScale.y ,OffsetScale.z * OwnerScale.z };
 	WorldSphere.Center = FMath::Mul(LocalSphere.Center, ToOwnerWorld);
-	WorldSphere.Radius = LocalSphere.Radius * FMath::MaxScala(FinalScale);
-}
+
+	WorldSphere.Radius = LocalSphere.Radius * FMath::Length(
+		Vector3
+		{ 
+			FMath::Length({ ToOwnerWorld._11, ToOwnerWorld._12, ToOwnerWorld._13 }),
+			FMath::Length({ ToOwnerWorld._21, ToOwnerWorld._22, ToOwnerWorld._23 }),
+			FMath::Length({ ToOwnerWorld._31, ToOwnerWorld._32, ToOwnerWorld._33 }) });
+};
+
 
 void Engine::GSphere::Render(IDirect3DDevice9* const Device, const bool bCurrentUpdateCollision)&
 {

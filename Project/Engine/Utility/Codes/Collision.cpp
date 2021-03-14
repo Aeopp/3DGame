@@ -56,11 +56,8 @@ void Engine::Collision::Update(Object* const Owner, const float DeltaTime)&
 		CollisionSystem::Instance->Regist(_Tag, this);
 	}
 	
-	_Geometric->Update( OwnerTransform->GetScale(),
-						OwnerTransform->GetRotation(),
-						OwnerTransform->GetLocation() ,
-						OffsetMatrix ,
-						_OffsetInfo.Scale);
+	_Geometric->Update(OffsetMatrix * OwnerTransform->UpdateWorld());
+
 	bImmobility = false;
 	CurrentCheckedCollisionIDs.clear();
 };
@@ -118,35 +115,22 @@ bool Engine::Collision::IsCollision(Collision* const Rhs)&
 			{
 				Rhs->OwnerTransform->SetLocation(
 					Rhs->OwnerTransform->GetLocation() + PushDir * CrossArea * 0.5f);
-
+				
 				Rhs->_Geometric->Update(
-					Rhs->OwnerTransform->GetScale(),
-					Rhs->OwnerTransform->GetRotation(),
-					Rhs->OwnerTransform->GetLocation(),
-					Rhs->OffsetMatrix,
-					Rhs->_OffsetInfo.Scale);
+					Rhs->OffsetMatrix * Rhs->OwnerTransform->UpdateWorld() );
 
 				OwnerTransform->SetLocation(
 					OwnerTransform->GetLocation() + -PushDir * CrossArea * 0.5f);
 
-				_Geometric->Update(
-					OwnerTransform->GetScale(),
-					OwnerTransform->GetRotation(),
-					OwnerTransform->GetLocation(),
-					OffsetMatrix,
-					_OffsetInfo.Scale);
+				_Geometric->Update(OffsetMatrix* OwnerTransform->UpdateWorld());
 			}
 			else
 			{
 				Rhs->OwnerTransform->SetLocation(
 					Rhs->OwnerTransform->GetLocation() + PushDir * CrossArea);
 
-				Rhs->_Geometric->Update(
-					Rhs->OwnerTransform->GetScale(),
-					Rhs->OwnerTransform->GetRotation(),
-					Rhs->OwnerTransform->GetLocation(),
-					Rhs->OffsetMatrix ,
-					Rhs->_OffsetInfo.Scale);
+				Rhs->_Geometric->Update(  
+					Rhs->OffsetMatrix * Rhs->OwnerTransform->UpdateWorld() );
 			}
 		}
 		if (!CurrentCheckedCollisionIDs.contains(Rhs->ID))
@@ -265,8 +249,6 @@ void Engine::Collision::Load()&
 		_OffsetInfo.Location.z =  LocationArr[2].GetFloat();
 
 		ResourceSys->InsertAny(ToW(LoadProp) , _OffsetInfo);
-
-		
 	}
 
 	OffsetMatrix = FMath::WorldMatrix(_OffsetInfo.Scale, _OffsetInfo.Rotation, _OffsetInfo.Location);

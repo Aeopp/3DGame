@@ -115,9 +115,16 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	// 오브젝트 스폰
 	{
 		LogoVtxBuf = ResourceSys.Get<IDirect3DVertexBuffer9>(L"VertexBuffer_Plane");
-		Renderer.SkyInitialize(App::ResourcePath / L"Mesh" / L"StaticMesh" / L"SKy" / L"SM_SkySphere.FBX");
+		Renderer.SkyInitialize(App::ResourcePath / L"Mesh" / L"StaticMesh" / L"Sky" / L"SM_SkySphere.FBX");
+
 		ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" /
 			"SkyGarden.json");
+
+		ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" /
+			"BelatosWave1.json");
+
+		ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" /
+			"Weapon.json");
 	}
 	
 };

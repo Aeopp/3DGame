@@ -59,6 +59,7 @@ void MapEdit::Initialize(IDirect3DDevice9* const Device)&
 
 	// 현재 씬 레이어 추가.
 	{
+		
 		Manager.NewLayer<Engine::NormalLayer>();
 	}
 

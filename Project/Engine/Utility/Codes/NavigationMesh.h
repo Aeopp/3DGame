@@ -48,6 +48,7 @@ namespace Engine
 				const Vector3 TargetLocation,
 				const Cell* CurrentPlacedCell)const&;*/
 		Cell* GetCellFromXZLocation(const Vector2& Position2D) const&;
+		Cell* GetJumpingCellFromXZLocation(const Vector2& Position2D) const&;
 		std::vector<Cell*> GetCellFromMarkerIdx(const uint32 MarkerIdx)const&;
 		// 파일 로딩시 버텍스버퍼 정보 제대로 채우기.
 	public:
@@ -67,6 +68,7 @@ namespace Engine
 						/* Marker Key , Position */
 		std::vector<std::pair<uint32,Vector3>>           CurrentPickPoints{};
 		std::unordered_map<uint32,std::shared_ptr<Cell>> CellContainer{};
+		std::vector<Cell*> CellContainerEnableJumping{};
 	};
 };
 

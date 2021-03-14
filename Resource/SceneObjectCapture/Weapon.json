@@ -1,0 +1,42 @@
+{
+    "Object Instance List": [
+        {
+            "LayerKey": "class EnemyLayer",
+            "ObjectTypeList": []
+        },
+        {
+            "LayerKey": "class Engine::NormalLayer",
+            "ObjectTypeList": [
+                {
+                    "ObjectTypeKey": "class Engine::DynamicCamera",
+                    "ObjectInstanceList": []
+                },
+                {
+                    "ObjectTypeKey": "class PlayerWeapon",
+                    "ObjectInstanceList": [
+                        {
+                            "Name": "PlayerWeapon_0",
+                            "PrototypeTag": "Static",
+                            "bCaptureable": true,
+                            "Scale": [
+                                0.10000000149011612,
+                                0.10000000149011612,
+                                0.10000000149011612
+                            ],
+                            "Rotation": [
+                                1.4599953889846802,
+                                0.0,
+                                0.011999998241662979
+                            ],
+                            "Location": [
+                                -3.070559501647949,
+                                95.34821319580078,
+                                -434.59295654296877
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

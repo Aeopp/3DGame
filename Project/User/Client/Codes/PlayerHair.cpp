@@ -41,9 +41,9 @@ void PlayerHair::Initialize(
 
 	auto _Collision = AddComponent<Engine::Collision>
 		(Device, Engine::CollisionTag::Player, _Transform ,
-			typeid(PlayerHead).name());
+			typeid(PlayerHair).name());
 	_Collision->RenderObjectTransform = _Transform;
-
+	_Collision->bCollision = false;
 	// 바운딩 박스.
 	{
 		Vector3  BoundingBoxMin{}, BoundingBoxMax{};
@@ -71,18 +71,6 @@ void PlayerHair::Initialize(
 		_Collision->_Geometric = std::make_unique<Engine::GSphere>(BoundingSphereRadius, BoundingSphereCenter);
 		static_cast<Engine::GSphere* const>(_Collision->_Geometric.get())->MakeDebugCollisionSphere(Device);*/
 	}
-
-
-	_Collision->RefCollisionables().insert(
-		{
-			Engine::CollisionTag::Enemy ,
-			Engine::CollisionTag::EnemyAttack
-		});
-
-	_Collision->RefPushCollisionables().insert(
-		{
-		   Engine::CollisionTag::Enemy
-		});
 
 }
 

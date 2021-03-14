@@ -43,6 +43,7 @@ void PlayerHead::Initialize(
 		(Device, Engine::CollisionTag::Player, _Transform ,
 			typeid(PlayerHead).name());
 	_Collision->RenderObjectTransform = _Transform;
+	_Collision->bCollision = false;
 
 	// 바운딩 박스.
 	{
@@ -71,19 +72,6 @@ void PlayerHead::Initialize(
 		_Collision->_Geometric = std::make_unique<Engine::GSphere>(BoundingSphereRadius, BoundingSphereCenter);
 		static_cast<Engine::GSphere* const>(_Collision->_Geometric.get())->MakeDebugCollisionSphere(Device);*/
 	}
-
-
-	_Collision->RefCollisionables().insert(
-		{
-			Engine::CollisionTag::Enemy ,
-			Engine::CollisionTag::EnemyAttack
-		});
-
-	_Collision->RefPushCollisionables().insert(
-		{
-		   Engine::CollisionTag::Enemy
-		});
-
 }
 
 void PlayerHead::PrototypeInitialize(IDirect3DDevice9* const Device)&

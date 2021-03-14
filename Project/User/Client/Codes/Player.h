@@ -48,7 +48,7 @@ public:
 		float Run = 55.f; 
 		float ComboEx02 = 10.f;
 		float Attack = 8.f; 
-		float Jump = 22.2f;
+		float Jump = 25.f;
 		float Rolling = 55.f;
 		float Dash = 110.f;
 		float LeafReady = 20.f;
@@ -230,13 +230,14 @@ private:
 
 	bool IsSpeedInTheAir(const float YAxisVelocity)&;
 private:
+	void WeaponAcquisition()&;
 	void WeaponPut()&;
 	void WeaponHand()&;
 public:
 	Vector3 CurrentMoveDirection{ 0.f,0.f,1.f };
 	StateDuringSpeed StateableSpeed{};
 private:
-	Vector3 PrevLocation{};
+	bool bWeaponAcquisition = false;
 	float LandCheckHighRange = 7.f;
 	const Engine::Cell* CurrentCell{nullptr};
 	LeafAttackInformation _LeafAttackInfo{};

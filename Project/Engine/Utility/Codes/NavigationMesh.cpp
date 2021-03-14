@@ -300,6 +300,14 @@ void Engine::NavigationMesh::Load(const std::filesystem::path LoadPath,const Mat
 	StringStream<<Is.rdbuf();
 	NaviMeshInfoString = StringStream.str();
 	CellNeighborLink();
+
+	for (const auto& [Key,_Cell] : CellContainer)
+	{
+		if (_Cell->bEnableJumping)
+		{
+			CellContainerEnableJumping.push_back(_Cell.get());
+		}
+	}
 }
 
 void Engine::NavigationMesh::DebugLog()&
@@ -693,6 +701,20 @@ Engine::Cell* Engine::NavigationMesh::GetCellFromXZLocation(const Vector2& Posit
 	}
 
 	return nullptr;
+}
+
+Engine::Cell* Engine::NavigationMesh::GetJumpingCellFromXZLocation(const Vector2& Position2D) const&
+{
+	for (const auto& _Cell : CellContainerEnableJumping)
+	{
+		if (_Cell->IsOutLine(Position2D).has_value() == false)
+		{
+			return _Cell;
+		}
+	}
+
+	return nullptr;
+
 }
 
 std::vector<Engine::Cell*> Engine::NavigationMesh::GetCellFromMarkerIdx(const uint32 MarkerIdx) const&
