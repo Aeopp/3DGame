@@ -70,7 +70,6 @@ void Belatos::HitEnd(Object* const Target)&
 void Belatos::Event()&
 {
 	Super::Event();
-
 }
 
 std::shared_ptr<Engine::Object> Belatos::GetCopyShared()&

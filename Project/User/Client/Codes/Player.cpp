@@ -22,6 +22,8 @@
 #include "PlayerWeapon.h"
 #include "PlayerHair.h"
 #include "NavigationMesh.h"
+#include "NPC.h"
+
 
 void Player::Initialize(
 	const std::optional<Vector3>& Scale,
@@ -85,6 +87,7 @@ void Player::Initialize(
 
 	_Collision->RefCollisionables().insert(
 		{
+			Engine::CollisionTag::NPC ,
 			Engine::CollisionTag::Enemy ,
 			Engine::CollisionTag::EnemyAttack
 		});
@@ -120,24 +123,24 @@ void Player::Initialize(
 
 	auto& Manager = RefManager(); 
 
+	
+	PlayerTargetInfo.DistancebetweenTarget = 142.8f;
+	PlayerTargetInfo.TargetLocationOffset = PlayerCameraTargetLocationOffset;
+	PlayerTargetInfo.TargetObject = this;
+	PlayerTargetInfo.ViewDirection = { -0.0120002348f,-0.9999893427f,-0.00832065567f };
+	PlayerTargetInfo.RotateResponsiveness = 0.01f;
+	PlayerTargetInfo.ZoomInOutScale = 0.1f;
+	PlayerTargetInfo.MaxDistancebetweenTarget = 150.f;
+
 	if (Engine::Global::bDebugMode == false)
 	{
 		bControl = true;
 
 		CurrentTPCamera = Manager.NewObject<Engine::NormalLayer,
 			Engine::ThirdPersonCamera>(L"Static", L"ThirdPersonCamera",
-				FMath::PI / 4.f, 0.1f, 777.f, Aspect).get();
+				FMath::PI / 4.f, 0.1f, 1000.f, Aspect).get();
 
-		Engine::ThirdPersonCamera::TargetInformation InitTargetInfo{};
-		InitTargetInfo.DistancebetweenTarget = 142.8f;
-		InitTargetInfo.TargetLocationOffset = { 0,10.f,0.f };
-		InitTargetInfo.TargetObject = this;
-		InitTargetInfo.ViewDirection = { -0.0120002348f,-0.9999893427f,-0.00832065567f };
-		InitTargetInfo.RotateResponsiveness = 0.01f;
-		InitTargetInfo.ZoomInOutScale = 0.1f;
-		InitTargetInfo.MaxDistancebetweenTarget = 150.f;
-
-		Manager.FindObject<Engine::NormalLayer, Engine::ThirdPersonCamera>(L"ThirdPersonCamera")->SetUpTarget(InitTargetInfo);
+		Manager.FindObject<Engine::NormalLayer, Engine::ThirdPersonCamera>(L"ThirdPersonCamera")->SetUpTarget(PlayerTargetInfo);
 	}
 
 	auto&  _NaviMesh  = RefNaviMesh();
@@ -278,6 +281,8 @@ void Player::Edit()&
 		ImGui::SliderFloat("AirCombo04VelocityY", &StateableSpeed.AirCombo04Velocity.y, -300.f, 0.f);
 
 		ImGui::SliderFloat("LandCheckHighRange", &LandCheckHighRange, 0.f, 30.f);
+
+		ImGui::SliderFloat3("NPCInteractionLocationOffset", NPCInteractionLocationOffset, -50.f, 50.f);
 	}
 };
 
@@ -579,7 +584,7 @@ void Player::JumpUpState(const FSMControlInformation& FSMControlInfo)&
 		MoveFromController(FSMControlInfo, *bMoveInfo, StateableSpeed.Jump);
 	}
 
-	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
+	if (CheckTheAttackableState(FSMControlInfo))
 	{
 		AirCombo01Transition(FSMControlInfo) ;
 		return;
@@ -618,7 +623,7 @@ void Player::JumpState(const FSMControlInformation& FSMControlInfo)&
 		MoveFromController(FSMControlInfo, *bMoveInfo, StateableSpeed.Jump);
 	}
 
-	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
+	if (CheckTheAttackableState(FSMControlInfo))
 	{
 		AirCombo01Transition(FSMControlInfo);
 		return;
@@ -656,7 +661,7 @@ void Player::JumpDownState(const FSMControlInformation& FSMControlInfo)&
 		MoveFromController(FSMControlInfo, *bMoveInfo, StateableSpeed.Jump);
 	}
 
-	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
+	if (CheckTheAttackableState(FSMControlInfo))
 	{
 		AirCombo01Transition(FSMControlInfo);
 		return;
@@ -1502,6 +1507,8 @@ static void WeaponAttachImplementation(Player* const _Player,
 void Player::WeaponAcquisition()&
 {
 	bWeaponAcquisition = true;
+	StateableSpeed.Jump -= 10.f;
+	StateableSpeed.JumpVelocity.y -= 15.f;
 
 	std::shared_ptr<PlayerWeapon> _PlayerWeapon =
 		RefManager().NewObject<Engine::NormalLayer,PlayerWeapon>(L"Static",
@@ -1621,6 +1628,42 @@ void Player::HitNotify(Object* const Target, const Vector3 PushDir,
 	const float CrossAreaScale)&
 {
 	Super::HitNotify(Target, PushDir, CrossAreaScale);
+
+	auto _Transform = GetComponent<Engine::Transform>();
+
+	auto &Control=RefControl();
+
+	if (auto _NPC = dynamic_cast<NPC* const>(Target);
+		_NPC)
+	{
+		auto& CameraTargetInfo = CurrentTPCamera->RefTargetInformation();
+
+		if (Control.IsDown(DIK_BACKSPACE))
+		{
+			bNPCInteraction = !bNPCInteraction;
+
+			if (bNPCInteraction==false)
+			{
+				CameraTargetInfo.TargetObject = this;
+				CameraTargetInfo = PlayerTargetInfo;
+				CameraTargetInfo.DistancebetweenTarget = 30.f;
+				CameraTargetInfo.ViewDirection = -GetComponent<Engine::Transform>()->GetRight();
+			}
+		}
+
+		if (bNPCInteraction)
+		{
+			CameraTargetInfo.TargetObject = _NPC;
+			auto NPCTransform = _NPC->GetComponent<Engine::Transform>();
+			Vector3 Distance = (_Transform->GetLocation() + NPCInteractionLocationOffset)
+								- (NPCTransform->GetLocation() + _NPC->ViewLocationOffset);
+			CameraTargetInfo.TargetLocationOffset = _NPC->ViewLocationOffset;
+			const float Distancebetween = FMath::Length(Distance);
+			const Vector3 Dir = FMath::Normalize(Distance);
+			CameraTargetInfo.DistancebetweenTarget = Distancebetween + 2.f;
+			CameraTargetInfo.ViewDirection = -Dir;
+		}
+	}
 };
 
 void Player::HitBegin(Object* const Target, const Vector3 PushDir, const float CrossAreaScale)&

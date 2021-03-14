@@ -125,8 +125,7 @@ std::shared_ptr<Engine::Object> Engine::ThirdPersonCamera::GetCopyShared()&
 std::optional<Engine::Object::SpawnReturnValue> Engine::ThirdPersonCamera::InitializeFromEditSpawnParam(const SpawnParam& _SpawnParam)&
 {
 	return std::optional<SpawnReturnValue>();
-}
-;
+};
 
 std::function<typename Engine::Object::SpawnReturnValue(
 	const Engine::Object::SpawnParam&)>

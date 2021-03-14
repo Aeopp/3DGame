@@ -125,6 +125,9 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 
 		ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" /
 			"Weapon.json");
+
+		ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" /
+			"NPC.json");
 	}
 	
 };

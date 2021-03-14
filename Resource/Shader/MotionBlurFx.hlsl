@@ -75,30 +75,32 @@ PS_OUT PS_MAIN(PS_IN In)
     PS_OUT Out = (PS_OUT) 0;
   
     float4  Color = float4(0,0,0,0);
-    /////////
-    int NumBlurSample = 32;
-    float4 Velocity = tex2D(VelocityMap_Sampler, In.UV);
     
-    if (length(Velocity.xy) > MotionBlurLengthMin)
-    {
-        Velocity.xy *= VelocityFactor;
-        Velocity.xy /= (float)NumBlurSample;
     
-        float4 BColor;
-        for (int i = 1; i <= NumBlurSample; ++i)
+        /////////
+        int NumBlurSample = 32;
+        float4 Velocity = tex2D(VelocityMap_Sampler, In.UV);
+    
+        if (length(Velocity.xy) > MotionBlurLengthMin)
         {
-            float2 CurrentUV = In.UV + (Velocity.xy * (float) i); 
-            BColor = tex2D(DeferredTargetSampler, CurrentUV);
-            BColor.a = 1.f;
-            float BColorDepth = tex2D(Velocity2_None1_Depth1Sampler, CurrentUV).w;
-        
-            if (Velocity.a < (BColorDepth + MotionBlurDepthBias))
+            Velocity.xy *= VelocityFactor;
+            Velocity.xy /= (float) NumBlurSample;
+    
+            float4 BColor;
+            for (int i = 1; i <= NumBlurSample; ++i)
             {
-                Color += BColor;
+                float2 CurrentUV = In.UV + (Velocity.xy * (float) i);
+                BColor = tex2D(DeferredTargetSampler, CurrentUV);
+                BColor.a = 1.f;
+                float BColorDepth = tex2D(Velocity2_None1_Depth1Sampler, CurrentUV).w;
+        
+                if (Velocity.a < (BColorDepth + MotionBlurDepthBias))
+                {
+                    Color += BColor;
+                }
             }
+            Color /= (float) NumBlurSample;
         }
-        Color /= (float)NumBlurSample;
-    }
    
     Out.MotionColor = Color;
     Out.BackBufferColor= Color;

@@ -13,6 +13,7 @@ namespace Engine
 	enum class CollisionTag :uint8
 	{
 		None,
+		NPC,
 		Decorator,
 		Player,
 		PlayerAttack,

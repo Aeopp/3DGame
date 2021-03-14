@@ -48,12 +48,12 @@ public:
 		float Run = 55.f; 
 		float ComboEx02 = 10.f;
 		float Attack = 8.f; 
-		float Jump = 25.f;
+		float Jump = 32.2f;
 		float Rolling = 55.f;
 		float Dash = 110.f;
 		float LeafReady = 20.f;
 
-		Vector3 JumpVelocity = { 0.f,110.f,0.f };
+		Vector3 JumpVelocity = { 0.f,125.f,0.f };
 		Vector3 AirCombo01Velocity = { 0.f, 80.f,0.f };
 		Vector3 AirCombo02Velocity = { 0.f, 80.f,0.f };
 		Vector3 AirCombo03Velocity = { 0.f, 80.f,0.f };
@@ -236,7 +236,11 @@ private:
 public:
 	Vector3 CurrentMoveDirection{ 0.f,0.f,1.f };
 	StateDuringSpeed StateableSpeed{};
+	Engine::ThirdPersonCamera::TargetInformation PlayerTargetInfo{};
 private:
+	Vector3 NPCInteractionLocationOffset{ -7.080f,14.159f,3.540f};
+	Vector3 PlayerCameraTargetLocationOffset{ 0.f,10.f,0.f };
+	bool bNPCInteraction = false;
 	bool bWeaponAcquisition = false;
 	float LandCheckHighRange = 7.f;
 	const Engine::Cell* CurrentCell{nullptr};

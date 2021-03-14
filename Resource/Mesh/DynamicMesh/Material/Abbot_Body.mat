@@ -1,0 +1,8 @@
+Diffuse=Abbotbody_Diffuse
+Normal=Abbotbody_NormalsMap
+Other[0]=bodymask
+Other[1]=128wh
+Other[2]=BaseColor
+Other[3]=exmap
+Other[4]=normal_no
+Other[5]=TS4source

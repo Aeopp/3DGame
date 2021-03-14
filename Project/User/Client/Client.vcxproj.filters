@@ -41,6 +41,9 @@
     <Filter Include="Object\Monster">
       <UniqueIdentifier>{ce6e6acf-5631-4bd4-b5c5-491840fc385b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Object\NPC">
+      <UniqueIdentifier>{9f8cb0b3-dc2d-4e43-be09-1c286c53f6e8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -100,6 +103,9 @@
     <ClInclude Include="Codes\Belatos.h">
       <Filter>Object\Monster</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\NPC.h">
+      <Filter>Object\NPC</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -146,6 +152,9 @@
     </ClCompile>
     <ClCompile Include="Codes\Belatos.cpp">
       <Filter>Object\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\NPC.cpp">
+      <Filter>Object\NPC</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

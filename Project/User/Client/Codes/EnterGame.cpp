@@ -33,6 +33,7 @@
 #include "PlayerHair.h"
 #include "ThirdPersonCamera.h"
 #include "Belatos.h"
+#include "NPC.h"
 
 
 
@@ -70,6 +71,7 @@ void EnterGame::Initialize(IDirect3DDevice9* const Device)&
 		Proto.LoadPrototype<DelasaCenterChain>(L"Static", Device);
 
 		Proto.LoadPrototype<Belatos>(L"Static", Device);
+		Proto.LoadPrototype<NPC>(L"Static", Device);
 	}
 
 	// 카메라 오브젝트 추가.
