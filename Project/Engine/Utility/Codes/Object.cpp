@@ -61,11 +61,15 @@ void Engine::Object::ComponentUpdate(const float DeltaTime)&
 {
 	for (auto& [PropertyKey, ComponentContainer] : _Components)
 	{
-		for (auto& [Key,CurrentComponent] : ComponentContainer)
+		for (auto& [Key, CurrentComponent] : ComponentContainer)
 		{
 			CurrentComponent->Update(this, DeltaTime);
 		}
 	};
+}
+
+void Engine::Object::Hit(Object* const Target, const Vector3 PushDir, const float CrossAreaScale)&
+{
 }
 
 void Engine::Object::HitBegin(Object* const Target, const Vector3 PushDir, const float CrossAreaScale)&

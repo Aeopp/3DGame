@@ -1,7 +1,11 @@
 #include "..\\stdafx.h"
 #include "Player.h"
 #include "Transform.h"
+#include "Timer.h"
+
+
 #include "DynamicMesh.h"
+#include "Monster.h"
 #include <iostream>
 #include "Management.h"
 #include "DynamicMesh.h"
@@ -184,6 +188,8 @@ void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
 		Engine::RenderInterface::Group::DeferredNoAlpha);
 
 	RefResourceSys().InsertAny<decltype(_SkeletonMeshProto)>(L"Player", _SkeletonMeshProto);
+
+	
 }
 
 void Player::Event()&
@@ -288,8 +294,8 @@ void Player::Edit()&
 
 void Player::FSM(const float DeltaTime)&
 {
-	auto& Control = RefControl();
-	auto _Transform = GetComponent<Engine::Transform>();
+	auto& Control =      RefControl();
+	auto _Transform =    GetComponent<Engine::Transform>();
 	auto _SkeletonMesh = GetComponent<Engine::SkeletonMesh>();
 
 	FSMControlInformation CurrentFSMControlInfo{ _Transform, Control, _SkeletonMesh ,DeltaTime };
@@ -673,15 +679,21 @@ void Player::JumpDownState(const FSMControlInformation& FSMControlInfo)&
 	const auto& Physic = _Transform->RefPhysic();
 
 	bool bNextJumpMotionChange = false;
-	bNextJumpMotionChange |= (CurLocation.y - LandCheckHighRange) < Physic.CurrentGroundY;
+
+	bNextJumpMotionChange |= CheckTheLandingStatable(CurLocation.y, Physic.CurrentGroundY);
 
 	if (bNextJumpMotionChange)
 	{
 		JumpLandingTransition(FSMControlInfo);
 		return;
 	}
-
 };
+
+bool Player::CheckTheLandingStatable(const float CurLocationY, const float CurGroundY)&
+{
+	const float      CorrectionLocationY = (CurLocationY - LandCheckHighRange);
+	return (CorrectionLocationY < CurGroundY) && ((CurGroundY - CorrectionLocationY) >= 1.f);
+}
 
 void Player::JumpDownTransition(const FSMControlInformation& FSMControlInfo)&
 {
@@ -863,7 +875,7 @@ void Player::AirCombo01State(const FSMControlInformation& FSMControlInfo)&
 	
 	const auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
 
-	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | ((Location.y - LandCheckHighRange) < Physic.CurrentGroundY));
+	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | CheckTheLandingStatable(Location.y, Physic.CurrentGroundY));
 
 	if (bLandingChange)
 	{
@@ -908,7 +920,8 @@ void Player::AirCombo02State(const FSMControlInformation& FSMControlInfo)&
 	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
 	const auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
 
-	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | ((Location.y - LandCheckHighRange) < Physic.CurrentGroundY));
+	
+	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | CheckTheLandingStatable(Location.y, Physic.CurrentGroundY));
 
 	if (bLandingChange)
 	{
@@ -947,7 +960,8 @@ void Player::AirCombo03State(const FSMControlInformation& FSMControlInfo)&
 
 	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
 	const auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
-	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | ((Location.y - LandCheckHighRange) < Physic.CurrentGroundY));
+	
+	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | CheckTheLandingStatable(Location.y, Physic.CurrentGroundY));
 	if (bLandingChange)
 	{
 		JumpLandingTransition(FSMControlInfo);
@@ -986,7 +1000,7 @@ void Player::AirCombo04State(const FSMControlInformation& FSMControlInfo)&
 	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
 	const auto & Physic  = FSMControlInfo.MyTransform->RefPhysic();
 
-	bool bLandingChange = (CurAnimNotify.bAnimationEnd | ((Location.y - LandCheckHighRange) < Physic.CurrentGroundY));
+	bool bLandingChange = (CurAnimNotify.bAnimationEnd | CheckTheLandingStatable(Location.y, Physic.CurrentGroundY));
 
 	if (bLandingChange)
 	{
@@ -1231,18 +1245,15 @@ void Player::StandBigBackTransition(const FSMControlInformation& FSMControlInfo)
 	_AnimNotify.Name = "StandBigBack";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::StandBigBack;
+	bInvincibility = true;
 }
-
-//void Player::Jumping(const FSMControlInformation& FSMControlInfo  , const float Force)&
-//{
-//	// FSMControlInfo.MyTransform->Move({ 0,1,0 },FSMControlInfo.DeltaTime, JumpForce);
-//}
 
 void Player::StandBigBackState(const FSMControlInformation& FSMControlInfo)&
 {
 	const auto& CurAnimNotify=FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 	if (CurAnimNotify.bAnimationEnd)
 	{
+		bInvincibility = false;
 		CombatWaitTransition(FSMControlInfo); 
 	}
 }
@@ -1256,6 +1267,7 @@ void Player::StandBigFrontTransition(const FSMControlInformation& FSMControlInfo
 	_AnimNotify.Name = "StandBigFront";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::StandBigFront;
+	bInvincibility = true;
 }
 
 void Player::StandBigFrontState(const FSMControlInformation& FSMControlInfo)&
@@ -1263,6 +1275,7 @@ void Player::StandBigFrontState(const FSMControlInformation& FSMControlInfo)&
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 	if (CurAnimNotify.bAnimationEnd)
 	{
+		bInvincibility = false;
 		CombatWaitTransition(FSMControlInfo);
 	}
 }
@@ -1276,6 +1289,7 @@ void Player::StandBigLeftTransition(const FSMControlInformation& FSMControlInfo)
 	_AnimNotify.Name = "StandBigLeft";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::StandBigLeft;
+	bInvincibility = true;
 }
 
 void Player::StandBigLeftState(const FSMControlInformation& FSMControlInfo)&
@@ -1283,6 +1297,7 @@ void Player::StandBigLeftState(const FSMControlInformation& FSMControlInfo)&
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 	if (CurAnimNotify.bAnimationEnd)
 	{
+		bInvincibility = false;
 		CombatWaitTransition(FSMControlInfo);
 	}
 }
@@ -1296,7 +1311,19 @@ void Player::StandBigRightTransition(const FSMControlInformation& FSMControlInfo
 	_AnimNotify.Name = "StandBigRight";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::StandBigRight;
-}
+	bInvincibility = true;
+};
+
+void Player::StandBigRightState(const FSMControlInformation& FSMControlInfo)&
+{
+	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+	if (CurAnimNotify.bAnimationEnd)
+	{
+		CombatWaitTransition(FSMControlInfo);
+		bInvincibility = false;
+	}
+};
+
 
 void Player::LeafAttackReadyState(const FSMControlInformation& FSMControlInfo)&
 {
@@ -1374,7 +1401,8 @@ void Player::LeafAttackDownState(const FSMControlInformation& FSMControlInfo)&
 	const Vector3 CurLocation   = FSMControlInfo.MyTransform->GetLocation();
 	const auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
 	
-	if (  ( CurLocation.y  - LandCheckHighRange  ) < Physic.CurrentGroundY)
+	
+	if (CheckTheLandingStatable(CurLocation.y, Physic.CurrentGroundY) )
 	{
 		LeafAttackLandingTransition(FSMControlInfo);
 	}
@@ -1407,14 +1435,6 @@ void Player::LeafAttackLandingTransition(const FSMControlInformation& FSMControl
 	CurrentState = Player::State::LeafAttackLanding;
 }
 
-void Player::StandBigRightState(const FSMControlInformation& FSMControlInfo)&
-{
-	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
-	if (CurAnimNotify.bAnimationEnd)
-	{
-		CombatWaitTransition(FSMControlInfo);
-	}
-}
 
 bool Player::CheckTheJumpableState(const FSMControlInformation& FSMControlInfo)&
 {
@@ -1669,6 +1689,8 @@ void Player::HitNotify(Object* const Target, const Vector3 PushDir,
 void Player::HitBegin(Object* const Target, const Vector3 PushDir, const float CrossAreaScale)&
 {
 	Super::HitBegin(Target, PushDir, CrossAreaScale);
+
+	
 };
 
 void Player::HitEnd(Object* const Target)&
@@ -1712,8 +1734,8 @@ void Player::LateUpdate(const float DeltaTime)&
 
 	if (CurrentCell == nullptr)
 	{
-		auto & NaviMesh = RefNaviMesh();
-		CurrentCell=NaviMesh.GetJumpingCellFromXZLocation({Location.x , Location.z});
+		auto& NaviMesh = RefNaviMesh();
+		CurrentCell = NaviMesh.GetJumpingCellFromXZLocation({ Location.x , Location.z });
 	}
 
 	if (CurrentCell)
@@ -1727,7 +1749,7 @@ void Player::LateUpdate(const float DeltaTime)&
 			{
 				CurrentCell = bCellResult->Target;
 				_Transform->RefPhysic().CurrentGroundY = bCellResult->ProjectLocation.y;
-				ImGui::Text("State : Move ,  Y : %.3f , Address : %d", 
+				ImGui::Text("State : Move ,  Y : %.3f , Address : %d",
 					bCellResult->ProjectLocation.y, CurrentCell);
 			}
 
@@ -1743,11 +1765,11 @@ void Player::LateUpdate(const float DeltaTime)&
 					CurrentCell = bCellResult->Target;
 					_Transform->RefPhysic().CurrentGroundY = bCellResult->ProjectLocation.y;
 					_Transform->SetLocation(
-						{ bCellResult->ProjectLocation.x , Location.y ,bCellResult->ProjectLocation.z } );
+						{ bCellResult->ProjectLocation.x , Location.y ,bCellResult->ProjectLocation.z });
 				}
-				
+
 				ImGui::Text("State : Stop , Y : %.3f , Address : %d",
-								bCellResult->ProjectLocation.y, CurrentCell);
+					bCellResult->ProjectLocation.y, CurrentCell);
 			}
 		}
 	}
@@ -1756,13 +1778,51 @@ void Player::LateUpdate(const float DeltaTime)&
 	{
 		auto& Control = RefControl();
 		FSMControlInformation FSMControlInfo
-			{ _Transform  ,Control, GetComponent<Engine::SkeletonMesh>(), DeltaTime };
+		{ _Transform  ,Control, GetComponent<Engine::SkeletonMesh>(), DeltaTime };
 		JumpDownTransition(FSMControlInfo);
 	}
 
 	if (Location.y < -900.f)
 	{
-		_Transform->SetLocation(_Transform->RefPhysic().GetLastLandLocation());		
+		_Transform->SetLocation(_Transform->RefPhysic().GetLastLandLocation());
+	}
+};
+
+void Player::Hit(Object* const Target, const Vector3 PushDir, const float CrossAreaScale)&
+{
+	Super::Hit(Target, PushDir, CrossAreaScale);
+
+	if (auto _Monster = dynamic_cast<Monster* const> (Target);
+		_Monster)
+	{
+		const Vector3 HitDirection = FMath::Normalize(PushDir);
+		auto*const _Transform  =GetComponent<Engine::Transform>();
+		const float Rad45 = FMath::PI / 4.f;
+
+		const Vector3 Right = _Transform->GetRight();
+		const Vector3 Forward = _Transform->GetForward(); 
+		
+		auto& Control = RefControl();
+		auto* const _SkeletonMesh = GetComponent<Engine::SkeletonMesh>();
+		const float DeltaTime = RefTimer().GetDelta();  
+		FSMControlInformation FSMControlInfo{ _Transform  ,Control  ,_SkeletonMesh  , DeltaTime  };
+		if (FMath::Dot(-HitDirection , Right) <= Rad45)
+		{
+			StandBigRightTransition(FSMControlInfo);
+		}
+		else if (FMath::Dot(-HitDirection, -Right) <= Rad45)
+		{
+			StandBigLeftTransition(FSMControlInfo); 
+		}
+		else if (FMath::Dot(-HitDirection, Forward) <= Rad45)
+		{
+			StandBigFrontTransition(FSMControlInfo);
+		}
+		else if (FMath::Dot(-HitDirection, -Forward) <= Rad45)
+		{
+			StandBigBackTransition(FSMControlInfo);
+		}
+		return;
 	}
 };
 

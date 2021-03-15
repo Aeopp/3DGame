@@ -118,6 +118,9 @@ public:
 
 	void Edit()&;
 
+	virtual void Hit(Object* const Target, const Vector3 PushDir,
+		const  float CrossAreaScale) & override;
+
 	virtual void HitNotify(Object* const Target, const Vector3 PushDir,
 		const float CrossAreaScale)&override;
 	virtual void HitBegin(Object* const Target, const Vector3 PushDir,
@@ -217,12 +220,14 @@ private:
 	void LeafAttackDownTransition(const FSMControlInformation& FSMControlInfo)&;
 	void LeafAttackLandingState(const FSMControlInformation& FSMControlInfo)&;
 	void LeafAttackLandingTransition(const FSMControlInformation& FSMControlInfo)&;
+
 private:
 	std::optional<Player::MoveControlInformation> 
 		 CheckTheMoveableState  (const FSMControlInformation& FSMControlInfo)&;
 	bool CheckTheJumpableState  (const FSMControlInformation& FSMControlInfo)&;
 	bool CheckTheAttackableState(const FSMControlInformation& FSMControlInfo)&;
 	bool CheckTheLeafAttackableState(const FSMControlInformation& FSMControlInfo)&;
+	bool CheckTheLandingStatable(const float CurLocationY, const float CurGroundY)&;
 private:
 	void MoveFromController(const FSMControlInformation& FSMControlInfo,
 							const Player::MoveControlInformation& MoveControlInfo ,
@@ -234,6 +239,7 @@ private:
 	void WeaponPut()&;
 	void WeaponHand()&;
 public:
+	bool bInvincibility = false;
 	Vector3 CurrentMoveDirection{ 0.f,0.f,1.f };
 	StateDuringSpeed StateableSpeed{};
 	Engine::ThirdPersonCamera::TargetInformation PlayerTargetInfo{};

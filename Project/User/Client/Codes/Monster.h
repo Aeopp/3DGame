@@ -31,19 +31,30 @@ public:
 		const float CrossAreaScale) & override;
 	virtual void HitEnd(Object* const Target) & override;
 
+	bool  IsInvincibility()const& { return bInvincibility; };
+	float TakeDamage(const float Damage)&;;
+	bool IsAttackRange(const Vector3& TargetLocation);;
 protected:
 	struct FSMControlInformation
 	{
+		class Player* const _Player{ nullptr };
 		Engine::Transform* const MyTransform; 
 		Engine::SkeletonMesh* const MySkeletonMesh;
 		const float DeltaTime;
 	};
+	struct Status
+	{
+		float HP = 10000.f;
+	};
 	virtual void FSM(const float DeltaTime)&;
-private:
 
+	void LockingToWardsFromDirection(Vector3 Direction)&;
 public:
 	Vector3 CurrentMoveDirection{ 0.f,0.f,1.f };
 protected:
+	float AttackRange = 23.f;
+	bool bInvincibility = false;
+	Status _Status{}; 
 	float LandCheckHighRange = 7.f;
 	const Engine::Cell* CurrentCell{nullptr};
 	IDirect3DDevice9* Device{ nullptr };

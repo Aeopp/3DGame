@@ -1,6 +1,8 @@
 #include "..\\stdafx.h"
 #include "Belatos.h"
 #include "Transform.h"
+#include "Management.h"
+#include "PlayerWeapon.h"
 #include "DynamicMesh.h"
 #include <iostream>
 #include "Management.h"
@@ -18,7 +20,10 @@
 #include "ShaderManager.h"
 #include "EnemyLayer.h"
 #include "NavigationMesh.h"
+#include "NormalLayer.h"
+#include "Player.h"
 
+// Point_GS_Root
 
 void Belatos::FSM(const float DeltaTime)&
 {
@@ -27,13 +32,32 @@ void Belatos::FSM(const float DeltaTime)&
 	auto& Control = RefControl();
 	auto _Transform = GetComponent<Engine::Transform>();
 	auto _SkeletonMesh = GetComponent<Engine::SkeletonMesh>();
-
-	FSMControlInformation CurrentFSMControlInfo{ _Transform,  _SkeletonMesh ,DeltaTime };
+	auto& _Manager =RefManager();
+	auto _Players =_Manager.FindObjects<Engine::NormalLayer, Player>();
+	FSMControlInformation CurrentFSMControlInfo{ _Players.front().get(),_Transform,  _SkeletonMesh ,DeltaTime };
 
 	switch (CurrentState)
 	{
 	case Belatos::State::Wait:
 		WaitState(CurrentFSMControlInfo);
+		break;
+	case Belatos::State::Run:
+		RunState(CurrentFSMControlInfo); 
+		break;
+	case Belatos::State::RunEnd:
+		RunEndState(CurrentFSMControlInfo); 
+		break; 
+	case Belatos::State::Skill1st:
+		Skill1stState(CurrentFSMControlInfo);
+		break;
+	case Belatos::State::Skill2nd:
+		Skill2ndState(CurrentFSMControlInfo);
+		break; 
+	case Belatos::State::Respawn:
+		RespawnState(CurrentFSMControlInfo);
+		break;
+	case Belatos::State::RTStand:
+		RTStandState(CurrentFSMControlInfo);
 		break;
 	default:
 		break;
@@ -48,7 +72,18 @@ void Belatos::Edit()&
 	{
 		auto _Transform = GetComponent<Engine::Transform>();
 		auto& _Physic = _Transform->RefPhysic();
-		ImGui::SliderFloat("LandCheckHighRange", &LandCheckHighRange, 0.f ,30.f);
+		ImGui::SliderFloat("LandCheckHighRange", &LandCheckHighRange, 0.f, 30.f);
+
+		/*auto* _SkeletonMesh = GetComponent<Engine::SkeletonMesh>();
+		ImGui::SliderFloat3("WeaponCollisionMin", WeaponLocalMin, -300.f, +300.f);
+		ImGui::SliderFloat3("WeaponCollisionMax", WeaponLocalMax, -300.f, +300.f);
+		WeaponHandleBone = _SkeletonMesh->GetBone("Point_GS_Root").get();
+		WeaponHandleBone->CollisionGeometric = std::make_unique<Engine::OBB>
+		 (Engine::OBB{ WeaponLocalMin,
+					WeaponLocalMax });
+		auto& WeaponHandleOBB = dynamic_cast<Engine::OBB&>(*WeaponHandleBone->CollisionGeometric);
+		WeaponHandleOBB.MakeDebugCollisionBox(Device);
+		WeaponHandleOBB.Update(_Transform->UpdateWorld());*/
 	}
 }
 
@@ -61,6 +96,23 @@ void Belatos::HitNotify(Object* const Target, const Vector3 PushDir, const float
 void Belatos::HitBegin(Object* const Target, const Vector3 PushDir, const float CrossAreaScale)&
 {
 	Super::HitBegin(Target, PushDir, CrossAreaScale);
+
+	if (auto _PlayerWeapon = dynamic_cast<PlayerWeapon* const>(Target);
+		_PlayerWeapon && !IsInvincibility())
+	{
+		const Vector3 PushDirNormalize  = FMath::Normalize(PushDir);
+		auto _Transofrm = GetComponent<Engine::Transform>();
+		const float Dmg = _PlayerWeapon->GetDamage(); 
+		const float DmgToForce = Dmg * 0.001f;
+		_Transofrm->AddVelocity(PushDirNormalize * DmgToForce); 
+		TakeDamage(Dmg);
+
+		auto*const _SkeletonMesh = GetComponent<Engine::SkeletonMesh>();
+		auto& _Manager = RefManager();
+		auto _Players = _Manager.FindObjects<Engine::NormalLayer, Player>();
+		FSMControlInformation InitFSMControlInfo{ _Players.front().get(),_Transofrm,_SkeletonMesh,1.f };
+		RTStandTransition(InitFSMControlInfo);
+	}
 }
 
 void Belatos::HitEnd(Object* const Target)&
@@ -96,8 +148,8 @@ void Belatos::Update(const float DeltaTime)&
 void Belatos::LateUpdate(const float DeltaTime)&
 {
 	Super::LateUpdate(DeltaTime);
+};
 
-}
 void Belatos::WaitTransition(const FSMControlInformation& FSMControlInfo)&
 {
 	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
@@ -105,11 +157,205 @@ void Belatos::WaitTransition(const FSMControlInformation& FSMControlInfo)&
 	_AnimNotify.Name = "Wait_Belatos_Twohandedsword";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Belatos::State::Wait;
-}
+};
 
 void Belatos::WaitState(const FSMControlInformation& FSMControlInfo)&
 {
-	// ¶Û¼ö ÀÖÀ¸¸é ¶Ù¾îºÁ¶ó 
+	RunTransition(FSMControlInfo);
+}
+
+void Belatos::RunState(const FSMControlInformation& FSMControlInfo)&
+{
+	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
+	auto _PlayerTransform = FSMControlInfo._Player->GetComponent<Engine::Transform>();
+	const Vector3 PlayerLocation=_PlayerTransform->GetLocation();
+	const Vector3 ToPlayer = PlayerLocation - Location;
+	const Vector3 ToPlayerDir = FMath::Normalize(ToPlayer);
+	LockingToWardsFromDirection(ToPlayerDir);
+	FSMControlInfo.MyTransform->Move(ToPlayerDir* StateableSpeed.Run, FSMControlInfo.DeltaTime);
+
+	if (IsAttackRange(PlayerLocation))
+	{
+		RunEndTransition(FSMControlInfo);
+		return;
+	}
+}
+
+void Belatos::RunTransition(const FSMControlInformation& FSMControlInfo)&
+{
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = true;
+	_AnimNotify.Name = "Run_Belatos_Twohandedsword";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = State::Run;
+}
+
+void Belatos::RunEndState(const FSMControlInformation& FSMControlInfo)&
+{
+	auto _PlayerTransform = FSMControlInfo._Player->GetComponent<Engine::Transform>();
+	const Vector3 PlayerLocation  =_PlayerTransform->GetLocation();
+
+	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+	if (CurAnimNotify.bAnimationEnd)
+	{
+		if (IsAttackRange(PlayerLocation))
+		{
+			FMath::Random(0u, 1u) ? Skill1stTransition(FSMControlInfo) : Skill2ndTransition(FSMControlInfo);
+		}
+		else
+		{
+			RunTransition(FSMControlInfo);
+		}
+		return;
+	}
+}
+
+void Belatos::RunEndTransition(const FSMControlInformation& FSMControlInfo)&
+{
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = false;
+	_AnimNotify.Name = "Run_End_Belatos_Twohandedsword";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = State::RunEnd;
+}
+
+void Belatos::Skill1stState(const FSMControlInformation& FSMControlInfo)&
+{
+	const auto&   CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+	const Vector3 PlayerLocation = FSMControlInfo._Player->GetComponent<Engine::Transform>()->GetLocation();
+
+	const Vector3 Forward = FSMControlInfo.MyTransform->GetForward();
+	const float CurAnimTime = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
+
+	if (CurAnimNotify.bAnimationEnd)
+	{
+		if (IsAttackRange(PlayerLocation))
+		{
+			FMath::Random(0u, 1u) ? Skill1stTransition(FSMControlInfo) : Skill2ndTransition(FSMControlInfo);
+		}
+		else
+		{
+			WaitTransition(FSMControlInfo);
+		}
+		return;
+	}
+
+	if (CurAnimTime >= 0.27f && CurAnimTime <= 0.35f)
+	{
+		WeaponAttackCollisionSweep(FSMControlInfo);
+	}	
+}
+
+void Belatos::Skill1stTransition(const FSMControlInformation& FSMControlInfo)&
+{ 
+	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
+	auto _PlayerTransform = FSMControlInfo._Player->GetComponent<Engine::Transform>();
+	const Vector3 PlayerLocation = _PlayerTransform->GetLocation();
+	const Vector3 ToPlayer = PlayerLocation - Location;
+	const Vector3 ToPlayerDir = FMath::Normalize(ToPlayer);
+	LockingToWardsFromDirection(ToPlayerDir);
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = false;
+	_AnimNotify.Name = "Skill_01_1_Belatos_Twohandedsword";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = State::Skill1st;
+}
+
+void Belatos::Skill2ndState(const FSMControlInformation& FSMControlInfo)&
+{
+	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+	const Vector3 PlayerLocation = FSMControlInfo._Player->GetComponent<Engine::Transform>()->GetLocation();
+
+	if (CurAnimNotify.bAnimationEnd)
+	{
+		if (IsAttackRange(PlayerLocation))
+		{
+			FMath::Random(0u, 1u) ? Skill1stTransition(FSMControlInfo) : Skill2ndTransition(FSMControlInfo);
+		}
+		else
+		{
+			WaitTransition(FSMControlInfo);
+		}
+		return;
+	}
+
+	const float CurAnimTime = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
+
+	if (CurAnimTime >= 0.22f && CurAnimTime <= 0.33f)
+	{
+		WeaponAttackCollisionSweep(FSMControlInfo);
+	}
+}
+
+void Belatos::Skill2ndTransition(const FSMControlInformation& FSMControlInfo)&
+{
+	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
+	auto _PlayerTransform = FSMControlInfo._Player->GetComponent<Engine::Transform>();
+	const Vector3 PlayerLocation = _PlayerTransform->GetLocation();
+	const Vector3 ToPlayer = PlayerLocation - Location;
+	const Vector3 ToPlayerDir = FMath::Normalize(ToPlayer);
+	LockingToWardsFromDirection(ToPlayerDir);
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = false;
+	_AnimNotify.Name = "Skill_01_2_Belatos_Twohandedsword";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = State::Skill2nd;
+}
+
+void Belatos::RespawnState(const FSMControlInformation& FSMControlInfo)&
+{
+	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+
+	if (CurAnimNotify.bAnimationEnd)
+	{
+		WaitTransition(FSMControlInfo);
+		return;
+	}
+}
+
+void Belatos::RespawnTransition(const FSMControlInformation& FSMControlInfo)&
+{
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = false;
+	_AnimNotify.Name = "Respawn_Belatos_Twohandedsword";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = State::Respawn;
+}
+
+void Belatos::RTStandState(const FSMControlInformation& FSMControlInfo)&
+{
+	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+
+	if (CurAnimNotify.bAnimationEnd)
+	{
+		bInvincibility = false;
+		WaitTransition(FSMControlInfo);
+		return;
+	}
+}
+
+void Belatos::RTStandTransition(const FSMControlInformation& FSMControlInfo)&
+{
+	bInvincibility = true;
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = false;
+	_AnimNotify.Name = "RTStand_Belatos_Twohandedsword";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = State::RTStand;
+}
+
+
+void Belatos::WeaponAttackCollisionSweep(const FSMControlInformation& FSMControlInfo)&
+{
+	WeaponHandleBone->CollisionGeometric->Update(WeaponHandleBone->ToRoot * FSMControlInfo.MyTransform->UpdateWorld());
+	auto* const _PlayerCollision = FSMControlInfo._Player->GetComponent<Engine::Collision>();
+	auto CollisionResult = _PlayerCollision->_Geometric->IsCollision(WeaponHandleBone->CollisionGeometric.get());
+	if (CollisionResult)
+	{
+		const float CrossAreaScale = CollisionResult->first;
+		const Vector3 PushDirection = CollisionResult->second;
+		_PlayerCollision->Owner->Hit(this, PushDirection, CrossAreaScale);
+	}
 }
 
 
@@ -129,6 +375,11 @@ void Belatos::PrototypeInitialize(IDirect3DDevice9* const Device)&
 
 	RefResourceSys().InsertAny<decltype(_SkeletonMeshProto)>
 		(L"Belatos", _SkeletonMeshProto);
+
+	AttackRange = 25.f;
+
+	WeaponLocalMin = {-26.549f  , 31.858f , -17.213f};
+	WeaponLocalMax = {109.091f , 223.141f , 56.557f};
 }
 void Belatos::Initialize(const std::optional<Vector3>& Scale, const std::optional<Vector3>& Rotation, const Vector3& SpawnLocation)&
 {
@@ -177,15 +428,15 @@ void Belatos::Initialize(const std::optional<Vector3>& Scale, const std::optiona
 		_Transform);
 
 	_SkeletonMesh->bCullingOn = true;
-	FSMControlInformation InitFSMControlInfo{ _Transform,_SkeletonMesh,1.f };
-	WaitTransition(InitFSMControlInfo);
 
 	_Collision->RefCollisionables().insert({
+		Engine::CollisionTag::Enemy,
 		Engine::CollisionTag::Player,
 		Engine::CollisionTag::PlayerAttack
 		});
 
 	_Collision->RefPushCollisionables().insert({
+		Engine::CollisionTag::Enemy,
 		Engine::CollisionTag::Player
 		});
 
@@ -210,10 +461,19 @@ void Belatos::Initialize(const std::optional<Vector3>& Scale, const std::optiona
 
 	_Transform->EnablePhysic(InitPhysic);
 
+	WeaponHandleBone = _SkeletonMesh->GetBone("Point_GS_Root").get();
+	WeaponHandleBone->CollisionGeometric = std::make_unique<Engine::OBB>
+		(Engine::OBB ( WeaponLocalMin,
+					   WeaponLocalMax  ));
+	auto& WeaponHandleOBB =dynamic_cast<Engine::OBB&>(*WeaponHandleBone->CollisionGeometric);
+	WeaponHandleOBB.MakeDebugCollisionBox(Device);
+	WeaponHandleOBB.Update(WeaponHandleBone->ToRoot*_Transform->UpdateWorld());
 
-
-}
-;
+	auto& _Manager = RefManager();
+	auto _Players = _Manager.FindObjects<Engine::NormalLayer, Player>();
+	FSMControlInformation InitFSMControlInfo{ _Players.front().get(),_Transform,_SkeletonMesh,1.f };
+	WaitTransition(InitFSMControlInfo);
+};
 
 std::function < Engine::Object::SpawnReturnValue
 (const Engine::Object::SpawnParam&)>

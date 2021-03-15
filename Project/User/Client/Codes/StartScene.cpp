@@ -30,6 +30,8 @@
 #include "PlayerWeapon.h"
 #include "Renderer.h"
 #include "ObjectEdit.h"
+#include "Timer.h"
+
 
 
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
@@ -48,7 +50,8 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 
 	// 텍스쳐 리소스 추가. 
 	{
-		auto Tex = ResourceSys.Emplace<IDirect3DTexture9>(L"Texture_Logo", D3DXCreateTextureFromFile, Device,
+		auto Tex = ResourceSys.Emplace<IDirect3DTexture9>(
+			L"Texture_Logo", D3DXCreateTextureFromFile, Device,
 			(App::ResourcePath / L"Texture" / L"Logo.jpg").c_str(), &LogoTexture);
 	}
 
@@ -116,20 +119,7 @@ void StartScene::Initialize(IDirect3DDevice9* const Device)&
 	{
 		LogoVtxBuf = ResourceSys.Get<IDirect3DVertexBuffer9>(L"VertexBuffer_Plane");
 		Renderer.SkyInitialize(App::ResourcePath / L"Mesh" / L"StaticMesh" / L"Sky" / L"SM_SkySphere.FBX");
-
-		ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" /
-			"SkyGarden.json");
-
-		ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" /
-			"BelatosWave1.json");
-
-		ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" /
-			"Weapon.json");
-
-		ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" /
-			"NPC.json");
 	}
-	
 };
 
 void StartScene::Event()&
@@ -143,9 +133,28 @@ void StartScene::Event()&
 		Engine::Global::bDebugMode = !Engine::Global::bDebugMode;
 	}
 
+	if (_Control.IsDown(DIK_F2))
+	{
+		RefNaviMesh().bDebugRender = !RefNaviMesh().bDebugRender;
+	}
+
 	if (_Control.IsDown(DIK_TAB))
 	{
-		bLogo = false;
+		if (!bGameStart)
+		{
+			ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" /"SkyGarden.json");
+
+			ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" / "Weapon.json");
+		
+			ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" /"NPC.json");
+
+			RefTimer().TimerRegist(5.f, 0.0f, 5.1f, []()->bool {
+				ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" / "BelatosWave1.json");
+				return true;
+				});
+
+			bGameStart = true;
+		}
 	}
 }
 void StartScene::Update(const float DeltaTime)&
@@ -155,7 +164,7 @@ void StartScene::Update(const float DeltaTime)&
 
 void StartScene::Render()&
 {
-	if (bLogo)
+	if (!bGameStart)
 	{
 		Matrix Projection;
 		D3DXMatrixOrthoLH(&Projection, App::ClientSize<float>.first, App::ClientSize<float>.second,
@@ -176,8 +185,6 @@ void StartScene::Render()&
 		Fx->EndPass();
 		Fx->End();
 	}
-
-
 }
 
 

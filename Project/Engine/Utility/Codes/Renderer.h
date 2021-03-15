@@ -78,7 +78,7 @@ namespace Engine
 	public:
 		Vector3 FogColor{ 0.2901f,0.2901f,0.2901f };
 		float FogDistance = 1024.465f;
-		float MotionBlurVelocityScale = 0.042f;
+		float MotionBlurVelocityScale = 0.030f;
 		float MotionBlurDepthBias = 0.0001f;
 		float MotionBlurLengthMin = 0.000f;
 	private:

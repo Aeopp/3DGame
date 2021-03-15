@@ -30,7 +30,7 @@ namespace Engine
 			Vector4 Location{ 0.000f,226.804f,181.818f ,1}; 
 			Vector4 Direction{ 0.151f,-0.658f,-0.738f,0 };
 			Vector4 LightColor{ 1,1,1 ,1}; 
-			float ShadowDepthBias = { 0.001f};
+			float ShadowDepthBias = { 0.002f};
 			float ShadowFar{993.884f};
 			float ShadowDepthMapWidth= 1920.f;
 			float ShadowDepthMapHeight = 1080.f;

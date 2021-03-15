@@ -1,0 +1,207 @@
+{
+    "AnimationInfoTable": [
+        {
+            "Index": 0,
+            "Name": "Air_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 16.0
+        },
+        {
+            "Index": 1,
+            "Name": "Down_B_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 6.0
+        },
+        {
+            "Index": 2,
+            "Name": "Down_F_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 5.0
+        },
+        {
+            "Index": 3,
+            "Name": "Respawn_Belatos_Twohandedsword",
+            "Acceleration": 60.02899932861328,
+            "TransitionTime": 0.25,
+            "Duration": 143.0
+        },
+        {
+            "Index": 4,
+            "Name": "RTChase_Big_B_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 6.0
+        },
+        {
+            "Index": 5,
+            "Name": "RTChase_Big_F_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 5.999999999999972
+        },
+        {
+            "Index": 6,
+            "Name": "RTChase_Big_L_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 6.0
+        },
+        {
+            "Index": 7,
+            "Name": "RTChase_Big_R_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 6.0
+        },
+        {
+            "Index": 8,
+            "Name": "RTChase_Small_B_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 6.0
+        },
+        {
+            "Index": 9,
+            "Name": "RTDown_Air_Fall_B_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 12.0
+        },
+        {
+            "Index": 10,
+            "Name": "RTDown_Air_Fall_F_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 12.0
+        },
+        {
+            "Index": 11,
+            "Name": "RTDown_Air_Landing_B_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 32.0
+        },
+        {
+            "Index": 12,
+            "Name": "RTDown_Air_Landing_B_L_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 30.0
+        },
+        {
+            "Index": 13,
+            "Name": "RTDown_B_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 30.0
+        },
+        {
+            "Index": 14,
+            "Name": "RTDown_F_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 30.0
+        },
+        {
+            "Index": 15,
+            "Name": "RTStand_Air_Big_F_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 6.0
+        },
+        {
+            "Index": 16,
+            "Name": "RTStand_Air_Big_B_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 12.0
+        },
+        {
+            "Index": 17,
+            "Name": "RTStand_Air_Fall_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 12.0
+        },
+        {
+            "Index": 18,
+            "Name": "RTStand_Air_Landing_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 25.0
+        },
+        {
+            "Index": 19,
+            "Name": "RTStand_Air_Small_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 6.0
+        },
+        {
+            "Index": 20,
+            "Name": "RTStand_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 30.0
+        },
+        {
+            "Index": 21,
+            "Name": "Run_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 30.0
+        },
+        {
+            "Index": 22,
+            "Name": "Run_End_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 30.0
+        },
+        {
+            "Index": 23,
+            "Name": "Skill_01_1_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 99.00000000000012
+        },
+        {
+            "Index": 24,
+            "Name": "Skill_01_2_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 66.0
+        },
+        {
+            "Index": 25,
+            "Name": "StandUp_B_Belatos_Twohadnedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 49.0
+        },
+        {
+            "Index": 26,
+            "Name": "StandUp_F_Belatos_Twohadnedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 57.0
+        },
+        {
+            "Index": 27,
+            "Name": "Tired_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 138.0
+        },
+        {
+            "Index": 28,
+            "Name": "Wait_Belatos_Twohandedsword",
+            "Acceleration": 30.0,
+            "TransitionTime": 0.25,
+            "Duration": 40.0
+        }
+    ]
+}

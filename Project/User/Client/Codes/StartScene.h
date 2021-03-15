@@ -19,7 +19,7 @@ public:
 	virtual void Update(const float DeltaTime) & override;
 	virtual void Render() & override;
 private:
-	bool bLogo{ true };
+	bool bGameStart = false;
 	IDirect3DVertexBuffer9* LogoVtxBuf{ nullptr };
 	IDirect3DTexture9* LogoTexture{ nullptr };
 	Engine::ShaderFx* Sample{nullptr};

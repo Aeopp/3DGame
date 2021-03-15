@@ -56,6 +56,7 @@ namespace Engine
 		Vector4 SelectColor{ 1.0f,0.352f,0.307f,1.0f };
 		Vector4 NeighborColor{ 0.784f,0.693f,0.784f,0.5f };
 		Vector4 DefaultColor{ 0.307f,0.648f,0.920f,0.309f };
+		bool bDebugRender = false;
 	private:
 		Matrix World = FMath::Identity();
 		Engine::ShaderFx* ForwardShaderFx { nullptr };

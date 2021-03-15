@@ -26,7 +26,11 @@ public:
 
 	virtual std::function< SpawnReturnValue(const SpawnParam&)> 
 		PrototypeEdit() & override;
+
+	float GetDamage()const& { return Damage;  };
+	void SetDamage(const float Damage)&   { this->Damage = Damage;  };
 private:
+	float Damage = 1000.f;
 	IDirect3DDevice9* Device{ nullptr };
 };
 

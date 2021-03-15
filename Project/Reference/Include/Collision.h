@@ -52,7 +52,6 @@ namespace Engine
 
 		OffsetInformation _OffsetInfo{};
 	private:
-
 		IDirect3DDevice9* Device{ nullptr };  
 		class Transform* OwnerTransform{ nullptr };
 		std::set<CollisionTag> PushCollisionables;

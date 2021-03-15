@@ -12,4 +12,5 @@ inline auto& RefResourceSys() { return *Engine::Management::Instance->_ResourceS
 inline auto& RefShaderSys() { return *Engine::Management::Instance->_ShaderManager; };
 inline auto& RefNaviMesh() { return *Engine::Management::Instance->_NaviMesh; };
 inline auto& RefRenderer() { return *Engine::Management::Instance->_Renderer; };
+inline auto& RefTimer() { return *Engine::Management::Instance->_Timer; };
 

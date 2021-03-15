@@ -147,8 +147,8 @@ void Engine::SkeletonMesh::Render(Engine::Renderer* const _Renderer)&
 	Fx->SetInt("VTFPitch", VTFPitch);
 	Super::Render(_Renderer);
 
-	if (bBoneDebug)
-	{
+	
+
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 		Device->SetRenderState(D3DRS_ZENABLE, FALSE);
 		auto& ResourceSys = ResourceSystem::Instance;
@@ -159,7 +159,6 @@ void Engine::SkeletonMesh::Render(Engine::Renderer* const _Renderer)&
 		}
 		Device->SetRenderState(D3DRS_ZENABLE, TRUE);
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
-	}
 }
 void Engine::SkeletonMesh::RenderDeferredAlbedoNormalVelocityDepthSpecularRim(Engine::Renderer* const _Renderer)&
 {
@@ -168,7 +167,7 @@ void Engine::SkeletonMesh::RenderDeferredAlbedoNormalVelocityDepthSpecularRim(En
 	Fx->SetInt("VTFPitch", VTFPitch);
 	Super::RenderDeferredAlbedoNormalVelocityDepthSpecularRim(_Renderer);
 
-	if (bBoneDebug)
+	if (Engine::Global::bDebugMode)
 	{
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 		Device->SetRenderState(D3DRS_ZENABLE, FALSE);
@@ -181,6 +180,7 @@ void Engine::SkeletonMesh::RenderDeferredAlbedoNormalVelocityDepthSpecularRim(En
 		Device->SetRenderState(D3DRS_ZENABLE, TRUE);
 		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 	}
+	
 }
 void Engine::SkeletonMesh::RenderShadowDepth(Engine::Renderer* const _Renderer)&
 {

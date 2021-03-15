@@ -33,8 +33,7 @@ namespace Engine
 	private:
 		std::set<uint32> DeleteCollisionIDs{};
 		std::unordered_map<uint32, class Collision*> CollisionCompIDMap{};
-		std::map<CollisionTag, std::vector<class Collision*> >
-			CollisionCompMap{};
+		std::map<CollisionTag, std::vector<class Collision*> >CollisionCompMap{};
 	};
 }
 

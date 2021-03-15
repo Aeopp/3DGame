@@ -45,8 +45,7 @@ std::function < Engine::Object::SpawnReturnValue
 Monster::PrototypeEdit()&
 {
 	return std::function<SpawnReturnValue(const SpawnParam&)>();
-}
-;
+};
 
 void Monster::Event()&
 {
@@ -108,8 +107,8 @@ void Monster::LateUpdate(const float DeltaTime)&
 	if (Location.y < -100.f)
 	{
 		auto& Control = RefControl();
-		FSMControlInformation FSMControlInfo
-		{ _Transform  , GetComponent<Engine::SkeletonMesh>(), DeltaTime };
+	/*	FSMControlInformation FSMControlInfo
+		{ _Transform  , GetComponent<Engine::SkeletonMesh>(), DeltaTime };*/
 		// JumpDownTransition(FSMControlInfo);
 	}
 
@@ -140,6 +139,27 @@ void Monster::HitEnd(Object* const Target)&
 	Super::HitEnd(Target); 
 }
 
+float Monster::TakeDamage(const float Damage)& 
+{
+	return _Status.HP -= std::fabsf(Damage);
+}
+
+bool Monster::IsAttackRange(const Vector3& TargetLocation)
+{
+	return FMath::Length(GetComponent<Engine::Transform>()->GetLocation() - TargetLocation) < AttackRange;
+}
+
 void Monster::FSM(const float DeltaTime)&
 {
+
+}
+
+void Monster::LockingToWardsFromDirection(Vector3 Direction)&
+{
+	Direction = FMath::Normalize(Direction);
+	auto*const _Tranfrom=GetComponent<Engine::Transform>(); 
+	Vector3 Rotation  = _Tranfrom->GetRotation();
+	Rotation.y = std::atan2f(Direction.x, Direction.z) - FMath::PI;
+	_Tranfrom->SetRotation(Rotation);
+	
 }

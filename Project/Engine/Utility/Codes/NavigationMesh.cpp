@@ -584,7 +584,7 @@ void Engine::NavigationMesh::Initialize(IDirect3DDevice9* Device)&
 
 void Engine::NavigationMesh::Render(IDirect3DDevice9* const Device)&
 {
-	if (Engine::Global::bDebugMode)
+	if (Engine::Global::bDebugMode && bDebugRender)
 	{
 		std::set<uint32> FilterAfterNeighborKeys{};
 
