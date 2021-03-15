@@ -71,7 +71,6 @@ void PlayerWeapon::Initialize(
 		static_cast<Engine::GSphere* const>(_Collision->_Geometric.get())->MakeDebugCollisionSphere(Device);*/
 	}
 
-
 	_Collision->RefCollisionables().insert(
 		{
 			Engine::CollisionTag::Enemy 
@@ -81,6 +80,8 @@ void PlayerWeapon::Initialize(
 		{
 
 		});
+
+	_Collision->bCollision = false;
 }
 
 void PlayerWeapon::PrototypeInitialize(IDirect3DDevice9* const Device)&

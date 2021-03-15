@@ -101,8 +101,6 @@ void Player::Initialize(
 	       Engine::CollisionTag::Enemy
 		});
 
-
-
 	std::shared_ptr<PlayerHead> _PlayerHead = 
 		RefManager().NewObject<Engine::NormalLayer, PlayerHead>(L"Static", Name+L"_Head",
 			Vector3{ 1,1,1 },
@@ -127,11 +125,13 @@ void Player::Initialize(
 
 	auto& Manager = RefManager(); 
 
-	
-	PlayerTargetInfo.DistancebetweenTarget = 142.8f;
+	PlayerTargetInfo.CurrentDistancebetweenTarget = 780.f;
+	PlayerTargetInfo.DistancebetweenTarget = 644.f;
 	PlayerTargetInfo.TargetLocationOffset = PlayerCameraTargetLocationOffset;
 	PlayerTargetInfo.TargetObject = this;
-	PlayerTargetInfo.ViewDirection = { -0.0120002348f,-0.9999893427f,-0.00832065567f };
+	PlayerTargetInfo.ViewDirection = { -0.224299625f,-0.518758416f,0.824972391f};
+	PlayerTargetInfo.CurrentViewDirection = {-0.224303931f,-0.518762290f,0.824968755f};
+	PlayerTargetInfo.CurrentTargetLocation = { 102.264305f,28.0000954f,-100.273598f};
 	PlayerTargetInfo.RotateResponsiveness = 0.01f;
 	PlayerTargetInfo.ZoomInOutScale = 0.1f;
 	PlayerTargetInfo.MaxDistancebetweenTarget = 150.f;
@@ -149,7 +149,6 @@ void Player::Initialize(
 
 	auto&  _NaviMesh  = RefNaviMesh();
 	Vector2 SpawnLocation2D = {SpawnLocation.x, SpawnLocation.z};
-
 
 	Engine::Transform::PhysicInformation InitPhysic;
 	InitPhysic.Gravity = 220.f;
@@ -170,8 +169,6 @@ void Player::Initialize(
 	};
 
 	_Transform->EnablePhysic(InitPhysic);
-
-	
 };
 
 void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
@@ -851,11 +848,17 @@ void Player::BasicCombo01State(const FSMControlInformation& FSMControlInfo)&
 		MoveFromController(FSMControlInfo, *bMoveInfo, StateableSpeed.Attack);
 	}
 
+	if(AnimTimeNormal >= 0.08f)
+	{
+
+	}
+
 	if (AnimTimeNormal < 0.7f)
 	{
 		if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
 		{
 			BasicCombo02Transition(FSMControlInfo);
+			return;
 		}
 	}
 

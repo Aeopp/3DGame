@@ -254,6 +254,7 @@ private:
 	Vector3 DashDirection{ 0,0,1 };
 	bool bControl    {false};
 	float PlayerMoveDirectionInterpolateAcceleration = 7.7f;
+	class PlayerWeapon* CurrentWeapon{ nullptr };
 	Engine::ThirdPersonCamera* CurrentTPCamera{ nullptr };
 	State   CurrentState{ Player::State::CombatWait};
 	IDirect3DDevice9* Device{ nullptr };
