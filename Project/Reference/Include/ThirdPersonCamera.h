@@ -40,6 +40,7 @@ namespace Engine
 		inline Engine::ThirdPersonCamera::TargetInformation& RefTargetInformation()& { return _TargetInformation; };
 		void SetUpTarget(const TargetInformation& TargetInformationParam)&;
 	public:
+		bool bCameraUpdate = true;
 		float FovY{ 0.0f };
 		float Far{ 1000.f };
 	protected:

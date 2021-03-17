@@ -39,8 +39,6 @@ namespace Engine
 		virtual void RenderShadowDepth(Engine::Renderer* const _Renderer)& override;
 		virtual void RenderReady(Engine::Renderer* const _Renderer)& override;
 		virtual void RenderVelocity(Engine::Renderer* const _Renderer) & override;
-		
-
 	public:
 		bool bDepthShadow{ true };
 		static const inline Property TypeProperty = Property::Render;

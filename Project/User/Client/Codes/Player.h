@@ -171,13 +171,13 @@ private:
 
 	void AirCombo01State(const FSMControlInformation& FSMControlInfo)&;
 	void AirCombo01Transition(const FSMControlInformation& FSMControlInfo)&;
-	void AirCombo02State(const FSMControlInformation& FSMControlInfo)&;
-	void AirCombo02Transition(const FSMControlInformation& FSMControlInfo)&;
-	void AirCombo03State(const FSMControlInformation& FSMControlInfo)&;
-	void AirCombo03Transition(const FSMControlInformation& FSMControlInfo)&;
-	void AirCombo04State(const FSMControlInformation& FSMControlInfo)&;
-	void AirCombo04Transition(const FSMControlInformation& FSMControlInfo)&;
-	void AirCombo04LandingState(const FSMControlInformation& FSMControlInfo)&;
+	void AirCombo02State(            const FSMControlInformation& FSMControlInfo)&;
+	void AirCombo02Transition(       const FSMControlInformation& FSMControlInfo)&;
+	void AirCombo03State(            const FSMControlInformation& FSMControlInfo)&;
+	void AirCombo03Transition(       const FSMControlInformation& FSMControlInfo)&;
+	void AirCombo04State(            const FSMControlInformation& FSMControlInfo)&;
+	void AirCombo04Transition(       const FSMControlInformation& FSMControlInfo)&;
+	void AirCombo04LandingState(     const FSMControlInformation& FSMControlInfo)&;
 	void AirCombo04LandingTransition(const FSMControlInformation& FSMControlInfo)&;
 
 	void ComboEx01State(    const FSMControlInformation& FSMControlInfo)&;
@@ -221,6 +221,18 @@ private:
 	void LeafAttackLandingState(const FSMControlInformation& FSMControlInfo)&;
 	void LeafAttackLandingTransition(const FSMControlInformation& FSMControlInfo)&;
 
+	//C1 0.08 ~0.13
+	//C20.14~0.18
+	//C3 0.11~0.26o
+	//Ex01 0.11 0.26
+	//Ex02 Start o0.3~1.0
+	//Ex02 end 0.08 0.145
+	//Dashcombo 0.1 0.2
+	//AC1 0.16 0.235
+	//ac2 0.18 0.35
+	//ac3 0.06 0.23
+	//ac4 0.3 1.0
+
 private:
 	std::optional<Player::MoveControlInformation> 
 		 CheckTheMoveableState  (const FSMControlInformation& FSMControlInfo)&;
@@ -235,15 +247,21 @@ private:
 
 	bool IsSpeedInTheAir(const float YAxisVelocity)&;
 private:
+	void WeaponPutDissolveStart()&;
 	void WeaponAcquisition()&;
 	void WeaponPut()&;
 	void WeaponHand()&;
+private:
+	class PlayerWeapon* const  GetWeapon()const &;
+
 public:
 	bool bInvincibility = false;
 	Vector3 CurrentMoveDirection{ 0.f,0.f,1.f };
 	StateDuringSpeed StateableSpeed{};
 	Engine::ThirdPersonCamera::TargetInformation PlayerTargetInfo{};
+	Engine::ThirdPersonCamera* CurrentTPCamera{ nullptr };
 private:
+	float WeaponDissolveTime = -1.f;
 	Vector3 NPCInteractionLocationOffset{ -7.080f,14.159f,3.540f};
 	Vector3 PlayerCameraTargetLocationOffset{ 0.f,10.f,0.f };
 	bool bNPCInteraction = false;
@@ -255,7 +273,6 @@ private:
 	bool bControl    {false};
 	float PlayerMoveDirectionInterpolateAcceleration = 7.7f;
 	class PlayerWeapon* CurrentWeapon{ nullptr };
-	Engine::ThirdPersonCamera* CurrentTPCamera{ nullptr };
 	State   CurrentState{ Player::State::CombatWait};
 	IDirect3DDevice9* Device{ nullptr };
 };

@@ -74,6 +74,13 @@ void Engine::Light::Render(
 	///
 	Fx->SetVector("LightLocation",&_LightInfo.Location);
 
+	// 외곽선 검출
+	const float MapSizeX = static_cast<float> (Engine::Global::ClientSize.first);
+	const float MapSizeY = static_cast<float> (Engine::Global::ClientSize.second);
+
+	Fx->SetFloat("MapSizeX", MapSizeX);
+	Fx->SetFloat("MapSizeY", MapSizeY);
+	// 
 	const Vector4 CameraLocation4D = FMath::ConvertVector4(CameraLocation, 1.f);
 
 	Fx->SetVector("CameraLocation", &CameraLocation4D);

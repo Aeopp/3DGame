@@ -31,7 +31,7 @@
 #include "Renderer.h"
 #include "ObjectEdit.h"
 #include "Timer.h"
-
+#include "Sound.h"
 
 
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
@@ -152,6 +152,7 @@ void StartScene::Event()&
 				ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" / "BelatosWave1.json");
 				return true;
 				});
+			RefSound().Play("BGM_OutroCinematic_01_A", 1.f, true, true);
 
 			bGameStart = true;
 		}

@@ -12,7 +12,7 @@ public:
 public:
 	struct StateDuringSpeed
 	{
-		float Run = 5.f;
+		float Run = 25.f;
 	};
 	enum class State : uint8
 	{
@@ -21,8 +21,36 @@ public:
 		RunEnd,
 		Skill1st,
 		Skill2nd,
-		Respawn ,
-		RTStand ,
+		RTStand,
+
+		Air,
+
+		DownBack,//Down_B_Belatos_Twohandedsword
+		DownFront,//Down_F_Belatos_Twohandedsword
+		Respawn,//Respawn_Belatos_Twohandedsword
+
+		RTChaseBigBack,//RTChase_Big_B_Belatos_Twohandedsword
+		RTChaseBigFront,//RTChase_Big_F_Belatos_Twohandedsword
+		RTChaseBigLeft,//RTChase_Big_L_Belatos_Twohandedsword
+		RTChaseBigRight,//RTChase_Big_R_Belatos_Twohandedsword
+		
+		RTChaseSmallBack,//RTChase_Small_B_Belatos_Twohandedsword
+
+		RTDownAirFallBack,//RTDown_Air_Fall_B_Belatos_Twohandedsword
+		RTDownAirFallFront,//RTDown_Air_Fall_F_Belatos_Twohandedsword
+		RTDownAirLandingBack,//RTDown_Air_Landing_B_Belatos_Twohandedsword
+		RTDownAirLandingBackLeft,//RTDown_Air_Landing_B_L_Belatos_Twohandedsword
+
+		RTDownBack,//RTDown_B_Belatos_Twohandedsword
+		RTDownFront,//RTDown_F_Belatos_Twohandedsword
+		RTStandAirBigFront,//RTStand_Air_Big_F_Belatos_Twohandedsword
+		RTStandAirBigBack,//RTStand_Air_Big_B_Belatos_Twohandedsword
+		RTStandAirFall,//RTStand_Air_Fall_Belatos_Twohandedsword
+		RTStandAirLanding,//RTStand_Air_Landing_Belatos_Twohandedsword
+		RTStandAirSmall,//RTStand_Air_Small_Belatos_Twohandedsword
+
+		StandUpBack,//StandUp_B_Belatos_Twohadnedsword
+		StandUpFront,//StandUp_F_Belatos_Twohadnedsword 
 	};
 	virtual void FSM(const float DeltaTime)& override;
 	virtual void Edit()& override;
@@ -59,9 +87,95 @@ private:
 	void RespawnTransition(const FSMControlInformation& FSMControlInfo)&;
 	void RTStandState(const FSMControlInformation& FSMControlInfo)&;
 	void RTStandTransition(const FSMControlInformation& FSMControlInfo)&;
+
+	void AirState(const FSMControlInformation& FSMControlInfo)&;
+	void AirTransition(const FSMControlInformation& FSMControlInfo)&;
+
+	// Ω√¿€
+	void DownBackState(const FSMControlInformation& FSMControlInfo)&;
+	void DownBackTransition(const FSMControlInformation& FSMControlInfo)&;
+
+	void DownFrontState(const FSMControlInformation& FSMControlInfo)&;
+	void DownFrontTransition(const FSMControlInformation& FSMControlInfo)&;
+
+	void RTChaseSmallBackState(const FSMControlInformation& FSMControlInfo)&;
+	void RTChaseSmallBackTransition(const FSMControlInformation& FSMControlInfo)&;
+	
+	void RTChaseBigBackState(const FSMControlInformation& FSMControlInfo)&;
+	void RTChaseBigBackTransition(const FSMControlInformation& FSMControlInfo)&;
+
+	
+	void RTChaseBigFrontState(const FSMControlInformation& FSMControlInfo)&;
+	void RTChaseBigFrontTransition(const FSMControlInformation& FSMControlInfo)&;
+
+	//
+	void RTChaseBigLeftState(const FSMControlInformation& FSMControlInfo)&;
+	void RTChaseBigLeftTransition(const FSMControlInformation& FSMControlInfo)&;
+
+	
+	//
+	void RTChaseBigRightState(const FSMControlInformation& FSMControlInfo)&;
+	void RTChaseBigRightTransition(const FSMControlInformation& FSMControlInfo)&;
+
+	//
+	void RTDownAirFallBackState(const FSMControlInformation& FSMControlInfo)&;
+	void RTDownAirFallBackTransition(const FSMControlInformation& FSMControlInfo)&;
+
+	////
+	void RTDownAirFallFrontState(const FSMControlInformation& FSMControlInfo)&;
+	void RTDownAirFallFrontTransition(const FSMControlInformation& FSMControlInfo)&;
+
+	////
+	void RTDownAirLandingBackState(const FSMControlInformation& FSMControlInfo)&;
+	void RTDownAirLandingBackTransition(const FSMControlInformation& FSMControlInfo)&;
+
+	////
+	void RTDownAirLandingBackLeftState(const FSMControlInformation& FSMControlInfo)&;
+	void RTDownAirLandingBackLeftTransition(const FSMControlInformation& FSMControlInfo)&;
+
+	////
+	void RTDownBackState(const FSMControlInformation& FSMControlInfo)&;
+	void RTDownBackTransition(const FSMControlInformation& FSMControlInfo)&;
+
+	////
+	void RTDownFrontState(const FSMControlInformation& FSMControlInfo)&;
+	void RTDownFrontTransition(const FSMControlInformation& FSMControlInfo)&;
+	
+	//
+	void RTStandAirBigFrontState(const FSMControlInformation& FSMControlInfo)&;
+	void RTStandAirBigFrontTransition(const FSMControlInformation& FSMControlInfo)&;
+
+	//
+	void RTStandAirBigBackState(const FSMControlInformation& FSMControlInfo)&;
+	void RTStandAirBigBackTransition(const FSMControlInformation& FSMControlInfo)&;
+
+
+	//
+	void RTStandAirFallState(const FSMControlInformation& FSMControlInfo)&;
+	void RTStandAirFallTransition(const FSMControlInformation& FSMControlInfo)&;
+
+
+	//
+	void RTStandAirLandingState(const FSMControlInformation& FSMControlInfo)&;
+	void RTStandAirLandingTransition(const FSMControlInformation& FSMControlInfo)&;
+
+	//
+	void RTStandAirSmallState(const FSMControlInformation& FSMControlInfo)&;
+	void RTStandAirSmallTransition(const FSMControlInformation& FSMControlInfo)&;
+
+	//
+	void StandUpBackState(const FSMControlInformation& FSMControlInfo)&;
+	void StandUpBackTransition(const FSMControlInformation& FSMControlInfo)&;
+
+	//
+	void StandUpFrontState(const FSMControlInformation& FSMControlInfo)&;
+	void StandUpFrontTransition(const FSMControlInformation& FSMControlInfo)&;
 private:
 	void WeaponAttackCollisionSweep(const FSMControlInformation& FSMControlInfo)&;
+	void DissolveStart(const float SliceAmountSpeed, const float SliceAmoutStart)&;
 private:
+	
+	float SliceAmountSpeed = 1.f;
 	Vector3 WeaponLocalMin{};
 	Vector3 WeaponLocalMax{};
 	Engine::Bone* WeaponHandleBone{ nullptr };

@@ -23,6 +23,15 @@ float ShadowDepthMapHeight;
 float ShadowDepthMapWidth;
 float ShadowDepthBias;
 
+// 외곽선 검출
+float OutlineMask[9] = 
+    {   -1,-1,-1 ,
+        -1, 8,-1 ,
+        -1,-1,-1    };
+float OuelineCoord[3] = { -1, 0, +1 };
+float MapSizeX;
+float MapSizeY;
+// 
 #define PCFCount 3
 
 texture Albedo3_Contract1;
@@ -134,7 +143,7 @@ PS_OUT PS_MAIN(PS_IN In)
     WorldLocation /= WorldLocation.w;
     
     
-     float3 Albedo   = Albedo3_Contract1.rgb;
+    float3 Albedo   = Albedo3_Contract1.rgb;
     
     float4 LightClipPosition = mul(float4(WorldLocation.xyz, 1.f), LightViewProjection);
     LightClipPosition.xyz = LightClipPosition.xyz / LightClipPosition.w;
@@ -172,9 +181,28 @@ PS_OUT PS_MAIN(PS_IN In)
     float4 Normal3_Power1 = tex2D(Normal3_Power1Sampler, In.UV);
     float4 _CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1 = tex2D(CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1Sampler, In.UV);
         
-    float Contract = Albedo3_Contract1.a;
+    float  Contract = Albedo3_Contract1.a;
         
     float3 Normal = Normal3_Power1.rgb;
+    // 외곽선 추출 시작.
+    // 월드 노말에서 추출 . 
+    bool bOutlineApply = false;
+    float3 OutlineColor = 0;
+    float3 Ret = 0;
+    for (int i = 0; i < 9; ++i)
+    {
+        float2 CurrentCoordAddtive = float2(
+        OuelineCoord[i % 3] / MapSizeX, OuelineCoord[i / 3] / MapSizeY);
+        
+        float3 ViewNormal = mul(float4(tex2D(Normal3_Power1Sampler, In.UV + CurrentCoordAddtive).xyz, 0.f), View).xyz;
+        
+        OutlineColor += (OutlineMask[i] * ViewNormal).xyz;
+    }
+    float Gray = 1 - (OutlineColor.r * 0.3 + OutlineColor.g * 0.59 + OutlineColor.b * 0.11);
+    Ret= float3(Gray, Gray, Gray);
+    // bOutlineApply = Gray < 1.1;
+    
+    
     float Power = Normal3_Power1.a;
        
     
@@ -211,7 +239,7 @@ PS_OUT PS_MAIN(PS_IN In)
   
     float Diffuse = saturate(dot(-LightDirectionNormal, Normal));
     Diffuse = pow(((Diffuse * 0.5) + 0.5), Contract);
-    // Diffuse = ceil(Diffuse * 5.f) / 5.f;
+    Diffuse = ceil(Diffuse * 5.f) / 5.f;
     float3 HalfVec = normalize((-LightDirectionNormal) + ViewDirection);
     Specular = saturate(dot(HalfVec, Normal));
     Specular = pow((Specular),(Power));
@@ -227,6 +255,12 @@ PS_OUT PS_MAIN(PS_IN In)
     // 가까우면 1 멀면 0 
     float FogFactor = saturate((FogDistance - Distance) / FogDistance);
     Out.BackBufferColor.rgb = Out.BackBufferColor.rgb * (FogFactor) + ((1.0f - FogFactor) * FogColor);
+    // 외곽선 더하기
+    if (bOutlineApply)
+    {
+        Out.BackBufferColor.rgb = Ret;
+    }
+        
     
     Out.DeferredTargetColor = Out.BackBufferColor;
     

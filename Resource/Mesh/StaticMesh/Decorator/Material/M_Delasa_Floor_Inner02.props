@@ -8,8 +8,8 @@
         "DefaultDetailDiffuse": "EmissiveMap"
     },
     "Contract": 1,
-    "RimInnerWidth": 0.052000001072883609,
-    "RimOuterWidth": 0.12800000607967378,
+    "RimInnerWidth": 0.0,
+    "RimOuterWidth": 0.11599999666213989,
     "Power": 10.217000007629395,
     "SpecularIntencity": 0.4950000047683716,
     "DetailScale": 1.0,
@@ -28,5 +28,6 @@
         0.10000000149011612,
         1.0
     ],
-    "AlphaAddtive": 0.05400000140070915
+    "AlphaAddtive": 0.05400000140070915,
+    "bForwardRender": false
 }

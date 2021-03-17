@@ -76,9 +76,8 @@ PS_OUT PS_MAIN(PS_IN In)
   
     float4  Color = float4(0,0,0,0);
     
-    
         /////////
-        int NumBlurSample = 32;
+        int NumBlurSample = 16;
         float4 Velocity = tex2D(VelocityMap_Sampler, In.UV);
     
         if (length(Velocity.xy) > MotionBlurLengthMin)

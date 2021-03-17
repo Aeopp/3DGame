@@ -47,6 +47,10 @@ namespace Engine
 		const RenderInformation& GetCurrentRenderInformation() const& {return CurrentRenderInformation; };
 		const RenderInformation& GetPrevRenderInformation() const& { return PrevRenderInformation; };
 		Engine::Light _DirectionalLight{};
+
+		IDirect3DTexture9* GetBurnTexture()const& { return BurnTexture;  };
+		IDirect3DTexture9* GetDissolveTexture()const& { return DissolveTexture;  };
+		IDirect3DTexture9* GetBlueBurnTexture() const& { return BlueBurnTexture;  };
 	private:
 		void FrustumInCheck()&;
 		void RenderReady()&;
@@ -82,6 +86,9 @@ namespace Engine
 		float MotionBlurDepthBias = 0.0001f;
 		float MotionBlurLengthMin = 0.000f;
 	private:
+		IDirect3DTexture9* BurnTexture{ nullptr };
+		IDirect3DTexture9* BlueBurnTexture{ nullptr };
+		IDirect3DTexture9* DissolveTexture{ nullptr };
 		IDirect3DSurface9* CurBackBufSurface{ nullptr };
 		IDirect3DSurface9* CurBackDepthStencil{ nullptr };
 		D3DVIEWPORT9 CurViewPort{};

@@ -90,7 +90,30 @@ void Engine::Mesh::RenderDeferredAlbedoNormalVelocityDepthSpecularRim(
 	const auto& PrevRenderInfo = _Renderer->GetPrevRenderInformation();
 
 	Device->SetVertexDeclaration(VtxDecl);
-	auto Fx = DeferredDefaultFx.GetHandle();
+	ID3DXEffect* Fx = nullptr;
+
+	if (_DissolveInfo.has_value())
+	{
+		Fx = DeferredDissolveFx.GetHandle();
+		Fx->SetFloat("BurnSize", _DissolveInfo->BurnSize);
+		Fx->SetFloat("EmissionAmount", _DissolveInfo->EmissionAmount);
+		Fx->SetFloat("SliceAmount",_DissolveInfo->SliceAmount); 
+		Fx->SetTexture("DissolveMap", _Renderer->GetDissolveTexture());
+
+		if (_DissolveInfo->bBlueBurn)
+		{
+			Fx->SetTexture("BurnMap", _Renderer->GetBlueBurnTexture());
+		}
+		else
+		{
+			Fx->SetTexture("BurnMap", _Renderer->GetBurnTexture());
+		}
+	}
+	else
+	{
+		Fx = DeferredDefaultFx.GetHandle();
+	}
+
 	Fx->SetMatrix("View", &RenderInfo.View);
 	Fx->SetMatrix("Projection", &RenderInfo.Projection);
 	Fx->SetMatrix("World", &OwnerWorld);
@@ -98,6 +121,7 @@ void Engine::Mesh::RenderDeferredAlbedoNormalVelocityDepthSpecularRim(
 	const Matrix PrevWorldViewProjection =PrevWorld* PrevRenderInfo.ViewProjection;
 	Fx->SetMatrix("PrevWorldViewProjection", &PrevWorldViewProjection);
 
+	
 
 	uint32 Pass = 0u;
 	Fx->Begin(&Pass,NULL);

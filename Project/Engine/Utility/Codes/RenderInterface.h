@@ -4,8 +4,7 @@
 #include "FMath.hpp"
 #include "Frustum.h"
 #include "ShaderFx.h"
-
-
+#include <optional>
 
 namespace Engine
 {
@@ -48,11 +47,22 @@ namespace Engine
 		bool bCurrentFrustumIn{ true };
 		bool bMotionBlur{ true };
 		class Transform* RenderObjectTransform{ nullptr };
+
+		
+		struct DissolveInfo
+		{
+			float SliceAmount = 0.f;
+			float BurnSize = 0.3f;
+			float EmissionAmount = 3.f;
+			 bool bBlueBurn = true;
+		};
+		std::optional<DissolveInfo> _DissolveInfo{};
 	protected:
 		Engine::ShaderFx VelocityFx{};
 		Engine::ShaderFx ForwardShaderFx{};
 		Engine::ShaderFx DepthShadowFx{};
 		Engine::ShaderFx DeferredDefaultFx{};
+		Engine::ShaderFx DeferredDissolveFx{};
 		std::string DebugName{};
 		Group _Group;
 		

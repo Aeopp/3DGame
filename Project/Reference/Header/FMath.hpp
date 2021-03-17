@@ -113,6 +113,7 @@ public:
 	static inline bool  IsPlaneToSphere(const PlaneInfo& Lhs,
 		const Sphere& Rhs, float& CrossingArea);
 
+	static inline bool IsRange(const float Begin, const float End , const float X);
 
 	static inline bool Intersect_1D_Line(const float LhsMin, const float LhsMax, const float RhsMin, const float RhsMax);
 
@@ -162,6 +163,11 @@ inline void FMath::DebugPrintMatrix(const Matrix& _Matrix)
 	std::cout << std::endl;
 }
 
+inline bool FMath::IsRange(const float Begin, const float End ,
+	const float X)
+{
+	return (X >= Begin && X <= End);
+}
 inline bool FMath::Equal(const Vector3& Lhs, const Vector3& Rhs)
 {
 	return  (FMath::AlmostEqual(Lhs.x, Rhs.x) &&

@@ -57,8 +57,8 @@ void Engine::SkeletonMesh::Initialize(const std::wstring& ResourceName)&
 	ForwardShaderFx.Initialize(L"SkeletonSkinningDefaultFx");
 	DepthShadowFx.Initialize(L"ShadowDepthSkeletonFx");
 	DeferredDefaultFx.Initialize(L"DeferredAlbedoNormalVelocityDepthSpecularRimSkeletonFx");
+	DeferredDissolveFx.Initialize(L"DeferredDissolveAlbedoNormalVelocityDepthSpecularRimSkeletonFx");
 	VelocityFx.Initialize(L"VelocitySkinningFx");
-
 	RenderBoneMatricies.resize(BoneTable.size());
 }
 
@@ -142,6 +142,7 @@ void Engine::SkeletonMesh::Event(Object* Owner)&
 }
 void Engine::SkeletonMesh::Render(Engine::Renderer* const _Renderer)&
 {
+	
 	auto Fx = ForwardShaderFx.GetHandle();
 	Fx->SetTexture("VTF", BoneAnimMatrixInfo);
 	Fx->SetInt("VTFPitch", VTFPitch);
@@ -162,7 +163,18 @@ void Engine::SkeletonMesh::Render(Engine::Renderer* const _Renderer)&
 }
 void Engine::SkeletonMesh::RenderDeferredAlbedoNormalVelocityDepthSpecularRim(Engine::Renderer* const _Renderer)&
 {
-	auto Fx = DeferredDefaultFx.GetHandle();
+	ID3DXEffect* Fx = nullptr;
+
+	if (_DissolveInfo.has_value())
+	{
+		Fx = DeferredDissolveFx.GetHandle();
+	}
+	else
+	{
+		Fx = DeferredDefaultFx.GetHandle();
+
+	}
+
 	Fx->SetTexture("VTF", BoneAnimMatrixInfo);
 	Fx->SetInt("VTFPitch", VTFPitch);
 	Super::RenderDeferredAlbedoNormalVelocityDepthSpecularRim(_Renderer);

@@ -57,6 +57,7 @@ void Monster::Event()&
 void Monster::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
+	CurInvincibilityTime -= DeltaTime;
 	FSM(DeltaTime);
 }
 
@@ -85,20 +86,24 @@ void Monster::LateUpdate(const float DeltaTime)&
 				CurrentCell = bCellResult->Target;
 				_Transform->RefPhysic().CurrentGroundY = bCellResult->ProjectLocation.y;
 			}
-
 			else if (_CompareType == Engine::Cell::CompareType::Stop)
 			{
 				if (CurrentCell->bEnableJumping)
 				{
-					CurrentCell = nullptr;
+					CurrentCell = nullptr; 
 					_Transform->RefPhysic().CurrentGroundY = -1000.f;
 				}
 				else
 				{
 					CurrentCell = bCellResult->Target;
 					_Transform->RefPhysic().CurrentGroundY = bCellResult->ProjectLocation.y;
+				
 					_Transform->SetLocation(
-						{ bCellResult->ProjectLocation.x , Location.y ,bCellResult->ProjectLocation.z });
+						Vector3{ _Transform->PrevLocation.x ,
+						_Transform->GetLocation().y ,
+						_Transform->PrevLocation.z });
+				/*	_Transform->SetLocation(
+						{ bCellResult->ProjectLocation.x , Location.y ,bCellResult->ProjectLocation.z });*/
 				}
 			}
 		}
@@ -121,6 +126,11 @@ void Monster::LateUpdate(const float DeltaTime)&
 
 void Monster::Edit()&
 {
+	if (Engine::Global::bDebugMode)
+	{
+		ImGui::InputFloat("DamageToForceFactor", &DamageToForceFactor);
+		ImGui::InputFloat("AirDamageToForceFactor", &AirDamageToForceFactor);
+	}
 }
 
 
@@ -141,6 +151,7 @@ void Monster::HitEnd(Object* const Target)&
 
 float Monster::TakeDamage(const float Damage)& 
 {
+	CurInvincibilityTime = ResetInvincibilityTime;
 	return _Status.HP -= std::fabsf(Damage);
 }
 
@@ -163,3 +174,10 @@ void Monster::LockingToWardsFromDirection(Vector3 Direction)&
 	_Tranfrom->SetRotation(Rotation);
 	
 }
+
+
+bool Monster::CheckTheLandingStatable(const float CurLocationY, const float CurGroundY)&
+{
+	const float      CorrectionLocationY = (CurLocationY - LandCheckHighRange);
+	return (CorrectionLocationY < CurGroundY) && ((CurGroundY - CorrectionLocationY) >= 1.f);
+};

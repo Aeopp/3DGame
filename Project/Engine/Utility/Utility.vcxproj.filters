@@ -274,6 +274,12 @@
     <ClInclude Include="Codes\NavigationMesh.h">
       <Filter>Utility\NavigationMesh</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Resource\Shader\DeferredDissolveAlbedoNormalVelocityDepthSpecularRimFx.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Resource\Shader\DeferredDissolveAlbedoNormalVelocityDepthSpecularRimSkeletonFx.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">

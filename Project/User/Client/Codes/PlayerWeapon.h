@@ -27,10 +27,21 @@ public:
 	virtual std::function< SpawnReturnValue(const SpawnParam&)> 
 		PrototypeEdit() & override;
 
-	float GetDamage()const& { return Damage;  };
-	void SetDamage(const float Damage)&   { this->Damage = Damage;  };
+	auto GetDamage()const& { return DamageRange;  };
+	void SetDamage(const std::pair<float,float>& DamageRange )&   { this->DamageRange = DamageRange;  };
+
+	void DissolveStart(const float SliceAmountSpeed,
+					   const float SliceAmountStart)&;
+
+	void StartAttack(Engine::Object* const AttackOwner, const float ForcePitchRad=0.0f)&;
+	void EndAttack(Engine::Object*const AttackOwner)&;
+	Engine::Object*const GetAttackOwner() const& { return AttackOwner; };
+
+	float ForcePitchRad = 0.0f;
 private:
-	float Damage = 1000.f;
+	Engine::Object* AttackOwner{ nullptr };
+	float SliceAmountSpeed = 1.f;
+	std::pair<float, float >DamageRange{ 700.f, 1000.f };
 	IDirect3DDevice9* Device{ nullptr };
 };
 

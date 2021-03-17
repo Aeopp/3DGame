@@ -317,6 +317,32 @@ Engine::Landscape& Engine::Renderer::RefLandscape()&
 
 void Engine::Renderer::CreateStaticLightResource()&
 {
+	auto& ResourceSys = ResourceSystem::Instance;
+
+	if (FAILED(D3DXCreateTextureFromFile(Device.get(), 
+		 (Engine::Global::ResourcePathA/"Texture"/"dissolve.tga").c_str(), &DissolveTexture)))
+	{
+		throw std::exception(__FUNCTION__);
+	}
+
+	if (FAILED(D3DXCreateTextureFromFile(Device.get(),
+		(Engine::Global::ResourcePathA / "Texture" / "blue_burn.tga").c_str(), &BlueBurnTexture)))
+	{
+		throw std::exception(__FUNCTION__);
+	}
+
+	
+	if (FAILED(D3DXCreateTextureFromFile(Device.get(),
+		(Engine::Global::ResourcePathA / "Texture" / "burn.tga").c_str(), &BurnTexture)))
+	{
+		throw std::exception(__FUNCTION__);
+	}
+
+	
+	ResourceSys->Insert<IDirect3DTexture9>(L"Texture_Burn", BurnTexture);
+	ResourceSys->Insert<IDirect3DTexture9>(L"Texture_BlueBurn", BlueBurnTexture);
+	ResourceSys->Insert<IDirect3DTexture9>(L"Texture_Dissolve", DissolveTexture);
+
 	Engine::ShaderFx::Load(Device.get(), 
 		Engine::Global::ResourcePath / L"Shader" / L"DeferredLightFx.hlsl", L"DeferredLightFx");
 
@@ -325,7 +351,7 @@ void Engine::Renderer::CreateStaticLightResource()&
 
 
 	static std::wstring LightVertexBufferTag = L"LightVertexBuffer";
-	auto& ResourceSys = ResourceSystem::Instance;
+	
 
 	IDirect3DVertexBuffer9* LightVtxBuf{ nullptr };
 	Device->CreateVertexBuffer(sizeof(Vertex::Screen) * 4,

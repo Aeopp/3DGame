@@ -82,6 +82,8 @@ void PlayerWeapon::Initialize(
 		});
 
 	_Collision->bCollision = false;
+
+
 }
 
 void PlayerWeapon::PrototypeInitialize(IDirect3DDevice9* const Device)&
@@ -102,6 +104,15 @@ void PlayerWeapon::PrototypeInitialize(IDirect3DDevice9* const Device)&
 void PlayerWeapon::Event()&
 {
 	Super::Event();
+
+
+	if (Engine::Global::bDebugMode)
+	{
+		auto* const _StaticMesh = GetComponent<Engine::StaticMesh>();
+		ImGui::SliderFloat("SliceAmout", &_StaticMesh->_DissolveInfo->SliceAmount, 0.0f, 1.f);
+		ImGui::SliderFloat("BurnSize", &_StaticMesh->_DissolveInfo->BurnSize, 0.0f, 1.f);
+		ImGui::SliderFloat("EmissionAmount", &_StaticMesh->_DissolveInfo->EmissionAmount, 0.0f, 10.f);
+	}
 }
 
 
@@ -109,6 +120,17 @@ void PlayerWeapon::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
 
+	auto* const _StaticMesh = GetComponent<Engine::StaticMesh>();
+
+	if (_StaticMesh->_DissolveInfo)
+	{
+		_StaticMesh->_DissolveInfo->SliceAmount += DeltaTime * SliceAmountSpeed;
+
+		if (_StaticMesh->_DissolveInfo->SliceAmount >  ( 1.0f + DeltaTime * SliceAmountSpeed))
+		{
+			_StaticMesh->_DissolveInfo = std::nullopt;
+		}
+	}
 };
 
 void PlayerWeapon::HitNotify(Object* const Target, const Vector3 PushDir,
@@ -133,6 +155,7 @@ PlayerWeapon::PrototypeEdit()&
 	static uint32 SpawnID = 0u;
 
 	static bool SpawnSelectCheck = false;
+
 	ImGui::Checkbox("SpawnSelect", &SpawnSelectCheck);
 	if (SpawnSelectCheck)
 	{
@@ -152,6 +175,31 @@ PlayerWeapon::PrototypeEdit()&
 		return {};
 	}
 }
+
+void PlayerWeapon::DissolveStart(const float SliceAmountSpeed, const float SliceAmoutStart)&
+{
+	auto* const _StaticMesh = GetComponent<Engine::StaticMesh>();
+	Engine::Mesh::DissolveInfo DissolveInfo;
+	DissolveInfo.BurnSize = 0.3f;
+	DissolveInfo.EmissionAmount = 3.f;
+	DissolveInfo.SliceAmount = SliceAmoutStart;
+	_StaticMesh->_DissolveInfo = DissolveInfo;
+	this->SliceAmountSpeed = SliceAmountSpeed;
+}
+void PlayerWeapon::StartAttack(Engine::Object* const AttackOwner,const float ForcePitchRad)&
+{
+	GetComponent<Engine::Collision>()->bCollision = true;
+	this->AttackOwner = AttackOwner;
+	this->ForcePitchRad = ForcePitchRad;
+};
+
+void PlayerWeapon::EndAttack(Engine::Object* const AttackOwner)&
+{
+	GetComponent<Engine::Collision>()->bCollision = false;
+	this->AttackOwner = AttackOwner;
+	this->ForcePitchRad = 0.0f;
+};
+
 
 std::shared_ptr<Engine::Object> PlayerWeapon::GetCopyShared()&
 {

@@ -25,6 +25,7 @@ void Engine::StaticMesh::Initialize(
 	ForwardShaderFx.Initialize(L"DefaultFx");
 	DepthShadowFx.Initialize(L"ShadowDepthFx");
 	DeferredDefaultFx.Initialize(L"DeferredAlbedoNormalVelocityDepthSpecularRimFx");
+	DeferredDissolveFx.Initialize(L"DeferredDissolveAlbedoNormalVelocityDepthSpecularRimFx");
 	VelocityFx.Initialize(L"VelocityFx");
 }
 

@@ -62,6 +62,5 @@ namespace Engine
 		IDirect3DVertexBuffer9* VtxBuf{ nullptr };
 		IDirect3DIndexBuffer9* IdxBuf{ nullptr };
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr };
-		
 	};
 };

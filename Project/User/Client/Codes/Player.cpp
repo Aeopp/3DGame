@@ -27,6 +27,8 @@
 #include "PlayerHair.h"
 #include "NavigationMesh.h"
 #include "NPC.h"
+#include "StaticMesh.h"
+
 
 
 void Player::Initialize(
@@ -199,17 +201,25 @@ void Player::Event()&
 	{
 		auto& _Manager = RefManager();
 		auto  Weapons = _Manager.FindObjects<Engine::NormalLayer, PlayerWeapon>();
-		for (auto& _Weapon : Weapons)
+		for (auto& EquipTargetWeapon : Weapons)
 		{
-			if (_Weapon->GetName().find(L"PlayerWeapon") != std::wstring::npos)
+			if (EquipTargetWeapon->GetName().find(L"PlayerWeapon") != std::wstring::npos)
 			{
 				const Vector3 WeaponLocation =
-					_Weapon->GetComponent<Engine::Transform>()->GetLocation();
+					EquipTargetWeapon->GetComponent<Engine::Transform>()->GetLocation();
 
 				if (FMath::Length(WeaponLocation - _Transform->GetLocation()) < 20.f)
 				{
 					WeaponAcquisition();
-					_Weapon->Kill();
+					const float WeaponAcquisitionSpeed = (1.0f / 3.f); 
+					auto& _Manager = RefManager();
+					auto Weapon = _Manager.FindObject<Engine::NormalLayer, PlayerWeapon>(GetName() + L"_Weapon");
+					Weapon->DissolveStart(-WeaponAcquisitionSpeed, 1.f);
+
+					EquipTargetWeapon->DissolveStart(WeaponAcquisitionSpeed, 0.0f);
+					RefTimer().TimerRegist(3.0f, 0.0f, 6.1f, [EquipTargetWeapon]() {
+						EquipTargetWeapon->Kill();
+						return true;  });
 				}
 			}
 		}
@@ -271,6 +281,11 @@ void Player::Edit()&
 	{
 		auto _Transform = GetComponent<Engine::Transform>();
 		auto& _Physic = _Transform->RefPhysic();
+
+		if (ImGui::Button("WeaponEquip"))
+		{
+			WeaponAcquisition();
+		}
 
 		ImGui::SliderFloat("JumpVelocityY", &StateableSpeed.JumpVelocity.y, 0.f, 300.f);
 		ImGui::SliderFloat("Gravity", &_Physic.Gravity, 0.f, 300.f);
@@ -729,6 +744,16 @@ void Player::ComboEx02StartState(const FSMControlInformation& FSMControlInfo)&
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
 
+	if (FMath::IsRange(0.3, 1.0, AnimTimeNormal))
+	{
+		GetWeapon()->StartAttack(this);
+	}
+	else
+	{
+		GetWeapon()->EndAttack(this);
+	}
+
+
 	if (auto bMoveInfo = CheckTheMoveableState(FSMControlInfo);
 		bMoveInfo)
 	{
@@ -737,11 +762,14 @@ void Player::ComboEx02StartState(const FSMControlInformation& FSMControlInfo)&
 
 	if (!FSMControlInfo._Controller.IsPressing(DIK_RIGHTCLICK))
 	{
+		GetWeapon()->EndAttack(this);
+		WeaponPutDissolveStart(); 
 		CombatWaitTransition(FSMControlInfo);
 	}
 
 	if (CurAnimNotify.bAnimationEnd)
 	{
+		GetWeapon()->EndAttack(this);
 		ComboEx02LoopTransition(FSMControlInfo);
 		return;
 	}
@@ -761,6 +789,8 @@ void Player::ComboEx02LoopState(const FSMControlInformation& FSMControlInfo)&
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
 
+	GetWeapon()->StartAttack(this);
+
 	if (auto bMoveInfo = CheckTheMoveableState(FSMControlInfo);
 		bMoveInfo)
 	{
@@ -770,6 +800,7 @@ void Player::ComboEx02LoopState(const FSMControlInformation& FSMControlInfo)&
 	if (CurAnimNotify.bAnimationEnd ||
 		!FSMControlInfo._Controller.IsPressing(DIK_RIGHTCLICK) )
 	{
+		GetWeapon()->EndAttack(this);
 		ComboEx02EndTransition(FSMControlInfo);
 		return;
 	}
@@ -790,8 +821,19 @@ void Player::ComboEx02EndState(const FSMControlInformation& FSMControlInfo)&
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
 
+	if (FMath::IsRange(0.08, 0.145f, AnimTimeNormal))
+	{
+		GetWeapon()->StartAttack(this);
+	}
+	else
+	{
+		GetWeapon()->EndAttack(this);
+	}
+
 	if (CurAnimNotify.bAnimationEnd )
 	{
+		GetWeapon()->EndAttack(this);
+		WeaponPutDissolveStart();
 		CombatWaitTransition(FSMControlInfo);
 		return;
 	}
@@ -811,11 +853,21 @@ void Player::ComboEx01State(const FSMControlInformation& FSMControlInfo)&
 {
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
+	if (FMath::IsRange(0.11f, 0.26f, AnimTimeNormal))
+	{
+		GetWeapon()->StartAttack(this , FMath::ToRadian(77.f ));
+	}
+	else
+	{
+		GetWeapon()->EndAttack(this);
+	}
 
 	if (AnimTimeNormal < 0.7f)
 	{
 		if (CheckTheJumpableState(FSMControlInfo))
 		{
+			GetWeapon()->EndAttack(this);
+			WeaponPutDissolveStart();
 			JumpStartTransition(FSMControlInfo);
 			return;
 		}
@@ -823,7 +875,9 @@ void Player::ComboEx01State(const FSMControlInformation& FSMControlInfo)&
 
 	if (CurAnimNotify.bAnimationEnd)
 	{
-		CombatWaitState(FSMControlInfo);
+		GetWeapon()->EndAttack(this);
+		WeaponPutDissolveStart();
+		CombatWaitTransition(FSMControlInfo);
 		return;
 	}
 }
@@ -837,26 +891,37 @@ void Player::ComboEx01Transition(const FSMControlInformation& FSMControlInfo)&
 	CurrentState = Player::State::ComboEx01;
 }
 
+PlayerWeapon* const  Player:: GetWeapon()const & 
+{
+	return RefManager().FindObject<Engine::NormalLayer, PlayerWeapon>(Name + L"_Weapon");
+}
+
 void Player::BasicCombo01State(const FSMControlInformation& FSMControlInfo)&
 {
-	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+	const auto& CurAnimNotify  = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
-	
+
+	if (FMath::IsRange(0.08f, 0.13f, AnimTimeNormal))
+	{
+		GetWeapon()->StartAttack(this);
+	}
+	else
+	{
+		GetWeapon()->EndAttack(this);
+	}
+
 	if (auto bMoveInfo = CheckTheMoveableState(FSMControlInfo);
 		bMoveInfo)
 	{
 		MoveFromController(FSMControlInfo, *bMoveInfo, StateableSpeed.Attack);
 	}
 
-	if(AnimTimeNormal >= 0.08f)
-	{
-
-	}
 
 	if (AnimTimeNormal < 0.7f)
 	{
 		if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
 		{
+			GetWeapon()->EndAttack(this);
 			BasicCombo02Transition(FSMControlInfo);
 			return;
 		}
@@ -864,6 +929,8 @@ void Player::BasicCombo01State(const FSMControlInformation& FSMControlInfo)&
 
 	if (CurAnimNotify.bAnimationEnd)
 	{
+		GetWeapon()->EndAttack(this);
+		WeaponPutDissolveStart();
 		CombatWaitTransition(FSMControlInfo);
 		return;
 	}
@@ -877,17 +944,30 @@ void Player::AirCombo01State(const FSMControlInformation& FSMControlInfo)&
 	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
 	
 	const auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
-
 	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | CheckTheLandingStatable(Location.y, Physic.CurrentGroundY));
+	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
+
+	if (FMath::IsRange(0.16f, 0.235f, AnimTimeNormal))
+	{
+		GetWeapon()->StartAttack(this);
+	}
+	else
+	{
+		GetWeapon()->EndAttack(this);
+	}
 
 	if (bLandingChange)
 	{
+		GetWeapon()->EndAttack(this);
+		WeaponPutDissolveStart();
+
 		JumpLandingTransition(FSMControlInfo);
 		return;
 	}
 
 	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
 	{
+		GetWeapon()->EndAttack(this);
 		AirCombo02Transition(FSMControlInfo);
 		return;
 	}
@@ -923,17 +1003,31 @@ void Player::AirCombo02State(const FSMControlInformation& FSMControlInfo)&
 	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
 	const auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
 
+	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
+
+	if (FMath::IsRange(0.18f, 0.35f, AnimTimeNormal))
+	{
+		GetWeapon()->StartAttack(this);
+	}
+	else
+	{
+		GetWeapon()->EndAttack(this);
+	}
+
 	
 	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | CheckTheLandingStatable(Location.y, Physic.CurrentGroundY));
 
 	if (bLandingChange)
 	{
+		WeaponPutDissolveStart();
+		GetWeapon()->EndAttack(this);
 		JumpLandingTransition(FSMControlInfo);
 		return;
 	}
 
 	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
 	{
+		GetWeapon()->EndAttack(this);
 		AirCombo03Transition(FSMControlInfo);
 		return;
 	}
@@ -964,15 +1058,29 @@ void Player::AirCombo03State(const FSMControlInformation& FSMControlInfo)&
 	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
 	const auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
 	
+	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
+
+	if (FMath::IsRange(0.06f, 0.23f, AnimTimeNormal))
+	{
+		GetWeapon()->StartAttack(this);
+	}
+	else
+	{
+		GetWeapon()->EndAttack(this);
+	}
+
 	const bool bLandingChange = (CurAnimNotify.bAnimationEnd | CheckTheLandingStatable(Location.y, Physic.CurrentGroundY));
 	if (bLandingChange)
 	{
+		GetWeapon()->EndAttack(this);
+		WeaponPutDissolveStart();
 		JumpLandingTransition(FSMControlInfo);
 		return;
 	}
 
 	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
 	{
+		GetWeapon()->EndAttack(this);
 		AirCombo04Transition(FSMControlInfo);
 		return;
 	}
@@ -1005,8 +1113,21 @@ void Player::AirCombo04State(const FSMControlInformation& FSMControlInfo)&
 
 	bool bLandingChange = (CurAnimNotify.bAnimationEnd | CheckTheLandingStatable(Location.y, Physic.CurrentGroundY));
 
+	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
+
+	if (FMath::IsRange(0.3f, 1.0f, AnimTimeNormal))
+	{
+		GetWeapon()->StartAttack(this);
+	}
+	else
+	{
+		GetWeapon()->EndAttack(this);
+	}
+
 	if (bLandingChange)
 	{
+		GetWeapon()->EndAttack(this);
+		WeaponPutDissolveStart();
 		AirCombo04LandingTransition(FSMControlInfo);
 		return;
 	}
@@ -1024,9 +1145,12 @@ void Player::AirCombo04Transition(const FSMControlInformation& FSMControlInfo)&
 void Player::AirCombo04LandingState(const FSMControlInformation& FSMControlInfo)& 
 {
 	const float AnimTime = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
+	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 
-	if (AnimTime > 0.97f)
+	if (AnimTime > 0.97f )
 	{
+		GetWeapon()->EndAttack(this);
+		WeaponPutDissolveStart();
 		CombatWaitTransition(FSMControlInfo);
 		return;
 	}
@@ -1061,6 +1185,15 @@ void Player::BasicCombo02State(const FSMControlInformation& FSMControlInfo)&
 	const auto& CurAnimNotify  = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
 
+	if (FMath::IsRange(0.14f, 0.18f, AnimTimeNormal))
+	{
+		GetWeapon()->StartAttack(this);
+	}
+	else
+	{
+		GetWeapon()->EndAttack(this);
+	}
+
 	if (auto bMoveInfo = CheckTheMoveableState(FSMControlInfo);
 		bMoveInfo)
 	{
@@ -1071,6 +1204,7 @@ void Player::BasicCombo02State(const FSMControlInformation& FSMControlInfo)&
 	{
 		if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
 		{
+			GetWeapon()->EndAttack(this);
 			BasicCombo03Transition(FSMControlInfo);
 			return;
 		}
@@ -1078,6 +1212,8 @@ void Player::BasicCombo02State(const FSMControlInformation& FSMControlInfo)&
 
 	if (CurAnimNotify.bAnimationEnd)
 	{
+		GetWeapon()->EndAttack(this);
+		WeaponPutDissolveStart();
 		CombatWaitTransition(FSMControlInfo);
 		return;
 	}
@@ -1098,6 +1234,15 @@ void Player::BasicCombo03State(const FSMControlInformation& FSMControlInfo)&
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
 
+	if (FMath::IsRange(0.11f, 0.26f, AnimTimeNormal))
+	{
+		GetWeapon()->StartAttack(this);
+	}
+	else
+	{
+		GetWeapon()->EndAttack(this);
+	}
+
 	if (auto bMoveInfo = CheckTheMoveableState(FSMControlInfo);
 		bMoveInfo)
 	{
@@ -1108,24 +1253,30 @@ void Player::BasicCombo03State(const FSMControlInformation& FSMControlInfo)&
 	{
 		if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
 		{
+			GetWeapon()->EndAttack(this);
 			ComboEx01Transition(FSMControlInfo);
 		}
 
 		if (FSMControlInfo._Controller.IsPressing(DIK_RIGHTCLICK))
 		{
+			GetWeapon()->EndAttack(this);
 			ComboEx02StartTransition(FSMControlInfo);
 		}
 	}
 
 	if (CurAnimNotify.bAnimationEnd)
 	{
-		CombatWaitState(FSMControlInfo);
+		GetWeapon()->EndAttack(this);
+		WeaponPutDissolveStart();
+		CombatWaitTransition(FSMControlInfo);
 		return;
 	}
 }
 
 void Player::BasicCombo03Transition(const FSMControlInformation& FSMControlInfo)&
 {
+	GetWeapon()->ForcePitchRad = FMath::ToRadian(65.f);
+
 	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
 	_AnimNotify.bLoop = false;
 	_AnimNotify.Name = "BasicCombo03";
@@ -1330,6 +1481,8 @@ void Player::StandBigRightState(const FSMControlInformation& FSMControlInfo)&
 
 void Player::LeafAttackReadyState(const FSMControlInformation& FSMControlInfo)&
 {
+// 	WeaponPutDissolveStart();
+
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 
 	// TODO :: 여기서 움직일 수 있으며 마법진 (?) 을 바닥에 그려주는 인터페이스를 제공하면 좋을듯 !
@@ -1521,7 +1674,7 @@ static void WeaponAttachImplementation(Player* const _Player,
 		auto PlayerWeapon = Weapon->GetComponent<Engine::Transform>();
 		PlayerWeapon->AttachBone(&_SkeletonMesh->GetBone(AttachBoneName)->ToRoot);
 		PlayerWeapon->AttachTransform(&_Transform->UpdateWorld());
-		PlayerWeapon->SetScale(OffsetScale);
+		PlayerWeapon->SetScale   (OffsetScale);
 		PlayerWeapon->SetRotation(OffsetRotation);
 		PlayerWeapon->SetLocation(OffsetLocation);
 	}
@@ -1543,12 +1696,19 @@ void Player::WeaponAcquisition()&
 	WeaponPut();
 }
 
+void Player::WeaponPutDissolveStart()&
+{
+	auto& _Manager = RefManager();
+	auto Weapon = _Manager.FindObject<Engine::NormalLayer, PlayerWeapon>(GetName() + L"_Weapon");
+	Weapon->DissolveStart(WeaponDissolveTime, 1.f);
+}
+
 void Player::WeaponPut()&
 {
 	WeaponAttachImplementation(this, "Weapon_Pelvis_R", 
 		{0.90f,0.90f,0.90f },
 		{0,-2.583f,0}, 
-		{-20.263f,42.553f,-88.813f} );
+		{ -20.263f,42.553f,-88.813f });
 };
 
 void Player::WeaponHand()&
@@ -1556,7 +1716,7 @@ void Player::WeaponHand()&
 	WeaponAttachImplementation(this, "Weapon_Hand_R",
 		{ 1,1,1 },
 		{ 0,0,0 },
-		{ 0,0,0 });
+		{ 0,0,0 } ) ;
 };
 
 
@@ -1567,15 +1727,29 @@ void Player::DashComboState(const FSMControlInformation& FSMControlInfo)&
 		(FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime() > 0.5f);
 
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
+
+	if (FMath::IsRange(0.1f, 0.2f, AnimTimeNormal))
+	{
+		GetWeapon()->StartAttack(this);
+	}
+	else
+	{
+		GetWeapon()->EndAttack(this);
+	}
+
 
 	if (CurAnimNotify.bAnimationEnd)
 	{
+		GetWeapon()->EndAttack(this);
+		WeaponPutDissolveStart();
 		CombatWaitTransition(FSMControlInfo);
 		return; 
 	}
 
 	if (CheckTheJumpableState(FSMControlInfo))
 	{
+		GetWeapon()->EndAttack(this);
 		JumpStartTransition(FSMControlInfo);
 		return;
 	}
@@ -1639,7 +1813,6 @@ void Player::StandUpRollingTransition(const FSMControlInformation& FSMControlInf
 void Player::DashComboTransition(const FSMControlInformation& FSMControlInfo)&
 {
 	WeaponHand();
-
 	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
 	_AnimNotify.bLoop = false;
 	_AnimNotify.Name = "DashCombo";
@@ -1899,3 +2072,12 @@ std::optional<Vector3 > Player::LeafAttackInformation::Move(const float DeltaTim
 
 	return  { MoveLocation };
 }
+
+
+
+
+
+
+
+
+

@@ -31,9 +31,9 @@ public:
 		const float CrossAreaScale) & override;
 	virtual void HitEnd(Object* const Target) & override;
 
-	bool  IsInvincibility()const& { return bInvincibility; };
-	float TakeDamage(const float Damage)&;;
-	bool IsAttackRange(const Vector3& TargetLocation);;
+	bool  IsInvincibility()const& { return CurInvincibilityTime >0.1f; };
+	float TakeDamage(const float Damage)&;
+	bool  IsAttackRange(const Vector3& TargetLocation);;
 protected:
 	struct FSMControlInformation
 	{
@@ -50,10 +50,19 @@ protected:
 
 	void LockingToWardsFromDirection(Vector3 Direction)&;
 public:
+	bool  bBackHit  =false ;
+	bool  bFrontHit =false ;
+	bool  bLeftHit  =false ;
+	bool  bRightHit =false ;
 	Vector3 CurrentMoveDirection{ 0.f,0.f,1.f };
 protected:
+	bool CheckTheLandingStatable(const float CurLocationY, const float CurGroundY)&;
+protected:
+	float AirDamageToForceFactor = 0.12f;
+	float DamageToForceFactor = 0.12f;
 	float AttackRange = 23.f;
-	bool bInvincibility = false;
+	float ResetInvincibilityTime = 0.1f;
+	float CurInvincibilityTime = ResetInvincibilityTime;
 	Status _Status{}; 
 	float LandCheckHighRange = 7.f;
 	const Engine::Cell* CurrentCell{nullptr};

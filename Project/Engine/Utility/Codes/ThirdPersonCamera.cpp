@@ -44,6 +44,7 @@ void Engine::ThirdPersonCamera::Event()&
 void Engine::ThirdPersonCamera::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
+	if (!bCameraUpdate)return;
 
 	if (bCursorMode==false)
 	{
@@ -73,6 +74,8 @@ void Engine::ThirdPersonCamera::Update(const float DeltaTime)&
 void Engine::ThirdPersonCamera::LateUpdate(const float DeltaTime)&
 {
 	Super::LateUpdate(DeltaTime);
+	if (!bCameraUpdate)return;
+
 	if (_TargetInformation.TargetObject == nullptr)return;
 
 	if (_TargetInformation.DistancebetweenTarget > _TargetInformation.MaxDistancebetweenTarget)
@@ -89,21 +92,22 @@ void Engine::ThirdPersonCamera::LateUpdate(const float DeltaTime)&
 	Matrix View;
 	Matrix Projection;
 
-	const Vector3 TargetLocation = 
+	const Vector3 TargetLocation =
 		_TargetInformation.TargetObject->GetComponent<Engine::Transform>()->GetLocation() + _TargetInformation.TargetLocationOffset;
 
-	_TargetInformation .CurrentTargetLocation=
-		FMath::Lerp(_TargetInformation.CurrentTargetLocation , TargetLocation, DeltaTime*1.f);
+	_TargetInformation.CurrentTargetLocation =
+		FMath::Lerp(_TargetInformation.CurrentTargetLocation, TargetLocation, DeltaTime * 1.f);
 
 	_TargetInformation.CurrentViewDirection = FMath::Normalize(
 		FMath::Lerp(_TargetInformation.CurrentViewDirection, _TargetInformation.ViewDirection, DeltaTime * 2.5f));
 
-	const Vector3 EyeLocation = _TargetInformation.CurrentTargetLocation + 
-		(-_TargetInformation.CurrentViewDirection* _TargetInformation.CurrentDistancebetweenTarget);
+	const Vector3 EyeLocation = _TargetInformation.CurrentTargetLocation +
+		(-_TargetInformation.CurrentViewDirection * _TargetInformation.CurrentDistancebetweenTarget);
 
-	static const Vector3 Up = {0,1,0}; 
+	static const Vector3 Up = { 0,1,0 };
 	D3DXMatrixLookAtLH(&View, &EyeLocation, &TargetLocation, &Up);
 	D3DXMatrixPerspectiveFovLH(&Projection, FovY, Aspect, Near, Far);
+
 	Device->SetTransform(D3DTS_VIEW, &View);
 	Device->SetTransform(D3DTS_PROJECTION, &Projection);
 };
