@@ -142,24 +142,21 @@ void Engine::SkeletonMesh::Event(Object* Owner)&
 }
 void Engine::SkeletonMesh::Render(Engine::Renderer* const _Renderer)&
 {
-	
 	auto Fx = ForwardShaderFx.GetHandle();
 	Fx->SetTexture("VTF", BoneAnimMatrixInfo);
 	Fx->SetInt("VTFPitch", VTFPitch);
 	Super::Render(_Renderer);
 
-	
-
-		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-		Device->SetRenderState(D3DRS_ZENABLE, FALSE);
-		auto& ResourceSys = ResourceSystem::Instance;
-		ID3DXMesh* const _DebugMesh = ResourceSys->Get<ID3DXMesh>(L"SphereMesh");
-		for (auto& _Bone : BoneTable)
-		{
-			_Bone->DebugRender(OwnerWorld, Device, _DebugMesh);
-		}
-		Device->SetRenderState(D3DRS_ZENABLE, TRUE);
-		Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+	Device->SetRenderState(D3DRS_ZENABLE, FALSE);
+	auto& ResourceSys = ResourceSystem::Instance;
+	ID3DXMesh* const _DebugMesh = ResourceSys->Get<ID3DXMesh>(L"SphereMesh");
+	for (auto& _Bone : BoneTable)
+	{
+		_Bone->DebugRender(OwnerWorld, Device, _DebugMesh);
+	}
+	Device->SetRenderState(D3DRS_ZENABLE, TRUE);
+	Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 }
 void Engine::SkeletonMesh::RenderDeferredAlbedoNormalVelocityDepthSpecularRim(Engine::Renderer* const _Renderer)&
 {
@@ -201,8 +198,6 @@ void Engine::SkeletonMesh::RenderShadowDepth(Engine::Renderer* const _Renderer)&
 	Fx->SetInt("VTFPitch", VTFPitch);
 
 	Super::RenderShadowDepth(_Renderer);
-
-
 }
 void Engine::SkeletonMesh::RenderReady(Engine::Renderer* const _Renderer)&
 {
@@ -225,14 +220,14 @@ void Engine::SkeletonMesh::RenderReady(Engine::Renderer* const _Renderer)&
 
 	std::memcpy(LockRect.pBits, RenderBoneMatricies.data(), RenderBoneMatricies.size() * sizeof(Matrix));
 	BoneAnimMatrixInfo->UnlockRect(0u);
-}
+};
+
 void Engine::SkeletonMesh::RenderVelocity(Engine::Renderer* const _Renderer)&
 {
 	auto Fx = VelocityFx.GetHandle();
 	Fx->SetTexture("VTF", BoneAnimMatrixInfo);
 	Fx->SetTexture("PrevVTF", PrevBoneAnimMatrixInfo);
 	Fx->SetInt("VTFPitch", VTFPitch);
-	
 	
 	Super::RenderVelocity(_Renderer);
 }

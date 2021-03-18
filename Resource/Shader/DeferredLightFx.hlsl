@@ -58,7 +58,6 @@ sampler Normal3_Power1Sampler = sampler_state
     magfilter = anisotropic;
     mipfilter = anisotropic;
     MaxAnisotropy = 16;
-    
 };
 
 sampler WorldPos3_Depth1Sampler = sampler_state
@@ -186,7 +185,6 @@ PS_OUT PS_MAIN(PS_IN In)
     float3 Normal = Normal3_Power1.rgb;
     // 외곽선 추출 시작.
     // 월드 노말에서 추출 . 
-    bool bOutlineApply = false;
     float3 OutlineColor = 0;
     float3 Ret = 0;
     for (int i = 0; i < 9; ++i)
@@ -200,8 +198,6 @@ PS_OUT PS_MAIN(PS_IN In)
     }
     float Gray = 1 - (OutlineColor.r * 0.3 + OutlineColor.g * 0.59 + OutlineColor.b * 0.11);
     Ret= float3(Gray, Gray, Gray);
-    // bOutlineApply = Gray < 1.1;
-    
     
     float Power = Normal3_Power1.a;
        
@@ -236,10 +232,9 @@ PS_OUT PS_MAIN(PS_IN In)
     
     float Specular = 0.0f;
     
-  
     float Diffuse = saturate(dot(-LightDirectionNormal, Normal));
     Diffuse = pow(((Diffuse * 0.5) + 0.5), Contract);
-    Diffuse = ceil(Diffuse * 5.f) / 5.f;
+    Diffuse = ceil(Diffuse * 7.f) / 7.f;
     float3 HalfVec = normalize((-LightDirectionNormal) + ViewDirection);
     Specular = saturate(dot(HalfVec, Normal));
     Specular = pow((Specular),(Power));
@@ -256,12 +251,7 @@ PS_OUT PS_MAIN(PS_IN In)
     float FogFactor = saturate((FogDistance - Distance) / FogDistance);
     Out.BackBufferColor.rgb = Out.BackBufferColor.rgb * (FogFactor) + ((1.0f - FogFactor) * FogColor);
     // 외곽선 더하기
-    if (bOutlineApply)
-    {
-        Out.BackBufferColor.rgb = Ret;
-    }
-        
-    
+    Out.BackBufferColor.rgb *=Ret;
     Out.DeferredTargetColor = Out.BackBufferColor;
     
     return Out;

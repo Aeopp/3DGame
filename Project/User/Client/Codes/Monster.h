@@ -35,6 +35,10 @@ public:
 	float TakeDamage(const float Damage)&;
 	bool  IsAttackRange(const Vector3& TargetLocation);;
 protected:
+	enum class RTAxis :uint8
+	{
+		Front, Back, Right, Left
+	};
 	struct FSMControlInformation
 	{
 		class Player* const _Player{ nullptr };
@@ -50,21 +54,17 @@ protected:
 
 	void LockingToWardsFromDirection(Vector3 Direction)&;
 public:
-	bool  bBackHit  =false ;
 	bool  bFrontHit =false ;
-	bool  bLeftHit  =false ;
-	bool  bRightHit =false ;
 	Vector3 CurrentMoveDirection{ 0.f,0.f,1.f };
 protected:
 	bool CheckTheLandingStatable(const float CurLocationY, const float CurGroundY)&;
 protected:
-	float AirDamageToForceFactor = 0.12f;
-	float DamageToForceFactor = 0.12f;
+	RTAxis _CurRTAxis{};
 	float AttackRange = 23.f;
 	float ResetInvincibilityTime = 0.1f;
 	float CurInvincibilityTime = ResetInvincibilityTime;
 	Status _Status{}; 
-	float LandCheckHighRange = 7.f;
+	float LandCheckHighRange = 1.2f;
 	const Engine::Cell* CurrentCell{nullptr};
 	IDirect3DDevice9* Device{ nullptr };
 };

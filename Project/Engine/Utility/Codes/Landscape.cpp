@@ -673,7 +673,6 @@ void Engine::Landscape::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engin
 
 				if (bRender)
 				{
-
 					Device->SetStreamSource(0, CurMesh.VtxBuf, 0, CurMesh.Stride);
 					Device->SetIndices(CurMesh.IdxBuf);
 					Fx->SetFloat("DetailScale", CurMesh.MaterialInfo.DetailScale);
@@ -690,7 +689,7 @@ void Engine::Landscape::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engin
 					Fx->SetFloat("RimOuterWidth", CurMesh.MaterialInfo.RimOuterWidth);
 					Fx->SetFloat("RimInnerWidth", CurMesh.MaterialInfo.RimInnerWidth);
 					Fx->SetVector("RimAmtColor", &CurMesh.MaterialInfo.RimAmtColor);
-					
+					Fx->SetFloat("OutlineRedFactor", CurMesh.MaterialInfo.OutlineRedFactor);
 
 					const bool bPickRender = Engine::Global::bDebugMode
 						&& (PickDecoInstancePtr == CurDecoInstance.get());
@@ -699,6 +698,7 @@ void Engine::Landscape::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engin
 					{
 						const Vector3 PickAccentAmbient{ 25.f,0.f,255.f };
 						Fx->SetFloatArray("AddAlbedo", PickAccentAmbient, 3u);
+						Fx->SetFloat("OutlineRedFactor", 1.f);
 					}
 					CurMesh.MaterialInfo.BindingTexture(Fx);
 					Fx->CommitChanges();

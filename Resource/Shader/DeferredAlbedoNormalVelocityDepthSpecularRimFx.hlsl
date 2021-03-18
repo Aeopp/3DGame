@@ -16,6 +16,7 @@ float  DetailNormalIntensity;
 float  RimInnerWidth;
 float  RimOuterWidth;
 vector RimAmtColor;
+float OutlineRedFactor;
 
 texture DiffuseMap;
 texture NormalMap;
@@ -195,7 +196,7 @@ PS_OUT AlbedoNormalWorldPosDepthSpecular(PS_IN In)
     Out.Normal3_Power1 = float4(WorldNormal.xyz, Power);
     
     // 월드 위치와 NDC 깊이 패킹
-    Out.Velocity2_None1_Depth1 = float4(In.Velocity.xy,1.f, In.ClipPosition.z / In.ClipPosition.w);
+    Out.Velocity2_None1_Depth1 = float4(In.Velocity.xy, OutlineRedFactor, In.ClipPosition.z / In.ClipPosition.w);
   
     CavityColor.rgb *= SpecularIntencity;
     Out.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1Sampler = float4(CavityColor.r, RimAmtColor.x, RimInnerWidth, RimOuterWidth);

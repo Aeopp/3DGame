@@ -62,7 +62,7 @@ void Engine::Mesh::Render(Engine::Renderer* const _Renderer)&
 		Fx->SetFloat("DetailNormalIntensity", CurrentRenderMesh.MaterialInfo.DetailNormalIntensity);
 		Fx->SetFloat("CavityCoefficient", CurrentRenderMesh.MaterialInfo.CavityCoefficient);
 		Fx->SetFloat("AlphaAddtive", CurrentRenderMesh.MaterialInfo.AlphaAddtive);
-
+		
 		CurrentRenderMesh.MaterialInfo.BindingTexture(Fx);
 		Fx->CommitChanges();
 
@@ -120,8 +120,7 @@ void Engine::Mesh::RenderDeferredAlbedoNormalVelocityDepthSpecularRim(
 
 	const Matrix PrevWorldViewProjection =PrevWorld* PrevRenderInfo.ViewProjection;
 	Fx->SetMatrix("PrevWorldViewProjection", &PrevWorldViewProjection);
-
-	
+	Fx->SetFloat("OutlineRedFactor", OutlineRedFactor);
 
 	uint32 Pass = 0u;
 	Fx->Begin(&Pass,NULL);
@@ -144,6 +143,7 @@ void Engine::Mesh::RenderDeferredAlbedoNormalVelocityDepthSpecularRim(
 					Fx->SetFloat("RimOuterWidth", CurMesh.MaterialInfo.RimOuterWidth);
 					Fx->SetFloat("RimInnerWidth", CurMesh.MaterialInfo.RimInnerWidth);
 					Fx->SetVector("RimAmtColor", &CurMesh.MaterialInfo.RimAmtColor);
+					
 
 					CurMesh.MaterialInfo.BindingTexture(Fx);
 					Fx->CommitChanges();

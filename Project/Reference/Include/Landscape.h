@@ -124,9 +124,6 @@ namespace Engine
 	
 		void RenderVelocity(class Renderer* const _Renderer)&;
 
-		
-
-
 		inline const std::vector<PlaneInfo>& GetMapWorldCoordPlanes()const&;
 
 		void DecoratorLoad(const std::filesystem::path& LoadPath,

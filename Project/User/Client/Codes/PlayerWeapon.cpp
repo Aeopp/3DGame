@@ -109,9 +109,12 @@ void PlayerWeapon::Event()&
 	if (Engine::Global::bDebugMode)
 	{
 		auto* const _StaticMesh = GetComponent<Engine::StaticMesh>();
-		ImGui::SliderFloat("SliceAmout", &_StaticMesh->_DissolveInfo->SliceAmount, 0.0f, 1.f);
-		ImGui::SliderFloat("BurnSize", &_StaticMesh->_DissolveInfo->BurnSize, 0.0f, 1.f);
-		ImGui::SliderFloat("EmissionAmount", &_StaticMesh->_DissolveInfo->EmissionAmount, 0.0f, 10.f);
+		if (_StaticMesh->_DissolveInfo)
+		{
+			ImGui::SliderFloat("SliceAmout", &_StaticMesh->_DissolveInfo->SliceAmount, 0.0f, 1.f);
+			ImGui::SliderFloat("BurnSize", &_StaticMesh->_DissolveInfo->BurnSize, 0.0f, 1.f);
+			ImGui::SliderFloat("EmissionAmount", &_StaticMesh->_DissolveInfo->EmissionAmount, 0.0f, 10.f);
+		}
 	}
 }
 
@@ -185,19 +188,22 @@ void PlayerWeapon::DissolveStart(const float SliceAmountSpeed, const float Slice
 	DissolveInfo.SliceAmount = SliceAmoutStart;
 	_StaticMesh->_DissolveInfo = DissolveInfo;
 	this->SliceAmountSpeed = SliceAmountSpeed;
-}
-void PlayerWeapon::StartAttack(Engine::Object* const AttackOwner,const float ForcePitchRad)&
+};
+
+void PlayerWeapon::StartAttack(Engine::Object* const AttackOwner, const float Force, const float ForceJump)&
 {
 	GetComponent<Engine::Collision>()->bCollision = true;
 	this->AttackOwner = AttackOwner;
-	this->ForcePitchRad = ForcePitchRad;
-};
+	this->ForceJump = ForceJump;
+	this->Force = Force;
+}
 
 void PlayerWeapon::EndAttack(Engine::Object* const AttackOwner)&
 {
 	GetComponent<Engine::Collision>()->bCollision = false;
 	this->AttackOwner = AttackOwner;
-	this->ForcePitchRad = 0.0f;
+	this->ForceJump = 0.0f;
+	this->Force = 0.0f;
 };
 
 

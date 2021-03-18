@@ -193,10 +193,13 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Codes\AnimationInformation.cpp" />
     <ClCompile Include="Codes\Bone.cpp" />
     <ClCompile Include="Codes\Camera.cpp" />
     <ClCompile Include="Codes\Cell.cpp" />
     <ClCompile Include="Codes\DeferredPass.cpp" />
+    <ClCompile Include="Codes\AnimEffect.cpp" />
+    <ClCompile Include="Codes\EffectSystem.cpp" />
     <ClCompile Include="Codes\FileHelper.cpp" />
     <ClCompile Include="Codes\Geometric.cpp" />
     <ClCompile Include="Codes\Collision.cpp" />
@@ -235,15 +238,19 @@
     <ClCompile Include="Codes\ThirdPersonCamera.cpp" />
     <ClCompile Include="Codes\Transform.cpp" />
     <ClCompile Include="Codes\Frustum.cpp" />
+    <ClCompile Include="Codes\UI.cpp" />
     <ClCompile Include="Codes\UtilityGlobal.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Reference\Header\StringHelper.h" />
+    <ClInclude Include="Codes\AnimationInformation.h" />
     <ClInclude Include="Codes\AssimpHelper.h" />
     <ClInclude Include="Codes\Bone.h" />
     <ClInclude Include="Codes\Camera.h" />
     <ClInclude Include="Codes\Cell.h" />
     <ClInclude Include="Codes\DeferredPass.h" />
+    <ClInclude Include="Codes\AnimEffect.h" />
+    <ClInclude Include="Codes\EffectSystem.h" />
     <ClInclude Include="Codes\FileHelper.h" />
     <ClInclude Include="Codes\Geometric.h" />
     <ClInclude Include="Codes\Collision.h" />
@@ -276,6 +283,7 @@
     <ClInclude Include="Codes\ThirdPersonCamera.h" />
     <ClInclude Include="Codes\Transform.h" />
     <ClInclude Include="Codes\Frustum.h" />
+    <ClInclude Include="Codes\UI.h" />
     <ClInclude Include="Codes\UtilityGlobal.h" />
   </ItemGroup>
   <ItemGroup>
@@ -353,6 +361,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Resource\Shader\DeferredDissolveAlbedoNormalVelocityDepthSpecularRimSkeletonFx.hlsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Resource\Shader\AnimEffectFx.hlsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Resource\Shader\DefaultUI.hlsl">
       <FileType>Document</FileType>
     </ClInclude>
   </ItemGroup>

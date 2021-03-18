@@ -30,6 +30,7 @@ public:
 	static inline Vector3 GetNormalFromFace(const Vector3& p0,
 		const Vector3& p1, const Vector3& p2);
 
+	static inline Vector3 Reflection(const Vector3& Dir, const Vector3& Normal);
 
 	static inline Vector4 ConvertVector4(const Vector3& Lhs, const float w);;
 	static inline Vector3 Mul(const Vector3& Lhs, const Matrix& Rhs);
@@ -263,6 +264,13 @@ inline  Vector3 FMath::GetNormalFromFace(const Vector3& p0,
 	const Vector3 u = p1 - p0;
 	const Vector3 v = p2 - p0;
 	return Normalize(Cross(u, v));
+}
+
+inline Vector3 FMath::Reflection(const Vector3& Force, const Vector3& Normal)
+{
+	// R = P + 2n(-P¡¤n)
+	const Vector3 NormalNormalize = FMath::Normalize(Normal);
+	return Force + (2.f * NormalNormalize * (FMath::Dot(-Force, NormalNormalize) ));
 }
 
 Ray FMath::GetRayScreenProjection(

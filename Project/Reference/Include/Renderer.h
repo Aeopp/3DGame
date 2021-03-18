@@ -13,6 +13,8 @@
 #include "Landscape.h"
 #include "Sky.h"
 #include "DeferredPass.h"
+#include "EffectSystem.h"
+#include "UI.h"
 
 namespace Engine
 {
@@ -51,6 +53,14 @@ namespace Engine
 		IDirect3DTexture9* GetBurnTexture()const& { return BurnTexture;  };
 		IDirect3DTexture9* GetDissolveTexture()const& { return DissolveTexture;  };
 		IDirect3DTexture9* GetBlueBurnTexture() const& { return BlueBurnTexture;  };
+
+		EffectSystem& RefEffectSystem()& { return EffectSys; };
+	public:
+		std::weak_ptr<UI> MakeUI(
+			const Vector2& NDCLeftTopAnchor,
+			const Vector2& NDCSize,
+			const std::filesystem::path& TexFullPath,
+			const float UIDepthZ)&;
 	private:
 		void FrustumInCheck()&;
 		void RenderReady()&;
@@ -75,6 +85,8 @@ namespace Engine
 		void RenderDeferredDebugBuffer()&;
 		void RenderSky()&;
 
+		void RenderEffect()&;
+
 		void RenderDebugCollision()&;
 		void RenderAlphaBlend()&;
 		void RenderAlphaTest()&;
@@ -86,6 +98,8 @@ namespace Engine
 		float MotionBlurDepthBias = 0.0001f;
 		float MotionBlurLengthMin = 0.000f;
 	private:
+		std::multimap<float,std::shared_ptr<UI>> _UIs{};
+		EffectSystem EffectSys{};
 		IDirect3DTexture9* BurnTexture{ nullptr };
 		IDirect3DTexture9* BlueBurnTexture{ nullptr };
 		IDirect3DTexture9* DissolveTexture{ nullptr };

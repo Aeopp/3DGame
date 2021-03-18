@@ -47,6 +47,8 @@ namespace Engine
 		float AlphaAddtive = 0.0f;
 		bool bForwardRender{ false };
 
+		float OutlineRedFactor = 0.0f;
+
 		Vector4 RimAmtColor{ 1,1,1,1 };
 		Vector4 AmbientColor{ 0.10f,0.10f,0.10f,1.f };
 

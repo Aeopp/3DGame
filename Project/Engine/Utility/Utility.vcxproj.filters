@@ -118,6 +118,12 @@
     <Filter Include="Utility\NavigationMesh">
       <UniqueIdentifier>{7f80748b-2410-4cc9-9800-2708bba26d5a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Effect">
+      <UniqueIdentifier>{f303c725-8f73-47f3-b4ae-aa5d733f4cf6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{083ddb27-81a6-4864-a65c-8c14d3d1c9bc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\Management.h">
@@ -280,6 +286,22 @@
     <ClInclude Include="..\..\..\Resource\Shader\DeferredDissolveAlbedoNormalVelocityDepthSpecularRimSkeletonFx.hlsl">
       <Filter>Shader\HLSL</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\AnimEffect.h">
+      <Filter>Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\AnimationInformation.h" />
+    <ClInclude Include="..\..\..\Resource\Shader\AnimEffectFx.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\EffectSystem.h">
+      <Filter>Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\UI.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Resource\Shader\DefaultUI.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">
@@ -410,6 +432,16 @@
     </ClCompile>
     <ClCompile Include="Codes\NaviMeshComponent.cpp">
       <Filter>Utility\NavigationMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\AnimEffect.cpp">
+      <Filter>Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\AnimationInformation.cpp" />
+    <ClCompile Include="Codes\EffectSystem.cpp">
+      <Filter>Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\UI.cpp">
+      <Filter>UI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

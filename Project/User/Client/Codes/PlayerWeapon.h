@@ -33,11 +33,12 @@ public:
 	void DissolveStart(const float SliceAmountSpeed,
 					   const float SliceAmountStart)&;
 
-	void StartAttack(Engine::Object* const AttackOwner, const float ForcePitchRad=0.0f)&;
+	void StartAttack(Engine::Object* const AttackOwner,const float Force,const float ForceJump)&;
 	void EndAttack(Engine::Object*const AttackOwner)&;
 	Engine::Object*const GetAttackOwner() const& { return AttackOwner; };
-
-	float ForcePitchRad = 0.0f;
+	
+	float Force = 0.0f;
+	float ForceJump= 0.0f;
 private:
 	Engine::Object* AttackOwner{ nullptr };
 	float SliceAmountSpeed = 1.f;

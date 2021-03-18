@@ -38,6 +38,8 @@ namespace Engine
 		void SetDelta(const float DeltaTime)&;
 		void SetTimeScale(const float TimeScale)&;
 		void SetT(const float GetT);
+
+		float& RefTimeScale()& { return TimeScale; };
 	public:
 		std::chrono::time_point<std::chrono::high_resolution_clock> PrevTime{};
 		std::wstring Information{};

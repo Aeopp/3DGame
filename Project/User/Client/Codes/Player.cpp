@@ -2,9 +2,8 @@
 #include "Player.h"
 #include "Transform.h"
 #include "Timer.h"
-
-
 #include "DynamicMesh.h"
+#include "Renderer.h"
 #include "Monster.h"
 #include <iostream>
 #include "Management.h"
@@ -29,7 +28,7 @@
 #include "NPC.h"
 #include "StaticMesh.h"
 
-
+#include "EffectSystem.h"
 
 void Player::Initialize(
 	const std::optional<Vector3>& Scale,
@@ -171,6 +170,20 @@ void Player::Initialize(
 	};
 
 	_Transform->EnablePhysic(InitPhysic);
+
+	_BasicCombo01 = RefRenderer().RefEffectSystem().MakeEffect(L"BasicCombo01", Engine::EffectSystem::EffectType::AnimEffect);
+
+
+	
+	/*std::weak_ptr<UI> MakeUI(
+		const Vector2 & NDCLeftTopAnchor,
+		const Vector2 & NDCSize,
+		const std::filesystem::path & TexFullPath,
+		const float UIDepthZ)&;*/
+	RefRenderer().
+		MakeUI({ -0.3f,+0.3f }, { 0.3f,-0.3f },
+		App::ResourcePath / L"Texture" / L"GUI_karma_player_info_TS_1.tga",
+		0.01);
 };
 
 void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
@@ -188,7 +201,8 @@ void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
 
 	RefResourceSys().InsertAny<decltype(_SkeletonMeshProto)>(L"Player", _SkeletonMeshProto);
 
-	
+	RefRenderer().RefEffectSystem().LoadEffect
+	(Device, App::ResourcePath / L"Effect" / L"SK_TS_BasicCombo_01_Renewal.fbx", L"BasicCombo01", Engine::EffectSystem::EffectType::AnimEffect);
 }
 
 void Player::Event()&
@@ -224,10 +238,18 @@ void Player::Event()&
 			}
 		}
 	}
+
+	auto& _Control = RefControl();
+
+	if (_Control.IsDown(DIK_DELETE))
+	{
+		_LeafAttackInfo.Reset(_Transform->GetLocation(), _Transform->GetLocation() + FMath::Random(Vector3{ -100,99.f,-100 }, Vector3{ 100,100,100 }) ,100.f,1.f);
+	}
+
 	
 
 	auto _SkeletonMeshComponent = GetComponent<Engine::SkeletonMesh>();
-	auto& _Control =RefControl();
+	
 	if (_Control.IsDown(DIK_O))
 	{
 		bControl = !bControl;
@@ -239,8 +261,13 @@ void Player::Update(const float DeltaTime)&
 	Super::Update(DeltaTime);
 	
 	FSM(DeltaTime);
-
 	auto _Transform = GetComponent<Engine::Transform>();
+
+	if (auto bMoveLocation = _LeafAttackInfo.Move(DeltaTime))
+	{
+		_Transform->SetLocation(*bMoveLocation);
+	}
+
 	const Vector3 Location = _Transform->GetLocation();
 
 	auto& _RefPhysic = _Transform->RefPhysic();
@@ -301,6 +328,63 @@ void Player::Edit()&
 		ImGui::SliderFloat("LandCheckHighRange", &LandCheckHighRange, 0.f, 30.f);
 
 		ImGui::SliderFloat3("NPCInteractionLocationOffset", NPCInteractionLocationOffset, -50.f, 50.f);
+
+		if (ImGui::TreeNode("AttackForceInformation"))
+		{
+			static constexpr float Min = 0.0f;
+			static constexpr float Max = 1000.f;
+
+			ImGui::SliderFloat("BasicCombo", &_AttackForce.BasicCombo, Min, Max);
+			ImGui::Separator();
+
+			ImGui::SliderFloat("BasicComboSmall", &_AttackForce.BasicComboSmall, Min, Max);
+			ImGui::SliderFloat("BasicComboSmallJump", &_AttackForce.BasicComboSmallJump, Min, Max);
+			ImGui::Separator();
+			
+			ImGui::SliderFloat("Dash", &_AttackForce.Dash, Min, Max);
+			ImGui::SliderFloat("DashComboJump", &_AttackForce.DashComboJump, Min, Max);
+			ImGui::Separator();
+
+			ImGui::SliderFloat("Ex01firstCombo", &_AttackForce.Ex01firstCombo, Min, Max);
+			ImGui::SliderFloat("Ex01firstComboJump", &_AttackForce.Ex01firstComboJump, Min, Max);
+			ImGui::Separator();
+
+			ImGui::SliderFloat("Ex01SecondCombo", &_AttackForce.Ex01SecondCombo, Min, Max);
+			ImGui::SliderFloat("Ex01SecondComboJump", &_AttackForce.Ex01SecondComboJump, Min, Max);
+			ImGui::Separator();
+
+			
+			ImGui::SliderFloat("Ex02End", &_AttackForce.Ex02End, Min, Max);
+			ImGui::SliderFloat("Ex02EndJump", &_AttackForce.Ex02EndJump, Min, Max);
+			ImGui::Separator();
+			
+			ImGui::SliderFloat("Ex02Loop", &_AttackForce.Ex02Loop, Min, Max);
+			ImGui::SliderFloat("Ex02LoopJump", &_AttackForce.Ex02LoopJump, Min, Max);
+			ImGui::Separator();
+
+			ImGui::SliderFloat("Ex02Start", &_AttackForce.Ex02Start, Min, Max);
+			ImGui::SliderFloat("Ex02StartJump", &_AttackForce.Ex02StartJump, Min, Max);
+			ImGui::Separator();
+
+
+			ImGui::SliderFloat("Air01", &_AttackForce.Air01, Min, Max);
+			ImGui::SliderFloat("Air01Jump", &_AttackForce.Air01Jump, Min, Max);
+			ImGui::Separator();
+
+			ImGui::SliderFloat("Air02", &_AttackForce.Air02, Min, Max);
+			ImGui::SliderFloat("Air02Jump", &_AttackForce.Air02Jump, Min, Max);
+			ImGui::Separator();
+
+			ImGui::SliderFloat("Air03", &_AttackForce.Air03, Min, Max);
+			ImGui::SliderFloat("Air03Jump", &_AttackForce.Air03Jump, Min, Max);
+			ImGui::Separator();
+
+			ImGui::SliderFloat("Air04", &_AttackForce.Air04, Min, Max);
+			ImGui::SliderFloat("Air04Jump", &_AttackForce.Air04Jump, Min, Max);
+			ImGui::Separator();
+
+			ImGui::TreePop();
+		}
 	}
 };
 
@@ -746,7 +830,7 @@ void Player::ComboEx02StartState(const FSMControlInformation& FSMControlInfo)&
 
 	if (FMath::IsRange(0.3, 1.0, AnimTimeNormal))
 	{
-		GetWeapon()->StartAttack(this);
+		GetWeapon()->StartAttack(this, _AttackForce.Ex02Start, _AttackForce.Ex02StartJump);
 	}
 	else
 	{
@@ -760,7 +844,7 @@ void Player::ComboEx02StartState(const FSMControlInformation& FSMControlInfo)&
 		MoveFromController(FSMControlInfo, *bMoveInfo, StateableSpeed.ComboEx02);
 	}
 
-	if (!FSMControlInfo._Controller.IsPressing(DIK_RIGHTCLICK))
+	if (!FSMControlInfo._Controller.IsPressing(DIK_MIDCLICK))
 	{
 		GetWeapon()->EndAttack(this);
 		WeaponPutDissolveStart(); 
@@ -789,7 +873,7 @@ void Player::ComboEx02LoopState(const FSMControlInformation& FSMControlInfo)&
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
 
-	GetWeapon()->StartAttack(this);
+	GetWeapon()->StartAttack(this, _AttackForce.Ex02Loop, _AttackForce.Ex02LoopJump);
 
 	if (auto bMoveInfo = CheckTheMoveableState(FSMControlInfo);
 		bMoveInfo)
@@ -798,7 +882,7 @@ void Player::ComboEx02LoopState(const FSMControlInformation& FSMControlInfo)&
 	};
 
 	if (CurAnimNotify.bAnimationEnd ||
-		!FSMControlInfo._Controller.IsPressing(DIK_RIGHTCLICK) )
+		!FSMControlInfo._Controller.IsPressing(DIK_MIDCLICK) )
 	{
 		GetWeapon()->EndAttack(this);
 		ComboEx02EndTransition(FSMControlInfo);
@@ -823,7 +907,7 @@ void Player::ComboEx02EndState(const FSMControlInformation& FSMControlInfo)&
 
 	if (FMath::IsRange(0.08, 0.145f, AnimTimeNormal))
 	{
-		GetWeapon()->StartAttack(this);
+		GetWeapon()->StartAttack(this, _AttackForce.Ex02End, _AttackForce.Ex02EndJump);
 	}
 	else
 	{
@@ -855,7 +939,7 @@ void Player::ComboEx01State(const FSMControlInformation& FSMControlInfo)&
 	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
 	if (FMath::IsRange(0.11f, 0.26f, AnimTimeNormal))
 	{
-		GetWeapon()->StartAttack(this , FMath::ToRadian(77.f ));
+		GetWeapon()->StartAttack(this,_AttackForce.Ex01firstCombo,_AttackForce.Ex01firstComboJump);
 	}
 	else
 	{
@@ -903,7 +987,7 @@ void Player::BasicCombo01State(const FSMControlInformation& FSMControlInfo)&
 
 	if (FMath::IsRange(0.08f, 0.13f, AnimTimeNormal))
 	{
-		GetWeapon()->StartAttack(this);
+		GetWeapon()->StartAttack(this, _AttackForce.BasicCombo,0.0f);
 	}
 	else
 	{
@@ -949,7 +1033,7 @@ void Player::AirCombo01State(const FSMControlInformation& FSMControlInfo)&
 
 	if (FMath::IsRange(0.16f, 0.235f, AnimTimeNormal))
 	{
-		GetWeapon()->StartAttack(this);
+		GetWeapon()->StartAttack(this, _AttackForce.Air01,_AttackForce.Air01Jump );
 	}
 	else
 	{
@@ -1007,7 +1091,7 @@ void Player::AirCombo02State(const FSMControlInformation& FSMControlInfo)&
 
 	if (FMath::IsRange(0.18f, 0.35f, AnimTimeNormal))
 	{
-		GetWeapon()->StartAttack(this);
+		GetWeapon()->StartAttack(this, _AttackForce.Air02,_AttackForce.Air02Jump);
 	}
 	else
 	{
@@ -1062,7 +1146,7 @@ void Player::AirCombo03State(const FSMControlInformation& FSMControlInfo)&
 
 	if (FMath::IsRange(0.06f, 0.23f, AnimTimeNormal))
 	{
-		GetWeapon()->StartAttack(this);
+		GetWeapon()->StartAttack(this, _AttackForce.Air03, _AttackForce.Air03Jump);
 	}
 	else
 	{
@@ -1117,7 +1201,7 @@ void Player::AirCombo04State(const FSMControlInformation& FSMControlInfo)&
 
 	if (FMath::IsRange(0.3f, 1.0f, AnimTimeNormal))
 	{
-		GetWeapon()->StartAttack(this);
+		GetWeapon()->StartAttack(this, _AttackForce.Air04, _AttackForce.Air04Jump);
 	}
 	else
 	{
@@ -1178,6 +1262,14 @@ void Player::BasicCombo01Transition(const FSMControlInformation& FSMControlInfo)
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::BasicCombo01;
 	WeaponHand();
+
+	Engine::AnimEffect::AnimNotify _EftAnimNotify{};
+	_AnimNotify.bLoop = true;
+
+	_BasicCombo01->Scale = FSMControlInfo.MyTransform->GetScale() * 0.5f;
+	_BasicCombo01->Rotation= FSMControlInfo.MyTransform->GetRotation();
+	_BasicCombo01->Location = FSMControlInfo.MyTransform->GetLocation() + Vector3{ 0,10,0 };
+	_BasicCombo01->PlayAnimation(0u, 30.f, 0.25f, _EftAnimNotify);
 }
 
 void Player::BasicCombo02State(const FSMControlInformation& FSMControlInfo)&
@@ -1187,7 +1279,7 @@ void Player::BasicCombo02State(const FSMControlInformation& FSMControlInfo)&
 
 	if (FMath::IsRange(0.14f, 0.18f, AnimTimeNormal))
 	{
-		GetWeapon()->StartAttack(this);
+		GetWeapon()->StartAttack(this, _AttackForce.BasicCombo,0.0f);
 	}
 	else
 	{
@@ -1206,6 +1298,20 @@ void Player::BasicCombo02State(const FSMControlInformation& FSMControlInfo)&
 		{
 			GetWeapon()->EndAttack(this);
 			BasicCombo03Transition(FSMControlInfo);
+			return;
+		}
+
+		if (FSMControlInfo._Controller.IsDown(DIK_RIGHTCLICK) && bControl)
+		{
+			GetWeapon()->EndAttack(this);
+			ComboEx01Transition(FSMControlInfo);
+			return;
+		}
+
+		if (FSMControlInfo._Controller.IsPressing(DIK_MIDCLICK))
+		{
+			GetWeapon()->EndAttack(this);
+			ComboEx02StartTransition(FSMControlInfo);
 			return;
 		}
 	}
@@ -1236,7 +1342,7 @@ void Player::BasicCombo03State(const FSMControlInformation& FSMControlInfo)&
 
 	if (FMath::IsRange(0.11f, 0.26f, AnimTimeNormal))
 	{
-		GetWeapon()->StartAttack(this);
+		GetWeapon()->StartAttack(this ,_AttackForce.BasicComboSmall, _AttackForce.BasicComboSmallJump);
 	}
 	else
 	{
@@ -1247,21 +1353,6 @@ void Player::BasicCombo03State(const FSMControlInformation& FSMControlInfo)&
 		bMoveInfo)
 	{
 		MoveFromController(FSMControlInfo, *bMoveInfo, StateableSpeed.Attack);
-	}
-
-	if (AnimTimeNormal < 0.7f)
-	{
-		if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
-		{
-			GetWeapon()->EndAttack(this);
-			ComboEx01Transition(FSMControlInfo);
-		}
-
-		if (FSMControlInfo._Controller.IsPressing(DIK_RIGHTCLICK))
-		{
-			GetWeapon()->EndAttack(this);
-			ComboEx02StartTransition(FSMControlInfo);
-		}
 	}
 
 	if (CurAnimNotify.bAnimationEnd)
@@ -1275,8 +1366,6 @@ void Player::BasicCombo03State(const FSMControlInformation& FSMControlInfo)&
 
 void Player::BasicCombo03Transition(const FSMControlInformation& FSMControlInfo)&
 {
-	GetWeapon()->ForcePitchRad = FMath::ToRadian(65.f);
-
 	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
 	_AnimNotify.bLoop = false;
 	_AnimNotify.Name = "BasicCombo03";
@@ -1731,7 +1820,7 @@ void Player::DashComboState(const FSMControlInformation& FSMControlInfo)&
 
 	if (FMath::IsRange(0.1f, 0.2f, AnimTimeNormal))
 	{
-		GetWeapon()->StartAttack(this);
+		GetWeapon()->StartAttack(this,_AttackForce.Dash, _AttackForce.DashComboJump);
 	}
 	else
 	{

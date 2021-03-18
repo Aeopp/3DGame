@@ -27,6 +27,7 @@
 
 // Point_GS_Root
 
+
 void Belatos::FSM(const float DeltaTime)&
 {
 	Super::FSM(DeltaTime);
@@ -94,8 +95,8 @@ void Belatos::FSM(const float DeltaTime)&
 	case Belatos::State::RTDownAirLandingBack:
 		RTDownAirLandingBackState(CurrentFSMControlInfo);
 		break;
-	case Belatos::State::RTDownAirLandingBackLeft:
-		RTDownAirLandingBackLeftState(CurrentFSMControlInfo);
+	case Belatos::State::RTDownAirLandingFront:
+		RTDownAirLandingFrontState(CurrentFSMControlInfo);
 		break;
 	case Belatos::State::RTDownBack:
 		RTDownBackState(CurrentFSMControlInfo);
@@ -124,6 +125,9 @@ void Belatos::FSM(const float DeltaTime)&
 	case Belatos::State::StandUpFront:
 		StandUpFrontState(CurrentFSMControlInfo);
 		break;
+	case Belatos::State::Spawn:
+		SpawnState(CurrentFSMControlInfo);
+		break;
 	default:
 		break;
 	};
@@ -151,6 +155,7 @@ void Belatos::Edit()&
 		auto _Transform = GetComponent<Engine::Transform>();
 		auto& _Physic = _Transform->RefPhysic();
 		ImGui::SliderFloat("LandCheckHighRange", &LandCheckHighRange, 0.f, 30.f);
+		ImGui::SliderFloat("SmallAirAttackRange", &SmallAirAttackRange, 0.f, 1000.f);
 
 		/*auto* _SkeletonMesh = GetComponent<Engine::SkeletonMesh>();
 		ImGui::SliderFloat3("WeaponCollisionMin", WeaponLocalMin, -300.f, +300.f);
@@ -182,16 +187,13 @@ void Belatos::HitBegin(Object* const Target, const Vector3 PushDir, const float 
 		auto& Physic= _Transform->RefPhysic();
 		_Transform->ClearVelocity();
 
-		const float ForcePitchRad = _PlayerWeapon->ForcePitchRad;
-		const bool bAirAttack = !FMath::AlmostEqual(ForcePitchRad, 0.0f);
+		const float CurForceJump= (_PlayerWeapon->ForceJump);
+		const float CurForce = _PlayerWeapon->Force;
+		const bool bAirAttack = !FMath::AlmostEqual(CurForceJump, 0.0f);
 
 		const auto DamageRange = _PlayerWeapon->GetDamage(); 
 		const float CurDamage = FMath::Random(DamageRange.first, DamageRange.second);
-		float DmgToForce = CurDamage;
-		if (bAirAttack)
-			DmgToForce *= AirDamageToForceFactor;
-		else
-			DmgToForce *= DamageToForceFactor;
+
 		const Vector3 PlayerLocation = _PlayerWeapon->GetAttackOwner()->GetComponent<Engine::Transform>()->GetLocation();
 		// 피격 당한 몹 위치 <- 플레이어 위치
 		const Vector3 DistanceFromPlayer= _Transform->GetLocation() - PlayerLocation;
@@ -200,11 +202,9 @@ void Belatos::HitBegin(Object* const Target, const Vector3 PushDir, const float 
 		//// XZ 평면에 투영 방향
 		const Vector3 PushDirectionProjectionXZ = FMath::Normalize({ PushDirection.x , 0.0f , PushDirection.z });
 		// 피격자를 공중에 띄워올리는 공격일 경우 벡터를 얼마나 회전 시킬 것인가 ? 
-		
-		// 3D 벡터의 Right 벡터를 구해서 해당 축으로 회전 시킬 것임 .
-		const Vector3 PushDirectionRight = FMath::Normalize(FMath::Cross(Vector3{ 0,1,0 }, PushDirectionProjectionXZ));
+		// 
 		// 축으로 회전 시킨 이후에 데미지에 비례한 힘만큼 스칼라곱
-		const Vector3 HitVelocity = FMath::RotationVecNormal(PushDirectionProjectionXZ, PushDirectionRight, -ForcePitchRad)  *DmgToForce;
+		const Vector3 HitVelocity = PushDirectionProjectionXZ * CurForce + Vector3{ 0.f,CurForceJump,0.f };
 		auto* TpCamera =
 			dynamic_cast<Engine::ThirdPersonCamera*>(
 				dynamic_cast<Player*>(_PlayerWeapon->GetAttackOwner())->CurrentTPCamera);
@@ -219,12 +219,26 @@ void Belatos::HitBegin(Object* const Target, const Vector3 PushDir, const float 
 		const float RightDot = FMath::Dot(RightProjectionXZ, PushDirectionProjectionXZ);
 		const float ForwardDot = FMath::Dot(ForwardProjectionXZ, PushDirectionProjectionXZ);
 
-		bBackHit = FMath::IsRange(-1.f  , -Rad45, ForwardDot);
-		bFrontHit = FMath::IsRange(Rad45, 1.f, ForwardDot);
-		bLeftHit = FMath::IsRange(-1.f, -Rad45,RightDot);
-		bRightHit = FMath::IsRange(Rad45, 1.f, RightDot);
+		bFrontHit = (ForwardDot > 0.0f);
 
-		static constexpr float CameraStopTime = 0.21f;
+		if (FMath::IsRange(-1.f, -Rad45, ForwardDot))
+		{
+			_CurRTAxis = Monster::RTAxis::Back;
+		}
+		else if (FMath::IsRange(Rad45, 1.f, ForwardDot))
+		{
+			_CurRTAxis = Monster::RTAxis::Front;
+		}
+		else if (FMath::IsRange(-1.f, -Rad45, RightDot))
+		{
+			_CurRTAxis = Monster::RTAxis::Left;
+		}
+		else if (FMath::IsRange(Rad45, 1.f, RightDot))
+		{
+			_CurRTAxis =Monster::RTAxis::Right;
+		}
+		
+		static constexpr float CameraStopTime = 0.25f;
 		static constexpr float FloatMin = (std::numeric_limits<float>::min)(); 
 		// 카메라의 업데이트를 잠시 정지 . 
 		TpCamera->bCameraUpdate = false;
@@ -236,7 +250,7 @@ void Belatos::HitBegin(Object* const Target, const Vector3 PushDir, const float 
 			return true;
 			});
 
-		static constexpr float ForceTime = 0.18f;
+		static constexpr float ForceTime = 0.25f;
 		// 공중에 띄워지는 공격이 아니라면 일정시간 이후에 가해지던 힘을 초기화 ... 
 		static constexpr float ForceClearTime = CameraStopTime + ForceTime;
 		if (bAirAttack == false)
@@ -254,14 +268,18 @@ void Belatos::HitBegin(Object* const Target, const Vector3 PushDir, const float 
 		{
 			const float DieTime = 2.f;
 			DissolveStart(1.f  / DieTime, 0.f);
-			RefTimer().TimerRegist(2.f, 0.0f, 2.1f, [this]() {
+
+			RefTimer().TimerRegist(DieTime, 0.0f, DieTime+0.1f, [this]() {
 				Kill(); return true;  });
 		}
 
 		auto*const _SkeletonMesh = GetComponent<Engine::SkeletonMesh>();
 		auto& _Manager = RefManager();
 		auto _Players = _Manager.FindObjects<Engine::NormalLayer, Player>();
-		FSMControlInformation InitFSMControlInfo{ _Players.front().get(),_Transform,_SkeletonMesh,1.f };
+		FSMControlInformation InitFSMControlInfo{ _Players.front().get(),_Transform,_SkeletonMesh,RefTimer().GetDelta() };
+
+		const Vector3 Rotation = InitFSMControlInfo.MyTransform->GetRotation();
+		InitFSMControlInfo.MyTransform->SetRotation({ 0.f,Rotation.y,Rotation.z });
 
 		if(bAirAttack==false)
 		{
@@ -269,21 +287,36 @@ void Belatos::HitBegin(Object* const Target, const Vector3 PushDir, const float 
 		}
 		else
 		{
-			if (bFrontHit)
+			if (CurForceJump  > SmallAirAttackRange)
 			{
-				RTChaseBigFrontTransition(InitFSMControlInfo);
+				switch (_CurRTAxis)
+				{
+				case Monster::RTAxis::Front:
+					RTChaseBigFrontTransition(InitFSMControlInfo);
+					break;
+				case Monster::RTAxis::Back:
+					RTChaseBigBackTransition(InitFSMControlInfo);
+					break;
+				case Monster::RTAxis::Right:
+					RTChaseBigRightTransition(InitFSMControlInfo);
+					break;
+				case Monster::RTAxis::Left:
+					RTChaseBigLeftTransition(InitFSMControlInfo);
+					break;
+				default:
+					break;
+				}
 			}
-			else if (bBackHit)
+			else
 			{
-				RTChaseBigBackTransition(InitFSMControlInfo); 
-			}
-			else if (bRightHit)
-			{
-				RTChaseBigRightTransition(InitFSMControlInfo); 
-			}
-			else if (bLeftHit)
-			{
-				RTChaseBigLeftTransition(InitFSMControlInfo);
+				if (bFrontHit)
+				{
+					RTStandAirBigFrontTransition(InitFSMControlInfo);
+				}
+				else
+				{
+					RTStandAirBigBackTransition(InitFSMControlInfo);
+				}
 			}
 		}
 	}
@@ -492,6 +525,20 @@ void Belatos::RespawnState(const FSMControlInformation& FSMControlInfo)&
 
 	if (CurAnimNotify.bAnimationEnd)
 	{
+			auto* const _Player = RefManager().FindObjects<Engine::NormalLayer, Player>().front().get();
+			auto* const TpCam = _Player->CurrentTPCamera;
+
+			const auto PlayerTargetInfo= (_Player->PlayerTargetInfo);
+	
+			TpCam->RefTargetInformation().TargetObject = _Player;
+			TpCam->RefTargetInformation().DistancebetweenTarget = 200.f;
+			TpCam->RefTargetInformation().MaxDistancebetweenTarget = PlayerTargetInfo.MaxDistancebetweenTarget;
+			TpCam->RefTargetInformation().RotateResponsiveness = PlayerTargetInfo.RotateResponsiveness;
+			TpCam->RefTargetInformation().TargetLocationOffset = PlayerTargetInfo.TargetLocationOffset;
+			TpCam->RefTargetInformation().ViewDirection = PlayerTargetInfo.ViewDirection;
+			TpCam->RefTargetInformation().ZoomInOutScale = PlayerTargetInfo.ZoomInOutScale;
+
+		
 		WaitTransition(FSMControlInfo);
 		return;
 	}
@@ -528,7 +575,13 @@ void Belatos::RTStandTransition(const FSMControlInformation& FSMControlInfo)&
 }
 void Belatos::AirState(const FSMControlInformation& FSMControlInfo)&
 {
-
+	const float CurLocationY = FSMControlInfo.MyTransform->GetLocation().y;
+	auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
+	if (CheckTheLandingStatable(CurLocationY, Physic.CurrentGroundY))
+	{
+		RTStandAirLandingTransition(FSMControlInfo);
+		return;
+	}
 };
 
 void Belatos::AirTransition(const FSMControlInformation& FSMControlInfo)&
@@ -571,6 +624,12 @@ void Belatos::DownFrontTransition(const FSMControlInformation& FSMControlInfo)&
 
 void Belatos::RTChaseBigBackState(const FSMControlInformation& FSMControlInfo)&
 {
+	RotatePitchFromCurVelocity();
+	auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
+	if (Physic.Velocity.y < 0.0f)
+	{
+		RTDownAirFallBackTransition(FSMControlInfo);
+	}
 }
 
 void Belatos::RTChaseBigBackTransition(const FSMControlInformation& FSMControlInfo)&
@@ -584,6 +643,7 @@ void Belatos::RTChaseBigBackTransition(const FSMControlInformation& FSMControlIn
 
 void Belatos::RTChaseBigFrontState(const FSMControlInformation& FSMControlInfo)&
 {
+	RotatePitchFromCurVelocity();
 	auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
 	if (Physic.Velocity.y < 0.0f)
 	{
@@ -598,10 +658,26 @@ void Belatos::RTChaseBigFrontTransition(const FSMControlInformation& FSMControlI
 	_AnimNotify.Name = "RTChase_Big_F_Belatos_Twohandedsword";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = State::RTChaseBigFront;
+
+	auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
+	FSMControlInfo.MyTransform->Move(Physic.Velocity,FSMControlInfo.DeltaTime);
 }
 
 void Belatos::RTChaseBigLeftState(const FSMControlInformation& FSMControlInfo)&
 {
+	RotatePitchFromCurVelocity();
+	auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
+	if (Physic.Velocity.y < 0.0f)
+	{
+		if (bFrontHit)
+		{
+			RTDownAirFallFrontTransition(FSMControlInfo);
+		}
+		else
+		{
+			RTDownAirFallBackTransition(FSMControlInfo);
+		}
+	}
 }
 
 void Belatos::RTChaseBigLeftTransition(const FSMControlInformation& FSMControlInfo)&
@@ -611,11 +687,27 @@ void Belatos::RTChaseBigLeftTransition(const FSMControlInformation& FSMControlIn
 	_AnimNotify.Name = "RTChase_Big_L_Belatos_Twohandedsword";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = State::RTChaseBigLeft;
+
+	auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
+	FSMControlInfo.MyTransform->Move(Physic.Velocity, FSMControlInfo.DeltaTime);
 	
 }
 
 void Belatos::RTChaseBigRightState(const FSMControlInformation& FSMControlInfo)&
 {
+	RotatePitchFromCurVelocity();
+	auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
+	if (Physic.Velocity.y < 0.0f)
+	{
+		if (bFrontHit)
+		{
+			RTDownAirFallFrontTransition(FSMControlInfo);
+		}
+		else
+		{
+			RTDownAirFallBackTransition(FSMControlInfo);
+		}
+	}
 }
 
 void Belatos::RTChaseBigRightTransition(const FSMControlInformation& FSMControlInfo)&
@@ -625,11 +717,23 @@ void Belatos::RTChaseBigRightTransition(const FSMControlInformation& FSMControlI
 	_AnimNotify.Name = "RTChase_Big_R_Belatos_Twohandedsword";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = State::RTChaseBigRight;
+	auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
+	FSMControlInfo.MyTransform->Move(Physic.Velocity, FSMControlInfo.DeltaTime);
 
 }
 
 void Belatos::RTDownAirFallBackState(const FSMControlInformation& FSMControlInfo)&
 {
+	RotatePitchFromCurVelocity();
+	const float CurLocationY = FSMControlInfo.MyTransform->GetLocation().y;
+	auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
+
+	if (CheckTheLandingStatable(CurLocationY, Physic.CurrentGroundY))
+	{
+		const Vector3 Rotation=FSMControlInfo.MyTransform->GetRotation();
+		FSMControlInfo.MyTransform->SetRotation({ 0.f,Rotation.y,Rotation .z});
+		RTDownAirLandingBackTransition(FSMControlInfo);
+	}
 }
 
 void Belatos::RTDownAirFallBackTransition(const FSMControlInformation& FSMControlInfo)&
@@ -640,25 +744,22 @@ void Belatos::RTDownAirFallBackTransition(const FSMControlInformation& FSMContro
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = State::RTDownAirFallBack;
 
+	auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
+	FSMControlInfo.MyTransform->Move(Physic.Velocity, FSMControlInfo.DeltaTime);
+
 }
 
 void Belatos::RTDownAirFallFrontState(const FSMControlInformation& FSMControlInfo)&
 {
+	RotatePitchFromCurVelocity();
 	const float CurLocationY = FSMControlInfo.MyTransform->GetLocation().y;
 	auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
 
 	if (CheckTheLandingStatable(CurLocationY, Physic.CurrentGroundY))
 	{
-		RTDownAirLandingBackTransition(FSMControlInfo);
-
-		if (bFrontHit)
-		{
-
-		}
-		else if (bBackHit)
-		{
-
-		}
+		const Vector3 Rotation = FSMControlInfo.MyTransform->GetRotation();
+		FSMControlInfo.MyTransform->SetRotation({ 0.f,Rotation.y,Rotation.z });
+		RTDownAirLandingFrontTransition(FSMControlInfo);
 	}
 }
 
@@ -693,18 +794,25 @@ void Belatos::RTDownAirLandingBackTransition(const FSMControlInformation& FSMCon
 
 }
 
-void Belatos::RTDownAirLandingBackLeftState(const FSMControlInformation& FSMControlInfo)&
+void Belatos::RTDownAirLandingFrontState(const FSMControlInformation& FSMControlInfo)&
 {
+	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 
+	if (CurAnimNotify.bAnimationEnd)
+	{
+		FSMControlInfo.MyTransform->ClearVelocity();
+		StandUpFrontTransition(FSMControlInfo);
+		return;
+	}
 }
 
-void Belatos::RTDownAirLandingBackLeftTransition(const FSMControlInformation& FSMControlInfo)&
+void Belatos::RTDownAirLandingFrontTransition(const FSMControlInformation& FSMControlInfo)&
 {
 	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
 	_AnimNotify.bLoop = false;
 	_AnimNotify.Name = "RTDown_Air_Landing_B_L_Belatos_Twohandedsword";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
-	CurrentState = State::RTDownAirLandingBackLeft;
+	CurrentState = State::RTDownAirLandingFront;
 
 }
 
@@ -719,8 +827,6 @@ void Belatos::RTDownBackTransition(const FSMControlInformation& FSMControlInfo)&
 	_AnimNotify.Name = "RTDown_B_Belatos_Twohandedsword";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = State::RTDownBack;
-
-
 }
 
 void Belatos::RTDownFrontState(const FSMControlInformation& FSMControlInfo)&
@@ -740,6 +846,15 @@ void Belatos::RTDownFrontTransition(const FSMControlInformation& FSMControlInfo)
 
 void Belatos::RTStandAirBigFrontState(const FSMControlInformation& FSMControlInfo)&
 {
+	RotatePitchFromCurVelocity();
+	auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
+	if (Physic.Velocity.y < 0.0f)
+	{
+		const Vector3 Rotation=FSMControlInfo.MyTransform->GetRotation();
+		FSMControlInfo.MyTransform->SetRotation({0.0f,Rotation .y,Rotation .z });
+		RTStandAirFallTransition(FSMControlInfo);
+		return;
+	}
 }
 
 void Belatos::RTStandAirBigFrontTransition(const FSMControlInformation& FSMControlInfo)&
@@ -749,12 +864,19 @@ void Belatos::RTStandAirBigFrontTransition(const FSMControlInformation& FSMContr
 	_AnimNotify.Name = "RTStand_Air_Big_F_Belatos_Twohandedsword";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = State::RTStandAirBigFront;
-
-
 }
 
 void Belatos::RTStandAirBigBackState(const FSMControlInformation& FSMControlInfo)&
 {
+	RotatePitchFromCurVelocity();
+	auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
+	if (Physic.Velocity.y < 0.0f)
+	{
+		const Vector3 Rotation = FSMControlInfo.MyTransform->GetRotation();
+		FSMControlInfo.MyTransform->SetRotation({ 0.0f,Rotation.y,Rotation.z });
+		RTStandAirFallTransition(FSMControlInfo);
+		return;
+	}
 }
 
 void Belatos::RTStandAirBigBackTransition(const FSMControlInformation& FSMControlInfo)&
@@ -764,12 +886,19 @@ void Belatos::RTStandAirBigBackTransition(const FSMControlInformation& FSMContro
 	_AnimNotify.Name = "RTStand_Air_Big_B_Belatos_Twohandedsword";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = State::RTStandAirBigBack;
-
-
 }
 
 void Belatos::RTStandAirFallState(const FSMControlInformation& FSMControlInfo)&
 {
+	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+
+	if (CurAnimNotify.bAnimationEnd)
+	{
+		
+		AirTransition(FSMControlInfo);
+
+		return;
+	}
 }
 
 void Belatos::RTStandAirFallTransition(const FSMControlInformation& FSMControlInfo)&
@@ -779,11 +908,17 @@ void Belatos::RTStandAirFallTransition(const FSMControlInformation& FSMControlIn
 	_AnimNotify.Name = "RTStand_Air_Fall_Belatos_Twohandedsword";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = State::RTStandAirFall;
-
 }
 
 void Belatos::RTStandAirLandingState(const FSMControlInformation& FSMControlInfo)&
 {
+	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+
+	if (CurAnimNotify.bAnimationEnd)
+	{
+		WaitTransition(FSMControlInfo);
+		return;
+	}
 }
 
 void Belatos::RTStandAirLandingTransition(const FSMControlInformation& FSMControlInfo)&
@@ -832,6 +967,13 @@ void Belatos::StandUpBackTransition(const FSMControlInformation& FSMControlInfo)
 
 void Belatos::StandUpFrontState(const FSMControlInformation& FSMControlInfo)&
 {
+	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+
+	if (CurAnimNotify.bAnimationEnd)
+	{
+		WaitTransition(FSMControlInfo);
+		return;
+	}
 }
 
 void Belatos::StandUpFrontTransition(const FSMControlInformation& FSMControlInfo)&
@@ -842,6 +984,50 @@ void Belatos::StandUpFrontTransition(const FSMControlInformation& FSMControlInfo
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = State::StandUpFront;
 
+}
+
+void Belatos::SpawnTransition(const FSMControlInformation& FSMControlInfo)&
+{
+	FSMControlInfo.MyTransform->ClearVelocity();
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	_AnimNotify.bLoop = true;
+	_AnimNotify.Name = "Air_Belatos_Twohandedsword";
+	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
+	CurrentState = State::Spawn;
+}
+
+
+void Belatos::SpawnState(const FSMControlInformation& FSMControlInfo)&
+{
+	const float CurLocationY = FSMControlInfo.MyTransform->GetLocation().y;
+	auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
+
+	if (CheckTheLandingStatable(CurLocationY, Physic.CurrentGroundY))
+	{
+		
+		auto*const TpCam=RefManager().FindObjects<Engine::NormalLayer, Player>().front()->CurrentTPCamera;
+		SpawnCameraEvent =  TpCam->GetTargetInformation( );
+		SpawnCameraEvent->TargetObject = this;
+		SpawnCameraEvent->DistancebetweenTarget = 50.f;
+		SpawnCameraEvent->TargetLocationOffset = { 0,0,0 };
+		SpawnCameraEvent->TargetObject = this;
+		SpawnCameraEvent->ViewDirection = FMath::RotationVecNormal(GetComponent<Engine::Transform>()->GetForward(), GetComponent<Engine::Transform>()->GetRight(), FMath::PI / 4.f);
+		SpawnCameraEvent->MaxDistancebetweenTarget = 51.f;
+
+		TpCam->SetUpTarget(*SpawnCameraEvent);
+
+		RespawnTransition(FSMControlInfo);
+		return;
+	}
+}
+
+void Belatos::RotatePitchFromCurVelocity()&
+{
+	auto*const _Transform =GetComponent<Engine::Transform>();
+	Vector3 Rotation =_Transform->GetRotation();
+	const float Pitch = std::acosf(FMath::Dot({ 0,1,0 }, FMath::Normalize(_Transform->RefPhysic().Velocity))) - FMath::PI / 2.f;
+	Rotation.x = Pitch;
+	_Transform->SetRotation(Rotation);
 }
 
 void Belatos::RTChaseSmallBackState(const FSMControlInformation& FSMControlInfo)&
@@ -892,17 +1078,13 @@ void Belatos::PrototypeInitialize(IDirect3DDevice9* const Device)&
 			L"Belatos.fbx", L"Belatos",
 			Engine::RenderInterface::Group::DeferredNoAlpha);
 
-	RefResourceSys().InsertAny<decltype(_SkeletonMeshProto)>
-		(L"Belatos", _SkeletonMeshProto);
+	RefResourceSys().InsertAny<decltype(_SkeletonMeshProto)>(L"Belatos", _SkeletonMeshProto);
 
 	AttackRange = 25.f;
-
-	WeaponLocalMin = {-26.549f  , 31.858f , -17.213f};
-	WeaponLocalMax = {109.091f , 223.141f , 56.557f};
-	ResetInvincibilityTime = 0.05f;
+	WeaponLocalMin = { -26.549f  , 31.858f , -17.213f};
+	WeaponLocalMax = { 109.091f , 223.141f , 56.557f};
 	_Status.HP = 100000.f;
-	DamageToForceFactor = 0.1f;
-	AirDamageToForceFactor = 0.05f;
+	ResetInvincibilityTime = 0.1f;
 }
 void Belatos::Initialize(const std::optional<Vector3>& Scale, const std::optional<Vector3>& Rotation, const Vector3& SpawnLocation)&
 {
@@ -920,7 +1102,9 @@ void Belatos::Initialize(const std::optional<Vector3>& Scale, const std::optiona
 		_Transform->SetRotation(*Rotation);
 	}
 
-	_Transform->SetLocation(SpawnLocation);
+	const Vector3 SpawnLocationAir = { SpawnLocation.x , SpawnLocation.y + 1000.f , SpawnLocation.z };
+
+	_Transform->SetLocation(SpawnLocationAir);
 
 	auto _SkeletonMesh = AddComponent<Engine::SkeletonMesh>(L"Belatos");
 
@@ -959,8 +1143,7 @@ void Belatos::Initialize(const std::optional<Vector3>& Scale, const std::optiona
 		});
 
 	_Collision->RefPushCollisionables().insert({
-		Engine::CollisionTag::Enemy,
-		Engine::CollisionTag::Player
+		Engine::CollisionTag::Enemy
 		});
 
 	auto& _NaviMesh = RefNaviMesh();
@@ -995,10 +1178,20 @@ void Belatos::Initialize(const std::optional<Vector3>& Scale, const std::optiona
 	auto& _Manager = RefManager();
 	auto _Players = _Manager.FindObjects<Engine::NormalLayer, Player>();
 	FSMControlInformation InitFSMControlInfo{ _Players.front().get(),_Transform,_SkeletonMesh,1.f };
-	WaitTransition(InitFSMControlInfo);
 
-	DissolveStart(1.f / 3.f, 0.0f);
+	if (!SpawnCameraEvent)
+	{
+		SpawnTransition(InitFSMControlInfo);
+	}
+	else
+	{
+		DissolveStart(1.f / 3.f, 0.f);
+		WaitTransition(InitFSMControlInfo);
+	}
 };
+
+
+
 
 std::function < Engine::Object::SpawnReturnValue
 (const Engine::Object::SpawnParam&)>

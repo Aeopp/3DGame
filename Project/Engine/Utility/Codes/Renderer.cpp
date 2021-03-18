@@ -32,7 +32,8 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 
 void Engine::Renderer::Update(const float DeltaTime)&
 {
-	
+	EffectSys.Update(DeltaTime);
+
 };
 
 void Engine::Renderer::Render()&
@@ -57,11 +58,13 @@ void Engine::Renderer::Render()&
 	// 지연 렌더링 이후 렌더링...
 	RenderAlphaTest();
 	RenderAlphaBlend();
+	RenderSky();
+	RenderEffect();
 	RenderUI();
 	
 	NavigationMesh::Instance->Render(Device.get());
 	RenderDebugCollision();
-	RenderSky();
+	
 
 	// 디버그 렌더링.... 
 	_Frustum.Render(Device.get());
@@ -94,6 +97,20 @@ void Engine::Renderer::Regist(RenderInterface* const Target)
 {
 	RenderObjects[Target->GetGroup()].push_back(*Target);
 }
+std::weak_ptr<Engine::UI> 
+Engine::Renderer::MakeUI(
+	const Vector2& NDCLeftTopAnchor, 
+	const Vector2& NDCSize, 
+	const std::filesystem::path& TexFullPath, 
+	const float UIDepthZ)&
+{
+	auto CreateUI = std::make_shared<UI>();
+	CreateUI->Initialize(
+		Device.get(), NDCLeftTopAnchor,
+		NDCSize, TexFullPath, UIDepthZ);
+	_UIs.insert({ CreateUI->GetUIDepthZ(),CreateUI });
+	return CreateUI;
+}
 void Engine::Renderer::FrustumInCheck()&
 {
 	CurrentLandscape.FrustumCullingCheck(_Frustum);
@@ -121,6 +138,8 @@ void Engine::Renderer::RenderReady()&
 			RenderEntityRef.get().RenderReady(this);
 		}
 	}
+
+	EffectSys.RenderReady(this);
 }
 void Engine::Renderer::SetUpRenderInfo()&
 {
@@ -305,8 +324,11 @@ void Engine::Renderer::RenderSky()&
 {
 	_Sky.Render(_Frustum, CurrentRenderInformation.View, CurrentRenderInformation.Projection, CurrentRenderInformation.CameraLocation4D, Device.get(),
 		_DeferredPass.Velocity2_None1_Depth1.GetTexture());
+}
 
-	
+void Engine::Renderer::RenderEffect()&
+{
+	EffectSys.Render(this);
 }
 
 Engine::Landscape& Engine::Renderer::RefLandscape()&
@@ -453,6 +475,7 @@ void Engine::Renderer::RenderAlphaBlend()&
 		FogColor,
 		FogDistance);
 
+
 	if (auto iter = RenderObjects.find(RenderInterface::Group::AlphaBlend);
 		iter != std::end(RenderObjects))
 	{
@@ -488,6 +511,11 @@ void Engine::Renderer::RenderUI()&
 			RenderInterface& _RefRender = _RenderEntity.get();
 			_RefRender.Render(this);
 		}
+	}
+
+	for (auto&  [UIDepthZ,CurUI ]: _UIs)
+	{
+		CurUI->Render(this);
 	}
 };
 

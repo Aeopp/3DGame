@@ -179,6 +179,7 @@ void Engine::Management::Render()&
 		if (ImGui::CollapsingHeader("FrameRate"))
 		{
 			ImGui::Text(TimerInfoA.c_str());
+			ImGui::SliderFloat("TimeScale", &_Timer->RefTimeScale(),0.f,10.f);
 		}
 	}
 
@@ -438,6 +439,7 @@ void Engine::Management::CreateStaticResource()&
 	{
 		// 상위 셰이더 로딩
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"DefaultFx.hlsl", L"DefaultFx");
+		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"AnimEffectFx.hlsl", L"AnimEffectFx");
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"DeferredAlbedoNormalVelocityDepthSpecularRimFx.hlsl", L"DeferredAlbedoNormalVelocityDepthSpecularRimFx");
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"DeferredAlbedoNormalVelocityDepthSpecularRimSkeletonFx.hlsl", L"DeferredAlbedoNormalVelocityDepthSpecularRimSkeletonFx");
 
@@ -449,12 +451,11 @@ void Engine::Management::CreateStaticResource()&
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"DeferredDefaultFx.hlsl", L"DeferredDefaultFx");
 		Engine::ShaderFx::Load(Device.get(),Engine::Global::ResourcePath / L"Shader" / L"SkyFx.hlsl",L"SkyFx");
 		
-		
-		
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"VelocityFx.hlsl", L"VelocityFx");
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"VelocitySkinningFx.hlsl", L"VelocitySkinningFx");
 		
-		
+
+		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"DefaultUI.hlsl", L"DefaultUI");
 
 		Engine::ShaderFx::Load(Device.get(),Engine::Global::ResourcePath / L"Shader" / L"SkeletonSkinningDefaultFx.hlsl",L"SkeletonSkinningDefaultFx");
 	}

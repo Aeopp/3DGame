@@ -43,6 +43,7 @@ namespace Engine
 		bool bDepthShadow{ true };
 		static const inline Property TypeProperty = Property::Render;
 		std::shared_ptr<std::vector<Vector3>> LocalVertexLocations;
+		float OutlineRedFactor = 0.0f;
 	protected:
 		Matrix PrevWorld = FMath::Identity();
 		Matrix PrevView = FMath::Identity();

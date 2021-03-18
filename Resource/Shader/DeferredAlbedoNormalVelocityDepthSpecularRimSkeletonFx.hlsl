@@ -7,14 +7,15 @@ matrix PrevWorldViewProjection;
 float DetailScale;
 float3 AddAlbedo = float3(0, 0, 0);
 
-float Contract;
-float Power;
-float SpecularIntencity;
-float CavityCoefficient;
-float DetailDiffuseIntensity;
-float DetailNormalIntensity;
-float RimInnerWidth;
-float RimOuterWidth;
+float  Contract;
+float  Power;
+float  SpecularIntencity;
+float  CavityCoefficient;
+float  DetailDiffuseIntensity;
+float  DetailNormalIntensity;
+float  RimInnerWidth;
+float  RimOuterWidth;
+float OutlineRedFactor;
 vector RimAmtColor;
 
 int VTFPitch;
@@ -251,7 +252,7 @@ PS_OUT AlbedoNormalWorldPosDepthSpecular(PS_IN In)
     
     // 월드 위치와 NDC 깊이 패킹
     
-    Out.Velocity2_None1_Depth1 = float4(In.Velocity.xy,1.f, In.ClipPosition.z / In.ClipPosition.w);
+    Out.Velocity2_None1_Depth1 = float4(In.Velocity.xy, OutlineRedFactor, In.ClipPosition.z / In.ClipPosition.w);
   
     CavityColor.rgb *= SpecularIntencity;
     Out.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1Sampler = float4(CavityColor.r, RimAmtColor.r, RimInnerWidth, RimOuterWidth);

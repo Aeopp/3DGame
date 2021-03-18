@@ -8,14 +8,14 @@
         "DefaultEmissive": "EmissiveMap"
     },
     "Contract": 1,
-    "RimInnerWidth": 0.003000000026077032,
+    "RimInnerWidth": 0.0,
     "RimOuterWidth": 0.0,
     "Power": 16.0,
-    "SpecularIntencity": 0.492000013589859,
+    "SpecularIntencity": 1.0,
     "DetailScale": 1.0,
-    "CavityCoefficient": 2.200000047683716,
+    "CavityCoefficient": 1.0219999551773072,
     "DetailDiffuseIntensity": 2.0,
-    "DetailNormalIntensity": 1.0,
+    "DetailNormalIntensity": 2.0,
     "RimAmtColor": [
         1.0,
         1.0,

@@ -4,6 +4,7 @@
 #include "SkeletonMesh.h"
 #include "ThirdPersonCamera.h"
 #include "Cell.h"
+#include "AnimEffect.h"
 
 class Player final : public Engine::Object
 {
@@ -141,6 +142,41 @@ private:
 	{
 		std::vector<Vector3> ControlDirections{};
 	};
+	struct AttackForceInformation
+	{
+		float BasicCombo = 0.1f;
+		float BasicComboSmall = 0.2f;
+		float BasicComboSmallJump = 55.f;
+		float Ex01firstCombo = 0.5f;
+		float Ex01firstComboJump = 65.f;
+
+		float Ex01SecondCombo = 1.f;
+		float Ex01SecondComboJump = 78.f;
+
+		float Ex02Start = 0.1f;
+		float Ex02StartJump = 0.0f;
+
+		float Ex02Loop = 0.1f;
+		float Ex02LoopJump = 0.0f;
+
+		float Ex02End = 0.1f;
+		float Ex02EndJump = 45.f;
+
+		float Dash = 1.f;
+		float DashComboJump= 70.f;
+
+		float Air01 = 0.3f;
+		float Air01Jump = 45.f;
+
+		float Air02 = 0.3f;
+		float Air02Jump = 45.f;
+
+		float Air03 = 0.3f;
+		float Air03Jump = 45.f;
+
+		float Air04 = 0.3f;
+		float Air04Jump = 45.f;
+	};
 	void FSM(const float DeltaTime)&;
 private:
 	void CombatWaitTransition(const FSMControlInformation& FSMControlInfo)&;
@@ -261,9 +297,12 @@ public:
 	Engine::ThirdPersonCamera::TargetInformation PlayerTargetInfo{};
 	Engine::ThirdPersonCamera* CurrentTPCamera{ nullptr };
 private:
-	float WeaponDissolveTime = -1.f;
+	class Engine::AnimEffect* _BasicCombo01{ nullptr };
+
+	AttackForceInformation _AttackForce{};
+	float WeaponDissolveTime = -1.f / 2.f;
 	Vector3 NPCInteractionLocationOffset{ -7.080f,14.159f,3.540f};
-	Vector3 PlayerCameraTargetLocationOffset{ 0.f,10.f,0.f };
+	Vector3 PlayerCameraTargetLocationOffset{ 0.f,20.f,0.f };
 	bool bNPCInteraction = false;
 	bool bWeaponAcquisition = false;
 	float LandCheckHighRange = 7.f;

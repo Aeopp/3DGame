@@ -105,9 +105,8 @@ void Engine::RenderTarget::DebugBufferInitialize(
 	const Vector2& ScreenPos, const Vector2& ScreenSize)&
 {
 	this->ScreenSize = ScreenSize;
-	this->ScreenPos = ScreenPos;
+	this->ScreenPos  = ScreenPos;
 	Stride = sizeof(Vertex::Screen);
-	
 
 	Device->CreateVertexBuffer(
 		Stride * 4u,

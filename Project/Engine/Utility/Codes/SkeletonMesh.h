@@ -15,18 +15,10 @@
 #include <set>
 #include "ShaderFx.h"
 #include "StringHelper.h"
+#include "AnimationInformation.h"
 
 namespace Engine
 {
-	struct DLL_DECL AnimationInformation
-	{
-		std::string Name{}; 
-		double Duration = 1.f;
-		double TickPerSecond = 30.f;
-		double TransitionTime = 0.25f;
-		double Acceleration = 1.f;
-	};
-	
 	// 본에 관한 정보를 클론들끼리 절대로 공유하지 마세요 
 	// ( 프로토타입에서의 카피 이후 구조는 동일하지만 새로운 인스턴스로 본정보를 구축하세요.)
 	class DLL_DECL SkeletonMesh : public Mesh
@@ -76,7 +68,8 @@ namespace Engine
 		Engine::SkeletonMesh::AnimNotify GetCurrentAnimNotify()const&;
 		float GetCurrentNormalizeAnimTime()const&;
 
-		void  PlayAnimation(const uint32 AnimIdx, 
+		void  PlayAnimation(
+			const uint32 AnimIdx, 
 			const double Acceleration,
 			const double TransitionDuration, const AnimNotify& _AnimNotify)&;
 		void  PlayAnimation(const AnimNotify& _AnimNotify)&;
@@ -109,9 +102,7 @@ namespace Engine
 		AnimNotify CurrentNotify{};
 	private:
 		std::vector<Matrix> RenderBoneMatricies{};
-
-
-		std::string RootBoneName{}; 
+		std::string         RootBoneName{}; 
 		std::shared_ptr<std::set<std::string>> BoneNameSet{}; 
 		double PrevAnimAcceleration = 1.f;
 		double Acceleration = 1.f;
@@ -171,7 +162,6 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 
 	BoneNameSet = std::make_shared<std::set<std::string>>();
 
-
 	static uint32 SkeletonResourceID = 0u;
 	auto& ResourceSys = RefResourceSys();
 	MaxAnimIdx = AiScene->mNumAnimations;
@@ -183,10 +173,10 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 	Bone* RootBone = _Bone.get();
 	BoneTable.push_back(_Bone);
 	BoneTableIdxFromName.insert({ AiScene->mRootNode->mName.C_Str()  , BoneTable .size()-1u });
-	 RootBone->Name = AiScene->mRootNode->mName.C_Str();
-	 RootBone->OriginTransform = RootBone->Transform = FromAssimp(AiScene->mRootNode->mTransformation);
-	 RootBone->Parent = nullptr;
-	 RootBone->ToRoot = RootBone->OriginTransform;  *FMath::Identity();
+	RootBone->Name = AiScene->mRootNode->mName.C_Str();
+	RootBone->OriginTransform = RootBone->Transform = FromAssimp(AiScene->mRootNode->mTransformation);
+	RootBone->Parent = nullptr;
+	RootBone->ToRoot = RootBone->OriginTransform;  *FMath::Identity();
 	 
 	for (uint32 i = 0; i < AiScene->mRootNode->mNumChildren; ++i)
 	{
@@ -318,8 +308,8 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 	{
 		VtxDecl= ResourceSys.Insert<IDirect3DVertexDeclaration9>(VtxTypeNameW, VertexType::GetVertexDecl(Device));
 	}
-	
-	
+
+
 	// 애니메이션 데이터 파싱.
 	if (AiScene->HasAnimations())
 	{
