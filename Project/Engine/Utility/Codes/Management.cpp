@@ -197,6 +197,7 @@ void Engine::Management::Render()&
 	{
 	/*	_FontManager->RenderFont(L"Font_Jinji", L"진지함", { 400,300 }, D3DXCOLOR{ 0.5f,1.f,0.5f,0.1f });
 		_FontManager->RenderFont(L"Font_Default", L"기본", { 600,200 }, D3DXCOLOR{ 0.5f,0.f,0.5f,1.f });*/
+		_FontManager->RenderFont(L"Font_Sandoll", L"폰트 출력 !! ", { 600,200 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });
 	}
 
 
@@ -434,6 +435,7 @@ void Engine::Management::CreateStaticResource()&
 		// 폰트 로딩
 		_FontManager->AddFont(Device.get(), L"Font_Default", L"바탕", 15, 20, FW_HEAVY);
 		_FontManager->AddFont(Device.get(), L"Font_Jinji", L"궁서", 15, 20, FW_THIN);
+		_FontManager->AddFont(Device.get(), L"Font_Sandoll", L"Sandoll 삼립호빵체 Outline", 15, 20, FW_THIN);
 	}
 
 	{

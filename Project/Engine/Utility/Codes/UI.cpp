@@ -4,15 +4,20 @@
 #include "imgui.h"
 
 void Engine::UI::Initialize(
-	IDirect3DDevice9*const Device ,
-	const Vector2& NDCLeftTopAnchor, 
-	const Vector2& NDCSize ,
+	IDirect3DDevice9*const Device,
+	const Vector2 Scale,
+	const Vector2 Position,
 	const std::filesystem::path& TexFullPath ,
 	const float UIDepthZ)&
 {
+	static uint32 UniqueID = 0u;
+	this->ID = UniqueID++;
+	TexFileName = TexFullPath.filename().string();
 	this->UIDepthZ = std::clamp(UIDepthZ, 0.0f, 1.f);
 	this->Device = Device;
 	Stride = sizeof(Vertex::UI);
+	this->Scale = Scale;
+	this->Position = Position;
 
 	Device->CreateVertexBuffer(
 		Stride * 4u,
@@ -61,23 +66,23 @@ void Engine::UI::Initialize(
 
 	VtxBuf->Lock(0, 0, reinterpret_cast<void**>(&VtxBufPtr), 0);
 
-	VtxBufPtr[0].NDC = { NDCLeftTopAnchor.x ,NDCLeftTopAnchor.y,UIDepthZ };
+	VtxBufPtr[0].NDC = { -1.f ,1.f,UIDepthZ };
 	VtxBufPtr[0].TexCoord = { 0.f,0.f };
 
 	VtxBufPtr[1].NDC = { 
-		NDCLeftTopAnchor.x + NDCSize.x, 
-		NDCLeftTopAnchor.y,UIDepthZ };
+		1.f, 
+		1.f,UIDepthZ };
 	VtxBufPtr[1].TexCoord = { 1.f,0.f };
 
 	VtxBufPtr[2].NDC = { 
-		NDCLeftTopAnchor.x + NDCSize.x,
-		NDCLeftTopAnchor.y + NDCSize.y,
+		1.f,
+		-1.f,
 		UIDepthZ };
 	VtxBufPtr[2].TexCoord = { 1.f,1.f };
 
 	VtxBufPtr[3].NDC = { 
-		NDCLeftTopAnchor.x,
-		NDCLeftTopAnchor.y + NDCSize.y,
+		-1.f ,
+		-1.f,
 		UIDepthZ };
 	VtxBufPtr[3].TexCoord = { 0.f,1.f };
 
@@ -110,8 +115,30 @@ void Engine::UI::Initialize(
 
 void Engine::UI::Render(Engine::Renderer* const _Renderer)&
 {
+	if (bRender == false)return;
+
 	auto Fx = _ShaderFx.GetHandle();
 	Fx->SetTexture("ColorMap", _Texture);
+	const Matrix Ortho = _Renderer->GetCurrentRenderInformation().OrthoProjection;
+	Matrix UIMatrix;
+
+	if (!WorldUI)
+	{
+		UIMatrix = FMath::WorldMatrix({ Scale.x,Scale.y,1.f }, { 0,0,0 }, { Position.x,Position.y,0 }) *
+			Ortho;
+	}
+	else
+	{
+		UIMatrix = WorldUI.value() * _Renderer->GetCurrentRenderInformation().ViewProjection;
+	}
+	
+
+	Fx->SetInt("Flag", Flag);
+	Fx->SetFloat("CoolTimeHeight", CoolTimeHeight);
+	Fx->SetFloat("AlphaFactor", AlphaFactor);
+	Fx->SetMatrix("UIMatrix", &UIMatrix);
+	Fx->SetFloatArray("AddColor", AddColor, 3u);
+	
 	Fx->CommitChanges();
 	uint32 Pass = 0u;
 	Fx->Begin(&Pass, NULL);
@@ -128,4 +155,15 @@ void Engine::UI::Render(Engine::Renderer* const _Renderer)&
 		Fx->EndPass();
 	}
 	Fx->End();
+
+	if (Engine::Global::bDebugMode)
+	{
+		if (ImGui::TreeNode( (TexFileName + std::to_string(ID)).c_str()))
+		{
+			ImGui::SliderFloat2("Position",Position,-1000.f, +1000.f);
+			ImGui::SliderFloat("Scale", Scale, 0.0f, 1000.f);
+			Scale.y = Scale.x;
+			ImGui::TreePop();
+		}
+	}
 }

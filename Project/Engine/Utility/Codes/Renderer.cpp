@@ -6,15 +6,15 @@
 #include "UtilityGlobal.h"
 #include "ResourceSystem.h"
 #include "Vertexs.hpp"
+#include <filesystem>
 #include "Timer.h"
 #include "NavigationMesh.h"
-
 
 void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)&
 {
 	this->Device = Device;
 	CreateStaticLightResource();
-
+	
 	_Frustum.Initialize();
 
 	_DeferredPass.Initialize(Device.get());
@@ -28,7 +28,11 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 	LightInfo.ShadowDepthMapHeight = _DeferredPass.ShadowDepth.Height;
 
 	_DirectionalLight.Initialize(Device.get(), LightInfo);
+
+	// CreateUIFromUIPath();
 };
+
+
 
 void Engine::Renderer::Update(const float DeltaTime)&
 {
@@ -60,7 +64,7 @@ void Engine::Renderer::Render()&
 	RenderAlphaBlend();
 	RenderSky();
 	RenderEffect();
-	RenderUI();
+	// RenderUI();
 	
 	NavigationMesh::Instance->Render(Device.get());
 	RenderDebugCollision();
@@ -69,6 +73,8 @@ void Engine::Renderer::Render()&
 	// 디버그 렌더링.... 
 	_Frustum.Render(Device.get());
 	RenderDeferredDebugBuffer();
+
+	RenderUI();
 
 	// 정보 초기화 ... 
 	CurBackBufSurface->Release();
@@ -97,17 +103,19 @@ void Engine::Renderer::Regist(RenderInterface* const Target)
 {
 	RenderObjects[Target->GetGroup()].push_back(*Target);
 }
+
+
 std::weak_ptr<Engine::UI> 
 Engine::Renderer::MakeUI(
-	const Vector2& NDCLeftTopAnchor, 
-	const Vector2& NDCSize, 
+	const Vector2 Scale ,
+	const Vector2 Position  ,
 	const std::filesystem::path& TexFullPath, 
 	const float UIDepthZ)&
 {
 	auto CreateUI = std::make_shared<UI>();
 	CreateUI->Initialize(
-		Device.get(), NDCLeftTopAnchor,
-		NDCSize, TexFullPath, UIDepthZ);
+		Device.get(), Scale,
+		Position, TexFullPath, UIDepthZ );
 	_UIs.insert({ CreateUI->GetUIDepthZ(),CreateUI });
 	return CreateUI;
 }
@@ -154,6 +162,10 @@ void Engine::Renderer::SetUpRenderInfo()&
 	CurrentRenderInformation.Projection = Projection;
 	CurrentRenderInformation.ViewProjection = View * Projection;
 	CurrentRenderInformation.InverseViewProjection =FMath::Inverse(CurrentRenderInformation.ViewProjection);
+	
+	D3DXMatrixOrthoLH(
+		&CurrentRenderInformation.OrthoProjection, Engine::Global::ClientSize.first,
+		Engine::Global::ClientSize.second, 0.0f, 1.f);
 
 	CurrentRenderInformation.LightViewProjection = _DirectionalLight.CalcLightViewProjection();
 	_Frustum.Make(CameraWorld, Projection);
@@ -430,11 +442,11 @@ void Engine::Renderer::CreateStaticLightResource()&
 
 	LightIdxBuf->Unlock();
 
-
 	Engine::ShaderFx::Load(Device.get(),
 		Engine::Global::ResourcePath / L"Shader" / L"DebugBufferRenderFx.hlsl",
 		L"DebugBufferRenderFx");
 }
+
 
 void Engine::Renderer::RenderDebugCollision()&
 {

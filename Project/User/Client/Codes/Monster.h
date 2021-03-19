@@ -17,18 +17,14 @@ public:
 	virtual std::shared_ptr<Engine::Object> GetCopyShared()& override;
 	virtual std::optional<SpawnReturnValue>
 		InitializeFromEditSpawnParam(const SpawnParam& _SpawnParam)& override;
-	virtual std::function< SpawnReturnValue(const SpawnParam&)>
-		PrototypeEdit()& override ;
+	virtual std::function< SpawnReturnValue(const SpawnParam&)>PrototypeEdit()& override;
 	virtual void Event()&override;
 	virtual void Update(const float DeltaTime)&;
 	virtual void LateUpdate(const float DeltaTime)&;
-
 	virtual void Edit()&;
 
-	virtual void HitNotify(Object* const Target, const Vector3 PushDir,
-		const float CrossAreaScale)&override;
-	virtual void HitBegin(Object* const Target, const Vector3 PushDir,
-		const float CrossAreaScale) & override;
+	virtual void HitNotify(Object* const Target, const Vector3 PushDir,const float CrossAreaScale)&override;
+	virtual void HitBegin(Object* const Target, const Vector3 PushDir,const float CrossAreaScale) & override;
 	virtual void HitEnd(Object* const Target) & override;
 
 	bool  IsInvincibility()const& { return CurInvincibilityTime >0.1f; };

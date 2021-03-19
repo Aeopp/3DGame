@@ -148,10 +148,11 @@ void StartScene::Event()&
 		
 			ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" /"NPC.json");
 
-			RefTimer().TimerRegist(5.f, 0.0f, 5.1f, []()->bool {
-				ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" / "BelatosWave1.json");
-				return true;
-				});
+			//RefTimer().TimerRegist(5.f, 0.0f, 5.1f, []()->bool {
+			//	ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" / "BelatosWave1.json");
+			//	return true;
+			//	});
+
 			RefSound().Play("BGM_OutroCinematic_01_A", 1.f, true, true);
 
 			bGameStart = true;

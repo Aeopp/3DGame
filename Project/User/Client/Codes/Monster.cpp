@@ -27,8 +27,6 @@ void Monster::MonsterInitialize(const std::optional<Vector3>& Scale, const std::
 void Monster::MonsterPrototypeInitialize(IDirect3DDevice9* const Device)&
 {
 	Super::PrototypeInitialize();
-
-
 }
 std::shared_ptr<Engine::Object> Monster::GetCopyShared()&
 {

@@ -5,6 +5,8 @@
 #include "ThirdPersonCamera.h"
 #include "Cell.h"
 #include "AnimEffect.h"
+#include <memory>
+#include "UI.h"
 
 class Player final : public Engine::Object
 {
@@ -50,7 +52,7 @@ public:
 		float ComboEx02 = 10.f;
 		float Attack = 8.f; 
 		float Jump = 32.2f;
-		float Rolling = 55.f;
+		float Rolling = 70.f;
 		float Dash = 110.f;
 		float LeafReady = 20.f;
 
@@ -110,6 +112,7 @@ public:
 					const std::optional<Vector3>& Rotation,
 					const Vector3& SpawnLocation)&;
 	void PrototypeInitialize(IDirect3DDevice9*const Device)&;
+	void CreatePlayerSkillUI()&;
 	virtual std::shared_ptr<Engine::Object> GetCopyShared() & override;
 	virtual std::optional<Engine::Object::SpawnReturnValue> InitializeFromEditSpawnParam(const SpawnParam& _SpawnParam) & override;
 public:
@@ -289,13 +292,40 @@ private:
 	void WeaponHand()&;
 private:
 	class PlayerWeapon* const  GetWeapon()const &;
-
 public:
 	bool bInvincibility = false;
 	Vector3 CurrentMoveDirection{ 0.f,0.f,1.f };
 	StateDuringSpeed StateableSpeed{};
 	Engine::ThirdPersonCamera::TargetInformation PlayerTargetInfo{};
 	Engine::ThirdPersonCamera* CurrentTPCamera{ nullptr };
+private:
+	std::weak_ptr<Engine::UI>    DoubleSlashSlot{};
+	std::weak_ptr<Engine::UI>    DoubleSlashIcon{};
+
+	std::weak_ptr<Engine::UI>    KarmaIcon{};
+	std::weak_ptr<Engine::UI>    KarmaSlot{};
+
+	std::weak_ptr<Engine::UI>    LeapAttackSlot{};
+	std::weak_ptr<Engine::UI>    LeapAttackIcon{};
+
+	std::weak_ptr<Engine::UI>    AvoidSlot{};
+	std::weak_ptr<Engine::UI>    AvoidIcon{};
+
+	std::weak_ptr<Engine::UI>    OutRangeSlot{};
+	std::weak_ptr<Engine::UI>    OutRangeIcon{};
+	std::weak_ptr<Engine::UI>    RockBreakSlot{};
+	std::weak_ptr<Engine::UI>    RockBreakIcon{};
+
+	std::weak_ptr<Engine::UI> RockShotIcon{};
+	std::weak_ptr<Engine::UI> RockShotSlot{};
+	
+
+	std::weak_ptr<Engine::UI> PlayerKarmaInfoGUI{};
+
+	std::weak_ptr<Engine::UI> CenterLineQuad{};
+private:
+	static const inline float StandUpRollingCoolTime = 1.f; 
+	float CurrentStandUpRollingCoolTime = StandUpRollingCoolTime;
 private:
 	class Engine::AnimEffect* _BasicCombo01{ nullptr };
 

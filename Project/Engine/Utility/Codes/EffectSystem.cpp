@@ -28,6 +28,8 @@ Engine::AnimEffect*  Engine::EffectSystem::MakeEffect(const std::wstring& Resour
 		AnimEffects.push_back(_CurMakeEft);
 		return _CurMakeEft.get();
 	};
+
+	return nullptr;
 }
 
 void Engine::EffectSystem::Update(const float DeltaTime)&

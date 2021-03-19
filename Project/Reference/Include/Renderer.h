@@ -30,6 +30,7 @@ namespace Engine
 			Vector3 CameraLocation{};
 			Vector4 CameraLocation4D{};  
 			Matrix  LightViewProjection{};
+			Matrix  OrthoProjection{};
 		};
 
 		void Initialize(
@@ -57,10 +58,10 @@ namespace Engine
 		EffectSystem& RefEffectSystem()& { return EffectSys; };
 	public:
 		std::weak_ptr<UI> MakeUI(
-			const Vector2& NDCLeftTopAnchor,
-			const Vector2& NDCSize,
+			const Vector2 Scale,
+			const Vector2 Position,
 			const std::filesystem::path& TexFullPath,
-			const float UIDepthZ)&;
+			const float UIDepthZ )&;
 	private:
 		void FrustumInCheck()&;
 		void RenderReady()&;

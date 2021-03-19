@@ -27,7 +27,6 @@
 #include "NavigationMesh.h"
 #include "NPC.h"
 #include "StaticMesh.h"
-
 #include "EffectSystem.h"
 
 void Player::Initialize(
@@ -173,17 +172,8 @@ void Player::Initialize(
 
 	_BasicCombo01 = RefRenderer().RefEffectSystem().MakeEffect(L"BasicCombo01", Engine::EffectSystem::EffectType::AnimEffect);
 
-
 	
-	/*std::weak_ptr<UI> MakeUI(
-		const Vector2 & NDCLeftTopAnchor,
-		const Vector2 & NDCSize,
-		const std::filesystem::path & TexFullPath,
-		const float UIDepthZ)&;*/
-	RefRenderer().
-		MakeUI({ -0.3f,+0.3f }, { 0.3f,-0.3f },
-		App::ResourcePath / L"Texture" / L"GUI_karma_player_info_TS_1.tga",
-		0.01);
+	
 };
 
 void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
@@ -203,6 +193,10 @@ void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
 
 	RefRenderer().RefEffectSystem().LoadEffect
 	(Device, App::ResourcePath / L"Effect" / L"SK_TS_BasicCombo_01_Renewal.fbx", L"BasicCombo01", Engine::EffectSystem::EffectType::AnimEffect);
+
+
+	CreatePlayerSkillUI();
+	
 }
 
 void Player::Event()&
@@ -271,25 +265,74 @@ void Player::Update(const float DeltaTime)&
 	const Vector3 Location = _Transform->GetLocation();
 
 	auto& _RefPhysic = _Transform->RefPhysic();
-	auto& Control = RefControl();
+	auto& Control    = RefControl();
+	//CenterLine;
+
+	const float CoolTimeHeight = 1.f - (std::fabsf(CurrentStandUpRollingCoolTime) / StandUpRollingCoolTime);
+	AvoidSlot.lock()->CoolTimeHeight = AvoidIcon.lock()->CoolTimeHeight = CoolTimeHeight;
+
+	DoubleSlashSlot.lock()->CoolTimeHeight = CoolTimeHeight;
+	DoubleSlashIcon.lock()->CoolTimeHeight = CoolTimeHeight;
+
+	LeapAttackSlot.lock()->CoolTimeHeight = CoolTimeHeight;
+	LeapAttackIcon.lock()->CoolTimeHeight = CoolTimeHeight;
+
+	OutRangeSlot.lock()->CoolTimeHeight = CoolTimeHeight;
+	OutRangeIcon.lock()->CoolTimeHeight = CoolTimeHeight;
+
+	RockBreakSlot.lock()->CoolTimeHeight = CoolTimeHeight ; 
+	RockBreakIcon.lock()->CoolTimeHeight = CoolTimeHeight ;  
+
+
+	RockShotSlot.lock()->CoolTimeHeight = CoolTimeHeight;
+	RockShotIcon.lock()->CoolTimeHeight = CoolTimeHeight;
+
+
+	if (bWeaponAcquisition)
+	{
+		auto _KarmaIcon = KarmaIcon.lock();
+
+		//if (_KarmaIcon->CoolTimeHeight < 1.0f)
+		{
+			static constexpr float KarmaEventTimeFactor = 0.33f;
+			_KarmaIcon->CoolTimeHeight += DeltaTime * KarmaEventTimeFactor;
+			auto _PlayerKarmaInfoGUI = PlayerKarmaInfoGUI.lock();
+
+			static bool bPlayerKarmaInfoGUIAlphaUp = true;
+			if (bPlayerKarmaInfoGUIAlphaUp)
+			{
+				_PlayerKarmaInfoGUI->AlphaFactor += (DeltaTime * KarmaEventTimeFactor * 1.f); ;
+				if (_PlayerKarmaInfoGUI->AlphaFactor > 1.f)
+				{
+					bPlayerKarmaInfoGUIAlphaUp = false;
+				}
+			}
+			else 
+			{
+				_PlayerKarmaInfoGUI->AlphaFactor -=(DeltaTime * KarmaEventTimeFactor * 1.f);
+			}
+			
+			Matrix Billboard = FMath::Inverse(RefRenderer().GetCurrentRenderInformation().View);
+			Billboard._41 = 0.0f;
+			Billboard._42 = 0.0f;
+			Billboard._43 = 0.0f;
+			const Vector3 UILocation = _Transform->GetLocation() + Vector3{ 0, 9,0 };
+
+			_PlayerKarmaInfoGUI->WorldUI =
+				FMath::Scale({ 23,23,1}) * Billboard * 
+				FMath::Translation(UILocation);
+
+			_PlayerKarmaInfoGUI->WorldUI->_42 += 33.f;
+		}
+	}
+
 
 	// Å×½ºÆ® 
-	/*if (Control.IsDown(DIK_DELETE))
-	{
-		_LeafAttackInfo.Reset(Location, {-423.641f,22.257f,431.255f}, 300.f, 7.f, 0.0f);
-		_RefPhysic.bGravityEnable = false;
-	};
-
-	auto bMoveLocation = _LeafAttackInfo.Move(DeltaTime);
-
-	if (bMoveLocation)
-	{
-		_Transform->SetLocation(*bMoveLocation);
-	}
-	else
-	{
-		_RefPhysic.bGravityEnable = true;
-	}*/
+	//if (Control.IsDown(DIK_DELETE))
+	//{
+	//	_LeafAttackInfo.Reset(Location, {-423.641f,22.257f,431.255f}, 300.f, 7.f, 0.0f);
+	//	_RefPhysic.bGravityEnable = false;
+	//};
 
 	if (Control.IsDown(DIK_Z))
 	{
@@ -519,7 +562,11 @@ void Player::RunState(const FSMControlInformation& FSMControlInfo)&
 	{
 		if (FSMControlInfo._Controller.IsDown(DIK_LSHIFT)&& bControl)
 		{
- 			StandUpRollingTransition(FSMControlInfo , *bMoveInfo);
+			if (CurrentStandUpRollingCoolTime <= 0.0f)
+			{
+				CurrentStandUpRollingCoolTime = StandUpRollingCoolTime;
+				StandUpRollingTransition(FSMControlInfo, *bMoveInfo);
+			}
 		}
 		else if (FSMControlInfo._Controller.IsDown(DIK_LCONTROL) && bControl)
 		{
@@ -1771,7 +1818,10 @@ static void WeaponAttachImplementation(Player* const _Player,
 
 void Player::WeaponAcquisition()&
 {
+	PlayerKarmaInfoGUI.lock()->bRender = true;
+	KarmaIcon.lock()->bRender = true;
 	bWeaponAcquisition = true;
+
 	StateableSpeed.Jump -= 10.f;
 	StateableSpeed.JumpVelocity.y -= 15.f;
 
@@ -1901,6 +1951,7 @@ void Player::StandUpRollingTransition(const FSMControlInformation& FSMControlInf
 
 void Player::DashComboTransition(const FSMControlInformation& FSMControlInfo)&
 {
+	CenterLineQuad.lock()->bRender = true;
 	WeaponHand();
 	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
 	_AnimNotify.bLoop = false;
@@ -1940,12 +1991,16 @@ void Player::HitNotify(Object* const Target, const Vector3 PushDir,
 		{
 			CameraTargetInfo.TargetObject = _NPC;
 			auto NPCTransform = _NPC->GetComponent<Engine::Transform>();
+
 			Vector3 Distance = (_Transform->GetLocation() + NPCInteractionLocationOffset)
 								- (NPCTransform->GetLocation() + _NPC->ViewLocationOffset);
+
 			CameraTargetInfo.TargetLocationOffset = _NPC->ViewLocationOffset;
+
 			const float Distancebetween = FMath::Length(Distance);
 			const Vector3 Dir = FMath::Normalize(Distance);
-			CameraTargetInfo.DistancebetweenTarget = Distancebetween + 2.f;
+
+			CameraTargetInfo.DistancebetweenTarget = Distancebetween + 7.f;
 			CameraTargetInfo.ViewDirection = -Dir;
 		}
 	}
@@ -1961,6 +2016,129 @@ void Player::HitBegin(Object* const Target, const Vector3 PushDir, const float C
 void Player::HitEnd(Object* const Target)&
 {
 	Super::HitEnd(Target);
+};
+
+void Player::CreatePlayerSkillUI()&
+{
+	std::filesystem::path UIPath = std::filesystem::current_path();
+
+	  KarmaSlot = RefRenderer().
+		MakeUI({ 75.f,75.f }, { -530.f,0.f },
+			App::ResourcePath / L"Texture" / L"UI" /
+			L"GUI_KarmaSlot02_N.tga",
+			0.1);
+	  KarmaSlot.lock()->AddColor = {1.f,1.f,1.f};
+
+	KarmaIcon = RefRenderer().
+		MakeUI({ 43.f,43.f }, { -530.f,0.f },
+			App::ResourcePath / L"Texture" / L"UI" /
+			L"Icon_Karma_TS.tga",
+			0.02);
+	KarmaIcon.lock()->Flag = 0u;
+	KarmaIcon.lock()->bRender = false;
+	KarmaIcon.lock()->CoolTimeHeight = 0.0f;
+
+	DoubleSlashSlot = RefRenderer().
+		MakeUI({ 63.f,63.f }, { -550.f,-340.f},
+			App::ResourcePath / L"Texture" / L"UI" /
+			L"GUI_Skill_icon_slot.tga",
+			0.01);
+	DoubleSlashSlot.lock()->AddColor = {1.f,45.f/255.f,45.f/255.f};
+
+	
+	DoubleSlashIcon = RefRenderer().
+		MakeUI({ 63.f,63.f }, { -550.f,-340.f},
+			App::ResourcePath / L"Texture" / L"UI" /
+			L"Icon_RageSkill_TS_DoubleSlash.tga",
+			0.02);
+	DoubleSlashIcon.lock()->Flag = 0u;
+
+	 LeapAttackSlot = RefRenderer().
+		MakeUI({ 38.f,38.f }, { -443.f ,-302.f },
+			App::ResourcePath / L"Texture" / L"UI" /
+			L"GUI_HexagonSlot_L_Normal.tga",
+			0.01);
+	 LeapAttackSlot.lock()->AddColor = Engine::UI::UISkillIconBlue;
+
+	 LeapAttackIcon = RefRenderer().
+		MakeUI({ 38.f,38.f }, { -443.f ,-302.f },
+			App::ResourcePath / L"Texture" / L"UI" /
+			L"Icon_NormalSkill_TS_LeapAttack.tga",
+			0.02);
+	 LeapAttackIcon.lock()->Flag = 0u;
+
+	 AvoidSlot = RefRenderer().
+		MakeUI({ 38.f,38.f }, { -407.f ,-372.f},
+			App::ResourcePath / L"Texture" / L"UI" /
+			L"GUI_HexagonSlot_L_Normal.tga",
+			0.01);
+	 AvoidSlot.lock()->AddColor = Engine::UI::UISkillIconGreen;
+
+	 AvoidIcon = RefRenderer().
+		MakeUI({ 38.f,38.f }, { -407.f ,-372.f},
+			App::ResourcePath / L"Texture" / L"UI" /
+			L"Icon_Avoid.tga",
+			0.02);
+	 AvoidIcon.lock()->Flag = 0u;
+
+	 OutRangeSlot = RefRenderer().
+		MakeUI({ 38.f,38.f }, { -354 ,-302},
+			App::ResourcePath / L"Texture" / L"UI" /
+			L"GUI_HexagonSlot_L_Normal.tga",
+			0.01);
+	 OutRangeSlot.lock()->AddColor = Engine::UI::UISkillIconBlue;
+
+	 OutRangeIcon = RefRenderer().
+		MakeUI({ 38.f,38.f }, { -354 ,-302 },
+			App::ResourcePath / L"Texture" / L"UI" /
+			L"Icon_NormalSkill_TS_OutRage.tga",
+			0.02);
+	 OutRangeIcon.lock()->Flag = 0u;
+
+	 RockShotSlot = RefRenderer().
+		MakeUI({ 38.f,38.f }, { -265 , -302 },
+			App::ResourcePath / L"Texture" / L"UI" /
+			L"GUI_HexagonSlot_L_Normal.tga",
+			0.01);
+	 RockShotSlot.lock()->AddColor = Engine::UI::UISkillIconBlue;
+
+	 RockShotIcon = RefRenderer().
+		MakeUI({ 38.f,38.f }, { -265 , -302 },
+			App::ResourcePath / L"Texture" / L"UI" /
+			L"Icon_NormalSkill_TS_RockShot.tga",
+			0.02);
+	 RockShotIcon.lock()->Flag = 0u;
+
+	 RockBreakSlot = RefRenderer().
+		MakeUI({ 38.f,38.f }, { -318.f ,-372.f },
+			App::ResourcePath / L"Texture" / L"UI" /
+			L"GUI_HexagonSlot_L_Normal.tga",
+			0.01);
+	 RockBreakSlot.lock()->AddColor = Engine::UI::UISkillIconRed;
+
+	 RockBreakIcon  = RefRenderer().
+		MakeUI({ 38.f,38.f }, { -318.f ,-372.f },
+			App::ResourcePath / L"Texture" / L"UI" /
+			L"Icon_NormalSkill_TS_RockBreak.tga",
+			0.02);
+	 RockBreakIcon.lock()->Flag = 0u;
+
+	 PlayerKarmaInfoGUI = RefRenderer().
+     MakeUI({ 38.f,38.f }, { -318.f ,-372.f },
+			 App::ResourcePath / L"Texture" / L"UI" /
+			 L"GUI_karma_player_info_TS_1.tga",
+			 0.02);
+	 PlayerKarmaInfoGUI.lock()->bRender = false;
+	 PlayerKarmaInfoGUI.lock()->WorldUI = FMath::Identity();
+	 PlayerKarmaInfoGUI.lock()->AlphaFactor = 0.0f;
+
+	 CenterLineQuad =
+		 RefRenderer().MakeUI({ 0,0 }, {
+			 App::ClientSize<float>.first,
+			 App::ClientSize<float>.second }  ,
+	App::ResourcePath / L"Texture"/L"UI"/
+		 L"Center_Line.tga", 0.9);
+	 CenterLineQuad.lock()->bRender = false;
 };
 
 std::function<Engine::Object::SpawnReturnValue(
@@ -1993,6 +2171,8 @@ std::function<Engine::Object::SpawnReturnValue(
 void Player::LateUpdate(const float DeltaTime)&
 {
 	Super::LateUpdate(DeltaTime);
+
+	CurrentStandUpRollingCoolTime = (std::max)(CurrentStandUpRollingCoolTime - DeltaTime, 0.0f);
 
 	auto _Transform = GetComponent<Engine::Transform>();
 	const Vector3 Location = _Transform->GetLocation();

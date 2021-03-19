@@ -210,14 +210,11 @@ PS_OUT AlbedoNormalWorldPosDepthSpecular(PS_IN In)
     {
         CurBurnColor = tex2D(BurnSampler, float2(Dissolve * (1.f / BurnSize), 0.f)).rgb;
         CurBurnColor = CurBurnColor * BurnColor * EmissionAmount;
-        
      
         // 여기서 선택지 컬러를 번 컬러로 할것 인가 컬러에 번 컬러를 곱할 것인가 ?? 
-        // DiffuseColor.rgb = CurBurnColor;
-        
+        // DiffuseColor.rgb  = CurBurnColor;
         // DiffuseColor.rgb *= CurBurnColor;
-          DiffuseColor.rgb += CurBurnColor; 
-
+           DiffuseColor.rgb += CurBurnColor; 
     }
     
     Out.Albedo3_Contract1.rgb = DiffuseColor.rgb;

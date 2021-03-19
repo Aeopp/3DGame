@@ -1,5 +1,9 @@
-
 texture ColorMap;
+matrix  UIMatrix;
+float3 AddColor;
+float CoolTimeHeight;
+int Flag = 1;
+float AlphaFactor;
 
 sampler ColorSampler = sampler_state
 {
@@ -27,8 +31,11 @@ struct VS_OUT
 VS_OUT VS_MAIN(VS_IN In)
 {
     VS_OUT Out = (VS_OUT) 0;
+    
     Out.Position = In.Position;
     Out.Position.w = 1.f;
+    Out.Position = mul(Out.Position, UIMatrix);
+    
     Out.UV = In.UV;
     
     return Out;
@@ -49,7 +56,21 @@ PS_OUT PS_MAIN(PS_IN In)
 {
     PS_OUT Out = (PS_OUT) 0;
     Out.Color = tex2D(ColorSampler, In.UV);
-
+    
+    if ((1.0f-In.UV.y) < CoolTimeHeight)
+    {
+        if (Flag ==1)
+        {
+            Out.Color.rgb *= AddColor;
+        }
+    }
+    else
+    {
+        Out.Color.rgb *= 0.4f;
+    }
+    
+    Out.Color.a *= AlphaFactor;
+    
     return Out;
 }
 
