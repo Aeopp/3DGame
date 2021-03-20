@@ -78,6 +78,7 @@ namespace Engine
 		double TransitionRemainTime = -1.0;
 		double TransitionDuration = 0.0;
 
+		bool bRender = true;
 		uint32 MaxAnimIdx{ 0u };
 	public:
 		Vector3 Scale{ 1,1,1 };

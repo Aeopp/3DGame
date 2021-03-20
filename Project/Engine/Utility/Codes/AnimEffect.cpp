@@ -287,6 +287,8 @@ void Engine::AnimEffect::Initialize()&
 
 void Engine::AnimEffect::RenderReady(Engine::Renderer* const _Renderer)&
 {
+	if (!bRender)return;
+
 	std::transform(std::begin(BoneTable), std::end(BoneTable),
 		std::begin(RenderBoneMatricies), []
 		(const std::shared_ptr<Bone>& CopyBoneFinalMatrix)
@@ -308,6 +310,7 @@ void Engine::AnimEffect::RenderReady(Engine::Renderer* const _Renderer)&
 
 void Engine::AnimEffect::Render(Engine::Renderer* const _Renderer)&
 {
+	if (!bRender)return;
 
 	//matrix World;
 	//matrix View;

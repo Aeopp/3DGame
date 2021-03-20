@@ -28,6 +28,7 @@
 #include "NPC.h"
 #include "StaticMesh.h"
 #include "EffectSystem.h"
+#include "FontManager.h"
 
 void Player::Initialize(
 	const std::optional<Vector3>& Scale,
@@ -171,6 +172,7 @@ void Player::Initialize(
 	_Transform->EnablePhysic(InitPhysic);
 
 	_BasicCombo01 = RefRenderer().RefEffectSystem().MakeEffect(L"BasicCombo01", Engine::EffectSystem::EffectType::AnimEffect);
+	_BasicCombo01->bRender = false;
 
 	
 	
@@ -240,8 +242,6 @@ void Player::Event()&
 		_LeafAttackInfo.Reset(_Transform->GetLocation(), _Transform->GetLocation() + FMath::Random(Vector3{ -100,99.f,-100 }, Vector3{ 100,100,100 }) ,100.f,1.f);
 	}
 
-	
-
 	auto _SkeletonMeshComponent = GetComponent<Engine::SkeletonMesh>();
 	
 	if (_Control.IsDown(DIK_O))
@@ -255,6 +255,10 @@ void Player::Update(const float DeltaTime)&
 	Super::Update(DeltaTime);
 	
 	FSM(DeltaTime);
+
+	if(bNPCInteraction)
+		RefFontManager().RenderFont(L"Font_Sandoll", L"NPC ¿« ¥Î»≠ ∏‡∆Æ.", { 300,200 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });
+
 	auto _Transform = GetComponent<Engine::Transform>();
 
 	if (auto bMoveLocation = _LeafAttackInfo.Move(DeltaTime))
@@ -283,10 +287,8 @@ void Player::Update(const float DeltaTime)&
 	RockBreakSlot.lock()->CoolTimeHeight = CoolTimeHeight ; 
 	RockBreakIcon.lock()->CoolTimeHeight = CoolTimeHeight ;  
 
-
 	RockShotSlot.lock()->CoolTimeHeight = CoolTimeHeight;
 	RockShotIcon.lock()->CoolTimeHeight = CoolTimeHeight;
-
 
 	if (bWeaponAcquisition)
 	{
@@ -1311,12 +1313,17 @@ void Player::BasicCombo01Transition(const FSMControlInformation& FSMControlInfo)
 	WeaponHand();
 
 	Engine::AnimEffect::AnimNotify _EftAnimNotify{};
+	_EftAnimNotify.AnimTimeEventCallMapping[0.99f] = [](Engine::AnimEffect*const _AnimEffect) {
+		_AnimEffect->bRender = false;
+	};
+
 	_AnimNotify.bLoop = true;
 
 	_BasicCombo01->Scale = FSMControlInfo.MyTransform->GetScale() * 0.5f;
 	_BasicCombo01->Rotation= FSMControlInfo.MyTransform->GetRotation();
 	_BasicCombo01->Location = FSMControlInfo.MyTransform->GetLocation() + Vector3{ 0,10,0 };
 	_BasicCombo01->PlayAnimation(0u, 30.f, 0.25f, _EftAnimNotify);
+	_BasicCombo01->bRender = true;
 }
 
 void Player::BasicCombo02State(const FSMControlInformation& FSMControlInfo)&
@@ -2002,6 +2009,9 @@ void Player::HitNotify(Object* const Target, const Vector3 PushDir,
 
 			CameraTargetInfo.DistancebetweenTarget = Distancebetween + 7.f;
 			CameraTargetInfo.ViewDirection = -Dir;
+
+		// 	RefFontManager().AddFont(Device, L"Font_Sandoll", L"Sandoll ªÔ∏≥»£ªß√º Outline", 15, 20, FW_THIN);
+
 		}
 	}
 };

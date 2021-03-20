@@ -138,6 +138,14 @@ void StartScene::Event()&
 		RefNaviMesh().bDebugRender = !RefNaviMesh().bDebugRender;
 	}
 
+	if (_Control.IsDown(DIK_F3))
+	{
+		RefTimer().TimerRegist(5.f, 0.0f, 5.1f, []()->bool {
+				ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" / "BelatosWave1.json");
+				return true;
+				});
+	}
+
 	if (_Control.IsDown(DIK_TAB))
 	{
 		if (!bGameStart)
@@ -148,10 +156,7 @@ void StartScene::Event()&
 		
 			ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" /"NPC.json");
 
-			//RefTimer().TimerRegist(5.f, 0.0f, 5.1f, []()->bool {
-			//	ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" / "BelatosWave1.json");
-			//	return true;
-			//	});
+			
 
 			RefSound().Play("BGM_OutroCinematic_01_A", 1.f, true, true);
 

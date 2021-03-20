@@ -19,6 +19,7 @@
 #include "CollisionSystem.h"
 #include "UtilityGlobal.h"
 #include "MaterialInformation.h"
+#include "FontManager.h"
 
 bool DebugMode{ false };
 
@@ -193,15 +194,13 @@ void Engine::Management::Render()&
 	_Renderer->Render();
 	
 	_CurrentScene->Render();
+
 	// 폰트 드로우콜
 	{
-	/*	_FontManager->RenderFont(L"Font_Jinji", L"진지함", { 400,300 }, D3DXCOLOR{ 0.5f,1.f,0.5f,0.1f });
+	    /*_FontManager->RenderFont(L"Font_Jinji", L"진지함", { 400,300 }, D3DXCOLOR{ 0.5f,1.f,0.5f,0.1f });
 		_FontManager->RenderFont(L"Font_Default", L"기본", { 600,200 }, D3DXCOLOR{ 0.5f,0.f,0.5f,1.f });*/
-		_FontManager->RenderFont(L"Font_Sandoll", L"폰트 출력 !! ", { 600,200 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });
+		// _FontManager->RenderFont(L"Font_Sandoll", L"폰트 출력 !! ", { 600,200 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });
 	}
-
-
-	
 
 	ImGui::EndFrame();
 	ImGui::Render();
