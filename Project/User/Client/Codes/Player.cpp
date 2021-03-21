@@ -1727,9 +1727,8 @@ void Player::LeafAttackReadyState(const FSMControlInformation& FSMControlInfo)&
 
 			_LeafAttackInfo.Reset(
 				FSMControlInfo.MyTransform->GetLocation(), ProjectionLocation, 
-				150.f,
+				80.f,
 				1.f);
-			
 
 			LeafAttackStartTransition(FSMControlInfo);
 		}
@@ -1755,10 +1754,12 @@ void Player::LeafAttackStartState(const FSMControlInformation& FSMControlInfo)&
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 
 	LeafAttackCameraUpdate(FSMControlInfo) ;
+	
 
 	if (CurAnimNotify.bAnimationEnd)
 	{
 		LeafAttackUpTransition(FSMControlInfo);
+		return;
 	}
 }
 
@@ -1770,7 +1771,7 @@ void Player::LeafAttackStartTransition(const FSMControlInformation& FSMControlIn
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::LeafAttackStart;
 
-	CurrentTPCamera->RefTargetInformation().LocationLerpSpeed = 7.f;
+	CurrentTPCamera->RefTargetInformation().LocationLerpSpeed = 4.44f;
 }
 
 void Player::LeafAttackUpState(const FSMControlInformation& FSMControlInfo)&
@@ -1826,7 +1827,9 @@ void Player::LeafAttackLandingState(const FSMControlInformation& FSMControlInfo)
 
 	if (CurAnimNotify.bAnimationEnd)
 	{
+		RefRenderer().RefLandscape().AuraPosition = { FLT_MAX,FLT_MAX };
 		CombatWaitTransition(FSMControlInfo); 
+		return;
 	}
 }
 
@@ -1977,15 +1980,15 @@ void Player::LeafReadyCameraUpdate(const FSMControlInformation& FSMControlInfo)&
 	CurrentTPCamera->RefTargetInformation().ViewDirection =
 		FMath::Normalize(FMath::RotationVecNormal(FSMControlInfo.MyTransform->GetRight(),
 			 FSMControlInfo.MyTransform->GetForward(), -FMath::ToRadian(22.5f)));
-	CurrentTPCamera->RefTargetInformation().DistancebetweenTarget = 50.f;
+	CurrentTPCamera->RefTargetInformation().DistancebetweenTarget = 45.f;
 };
 
 void Player::LeafAttackCameraUpdate(const FSMControlInformation& FSMControlInfo)&
 {
 	CurrentTPCamera->RefTargetInformation().ViewDirection =
 		FMath::Normalize(FMath::RotationVecNormal(-FSMControlInfo.MyTransform->GetRight (),
-			FSMControlInfo.MyTransform->GetForward(), FMath::ToRadian(22.5f)));
-	CurrentTPCamera->RefTargetInformation().DistancebetweenTarget = 30.f;
+			FSMControlInfo.MyTransform->GetForward(), -FMath::ToRadian(22.5f)));
+	CurrentTPCamera->RefTargetInformation().DistancebetweenTarget = 45.f;
 };
 
 

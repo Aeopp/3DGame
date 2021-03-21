@@ -96,7 +96,7 @@ void Engine::ThirdPersonCamera::LateUpdate(const float DeltaTime)&
 		_TargetInformation.TargetObject->GetComponent<Engine::Transform>()->GetLocation() + _TargetInformation.TargetLocationOffset;
 
 	_TargetInformation.CurrentTargetLocation =
-		FMath::Lerp(_TargetInformation.CurrentTargetLocation, TargetLocation, DeltaTime * 1.f);
+		FMath::Lerp(_TargetInformation.CurrentTargetLocation, TargetLocation, DeltaTime * _TargetInformation.LocationLerpSpeed);
 
 	_TargetInformation.CurrentViewDirection = FMath::Normalize(
 		FMath::Lerp(_TargetInformation.CurrentViewDirection, _TargetInformation.ViewDirection, DeltaTime * 2.5f));

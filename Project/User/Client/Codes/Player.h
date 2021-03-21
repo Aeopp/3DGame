@@ -261,8 +261,6 @@ private:
 	void LeafAttackDownTransition(const FSMControlInformation& FSMControlInfo)&;
 	void LeafAttackLandingState(const FSMControlInformation& FSMControlInfo)&;
 	void LeafAttackLandingTransition(const FSMControlInformation& FSMControlInfo)&;
-
-	
 private:
 	std::optional<Player::MoveControlInformation> 
 		 CheckTheMoveableState  (const FSMControlInformation& FSMControlInfo)&;

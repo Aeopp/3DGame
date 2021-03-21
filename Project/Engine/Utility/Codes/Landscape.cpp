@@ -153,6 +153,8 @@ void Engine::Landscape::DecoratorLoad(
 	};
 
 	DecoratorContainer.insert({ LoadFileName,LoadDecorator } );
+
+	AuraPosition = { FLT_MAX,FLT_MAX };
 }
 
 

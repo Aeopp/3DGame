@@ -227,7 +227,7 @@
         {
             "Index": 32,
             "Name": "ComboEx02Loop",
-            "Acceleration": 44.36000061035156,
+            "Acceleration": 34.36000061035156,
             "TransitionTime": 0.009999999776482582,
             "Duration": 10.0
         },
@@ -312,7 +312,7 @@
             "Index": 44,
             "Name": "LeafAttackStart",
             "Acceleration": 30.0,
-            "TransitionTime": 0.25,
+            "TransitionTime": 0.05,
             "Duration": 10.0
         },
         {
