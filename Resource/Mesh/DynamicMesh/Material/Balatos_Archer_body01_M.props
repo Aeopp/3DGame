@@ -7,7 +7,7 @@
         "Other[2]": "CavityMap",
         "DefaultNormal": "DetailNormalMap"
     },
-    "Contract": 2,
+    "Contract": 1,
     "RimInnerWidth": 0.00800000037997961,
     "RimOuterWidth": 0.054999999701976779,
     "Power": 21.694000244140626,

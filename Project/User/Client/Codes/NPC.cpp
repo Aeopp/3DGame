@@ -18,6 +18,8 @@
 #include "NPC.h"
 #include "NormalLayer.h"
 #include "Collision.h"
+#include "Renderer.h"
+#include "FontManager.h"
 
 void NPC::Initialize(const std::optional<Vector3>& Scale, const std::optional<Vector3>& Rotation, const Vector3& SpawnLocation)&
 {
@@ -75,6 +77,29 @@ void NPC::Initialize(const std::optional<Vector3>& Scale, const std::optional<Ve
 	_AnimNotify.bLoop = true;
 	_AnimNotify.Name = "Take 001";
 	_SkeletonMesh->PlayAnimation(_AnimNotify);
+
+	// Name , Ment ,Position ,Color  ;
+	static const Vector2 DefaultPosition = { 500,100};
+	static const D3DXCOLOR DefaultColor = D3DXCOLOR{ 0.0f,0.0f,0.0f,1.f } ;
+
+	EventMents[NPC::InteractionEvent::FirstEncounter] = 
+	{
+		{L" 오! 새로운 모험가인가. ",DefaultPosition,DefaultColor } ,
+		{L" 에르테시아에 온걸 환영하네 ! ",DefaultPosition,DefaultColor } ,
+		{L" 자네 무기가 없는 모양이로군 ? ",DefaultPosition,DefaultColor } ,
+		{L" 마침 다른 모험가가 남기고 간 무기가 있지  ",DefaultPosition,DefaultColor } ,
+		{L" 정원의 남쪽 방향으로 가면 도움이 될 걸세 ",DefaultPosition,DefaultColor }
+	};
+	EventMents[NPC::InteractionEvent::SecondEncounter] = 
+	{
+		{L" 자네의 카르마는 대검 이로군 ! ",DefaultPosition,DefaultColor } ,
+		{L" 곧 제국군이 올테니 무기의 힘을 시험 해보게 ! ",DefaultPosition,DefaultColor }
+	};
+	EventMents[NPC::InteractionEvent::ThirdEncounter] = 
+	{
+		{L" 고생 많았네 ! ",DefaultPosition,DefaultColor } ,
+		{L" 내가 포탈을 열어줄테니 그곳으로 가서 모험을 시작하시게.",DefaultPosition,DefaultColor } ,
+	};
 }
 
 void NPC::PrototypeInitialize(IDirect3DDevice9* const Device)&
@@ -150,6 +175,16 @@ void NPC::Event()&
 void NPC::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
+
+	if (bInteraction)
+	{
+		const auto& CurEventInteractionInfo = EventMents[CurrentEvent][CurrentEventIndex];
+		RefFontManager().RenderRegist(
+			CurEventInteractionInfo.FontName,
+			CurEventInteractionInfo.Ment,
+			CurEventInteractionInfo.Position,
+			CurEventInteractionInfo.Color);
+	}
 }
 
 void NPC::LateUpdate(const float DeltaTime)&
@@ -169,9 +204,22 @@ void NPC::HitNotify(Object* const Target, const Vector3 PushDir, const float Cro
 {
 	Super::HitNotify(Target, PushDir, CrossAreaScale);
 
-	auto* _Player= dynamic_cast<Player* const>(Target);
+	auto* _Player = dynamic_cast<Player* const>(Target);
 	if (_Player)
 	{
-		
+
 	}
+};
+
+void NPC::NextInteraction()&
+{
+	CurrentEventIndex = std::clamp(CurrentEventIndex + 1u, 0u,
+		(uint32)EventMents[CurrentEvent].size() - 1u);
+}
+
+void NPC::NextEvent()&
+{
+	uint8& _CurEvent = (uint8&)CurrentEvent;
+	_CurEvent = std::clamp(_CurEvent + 1u, 0u, (uint8)NPC::InteractionEvent::End - 1u);
+	CurrentEventIndex = 0u;
 }

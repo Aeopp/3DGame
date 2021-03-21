@@ -29,6 +29,7 @@
 #include "StaticMesh.h"
 #include "EffectSystem.h"
 #include "FontManager.h"
+#include "ObjectEdit.h"
 
 void Player::Initialize(
 	const std::optional<Vector3>& Scale,
@@ -175,7 +176,9 @@ void Player::Initialize(
 	_BasicCombo01->bRender = false;
 
 	
-	
+
+	CreatePlayerSkillUI();
+
 };
 
 void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
@@ -195,10 +198,6 @@ void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
 
 	RefRenderer().RefEffectSystem().LoadEffect
 	(Device, App::ResourcePath / L"Effect" / L"SK_TS_BasicCombo_01_Renewal.fbx", L"BasicCombo01", Engine::EffectSystem::EffectType::AnimEffect);
-
-
-	CreatePlayerSkillUI();
-	
 }
 
 void Player::Event()&
@@ -226,6 +225,10 @@ void Player::Event()&
 					auto Weapon = _Manager.FindObject<Engine::NormalLayer, PlayerWeapon>(GetName() + L"_Weapon");
 					Weapon->DissolveStart(-WeaponAcquisitionSpeed, 1.f);
 
+					auto _NPC =
+						dynamic_cast<NPC* const>(RefManager().FindObjects<Engine::NormalLayer, NPC>().front().get());
+					_NPC->NextEvent();
+
 					EquipTargetWeapon->DissolveStart(WeaponAcquisitionSpeed, 0.0f);
 					RefTimer().TimerRegist(3.0f, 0.0f, 6.1f, [EquipTargetWeapon]() {
 						EquipTargetWeapon->Kill();
@@ -234,6 +237,25 @@ void Player::Event()&
 			}
 		}
 	}
+
+	if (FMath::Length( _Transform->GetLocation() - Vector3{154.f,16.f,1.f}) < 10.f)
+	{
+		if (auto _NPC =
+			dynamic_cast<NPC* const>(RefManager().FindObjects<Engine::NormalLayer, NPC>().front().get());
+			_NPC)
+		{
+			if (!_NPC->bTutorialWaveStart &&
+				_NPC->CurrentEvent == NPC::InteractionEvent::SecondEncounter &&
+				_NPC->CurrentEventIndex == _NPC->EventMents[NPC::InteractionEvent::SecondEncounter].size() - 1u)
+			{
+				_NPC->bTutorialWaveStart = true;
+
+				ObjectEdit::CaptureObjectLoad(
+					App::ResourcePath / "SceneObjectCapture" / "BelatosWaveStart.json");
+			}
+		}
+	}
+	
 
 	auto& _Control = RefControl();
 
@@ -264,35 +286,11 @@ void Player::Update(const float DeltaTime)&
 	_ScreenBloodQuad->bRender = true;
 	
 
-	RefFontManager().RenderRegist(L"Font_Sandoll", L"NPC ¿« ¥Î»≠ ∏‡∆Æ.", 
-		{ 300,300 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });
-
-	RefFontManager().RenderRegist(L"Font_Sandoll", L"NPC ¿« ¥Î»≠ ∏‡∆Æ.",
-		{ 400,400}, D3DXCOLOR{ 1.f,1.f,1.f,1.f });
-
-	RefFontManager().RenderRegist(L"Font_Sandoll", L"NPC ¿« ¥Î»≠ ∏‡∆Æ.",
-		{ 200,200 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });
-
-	RefFontManager().RenderRegist(L"Font_Sandoll", L"NPC ¿« ¥Î»≠ ∏‡∆Æ.",
-		{ 100,100 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });
-
-	RefFontManager().RenderRegist(L"Font_Sandoll", L"NPC ¿« ¥Î»≠ ∏‡∆Æ.",
-		{ -100,100 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });
-
-	RefFontManager().RenderRegist(L"Font_Sandoll", L"NPC ¿« ¥Î»≠ ∏‡∆Æ.",
-		{ -200,200 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });
-
-	RefFontManager().RenderRegist(L"Font_Sandoll", L"NPC ¿« ¥Î»≠ ∏‡∆Æ.",
-		{ -300,-300 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });
+	/*RefFontManager().RenderRegist(L"Font_Sandoll", L"NPC ¿« ¥Î»≠ ∏‡∆Æ.", 
+		{ 300,300 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });*/
 
 
 
-
-	if (bNPCInteraction)
-	{
-		
-	}
-		
 
 	auto _Transform = GetComponent<Engine::Transform>();
 
@@ -316,14 +314,14 @@ void Player::Update(const float DeltaTime)&
 	LeapAttackSlot.lock()->CoolTimeHeight = CoolTimeHeight;
 	LeapAttackIcon.lock()->CoolTimeHeight = CoolTimeHeight;
 
-	OutRangeSlot.lock()->CoolTimeHeight = CoolTimeHeight;
-	OutRangeIcon.lock()->CoolTimeHeight = CoolTimeHeight;
+	OutRangeSlot.lock()->CoolTimeHeight   = CoolTimeHeight;
+	OutRangeIcon.lock()->CoolTimeHeight   = CoolTimeHeight;
 
-	RockBreakSlot.lock()->CoolTimeHeight = CoolTimeHeight ; 
-	RockBreakIcon.lock()->CoolTimeHeight = CoolTimeHeight ;  
+	RockBreakSlot.lock()->CoolTimeHeight  = CoolTimeHeight; 
+	RockBreakIcon.lock()->CoolTimeHeight  = CoolTimeHeight;  
 
-	RockShotSlot.lock()->CoolTimeHeight = CoolTimeHeight;
-	RockShotIcon.lock()->CoolTimeHeight = CoolTimeHeight;
+	RockShotSlot.lock()->CoolTimeHeight   = CoolTimeHeight;
+	RockShotIcon.lock()->CoolTimeHeight   = CoolTimeHeight;
 
 	if (bWeaponAcquisition)
 	{
@@ -344,26 +342,25 @@ void Player::Update(const float DeltaTime)&
 					bPlayerKarmaInfoGUIAlphaUp = false;
 				}
 			}
-			else 
+			else
 			{
-				_PlayerKarmaInfoGUI->AlphaFactor -=(DeltaTime * KarmaEventTimeFactor * 1.f);
+				_PlayerKarmaInfoGUI->AlphaFactor -= (DeltaTime * KarmaEventTimeFactor * 1.f);
 			}
-			
+
 			Matrix Billboard = FMath::Inverse(RefRenderer().GetCurrentRenderInformation().View);
 			Billboard._41 = 0.0f;
 			Billboard._42 = 0.0f;
 			Billboard._43 = 0.0f;
-			const Vector3 UILocation = _Transform->GetLocation() + 
+			const Vector3 UILocation = _Transform->GetLocation() +
 				Vector3{ 0, 9,0 };
 
 			_PlayerKarmaInfoGUI->WorldUI =
-				FMath::Scale({ 19,19,1}) * Billboard * 
+				FMath::Scale({ 19,19,1 }) * Billboard *
 				FMath::Translation(UILocation);
 
 			_PlayerKarmaInfoGUI->WorldUI->_42 += 22.f;
 		}
 	}
-
 
 	// ≈◊Ω∫∆Æ 
 	//if (Control.IsDown(DIK_DELETE))
@@ -409,6 +406,29 @@ void Player::Edit()&
 		ImGui::SliderFloat("LandCheckHighRange", &LandCheckHighRange, 0.f, 30.f);
 
 		ImGui::SliderFloat3("NPCInteractionLocationOffset", NPCInteractionLocationOffset, -50.f, 50.f);
+
+		if (ImGui::TreeNode("Teleport"))
+		{
+			if (ImGui::SmallButton("Front Weapon"))
+			{
+				static const Vector3 WeaponFront = { -2.4,87.f,-420.520f };
+				_Transform->SetLocation(WeaponFront);
+
+				auto& NaviMesh = RefNaviMesh();
+				CurrentCell = NaviMesh.GetCellFromXZLocation({ 
+					WeaponFront.x, WeaponFront.z});
+			}
+			if (ImGui::SmallButton("Front NPC"))
+			{
+				static const Vector3 NPCFront = { 367.f,-2.637f,10.318f};
+				_Transform->SetLocation(NPCFront);
+
+				auto& NaviMesh = RefNaviMesh();
+				CurrentCell = NaviMesh.GetCellFromXZLocation({
+					NPCFront.x, NPCFront.z });
+			}
+			ImGui::TreePop();
+		}
 
 		if (ImGui::TreeNode("AttackForceInformation"))
 		{
@@ -641,22 +661,22 @@ void Player::CombatWaitState(const FSMControlInformation& FSMControlInfo)&
 		return; 
 	}
 
-	if (FSMControlInfo._Controller.IsDown(DIK_J) && bControl)
-	{
-		StandBigFrontTransition(FSMControlInfo);
-	}
-	else if(FSMControlInfo._Controller.IsDown(DIK_L) && bControl)
-	{
-		StandBigBackTransition(FSMControlInfo);
-	}
-	else if (FSMControlInfo._Controller.IsDown(DIK_L) && bControl)
-	{
-		StandBigLeftTransition(FSMControlInfo);
-	}
-	else if (FSMControlInfo._Controller.IsDown(DIK_O) && bControl)
-	{
-		StandBigRightTransition(FSMControlInfo);
-	}
+	//if (FSMControlInfo._Controller.IsDown(DIK_J) && bControl)
+	//{
+	//	StandBigFrontTransition(FSMControlInfo);
+	//}
+	//else if(FSMControlInfo._Controller.IsDown(DIK_L) && bControl)
+	//{
+	//	StandBigBackTransition(FSMControlInfo);
+	//}
+	//else if (FSMControlInfo._Controller.IsDown(DIK_L) && bControl)
+	//{
+	//	StandBigLeftTransition(FSMControlInfo);
+	//}
+	//else if (FSMControlInfo._Controller.IsDown(DIK_O) && bControl)
+	//{
+	//	StandBigRightTransition(FSMControlInfo);
+	//}
 
 	if (auto bMoveable =CheckTheMoveableState(FSMControlInfo))
 	{
@@ -2038,9 +2058,8 @@ void Player::HitNotify(Object* const Target, const Vector3 PushDir,
 
 		if (Control.IsDown(DIK_BACKSPACE))
 		{
-			bNPCInteraction = !bNPCInteraction;
-
-			if (bNPCInteraction==false)
+			_NPC->bInteraction = !_NPC->bInteraction;
+			if (_NPC->bInteraction ==false)
 			{
 				CurrentTPCamera->RefTargetInformation().TargetObject = this;
 				CurrentTPCamera->RefTargetInformation().DistancebetweenTarget = 45.f;
@@ -2049,15 +2068,9 @@ void Player::HitNotify(Object* const Target, const Vector3 PushDir,
 				CurrentTPCamera->RefTargetInformation().TargetLocationOffset = PlayerTargetInfo.TargetLocationOffset;
 				CurrentTPCamera->RefTargetInformation().ViewDirection = -_Transform->GetForward();
 				CurrentTPCamera->RefTargetInformation().ZoomInOutScale = PlayerTargetInfo.ZoomInOutScale;
-
-				//CameraTargetInfo.TargetObject = this;
-				//CameraTargetInfo = PlayerTargetInfo;
-				//CameraTargetInfo.DistancebetweenTarget = 30.f;
-				//CameraTargetInfo.ViewDirection = -GetComponent<Engine::Transform>()->GetRight();
 			}
 		}
-
-		if (bNPCInteraction)
+		if (_NPC->bInteraction)
 		{
 			CameraTargetInfo.TargetObject = _NPC;
 			auto NPCTransform = _NPC->GetComponent<Engine::Transform>();
@@ -2073,8 +2086,10 @@ void Player::HitNotify(Object* const Target, const Vector3 PushDir,
 			CameraTargetInfo.DistancebetweenTarget = Distancebetween + 7.f;
 			CameraTargetInfo.ViewDirection = -Dir;
 
-		// 	RefFontManager().AddFont(Device, L"Font_Sandoll", L"Sandoll ªÔ∏≥»£ªß√º Outline", 15, 20, FW_THIN);
-
+			if (Control.IsDown(DIK_L))
+			{
+				_NPC->NextInteraction();
+			}
 		}
 	}
 };

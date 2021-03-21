@@ -25,6 +25,17 @@ texture EmissiveMap;
 texture DetailDiffuseMap;
 texture DetailNormalMap;
 
+// Aura 
+float3 AuraLocation;
+texture AuraMap;
+sampler AuraSampler = sampler_state
+{
+    texture = AuraMap;
+    minfilter = linear;
+    magfilter = linear;
+    mipfilter = linear;
+};
+//
 
 sampler DiffuseSampler = sampler_state
 {

@@ -7,7 +7,7 @@
         "DefaultDiffuse": "EmissiveMap",
         "Other[1]": "CavityMap"
     },
-    "Contract": 2,
+    "Contract": 1,
     "RimInnerWidth": 0.0,
     "RimOuterWidth": 0.0,
     "Power": 100.0,

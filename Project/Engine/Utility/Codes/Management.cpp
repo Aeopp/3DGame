@@ -232,6 +232,8 @@ void ImGuiInitialize(const HWND Hwnd, IDirect3DDevice9* const Device)
 	ImGuiIoRef .Fonts->AddFontFromFileTTF(("..\\..\\..\\Resource\\Font\\Ruda\\static\\Ruda-Bold.ttf"), 14);
 	ImGuiIoRef .Fonts->AddFontFromFileTTF(("..\\..\\..\\Resource\\Font\\Ruda\\static\\Ruda-Bold.ttf"), 18);
 
+	
+
 	ImGui::StyleColorsDark();
 	SetupImGuiStyle();
 	ImGui_ImplWin32_Init(Hwnd);
@@ -432,10 +434,14 @@ void Engine::Management::CreateStaticResource()&
 	}
 	
 	{
+		AddFontResourceW(L"..\\..\\..\\Resource\\Font\\SDSamliphopangcheOutline.otf");
+		AddFontResourceW(L"..\\..\\..\\Resource\\Font\\SDSamliphopangcheBasic.otf");
+
 		// 폰트 로딩
 		_FontManager->AddFont(Device.get(), L"Font_Default", L"바탕", 15, 20, FW_HEAVY);
 		_FontManager->AddFont(Device.get(), L"Font_Jinji", L"궁서", 15, 20, FW_THIN);
-		_FontManager->AddFont(Device.get(), L"Font_Sandoll", L"Sandoll 삼립호빵체 Outline", 15, 20, FW_THIN);
+		_FontManager->AddFont(Device.get(), 
+			L"Font_Sandoll", L"Sandoll 삼립호빵체 Basic", 40, 30, FW_THIN);
 	}
 
 	{
