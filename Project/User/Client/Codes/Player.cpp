@@ -1714,7 +1714,8 @@ void Player::LeafAttackReadyState(const FSMControlInformation& FSMControlInfo)&
 	const Vector2 ForwardXZ = { Forward.x, Forward.z };
 
 	RefRenderer().RefLandscape().AuraPosition += RightXZ * -ZAxisDelta;
-	const Vector2 TargetLocation= 	RefRenderer().RefLandscape().AuraPosition += ForwardXZ * -XAxisDelta;
+	const Vector2 TargetLocation = RefRenderer().RefLandscape().AuraPosition += ForwardXZ * -XAxisDelta;
+
 
 	if (FSMControlInfo._Controller.IsUp(DIK_R))
 	{
@@ -1730,7 +1731,13 @@ void Player::LeafAttackReadyState(const FSMControlInformation& FSMControlInfo)&
 				80.f,
 				1.f);
 
+			const Vector3 LeafAttackDir = FMath::Normalize(ProjectionLocation - FSMControlInfo.MyTransform->GetLocation());
+			Vector3 NewRotation = FSMControlInfo.MyTransform->GetRotation();
+			const float Yaw = std::atan2f(LeafAttackDir.x, LeafAttackDir.z);
+			NewRotation.y = Yaw - FMath::PI / 2.f;
+			FSMControlInfo.MyTransform->SetRotation(NewRotation);
 			LeafAttackStartTransition(FSMControlInfo);
+			return;
 		}
 	}
 };
@@ -1747,6 +1754,7 @@ void Player::LeafAttackReadyTransition(const FSMControlInformation& FSMControlIn
 
 	const Vector3 Location=FSMControlInfo.MyTransform->GetLocation();
 	RefRenderer().RefLandscape().AuraPosition =  { Location .x , Location .z};
+
 }
 
 void Player::LeafAttackStartState(const FSMControlInformation& FSMControlInfo)&
@@ -1754,7 +1762,8 @@ void Player::LeafAttackStartState(const FSMControlInformation& FSMControlInfo)&
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 
 	LeafAttackCameraUpdate(FSMControlInfo) ;
-	
+
+	CenterLineQuad.lock()->AlphaFactor = 1.f - (_LeafAttackInfo.t / _LeafAttackInfo.HeighestTime);
 
 	if (CurAnimNotify.bAnimationEnd)
 	{
@@ -1771,7 +1780,7 @@ void Player::LeafAttackStartTransition(const FSMControlInformation& FSMControlIn
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::LeafAttackStart;
 
-	CurrentTPCamera->RefTargetInformation().LocationLerpSpeed = 4.44f;
+	CurrentTPCamera->RefTargetInformation().LocationLerpSpeed = 5.f;
 }
 
 void Player::LeafAttackUpState(const FSMControlInformation& FSMControlInfo)&
@@ -1779,7 +1788,7 @@ void Player::LeafAttackUpState(const FSMControlInformation& FSMControlInfo)&
 	// 여기서 중력 가속도가  점프 속도를 초과 해서 음수가나올 경우 애니메이션을 전환해야한다 .
 
 	LeafAttackCameraUpdate(FSMControlInfo);
-
+	CenterLineQuad.lock()->AlphaFactor = 1.f - (_LeafAttackInfo.t / _LeafAttackInfo.HeighestTime);
 	const auto& _Physic =  FSMControlInfo.MyTransform->RefPhysic();
 	if (_Physic.Velocity.y < 0.0f || 
 		_LeafAttackInfo.t > _LeafAttackInfo.HeighestTime)
@@ -1803,7 +1812,7 @@ void Player::LeafAttackDownState(const FSMControlInformation& FSMControlInfo)&
 	const Vector3 CurLocation   = FSMControlInfo.MyTransform->GetLocation();
 	const auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
 	LeafAttackCameraUpdate(FSMControlInfo);
-
+	CenterLineQuad.lock()->AlphaFactor = 1.f - (_LeafAttackInfo.t / _LeafAttackInfo.HeighestTime);
 	if (CheckTheLandingStatable(CurLocation.y, Physic.CurrentGroundY) )
 	{
 		LeafAttackLandingTransition(FSMControlInfo);
@@ -1824,9 +1833,10 @@ void Player::LeafAttackLandingState(const FSMControlInformation& FSMControlInfo)
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 
 	LeafAttackCameraUpdate(FSMControlInfo);
-
+	CenterLineQuad.lock()->AlphaFactor = 1.f - (_LeafAttackInfo.t / _LeafAttackInfo.HeighestTime);
 	if (CurAnimNotify.bAnimationEnd)
 	{
+		CenterLineQuad.lock()->AlphaFactor = 0.0f;
 		RefRenderer().RefLandscape().AuraPosition = { FLT_MAX,FLT_MAX };
 		CombatWaitTransition(FSMControlInfo); 
 		return;
@@ -1980,15 +1990,15 @@ void Player::LeafReadyCameraUpdate(const FSMControlInformation& FSMControlInfo)&
 	CurrentTPCamera->RefTargetInformation().ViewDirection =
 		FMath::Normalize(FMath::RotationVecNormal(FSMControlInfo.MyTransform->GetRight(),
 			 FSMControlInfo.MyTransform->GetForward(), -FMath::ToRadian(22.5f)));
-	CurrentTPCamera->RefTargetInformation().DistancebetweenTarget = 45.f;
+	// CurrentTPCamera->RefTargetInformation().DistancebetweenTarget = 60.f;
 };
 
 void Player::LeafAttackCameraUpdate(const FSMControlInformation& FSMControlInfo)&
 {
 	CurrentTPCamera->RefTargetInformation().ViewDirection =
-		FMath::Normalize(FMath::RotationVecNormal(-FSMControlInfo.MyTransform->GetRight (),
+		FMath::Normalize(FMath::RotationVecNormal(FSMControlInfo.MyTransform->GetRight (),
 			FSMControlInfo.MyTransform->GetForward(), -FMath::ToRadian(22.5f)));
-	CurrentTPCamera->RefTargetInformation().DistancebetweenTarget = 45.f;
+	CurrentTPCamera->RefTargetInformation().DistancebetweenTarget = 40.f;
 };
 
 
