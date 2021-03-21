@@ -31,6 +31,8 @@
 #include "FontManager.h"
 #include "ObjectEdit.h"
 
+
+
 void Player::Initialize(
 	const std::optional<Vector3>& Scale,
 	const std::optional<Vector3>& Rotation,

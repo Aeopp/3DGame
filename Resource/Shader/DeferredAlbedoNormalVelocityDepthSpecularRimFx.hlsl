@@ -16,7 +16,7 @@ float  DetailNormalIntensity;
 float  RimInnerWidth;
 float  RimOuterWidth;
 vector RimAmtColor;
-float OutlineRedFactor;
+float  OutlineRedFactor;
 
 texture DiffuseMap;
 texture NormalMap;
@@ -26,7 +26,8 @@ texture DetailDiffuseMap;
 texture DetailNormalMap;
 
 // Aura 
-float3 AuraLocation;
+float AuraRange = 100.f;
+float2 AuraPosition;
 texture AuraMap;
 sampler AuraSampler = sampler_state
 {
@@ -34,6 +35,10 @@ sampler AuraSampler = sampler_state
     minfilter = linear;
     magfilter = linear;
     mipfilter = linear;
+
+    addressu = border;
+    addressv = border;
+    bordercolor = 0x00000000;
 };
 //
 
@@ -120,6 +125,7 @@ struct VS_OUT
     float2 UV : TEXCOORD3;
     float4 ClipPosition : TEXCOORD4;
     float2 Velocity : TEXCOORD5;
+    float3 WorldPosition : TEXCOORD6;
 };
 
 
@@ -132,8 +138,11 @@ VS_OUT VS_MAIN(VS_IN In)
 
     WorldView = mul(World, View);
     WorldViewProjection = mul(WorldView, Projection);
-
+    
+    Out.WorldPosition = mul(vector(In.Position.xyz, 1.f), World);
+    
     Out.ClipPosition = Out.Position = mul(vector(In.Position.xyz, 1.f), WorldViewProjection);
+    
     Out.UV = In.UV;
     Out.Normal = mul(float4(In.Normal.xyz, 0.f), World);
     Out.Tangent = mul(float4(In.Tangent.xyz, 0.f), World);
@@ -158,6 +167,7 @@ struct PS_IN
     float2 UV : TEXCOORD3;
     float4 ClipPosition : TEXCOORD4;
     float2 Velocity : TEXCOORD5;
+    float3 WorldPosition : TEXCOORD6;
 };
 
 
@@ -211,6 +221,15 @@ PS_OUT AlbedoNormalWorldPosDepthSpecular(PS_IN In)
   
     CavityColor.rgb *= SpecularIntencity;
     Out.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1Sampler = float4(CavityColor.r, RimAmtColor.x, RimInnerWidth, RimOuterWidth);
+    
+    float2 WorldPosProjectionXZ = In.WorldPosition.xz;
+    float2 AuraUV;
+    AuraUV.x = (AuraPosition.x - WorldPosProjectionXZ.x + (AuraRange * 0.5f) ) / AuraRange;
+    AuraUV.y = (AuraPosition.y - WorldPosProjectionXZ.y + (AuraRange * 0.5f)) / AuraRange;
+    float4 AuraColor= tex2D(AuraSampler, AuraUV);
+    AuraColor.rgb *= 3.f;
+    
+    Out.Albedo3_Contract1.rgb = Out.Albedo3_Contract1.rgb * (1.f - AuraColor.a) + AuraColor.rgb * (AuraColor.a);
     
     return Out;
 }

@@ -20,6 +20,7 @@
 #include <ostream>
 #include "StringHelper.h"
 
+
 static uint32 StaticMeshResourceID = 0u;
 static Engine::Landscape::DecoInformation* PickDecoInstancePtr{ nullptr };
 
@@ -380,6 +381,20 @@ void Engine::Landscape::Initialize(
 	DeferredAlbedoNormalWorldPosDepthSpecular.Initialize(L"DeferredAlbedoNormalVelocityDepthSpecularRimFx");
 	VelocityFx.Initialize(L"VelocityFx");
 	ShadowDepthFx.Initialize(L"ShadowDepthFx");
+
+	AuraMap =  ResourceSys->Get<IDirect3DTexture9>(L"Texture_Aura");
+	if (AuraMap == nullptr)
+	{
+		D3DXCreateTextureFromFile(Device,
+			(Engine::Global::ResourcePath/ L"Texture" /
+			L"T_DS_CH_Magic_Square.tga").c_str() ,&AuraMap);
+
+		if (AuraMap)
+		{
+			ResourceSys->Insert<IDirect3DTexture9>
+				(L"Texture_Aura",AuraMap);
+		}
+	}
 }
 
 void Engine::Landscape::Tick(const float Tick)&
@@ -427,13 +442,20 @@ void Engine::Landscape::Render(Engine::Frustum& RefFrustum,
 {
 	if (Engine::Global::bDebugMode)
 	{
-		ImGui::Begin("Floating");
+		ImGui::Begin("LandscapeEdit");
 		if (ImGui::Button("FloatingDecoInstancesReInit"))
 		{
 			FloatingDecoInstancesReInit();
 		}
 		ImGui::Checkbox("FloatingEnable",&bFloatingEnable);
 		Engine::Landscape::FloatingInformation::RangeEdit();
+
+		if (ImGui::TreeNode("AuraEdit"))
+		{
+			ImGui::InputFloat2("AuraPositionXZ", AuraPosition);
+			ImGui::InputFloat("AuraRange", &AuraRange, 0.f, 1000.f);
+			ImGui::TreePop();
+		}
 		ImGui::End();
 	};
 
@@ -641,10 +663,13 @@ void Engine::Landscape::RenderDeferredAlbedoNormalWorldPosDepthSpecularRim(Engin
 
 	Device->SetVertexDeclaration(VtxDecl);
 	
-
 	auto Fx = DeferredAlbedoNormalWorldPosDepthSpecular.GetHandle();
 	Fx->SetMatrix("View", &View);
 	Fx->SetMatrix("Projection", &Projection);
+
+	Fx->SetTexture("AuraMap", AuraMap);
+	Fx->SetFloat("AuraRange", AuraRange);
+	Fx->SetFloatArray("AuraPosition", AuraPosition, 2u);
 
 	for (const auto& [DecoKey, CurDeco] : DecoratorContainer)
 	{

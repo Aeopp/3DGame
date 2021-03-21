@@ -161,6 +161,10 @@ namespace Engine
 		void FloatingDecoInstancesReInit()&;
 
 		bool bFloatingEnable = true;
+
+
+		float AuraRange = 100.f;
+		Vector2 AuraPosition = { 0,0 };
 	private:
 		std::string DecoratorSaveInfo{}; 
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr };
@@ -168,6 +172,7 @@ namespace Engine
 		Engine::ShaderFx DeferredAlbedoNormalWorldPosDepthSpecular{};
 		Engine::ShaderFx VelocityFx{};
 		Engine::ShaderFx ShadowDepthFx{};
+		IDirect3DTexture9* AuraMap{ nullptr };
 		Vector3 Scale{1,1,1};
 		Vector3 Rotation{0,0,0};
 		Vector3 Location{0,0,0}; 
