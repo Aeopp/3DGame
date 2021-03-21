@@ -3,9 +3,37 @@
 #include "Renderer.h"
 #include "imgui.h"
 #include "EffectSystem.h"
+#include <filesystem>
 
 void Engine::EffectSystem::Initialize(IDirect3DDevice9* const Device)&
 {
+	std::filesystem::directory_iterator itr(Engine::Global::ResourcePath / L"Effect" / L"tex");
+	while (itr != std::filesystem::end(itr)) {
+		const std::filesystem::directory_entry& entry = *itr;
+		IDirect3DTexture9* TextureTemp{ nullptr }; 
+		const auto& Extension =entry.path().extension();
+		if (Extension == L"tga" || Extension == L"png")
+		{
+			D3DXCreateTextureFromFile(Device, entry.path().c_str(), &TextureTemp);
+
+			if (TextureTemp)
+			{
+				const std::wstring TexResourceKey = entry.path().filename().stem();
+				ResourceSystem::Instance->Insert<IDirect3DTexture9>(TexResourceKey, TextureTemp);
+				EffectTextures[TexResourceKey] = TextureTemp;
+			}
+		}
+		
+		itr++;
+	}
+
+
+
+	int i = 0;
+
+
+	
+
 
 };
 

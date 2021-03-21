@@ -345,6 +345,8 @@ void Engine::AnimEffect::Render(Engine::Renderer* const _Renderer)&
 	Fx->SetMatrix("World", &World);
 	Fx->SetMatrix("View", &RenderInfo.View);
 	Fx->SetMatrix("Projection", &RenderInfo.Projection);
+	Fx->SetFloat("AlphaFactor", _CurAnimEffectInfo.AlphaFactor);
+	Fx->SetFloat("Brightness", _CurAnimEffectInfo.Brightness);
 	Device->SetVertexDeclaration(VtxDecl);
 	uint32 PassNum = 0u;
 	Fx->Begin(&PassNum, 0);
@@ -353,6 +355,7 @@ void Engine::AnimEffect::Render(Engine::Renderer* const _Renderer)&
 		Device->SetStreamSource(0, CurrentRenderMesh.VertexBuffer, 0, CurrentRenderMesh.Stride);
 		Device->SetIndices(CurrentRenderMesh.IndexBuffer);
 		Fx->SetTexture("DiffuseMap", CurrentRenderMesh.Diffuse);
+		Fx->SetTexture("PatternMap", _CurAnimEffectInfo.PatternMap);
 		Fx->CommitChanges();
 
 		for (uint32 i = 0; i < PassNum; ++i)
@@ -444,6 +447,12 @@ void Engine::AnimEffect::Update(const float DeltaTime)&
 				_AnimationTrack->PosTimeLine[AnimIdx], std::nullopt);
 		}
 	}
+
+	if (_AnimEffectUpdateCall)
+		_AnimEffectUpdateCall(_CurAnimEffectInfo ,DeltaTime);
+
+	/*Time += DeltaTime * TimeAcceleration;
+	AlphaFactor = std::fabsf(std::sinf(Time));*/
 }
 
 void Engine::AnimEffect::PlayAnimation(

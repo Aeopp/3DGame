@@ -2,10 +2,13 @@ matrix World;
 matrix View;
 matrix Projection;
 
+float AlphaFactor = 1.f;
+float Brightness = 1.f;
 texture DiffuseMap;
 // VTF ÅØ½ºÃÄ
 int VTFPitch;
 texture VTF;
+texture PatternMap;
 
 sampler VTFSampler = sampler_state
 {
@@ -15,6 +18,20 @@ sampler VTFSampler = sampler_state
     magfilter = point;
     mipfilter = point;
 };
+
+sampler PatternSampler = sampler_state
+{
+    texture = PatternMap;
+
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
+    addressu = wrap;
+    addressv = wrap;
+};
+
+
 
 sampler DiffuseSampler = sampler_state
 {
@@ -113,7 +130,11 @@ PS_OUT PS_MAIN(PS_IN In)
     PS_OUT Out = (PS_OUT) 0;
     
     float4 DiffuseColor = tex2D(DiffuseSampler, In.UV);
-    Out.Color = DiffuseColor;
+    float4 Pattern = tex2D(PatternSampler, In.UV);
+    Out.Color = DiffuseColor * Pattern;
+    
+    Out.Color.rgb *= Brightness;
+    Out.Color.a *= AlphaFactor;
     
     return Out;
 }

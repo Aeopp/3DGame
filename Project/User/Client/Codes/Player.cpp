@@ -1374,7 +1374,21 @@ void Player::BasicCombo01Transition(const FSMControlInformation& FSMControlInfo)
 	_BasicCombo01->Rotation= FSMControlInfo.MyTransform->GetRotation();
 	_BasicCombo01->Location = FSMControlInfo.MyTransform->GetLocation() + Vector3{ 0,10,0 };
 	_BasicCombo01->PlayAnimation(0u, 30.f, 0.25f, _EftAnimNotify);
+
 	_BasicCombo01->bRender = true;
+	_BasicCombo01->_CurAnimEffectInfo.PatternMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"type_37")->second;
+	_BasicCombo01->_CurAnimEffectInfo.Time = 0.0f;
+
+	_BasicCombo01->_AnimEffectUpdateCall = [](Engine::AnimEffect::AnimEffectInfo& _EffectInfo, float DeltaTime)
+	{
+		_EffectInfo.Time += DeltaTime;
+		const float Factor = std::fabsf(std::sinf(_EffectInfo.Time));
+		_EffectInfo.AlphaFactor = Factor;
+		// _EffectInfo.Brightness = Factor;
+	};
+
+
+	CurrentTPCamera->Shake(4.f, FMath::Random<Vector3>({ -1,-1,-1 }, { 1,1,1 }), 0.2f);
 }
 
 void Player::BasicCombo02State(const FSMControlInformation& FSMControlInfo)&

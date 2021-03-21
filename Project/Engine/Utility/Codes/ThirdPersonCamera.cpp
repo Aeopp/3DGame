@@ -101,8 +101,14 @@ void Engine::ThirdPersonCamera::LateUpdate(const float DeltaTime)&
 	_TargetInformation.CurrentViewDirection = FMath::Normalize(
 		FMath::Lerp(_TargetInformation.CurrentViewDirection, _TargetInformation.ViewDirection, DeltaTime * 2.5f));
 
-	const Vector3 EyeLocation = _TargetInformation.CurrentTargetLocation +
+	Vector3 EyeLocation = _TargetInformation.CurrentTargetLocation +
 		(-_TargetInformation.CurrentViewDirection * _TargetInformation.CurrentDistancebetweenTarget);
+
+	// Ω¶¿Ã≈∑
+	CalcCurrentShake(DeltaTime);
+	EyeLocation += CurrentShake;
+	CurrentShake = { 0,0,0 };
+	//
 
 	static const Vector3 Up = { 0,1,0 };
 	D3DXMatrixLookAtLH(&View, &EyeLocation, &TargetLocation, &Up);
@@ -141,4 +147,26 @@ std::function<typename Engine::Object::SpawnReturnValue(
 void Engine::ThirdPersonCamera::SetUpTarget(const TargetInformation& TargetInformationParam)&
 {
 	_TargetInformation = TargetInformationParam;
-};
+}
+void Engine::ThirdPersonCamera::Shake(const float Force, const Vector3& Direction, const float Duration)&
+{
+	ShakeInfo _PushShakeInfo;
+	_PushShakeInfo.Force = Force;
+	_PushShakeInfo.Direction= FMath::Normalize(Direction);
+	_PushShakeInfo.Duration = Duration;
+
+	ShakeInfos.emplace_back(std::move(_PushShakeInfo));
+}
+void Engine::ThirdPersonCamera::CalcCurrentShake(const float DeltaTime)&
+{
+	ShakeInfos.erase(std::remove_if(std::begin(ShakeInfos), std::end(ShakeInfos),
+		[this, DeltaTime](ShakeInfo& _CurrentShakeInfo)
+		{
+			const float Force = FMath::Random( -_CurrentShakeInfo.Force, _CurrentShakeInfo.Force );
+			CurrentShake += (Force * _CurrentShakeInfo.Direction);
+			_CurrentShakeInfo.Duration -= DeltaTime;
+			return _CurrentShakeInfo.Duration < 0.0f;
+		}), std::end(ShakeInfos));
+
+}
+;

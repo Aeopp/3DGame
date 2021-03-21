@@ -10,6 +10,7 @@
 #include "Timer.h"
 #include "NavigationMesh.h"
 #include "FontManager.h"
+#include "EffectSystem.h"
 
 void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)&
 {
@@ -30,6 +31,8 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 
 	_DirectionalLight.Initialize(Device.get(), LightInfo);
 
+	
+	EffectSys.Initialize(Device.get());
 	// CreateUIFromUIPath();
 };
 

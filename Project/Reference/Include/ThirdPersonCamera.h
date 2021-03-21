@@ -42,12 +42,24 @@ namespace Engine
 		inline Engine::ThirdPersonCamera::TargetInformation& RefTargetInformation()& { return _TargetInformation; };
 		void SetUpTarget(const TargetInformation& TargetInformationParam)&;
 	public:
+		struct ShakeInfo
+		{
+			float Force{ 1.f };
+			Vector3 Direction{ 1,0,0 };
+			float Duration{ 0.1f };
+		};
+		void Shake(const float Force,
+			const Vector3& Direction,
+			const float Duration)&;
 		bool bCameraUpdate = true;
 		float FovY{ 0.0f };
 		float Far{ 1000.f };
 		bool bCursorMode{ false };
 	protected:
-		
+		std::vector<ShakeInfo> ShakeInfos{};
+		Vector3 CurrentShake{ 0,0,0 };
+		void CalcCurrentShake(const float DeltaTime)&;
+
 		HWND Hwnd{ NULL };
 		TargetInformation _TargetInformation{};
 		Vector3 Up{0,1,0};

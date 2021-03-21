@@ -21,10 +21,12 @@ namespace Engine
 			const std::wstring& ResourceName,
 			const EffectType _EffectType)&;
 		Engine::AnimEffect* MakeEffect(const std::wstring& ResourceName ,
-						const EffectType _EffectType)&;
+										const EffectType _EffectType)&;
 		void Update(const float DeltaTime)&;
 		void RenderReady(class Renderer* const _Renderer)&;
 		void Render(class Renderer* const _Renderer)&;
+
+		std::unordered_map<std::wstring, IDirect3DTexture9*> EffectTextures{};
 	private:
 		std::unordered_map<std::wstring, std::shared_ptr<AnimEffect>> ProtoAnimEffects{};
 		std::vector<std::shared_ptr<AnimEffect>> AnimEffects{};

@@ -40,8 +40,7 @@ namespace Engine
 		};
 
 		void  Load(IDirect3DDevice9* const Device,
-			  const std::filesystem::path FileFullPath
-			)&;
+			  const std::filesystem::path FileFullPath)&;
 
 		void Initialize()&;
 
@@ -84,6 +83,17 @@ namespace Engine
 		Vector3 Scale{ 1,1,1 };
 		Vector3 Rotation{ 0, 0, 0 };
 		Vector3 Location{ 0, 0, 0 };
+		// AnimEffect Info 
+		struct AnimEffectInfo
+		{
+			float Time = 0.0f;
+			float AlphaFactor = 0.0f;
+			float Brightness = 1.f;
+			IDirect3DTexture9* PatternMap{ nullptr };
+		};
+		std::function<void(AnimEffectInfo&,float)> _AnimEffectUpdateCall{};
+		AnimEffectInfo _CurAnimEffectInfo{};
+		//
 	private:
 		Matrix  World{ FMath::Identity() };
 
