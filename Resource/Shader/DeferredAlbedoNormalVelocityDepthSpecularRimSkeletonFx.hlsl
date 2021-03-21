@@ -15,7 +15,7 @@ float  DetailDiffuseIntensity;
 float  DetailNormalIntensity;
 float  RimInnerWidth;
 float  RimOuterWidth;
-float OutlineRedFactor;
+float  OutlineRedFactor;
 vector RimAmtColor;
 
 int VTFPitch;

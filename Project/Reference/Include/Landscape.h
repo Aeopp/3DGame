@@ -162,7 +162,7 @@ namespace Engine
 
 		bool bFloatingEnable = true;
 
-
+		
 		float AuraRange = 100.f;
 		Vector2 AuraPosition = { 0,0 };
 	private:

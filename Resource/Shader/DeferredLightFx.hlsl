@@ -36,7 +36,7 @@ float MapSizeY;
 
 texture Albedo3_Contract1;
 texture Normal3_Power1;
-texture WorldPos3_Depth1;
+texture Velocity2_OutlineRedFactor_Depth1;
 texture CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1;
 texture ShadowDepth;
 
@@ -60,9 +60,9 @@ sampler Normal3_Power1Sampler = sampler_state
     MaxAnisotropy = 16;
 };
 
-sampler WorldPos3_Depth1Sampler = sampler_state
+sampler Velocity2_OutlineRedFactor_Depth1Sampler = sampler_state
 {
-    texture = WorldPos3_Depth1;
+    texture = Velocity2_OutlineRedFactor_Depth1;
 
     minfilter = anisotropic;
     magfilter = anisotropic;
@@ -134,8 +134,10 @@ PS_OUT PS_MAIN(PS_IN In)
     PS_OUT Out = (PS_OUT) 0;
         
     float4 Albedo3_Contract1 = tex2D(Albedo3_Contract1Sampler, In.UV);
-    float4 WorldPos3_Depth1 = tex2D(WorldPos3_Depth1Sampler, In.UV);
-    float  Depth = WorldPos3_Depth1.a;
+    float4 Velocity_OutlineRedFactor_Depth = tex2D(Velocity2_OutlineRedFactor_Depth1Sampler, In.UV);
+    float Depth = Velocity_OutlineRedFactor_Depth.a;
+    float OutlineRedAddtive = Velocity_OutlineRedFactor_Depth.z;
+    
     float4 CurrentNDC = float4(In.UV.x * 2.f - 1.f, (1.f-In.UV.y) * 2.f - 1.f, Depth, 1.f);
     // view-projection 역으로 변환합니다. 
     float4 WorldLocation = mul(CurrentNDC, InverseViewProjection);
@@ -197,7 +199,7 @@ PS_OUT PS_MAIN(PS_IN In)
         OutlineColor += (OutlineMask[i] * ViewNormal).xyz;
     }
     float Gray = 1 - (OutlineColor.r * 0.3 + OutlineColor.g * 0.59 + OutlineColor.b * 0.11);
-    Ret= float3(Gray, Gray, Gray);
+    Ret = float3(Gray + ( (1.f - Gray) * OutlineRedAddtive) , Gray, Gray);
     
     float Power = Normal3_Power1.a;
        

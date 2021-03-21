@@ -30,6 +30,7 @@
 #include "EffectSystem.h"
 #include "FontManager.h"
 #include "ObjectEdit.h"
+#include "Landscape.h"
 
 
 
@@ -286,13 +287,6 @@ void Player::Update(const float DeltaTime)&
 	auto _ScreenBloodQuad = ScreenBloodQuad.lock();
 	_ScreenBloodQuad->AlphaFactor -= DeltaTime * ScreenBloodQuadAlphaFactorAcceleration;
 	_ScreenBloodQuad->bRender = true;
-	
-
-	/*RefFontManager().RenderRegist(L"Font_Sandoll", L"NPC 의 대화 멘트.", 
-		{ 300,300 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });*/
-
-
-
 
 	auto _Transform = GetComponent<Engine::Transform>();
 
@@ -305,7 +299,6 @@ void Player::Update(const float DeltaTime)&
 
 	auto& _RefPhysic = _Transform->RefPhysic();
 	auto& Control    = RefControl();
-	//CenterLine;
 
 	const float CoolTimeHeight = 1.f - (std::fabsf(CurrentStandUpRollingCoolTime) / StandUpRollingCoolTime);
 	AvoidSlot.lock()->CoolTimeHeight = AvoidIcon.lock()->CoolTimeHeight = CoolTimeHeight;
@@ -329,7 +322,7 @@ void Player::Update(const float DeltaTime)&
 	{
 		auto _KarmaIcon = KarmaIcon.lock();
 
-		//if (_KarmaIcon->CoolTimeHeight < 1.0f)
+		
 		{
 			static constexpr float KarmaEventTimeFactor = 0.33f;
 			_KarmaIcon->CoolTimeHeight += DeltaTime * KarmaEventTimeFactor;
@@ -364,12 +357,6 @@ void Player::Update(const float DeltaTime)&
 		}
 	}
 
-	// 테스트 
-	//if (Control.IsDown(DIK_DELETE))
-	//{
-	//	_LeafAttackInfo.Reset(Location, {-423.641f,22.257f,431.255f}, 300.f, 7.f, 0.0f);
-	//	_RefPhysic.bGravityEnable = false;
-	//};
 
 	if (Control.IsDown(DIK_Z))
 	{
@@ -393,6 +380,10 @@ void Player::Edit()&
 		{
 			WeaponAcquisition();
 		}
+
+		ImGui::SliderFloat("LeafAttackAxisDelta", &_LeafAttackInfo.LeafAttackAxisDelta, 0.f, 1.f);
+		ImGui::SliderFloat("LeafAttackHightest", &StateableSpeed.LeafAttackHightest, 0.f, 200.f);
+		ImGui::SliderFloat("LeafAttackHightestTime", &StateableSpeed.LeafAttackHightestTime, 0.f, 1.f);
 
 		ImGui::SliderFloat("JumpVelocityY", &StateableSpeed.JumpVelocity.y, 0.f, 300.f);
 		ImGui::SliderFloat("Gravity", &_Physic.Gravity, 0.f, 300.f);
@@ -485,6 +476,8 @@ void Player::Edit()&
 			ImGui::SliderFloat("Air04", &_AttackForce.Air04, Min, Max);
 			ImGui::SliderFloat("Air04Jump", &_AttackForce.Air04Jump, Min, Max);
 			ImGui::Separator();
+
+
 
 			ImGui::TreePop();
 		}
@@ -1698,25 +1691,37 @@ void Player::StandBigRightState(const FSMControlInformation& FSMControlInfo)&
 
 void Player::LeafAttackReadyState(const FSMControlInformation& FSMControlInfo)&
 {
-// 	WeaponPutDissolveStart();
+	// 	WeaponPutDissolveStart();
 
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 
 	// TODO :: 여기서 움직일 수 있으며 마법진 (?) 을 바닥에 그려주는 인터페이스를 제공하면 좋을듯 !
-	if (auto bIsMove = CheckTheMoveableState(FSMControlInfo);bIsMove )
+	if (auto bIsMove = CheckTheMoveableState(FSMControlInfo); bIsMove)
 	{
-		MoveFromController(FSMControlInfo  , *bIsMove , StateableSpeed.LeafReady);
+		MoveFromController(FSMControlInfo, *bIsMove, StateableSpeed.LeafReady);
 	}
+	LeafReadyCameraUpdate(FSMControlInfo);
+	
+	const float XAxisDelta = FSMControlInfo._Controller.GetMouseMove(Engine::MouseMove::X) * 
+		_LeafAttackInfo.LeafAttackAxisDelta;
+	const float ZAxisDelta = FSMControlInfo._Controller.GetMouseMove(Engine::MouseMove::Y) * _LeafAttackInfo.LeafAttackAxisDelta;
+
+	const Vector3 Location = FSMControlInfo.MyTransform->GetLocation();
+	const Vector2 TargetLocation = RefRenderer().RefLandscape().AuraPosition += {XAxisDelta, ZAxisDelta};
 
 	if (FSMControlInfo._Controller.IsUp(DIK_R))
 	{
+		const Vector3 ProjectionLocation = FMath::ProjectionPointFromFace(
+			RefNaviMesh().GetCellFromXZLocation(TargetLocation)->_Plane._Plane,
+			{ TargetLocation.x , 0.0f ,TargetLocation.y });
+
+		_LeafAttackInfo.Reset(
+			FSMControlInfo.MyTransform->GetLocation(), ProjectionLocation, StateableSpeed.LeafAttackHightest,
+			StateableSpeed.LeafAttackHightestTime);
 		// 여기서 마법진 위치로 계산해서 날아가게 하는 처리를 하면 좋을듯 ! 
 		LeafAttackStartTransition(FSMControlInfo);
-		const float LeafStartTestForce = 33.3f;
-		FSMControlInfo.MyTransform->AddVelocity(CurrentMoveDirection * LeafStartTestForce);
 	}
-}
-
+};
 
 void Player::LeafAttackReadyTransition(const FSMControlInformation& FSMControlInfo)&
 {
@@ -1727,15 +1732,20 @@ void Player::LeafAttackReadyTransition(const FSMControlInformation& FSMControlIn
 	_AnimNotify.Name = "LeafAttackReady";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::LeafAttackReady;
+
+	const Vector3 Location=FSMControlInfo.MyTransform->GetLocation();
+	RefRenderer().RefLandscape().AuraPosition =  { Location .x , Location .z};
 }
 
 void Player::LeafAttackStartState(const FSMControlInformation& FSMControlInfo)&
 {
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 
+	LeafAttackCameraUpdate(FSMControlInfo) ;
+
 	if (CurAnimNotify.bAnimationEnd)
 	{
-		LeafAttackStartTransition(FSMControlInfo);
+		LeafAttackUpTransition(FSMControlInfo);
 	}
 }
 
@@ -1752,8 +1762,11 @@ void Player::LeafAttackUpState(const FSMControlInformation& FSMControlInfo)&
 {
 	// 여기서 중력 가속도가  점프 속도를 초과 해서 음수가나올 경우 애니메이션을 전환해야한다 .
 
+	LeafAttackCameraUpdate(FSMControlInfo);
+
 	const auto& _Physic =  FSMControlInfo.MyTransform->RefPhysic();
-	if (_Physic.Velocity.y < 0.0f)
+	if (_Physic.Velocity.y < 0.0f || 
+		_LeafAttackInfo.t > _LeafAttackInfo.HeighestTime)
 	{
 		LeafAttackDownTransition(FSMControlInfo);
 	}
@@ -1773,8 +1786,8 @@ void Player::LeafAttackDownState(const FSMControlInformation& FSMControlInfo)&
 	// 여기서 땅에 닿기 이전까지는 해당 모션을 계속 유지해야 한다.
 	const Vector3 CurLocation   = FSMControlInfo.MyTransform->GetLocation();
 	const auto& Physic = FSMControlInfo.MyTransform->RefPhysic();
-	
-	
+	LeafAttackCameraUpdate(FSMControlInfo);
+
 	if (CheckTheLandingStatable(CurLocation.y, Physic.CurrentGroundY) )
 	{
 		LeafAttackLandingTransition(FSMControlInfo);
@@ -1793,6 +1806,9 @@ void Player::LeafAttackDownTransition(const FSMControlInformation& FSMControlInf
 void Player::LeafAttackLandingState(const FSMControlInformation& FSMControlInfo)&
 {
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+
+	LeafAttackCameraUpdate(FSMControlInfo);
+
 	if (CurAnimNotify.bAnimationEnd)
 	{
 		CombatWaitTransition(FSMControlInfo); 
@@ -1802,7 +1818,7 @@ void Player::LeafAttackLandingState(const FSMControlInformation& FSMControlInfo)
 void Player::LeafAttackLandingTransition(const FSMControlInformation& FSMControlInfo)&
 {
 	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
-	_AnimNotify.bLoop = true;
+	_AnimNotify.bLoop = false;
 	_AnimNotify.Name = "LeafAttackLanding";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::LeafAttackLanding;
@@ -1936,7 +1952,23 @@ void Player::WeaponHand()&
 	WeaponAttachImplementation(this, "Weapon_Hand_R",
 		{ 1,1,1 },
 		{ 0,0,0 },
-		{ 0,0,0 } ) ;
+		{ 0,0,0 });
+};
+
+void Player::LeafReadyCameraUpdate(const FSMControlInformation& FSMControlInfo)&
+{
+	CurrentTPCamera->RefTargetInformation().ViewDirection =
+		FMath::Normalize(FMath::RotationVecNormal(FSMControlInfo.MyTransform->GetRight(),
+			 FSMControlInfo.MyTransform->GetForward(), FMath::ToRadian(45.f)));
+	CurrentTPCamera->RefTargetInformation().DistancebetweenTarget = 50.f;
+};
+
+void Player::LeafAttackCameraUpdate(const FSMControlInformation& FSMControlInfo)&
+{
+	CurrentTPCamera->RefTargetInformation().ViewDirection =
+		FMath::Normalize(FMath::RotationVecNormal(-FSMControlInfo.MyTransform->GetForward(),
+			FSMControlInfo.MyTransform->GetRight(), FMath::ToRadian(0.f)));
+	CurrentTPCamera->RefTargetInformation().DistancebetweenTarget = 50.f;
 };
 
 
@@ -2057,6 +2089,7 @@ void Player::HitNotify(Object* const Target, const Vector3 PushDir,
 		_NPC)
 	{
 		auto& CameraTargetInfo = CurrentTPCamera->RefTargetInformation();
+		_NPC->GetComponent<Engine::SkeletonMesh>()->OutlineRedFactor = 0.f;
 
 		if (Control.IsDown(DIK_BACKSPACE))
 		{
@@ -2074,6 +2107,8 @@ void Player::HitNotify(Object* const Target, const Vector3 PushDir,
 		}
 		if (_NPC->bInteraction)
 		{
+			_NPC->GetComponent<Engine::SkeletonMesh>()->OutlineRedFactor = 0.f;
+
 			CameraTargetInfo.TargetObject = _NPC;
 			auto NPCTransform = _NPC->GetComponent<Engine::Transform>();
 
@@ -2099,8 +2134,6 @@ void Player::HitNotify(Object* const Target, const Vector3 PushDir,
 void Player::HitBegin(Object* const Target, const Vector3 PushDir, const float CrossAreaScale)&
 {
 	Super::HitBegin(Target, PushDir, CrossAreaScale);
-
-	
 };
 
 void Player::HitEnd(Object* const Target)&

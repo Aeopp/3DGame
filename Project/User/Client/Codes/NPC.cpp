@@ -207,7 +207,7 @@ void NPC::HitNotify(Object* const Target, const Vector3 PushDir, const float Cro
 	auto* _Player = dynamic_cast<Player* const>(Target);
 	if (_Player)
 	{
-
+		
 	}
 };
 

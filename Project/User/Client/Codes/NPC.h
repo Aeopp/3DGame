@@ -32,6 +32,7 @@ public:
 			{ -300,-300 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });*/
 	};
 public:
+
 	void Initialize(const std::optional<Vector3>& Scale, const std::optional<Vector3>& Rotation, const Vector3& SpawnLocation)&;
 	void PrototypeInitialize(IDirect3DDevice9* const Device)&;
 	virtual std::shared_ptr<Engine::Object> GetCopyShared()& override;
@@ -42,6 +43,7 @@ public:
 	virtual void Event()&override;
 	virtual void Update(const float DeltaTime)&;
 	virtual void LateUpdate(const float DeltaTime)&;
+
 
 	void Edit()&;
 

@@ -92,7 +92,7 @@ void Engine::Light::Render(
 		Fx->BeginPass(i);
 		Fx->SetTexture("Albedo3_Contract1", Albedo3_Contract1);
 		Fx->SetTexture("Normal3_Power1", Normal3_Power1);
-		Fx->SetTexture("WorldPos3_Depth1", Velocity2_None1_Depth1);
+		Fx->SetTexture("Velocity2_OutlineRedFactor_Depth1", Velocity2_None1_Depth1);
 		Fx->SetTexture("CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1", CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1);
 		Fx->SetTexture("ShadowDepth", ShadowDepth);
 		Fx->CommitChanges();

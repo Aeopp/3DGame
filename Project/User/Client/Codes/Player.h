@@ -22,6 +22,8 @@ public:
 					const float HeighestTime,
 					const float t = 0.0f)&;
 		std::optional<Vector3> Move(const float DeltaTime);
+		float LeafAttackAxisDelta = 1.f;
+
 		Vector3 DestLocation = { 0,0,0 };
 		Vector3 StartLocation = {0,0,0};
 		// 최고점 높이
@@ -55,6 +57,9 @@ public:
 		float Rolling = 120.f;
 		float Dash = 140.f;
 		float LeafReady = 20.f;
+
+		float LeafAttackHightest = 100.f;
+		float LeafAttackHightestTime = 1.f;
 
 		Vector3 JumpVelocity = { 0.f,125.f,0.f };
 		Vector3 AirCombo01Velocity = { 0.f, 80.f,0.f };
@@ -291,6 +296,9 @@ private:
 	void WeaponPut()&;
 	void WeaponHand()&;
 private:
+	void LeafReadyCameraUpdate(const FSMControlInformation& FSMControlInfo)&;
+	void LeafAttackCameraUpdate(const FSMControlInformation& FSMControlInfo)&;
+private:
 	class PlayerWeapon* const  GetWeapon()const &;
 public:
 	bool bInvincibility = false;
@@ -331,6 +339,7 @@ private:
 	static constexpr float CenterLineQuadAlphaFactorAcceleration = 2.f;
 	static constexpr float ScreenBloodQuadAlphaFactorAcceleration = 2.f;
 private:
+	
 	static const inline float StandUpRollingCoolTime = 1.f; 
 	
 	float CurrentStandUpRollingCoolTime = StandUpRollingCoolTime;
@@ -342,7 +351,7 @@ private:
 	Vector3 NPCInteractionLocationOffset{ -7.080f,14.159f,3.540f};
 	Vector3 PlayerCameraTargetLocationOffset{ 0.f,20.f,0.f };
 	
-	bool bWeaponAcquisition = false;
+	bool  bWeaponAcquisition = false;
 	float LandCheckHighRange = 7.f;
 	const Engine::Cell* CurrentCell{nullptr};
 	LeafAttackInformation _LeafAttackInfo{};
