@@ -381,7 +381,7 @@ void Player::Edit()&
 			WeaponAcquisition();
 		}
 
-		ImGui::SliderFloat("LeafAttackAxisDelta", &_LeafAttackInfo.LeafAttackAxisDelta, 0.f, 1.f);
+		ImGui::SliderFloat("LeafAttackAxisDelta", &LeafAttackInformation::LeafAttackAxisDelta, 0.f, 1.f);
 		ImGui::SliderFloat("LeafAttackHightest", &StateableSpeed.LeafAttackHightest, 0.f, 200.f);
 		ImGui::SliderFloat("LeafAttackHightestTime", &StateableSpeed.LeafAttackHightestTime, 0.f, 1.f);
 
@@ -1959,7 +1959,7 @@ void Player::LeafReadyCameraUpdate(const FSMControlInformation& FSMControlInfo)&
 {
 	CurrentTPCamera->RefTargetInformation().ViewDirection =
 		FMath::Normalize(FMath::RotationVecNormal(FSMControlInfo.MyTransform->GetRight(),
-			 FSMControlInfo.MyTransform->GetForward(), FMath::ToRadian(45.f)));
+			 FSMControlInfo.MyTransform->GetForward(), -FMath::ToRadian(45.f)));
 	CurrentTPCamera->RefTargetInformation().DistancebetweenTarget = 50.f;
 };
 
@@ -2089,7 +2089,7 @@ void Player::HitNotify(Object* const Target, const Vector3 PushDir,
 		_NPC)
 	{
 		auto& CameraTargetInfo = CurrentTPCamera->RefTargetInformation();
-		_NPC->GetComponent<Engine::SkeletonMesh>()->OutlineRedFactor = 0.f;
+	// 	_NPC->GetComponent<Engine::SkeletonMesh>()->OutlineRedFactor = 0.f;
 
 		if (Control.IsDown(DIK_BACKSPACE))
 		{
@@ -2107,7 +2107,7 @@ void Player::HitNotify(Object* const Target, const Vector3 PushDir,
 		}
 		if (_NPC->bInteraction)
 		{
-			_NPC->GetComponent<Engine::SkeletonMesh>()->OutlineRedFactor = 0.f;
+			// _NPC->GetComponent<Engine::SkeletonMesh>()->OutlineRedFactor = 0.f;
 
 			CameraTargetInfo.TargetObject = _NPC;
 			auto NPCTransform = _NPC->GetComponent<Engine::Transform>();

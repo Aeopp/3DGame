@@ -22,7 +22,7 @@ public:
 					const float HeighestTime,
 					const float t = 0.0f)&;
 		std::optional<Vector3> Move(const float DeltaTime);
-		float LeafAttackAxisDelta = 1.f;
+		static inline float LeafAttackAxisDelta = 1.f;
 
 		Vector3 DestLocation = { 0,0,0 };
 		Vector3 StartLocation = {0,0,0};
