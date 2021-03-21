@@ -12,7 +12,7 @@ void Engine::EffectSystem::Initialize(IDirect3DDevice9* const Device)&
 		const std::filesystem::directory_entry& entry = *itr;
 		IDirect3DTexture9* TextureTemp{ nullptr }; 
 		const auto& Extension =entry.path().extension();
-		if (Extension == L"tga" || Extension == L"png")
+		if (Extension == L".tga" || Extension == L".png")
 		{
 			D3DXCreateTextureFromFile(Device, entry.path().c_str(), &TextureTemp);
 
