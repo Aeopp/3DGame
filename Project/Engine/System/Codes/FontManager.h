@@ -19,12 +19,18 @@ namespace Engine
 						const uint32 Height,
 						const uint32 Weight)&;
 		void RenderFont(const std::wstring& Tag,
-							const std::wstring& String,
-							const Vector2 Position,
-							const D3DXCOLOR Color)&;
+			const std::wstring& String,
+			const Vector2 Position,
+			const D3DXCOLOR Color)&;
+		void RenderRegist(const std::wstring& Tag,
+			const std::wstring& String,
+			const Vector2 Position,
+			const D3DXCOLOR Color)&;
+		void Render()&;
 	public:
 		inline auto& RefFont(const std::wstring& Tag)&; 
 	private:
+		std::vector<std::function<void()>> RenderFontCalls{};
 		std::unordered_map<std::wstring, std::unique_ptr<Font>> FontMap;
 	};
 };

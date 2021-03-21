@@ -255,9 +255,43 @@ void Player::Update(const float DeltaTime)&
 	Super::Update(DeltaTime);
 	
 	FSM(DeltaTime);
+	
+	static float t = 0.0f;
+	t += DeltaTime;
+	auto _CenterLineQuad = CenterLineQuad.lock();
 
-	if(bNPCInteraction)
-		RefFontManager().RenderFont(L"Font_Sandoll", L"NPC ¿« ¥Î»≠ ∏‡∆Æ.", { 300,200 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });
+	_CenterLineQuad->AlphaFactor = std::sinf(t);
+	_CenterLineQuad->bRender = true;
+
+	RefFontManager().RenderRegist(L"Font_Sandoll", L"NPC ¿« ¥Î»≠ ∏‡∆Æ.", 
+		{ 300,300 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });
+
+	RefFontManager().RenderRegist(L"Font_Sandoll", L"NPC ¿« ¥Î»≠ ∏‡∆Æ.",
+		{ 400,400}, D3DXCOLOR{ 1.f,1.f,1.f,1.f });
+
+	RefFontManager().RenderRegist(L"Font_Sandoll", L"NPC ¿« ¥Î»≠ ∏‡∆Æ.",
+		{ 200,200 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });
+
+	RefFontManager().RenderRegist(L"Font_Sandoll", L"NPC ¿« ¥Î»≠ ∏‡∆Æ.",
+		{ 100,100 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });
+
+	RefFontManager().RenderRegist(L"Font_Sandoll", L"NPC ¿« ¥Î»≠ ∏‡∆Æ.",
+		{ -100,100 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });
+
+	RefFontManager().RenderRegist(L"Font_Sandoll", L"NPC ¿« ¥Î»≠ ∏‡∆Æ.",
+		{ -200,200 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });
+
+	RefFontManager().RenderRegist(L"Font_Sandoll", L"NPC ¿« ¥Î»≠ ∏‡∆Æ.",
+		{ -300,-300 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });
+
+
+
+
+	if (bNPCInteraction)
+	{
+		
+	}
+		
 
 	auto _Transform = GetComponent<Engine::Transform>();
 
@@ -318,13 +352,14 @@ void Player::Update(const float DeltaTime)&
 			Billboard._41 = 0.0f;
 			Billboard._42 = 0.0f;
 			Billboard._43 = 0.0f;
-			const Vector3 UILocation = _Transform->GetLocation() + Vector3{ 0, 9,0 };
+			const Vector3 UILocation = _Transform->GetLocation() + 
+				Vector3{ 0, 9,0 };
 
 			_PlayerKarmaInfoGUI->WorldUI =
-				FMath::Scale({ 23,23,1}) * Billboard * 
+				FMath::Scale({ 19,19,1}) * Billboard * 
 				FMath::Translation(UILocation);
 
-			_PlayerKarmaInfoGUI->WorldUI->_42 += 33.f;
+			_PlayerKarmaInfoGUI->WorldUI->_42 += 22.f;
 		}
 	}
 
@@ -2204,8 +2239,12 @@ void Player::LateUpdate(const float DeltaTime)&
 			{
 				CurrentCell = bCellResult->Target;
 				_Transform->RefPhysic().CurrentGroundY = bCellResult->ProjectLocation.y;
-				ImGui::Text("State : Move ,  Y : %.3f , Address : %d",
-					bCellResult->ProjectLocation.y, CurrentCell);
+
+				if (Engine::Global::bDebugMode)
+				{
+					ImGui::Text("State : Move ,  Y : %.3f , Address : %d",
+						bCellResult->ProjectLocation.y, CurrentCell);
+				}
 			}
 
 			else if (_CompareType == Engine::Cell::CompareType::Stop)
@@ -2222,9 +2261,11 @@ void Player::LateUpdate(const float DeltaTime)&
 					_Transform->SetLocation(
 						{ bCellResult->ProjectLocation.x , Location.y ,bCellResult->ProjectLocation.z });
 				}
-
-				ImGui::Text("State : Stop , Y : %.3f , Address : %d",
-					bCellResult->ProjectLocation.y, CurrentCell);
+				if (Engine::Global::bDebugMode)
+				{
+					ImGui::Text("State : Stop , Y : %.3f , Address : %d",
+						bCellResult->ProjectLocation.y, CurrentCell);
+				};
 			}
 		}
 	}

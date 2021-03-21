@@ -9,6 +9,7 @@
 #include <filesystem>
 #include "Timer.h"
 #include "NavigationMesh.h"
+#include "FontManager.h"
 
 void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)&
 {
@@ -75,6 +76,8 @@ void Engine::Renderer::Render()&
 	RenderDeferredDebugBuffer();
 
 	RenderUI();
+
+	FontManager::Instance->Render();
 
 	// 정보 초기화 ... 
 	CurBackBufSurface->Release();

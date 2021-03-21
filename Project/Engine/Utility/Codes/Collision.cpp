@@ -66,35 +66,39 @@ void Engine::Collision::Event(Object* Owner)&
 {
 	RenderInterface::Regist();
 
-	if (ImGui::TreeNode(("CollisionEdit_" + ToA(Owner->GetName())).c_str()))
+	if (Engine::Global::bDebugMode)
 	{
-		if (ImGui::Button("Save"))
+		if (ImGui::TreeNode(("CollisionEdit_" + ToA(Owner->GetName())).c_str()))
 		{
-			Save();
-		}
+			if (ImGui::Button("Save"))
+			{
+				Save();
+			}
 
-		if (ImGui::TreeNode("Offset"))
-		{
-			ImGui::InputFloat3("Scale", (float*)&_OffsetInfo.Scale);
-			ImGui::InputFloat3("Rotation", (float*)&_OffsetInfo.Rotation);
-			ImGui::InputFloat3("Location", (float*)&_OffsetInfo.Location);
+			if (ImGui::TreeNode("Offset"))
+			{
+				ImGui::InputFloat3("Scale", (float*)&_OffsetInfo.Scale);
+				ImGui::InputFloat3("Rotation", (float*)&_OffsetInfo.Rotation);
+				ImGui::InputFloat3("Location", (float*)&_OffsetInfo.Location);
 
-			Vector3 CurSliderScale{ 0,0,0 }, CurSliderRotation{ 0,0,0 }, CurSliderLocation{ 0,0,0 };
-			ImGui::SliderFloat3("_Scale", (float*)&CurSliderScale, -0.01f, +0.01f);
-			ImGui::SliderFloat3("_Rotation", (float*)&CurSliderRotation, -0.01f, +0.01f);
-			ImGui::SliderFloat3("_Location", (float*)&CurSliderLocation, -0.1f, +0.1f);
+				Vector3 CurSliderScale{ 0,0,0 }, CurSliderRotation{ 0,0,0 }, CurSliderLocation{ 0,0,0 };
+				ImGui::SliderFloat3("_Scale", (float*)&CurSliderScale, -0.01f, +0.01f);
+				ImGui::SliderFloat3("_Rotation", (float*)&CurSliderRotation, -0.01f, +0.01f);
+				ImGui::SliderFloat3("_Location", (float*)&CurSliderLocation, -0.1f, +0.1f);
 
-			_OffsetInfo.Scale += CurSliderScale;
-			_OffsetInfo.Rotation += CurSliderRotation;
-			_OffsetInfo.Location += CurSliderLocation;
+				_OffsetInfo.Scale += CurSliderScale;
+				_OffsetInfo.Rotation += CurSliderRotation;
+				_OffsetInfo.Location += CurSliderLocation;
 
-			OffsetMatrix = FMath::WorldMatrix(_OffsetInfo.Scale, _OffsetInfo.Rotation, _OffsetInfo.Location);
+				OffsetMatrix = FMath::WorldMatrix(_OffsetInfo.Scale, _OffsetInfo.Rotation, _OffsetInfo.Location);
+
+				ImGui::TreePop();
+			}
 
 			ImGui::TreePop();
+			ImGui::Separator();
 		}
 
-		ImGui::TreePop();
-		ImGui::Separator();
 	}
 }
 

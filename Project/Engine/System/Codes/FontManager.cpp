@@ -22,5 +22,23 @@ typename Engine::Font&
 void Engine::FontManager::RenderFont(const std::wstring& Tag, const std::wstring& String, const Vector2 Position, const D3DXCOLOR Color)&
 {
 	RefFont(Tag)->Render(String, Position, Color);
+};
+
+void Engine::FontManager::RenderRegist(
+	const std::wstring& Tag, const std::wstring& String, const Vector2 Position, const D3DXCOLOR Color)&
+{
+	RenderFontCalls.push_back(
+		[Tag, String, Position, Color, this]() {RenderFont(Tag, String, Position, Color); });
+}
+
+void Engine::FontManager::Render()&
+{
+	for (auto& RenderFontCall : RenderFontCalls)
+	{
+		if (RenderFontCall)
+			RenderFontCall();
+	}
+
+	RenderFontCalls.clear();
 }
 

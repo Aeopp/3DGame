@@ -166,6 +166,7 @@ void StartScene::Event()&
 }
 void StartScene::Update(const float DeltaTime)&
 {
+
 	Super::Update(DeltaTime);
 };
 

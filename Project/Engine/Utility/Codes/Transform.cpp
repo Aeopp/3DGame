@@ -61,31 +61,34 @@ void Engine::Transform::Event(Object* const Owner)&
 	const Vector3& Scale    = GetScale();
 	const Vector3& Location = GetLocation();
 	const Vector3& Rotation = GetRotation();
-
-	if (ImGui::TreeNode(("TransformEdit_" + ToA(Owner->GetName())).c_str()))
+	if (Engine::Global::bDebugMode)
 	{
-		if (ImGui::Button("Save"))
+		if (ImGui::TreeNode(("TransformEdit_" + ToA(Owner->GetName())).c_str()))
 		{
-			Save();
+			if (ImGui::Button("Save"))
+			{
+				Save();
+			}
+
+			ImGui::InputFloat("LocationSensitivity", &_EditProperty.LocationSensitivity);
+			ImGui::InputFloat3("Scale", (float*)&Scale);
+			ImGui::InputFloat3("Rotation", (float*)&Rotation);
+			ImGui::InputFloat3("Location", (float*)&Location);
+
+			Vector3 CurSliderScale{ 0,0,0 }, CurSliderRotation{ 0,0,0 }, CurSliderLocation{ 0,0,0 };
+			ImGui::SliderFloat3("_Scale", (float*)&CurSliderScale, -0.1f, +0.1f);
+			ImGui::SliderFloat3("_Rotation", (float*)&CurSliderRotation, -0.01f, +0.01f);
+			ImGui::SliderFloat3("_Location", (float*)&CurSliderLocation,
+				-_EditProperty.LocationSensitivity, +_EditProperty.LocationSensitivity);
+
+			SetScale(Scale + CurSliderScale);
+			SetRotation(Rotation + CurSliderRotation);
+			SetLocation(Location + CurSliderLocation);
+
+			ImGui::TreePop();
+			ImGui::Separator();
 		}
 
-		ImGui::InputFloat("LocationSensitivity", &_EditProperty.LocationSensitivity);
-		ImGui::InputFloat3("Scale", (float*)&Scale);
-		ImGui::InputFloat3("Rotation", (float*)&Rotation);
-		ImGui::InputFloat3("Location", (float*)&Location);
-
-		Vector3 CurSliderScale{ 0,0,0 }, CurSliderRotation{ 0,0,0 }, CurSliderLocation{ 0,0,0 };
-		ImGui::SliderFloat3("_Scale",(float*) &CurSliderScale, -0.1f, +0.1f); 
-		ImGui::SliderFloat3("_Rotation", (float*)&CurSliderRotation , -0.01f, +0.01f);
-		ImGui::SliderFloat3("_Location", (float*)&CurSliderLocation, 
-			-_EditProperty.LocationSensitivity, +_EditProperty.LocationSensitivity);
-
-		SetScale(Scale + CurSliderScale);
-		SetRotation(Rotation + CurSliderRotation);
-		SetLocation(Location + CurSliderLocation);
-
-		ImGui::TreePop();
-		ImGui::Separator();
 	}
 };
 
