@@ -36,101 +36,105 @@ void Belatos::FSM(const float DeltaTime)&
 	auto _Transform = GetComponent<Engine::Transform>();
 	auto _SkeletonMesh = GetComponent<Engine::SkeletonMesh>();
 	auto& _Manager =RefManager();
-	auto _Players =_Manager.FindObjects<Engine::NormalLayer, Player>();
-	FSMControlInformation CurrentFSMControlInfo{ _Players.front().get(),_Transform,  _SkeletonMesh ,DeltaTime };
 
-	switch (CurrentState)
+	if (!_Manager.GetCurrentScene()->bEditMode)
 	{
-	case Belatos::State::Air:
-		AirState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::Wait:
-		WaitState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::Run:
-		RunState(CurrentFSMControlInfo); 
-		break;
-	case Belatos::State::RunEnd:
-		RunEndState(CurrentFSMControlInfo); 
-		break; 
-	case Belatos::State::Skill1st:
-		Skill1stState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::Skill2nd:
-		Skill2ndState(CurrentFSMControlInfo);
-		break; 
-	case Belatos::State::Respawn:
-		RespawnState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::RTStand:
-		RTStandState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::DownBack:
-		DownBackState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::DownFront:
-		RTDownFrontState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::RTChaseSmallBack:
-		RTChaseSmallBackState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::RTChaseBigBack:
-		RTChaseBigBackState(CurrentFSMControlInfo); 
-		break;
-	case Belatos::State::RTChaseBigFront:
-		RTChaseBigFrontState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::RTChaseBigLeft:
-		RTChaseBigLeftState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::RTChaseBigRight:
-		RTChaseBigRightState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::RTDownAirFallBack:
-		RTDownAirFallBackState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::RTDownAirFallFront:
-		RTDownAirFallFrontState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::RTDownAirLandingBack:
-		RTDownAirLandingBackState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::RTDownAirLandingFront:
-		RTDownAirLandingFrontState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::RTDownBack:
-		RTDownBackState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::RTDownFront:
-		RTDownFrontState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::RTStandAirBigFront:
-		RTStandAirBigFrontState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::RTStandAirBigBack:
-		RTStandAirBigBackState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::RTStandAirFall:
-		RTStandAirFallState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::RTStandAirLanding:
-		RTStandAirLandingState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::RTStandAirSmall:
-		RTStandAirSmallState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::StandUpBack:
-		StandUpBackState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::StandUpFront:
-		StandUpFrontState(CurrentFSMControlInfo);
-		break;
-	case Belatos::State::Spawn:
-		SpawnState(CurrentFSMControlInfo);
-		break;
-	default:
-		break;
-	};
+		auto _Players = _Manager.FindObjects<Engine::NormalLayer, Player>();
+		FSMControlInformation CurrentFSMControlInfo{ _Players.front().get(),_Transform,  _SkeletonMesh ,DeltaTime };
+
+		switch (CurrentState)
+		{
+		case Belatos::State::Air:
+			AirState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::Wait:
+			WaitState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::Run:
+			RunState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::RunEnd:
+			RunEndState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::Skill1st:
+			Skill1stState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::Skill2nd:
+			Skill2ndState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::Respawn:
+			RespawnState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::RTStand:
+			RTStandState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::DownBack:
+			DownBackState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::DownFront:
+			RTDownFrontState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::RTChaseSmallBack:
+			RTChaseSmallBackState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::RTChaseBigBack:
+			RTChaseBigBackState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::RTChaseBigFront:
+			RTChaseBigFrontState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::RTChaseBigLeft:
+			RTChaseBigLeftState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::RTChaseBigRight:
+			RTChaseBigRightState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::RTDownAirFallBack:
+			RTDownAirFallBackState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::RTDownAirFallFront:
+			RTDownAirFallFrontState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::RTDownAirLandingBack:
+			RTDownAirLandingBackState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::RTDownAirLandingFront:
+			RTDownAirLandingFrontState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::RTDownBack:
+			RTDownBackState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::RTDownFront:
+			RTDownFrontState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::RTStandAirBigFront:
+			RTStandAirBigFrontState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::RTStandAirBigBack:
+			RTStandAirBigBackState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::RTStandAirFall:
+			RTStandAirFallState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::RTStandAirLanding:
+			RTStandAirLandingState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::RTStandAirSmall:
+			RTStandAirSmallState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::StandUpBack:
+			StandUpBackState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::StandUpFront:
+			StandUpFrontState(CurrentFSMControlInfo);
+			break;
+		case Belatos::State::Spawn:
+			SpawnState(CurrentFSMControlInfo);
+			break;
+		default:
+			break;
+		};
+	}
 }
 
 
@@ -525,19 +529,18 @@ void Belatos::RespawnState(const FSMControlInformation& FSMControlInfo)&
 
 	if (CurAnimNotify.bAnimationEnd)
 	{
-			auto* const _Player = RefManager().FindObjects<Engine::NormalLayer, Player>().front().get();
-			auto* const TpCam = _Player->CurrentTPCamera;
+		auto* const _Player = RefManager().FindObjects<Engine::NormalLayer, Player>().front().get();
+		auto* const TpCam = _Player->CurrentTPCamera;
 
-			const auto PlayerTargetInfo= (_Player->PlayerTargetInfo);
+		const auto PlayerTargetInfo= (_Player->PlayerTargetInfo);
 	
-			TpCam->RefTargetInformation().TargetObject = _Player;
-			TpCam->RefTargetInformation().DistancebetweenTarget = 200.f;
-			TpCam->RefTargetInformation().MaxDistancebetweenTarget = PlayerTargetInfo.MaxDistancebetweenTarget;
-			TpCam->RefTargetInformation().RotateResponsiveness = PlayerTargetInfo.RotateResponsiveness;
-			TpCam->RefTargetInformation().TargetLocationOffset = PlayerTargetInfo.TargetLocationOffset;
-			TpCam->RefTargetInformation().ViewDirection = PlayerTargetInfo.ViewDirection;
-			TpCam->RefTargetInformation().ZoomInOutScale = PlayerTargetInfo.ZoomInOutScale;
-
+		TpCam->RefTargetInformation().TargetObject = _Player;
+		TpCam->RefTargetInformation().DistancebetweenTarget = 200.f;
+		TpCam->RefTargetInformation().MaxDistancebetweenTarget =PlayerTargetInfo.MaxDistancebetweenTarget;
+		TpCam->RefTargetInformation().RotateResponsiveness = PlayerTargetInfo.RotateResponsiveness;
+		TpCam->RefTargetInformation().TargetLocationOffset = PlayerTargetInfo.TargetLocationOffset;
+		TpCam->RefTargetInformation().ViewDirection = PlayerTargetInfo.ViewDirection;
+		TpCam->RefTargetInformation().ZoomInOutScale = PlayerTargetInfo.ZoomInOutScale;
 		
 		WaitTransition(FSMControlInfo);
 		return;
@@ -1004,7 +1007,6 @@ void Belatos::SpawnState(const FSMControlInformation& FSMControlInfo)&
 
 	if (CheckTheLandingStatable(CurLocationY, Physic.CurrentGroundY))
 	{
-		
 		auto*const TpCam=RefManager().FindObjects<Engine::NormalLayer, Player>().front()->CurrentTPCamera;
 		SpawnCameraEvent =  TpCam->GetTargetInformation( );
 		SpawnCameraEvent->TargetObject = this;
@@ -1176,17 +1178,21 @@ void Belatos::Initialize(const std::optional<Vector3>& Scale, const std::optiona
 	WeaponHandleOBB.Update(WeaponHandleBone->ToRoot*_Transform->UpdateWorld());
 
 	auto& _Manager = RefManager();
-	auto _Players = _Manager.FindObjects<Engine::NormalLayer, Player>();
-	FSMControlInformation InitFSMControlInfo{ _Players.front().get(),_Transform,_SkeletonMesh,1.f };
+	
+	if (!_Manager.GetCurrentScene()->bEditMode)
+	{
+		auto _Players = _Manager.FindObjects<Engine::NormalLayer, Player>();
+		FSMControlInformation InitFSMControlInfo{ _Players.front().get(),_Transform,_SkeletonMesh,1.f };
 
-	if (!SpawnCameraEvent)
-	{
-		SpawnTransition(InitFSMControlInfo);
-	}
-	else
-	{
-		DissolveStart(1.f / 3.f, 0.f);
-		WaitTransition(InitFSMControlInfo);
+		if (!SpawnCameraEvent)
+		{
+			SpawnTransition(InitFSMControlInfo);
+		}
+		else
+		{
+			DissolveStart(1.f / 3.f, 0.f);
+			WaitTransition(InitFSMControlInfo);
+		}
 	}
 };
 

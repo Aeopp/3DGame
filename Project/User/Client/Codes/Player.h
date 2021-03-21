@@ -52,8 +52,8 @@ public:
 		float ComboEx02 = 10.f;
 		float Attack = 8.f; 
 		float Jump = 32.2f;
-		float Rolling = 70.f;
-		float Dash = 110.f;
+		float Rolling = 120.f;
+		float Dash = 140.f;
 		float LeafReady = 20.f;
 
 		Vector3 JumpVelocity = { 0.f,125.f,0.f };
@@ -323,8 +323,16 @@ private:
 	std::weak_ptr<Engine::UI> PlayerKarmaInfoGUI{};
 
 	std::weak_ptr<Engine::UI> CenterLineQuad{};
+
+	std::weak_ptr<Engine::UI> ScreenBloodQuad{};
+
+	std::weak_ptr<Engine::UI> MouseUI{};
+
+	static constexpr float CenterLineQuadAlphaFactorAcceleration = 2.f;
+	static constexpr float ScreenBloodQuadAlphaFactorAcceleration = 2.f;
 private:
 	static const inline float StandUpRollingCoolTime = 1.f; 
+	
 	float CurrentStandUpRollingCoolTime = StandUpRollingCoolTime;
 private:
 	class Engine::AnimEffect* _BasicCombo01{ nullptr };

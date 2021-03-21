@@ -42,6 +42,8 @@ namespace Engine
 			const std::string& LayerSubTypeName , 
 			const std::string& ObjectSubTypeName  , 
 			std::shared_ptr<Object> PassClone)&;
+
+		bool bEditMode = true;
 	protected:
 		std::unordered_map<std::string,std::unique_ptr<Layer>> LayerMap;
 		IDirect3DDevice9* Device{ nullptr };

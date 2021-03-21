@@ -33,9 +33,9 @@
 #include "Timer.h"
 #include "Sound.h"
 
-
 void StartScene::Initialize(IDirect3DDevice9* const Device)&
 {
+	bEditMode = false;
 	Engine::Global::bDebugMode = false;
 
     Super::Initialize(Device);
@@ -141,7 +141,7 @@ void StartScene::Event()&
 	if (_Control.IsDown(DIK_F3))
 	{
 		RefTimer().TimerRegist(5.f, 0.0f, 5.1f, []()->bool {
-				ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" / "BelatosWave1.json");
+				ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" / "BelatosWaveStart.json");
 				return true;
 				});
 	}

@@ -1,0 +1,83 @@
+{
+    "Object Instance List": [
+        {
+            "LayerKey": "class EnemyLayer",
+            "ObjectTypeList": [
+                {
+                    "ObjectTypeKey": "class Belatos",
+                    "ObjectInstanceList": [
+                        {
+                            "Name": "Belatos_9",
+                            "PrototypeTag": "Static",
+                            "bCaptureable": true,
+                            "Scale": [
+                                0.07000000029802323,
+                                0.07000000029802323,
+                                0.07000000029802323
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.47900059819221499,
+                                0.0
+                            ],
+                            "Location": [
+                                -104.31246948242188,
+                                19.852514266967775,
+                                103.03091430664063
+                            ]
+                        },
+                        {
+                            "Name": "Belatos_10",
+                            "PrototypeTag": "Static",
+                            "bCaptureable": true,
+                            "Scale": [
+                                0.07000000029802323,
+                                0.07000000029802323,
+                                0.07000000029802323
+                            ],
+                            "Rotation": [
+                                0.0,
+                                3.732006072998047,
+                                0.0
+                            ],
+                            "Location": [
+                                80.5387954711914,
+                                17.484085083007814,
+                                -83.03788757324219
+                            ]
+                        },
+                        {
+                            "Name": "Belatos_11",
+                            "PrototypeTag": "Static",
+                            "bCaptureable": true,
+                            "Scale": [
+                                0.07000000029802323,
+                                0.07000000029802323,
+                                0.07000000029802323
+                            ],
+                            "Rotation": [
+                                0.0,
+                                2.42299747467041,
+                                0.0
+                            ],
+                            "Location": [
+                                115.3902587890625,
+                                16.692291259765626,
+                                85.82928466796875
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "LayerKey": "class Engine::NormalLayer",
+            "ObjectTypeList": [
+                {
+                    "ObjectTypeKey": "class Engine::DynamicCamera",
+                    "ObjectInstanceList": []
+                }
+            ]
+        }
+    ]
+}

@@ -43,8 +43,9 @@ namespace Engine
 		bool bCameraUpdate = true;
 		float FovY{ 0.0f };
 		float Far{ 1000.f };
-	protected:
 		bool bCursorMode{ false };
+	protected:
+		
 		HWND Hwnd{ NULL };
 		TargetInformation _TargetInformation{};
 		Vector3 Up{0,1,0};

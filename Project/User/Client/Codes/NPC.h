@@ -7,6 +7,12 @@ class NPC  final : public Engine::Object
 public:
 	using Super = Engine::Object;
 	using MyType = NPC;
+
+	enum class InteractionEvent : uint8
+	{
+		FirstEncounter,
+		SecondEncounter,
+	};
 public:
 	void Initialize(const std::optional<Vector3>& Scale, const std::optional<Vector3>& Rotation, const Vector3& SpawnLocation)&;
 	void PrototypeInitialize(IDirect3DDevice9* const Device)&;

@@ -255,13 +255,14 @@ void Player::Update(const float DeltaTime)&
 	Super::Update(DeltaTime);
 	
 	FSM(DeltaTime);
-	
-	static float t = 0.0f;
-	t += DeltaTime;
 	auto _CenterLineQuad = CenterLineQuad.lock();
-
-	_CenterLineQuad->AlphaFactor = std::sinf(t);
+	_CenterLineQuad->AlphaFactor -= DeltaTime * CenterLineQuadAlphaFactorAcceleration;
 	_CenterLineQuad->bRender = true;
+
+	auto _ScreenBloodQuad = ScreenBloodQuad.lock();
+	_ScreenBloodQuad->AlphaFactor -= DeltaTime * ScreenBloodQuadAlphaFactorAcceleration;
+	_ScreenBloodQuad->bRender = true;
+	
 
 	RefFontManager().RenderRegist(L"Font_Sandoll", L"NPC ÀÇ ´ëÈ­ ¸àÆ®.", 
 		{ 300,300 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });
@@ -1532,6 +1533,9 @@ void Player::DashTransition(const FSMControlInformation& FSMControlInfo,
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::Dash;
 	FSMControlInfo.MyTransform->AddVelocity(DashDirection * StateableSpeed.Dash);
+
+	auto _CenterLineQuad = CenterLineQuad.lock();
+	_CenterLineQuad->AlphaFactor = 1.f;
 }
 
 std::optional<Player::MoveControlInformation>   
@@ -1578,6 +1582,10 @@ void Player::StandBigBackTransition(const FSMControlInformation& FSMControlInfo)
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::StandBigBack;
 	bInvincibility = true;
+
+
+	auto _ScreenBloodQuad =ScreenBloodQuad.lock();
+	_ScreenBloodQuad->AlphaFactor = 1.f;
 }
 
 void Player::StandBigBackState(const FSMControlInformation& FSMControlInfo)&
@@ -1600,6 +1608,9 @@ void Player::StandBigFrontTransition(const FSMControlInformation& FSMControlInfo
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::StandBigFront;
 	bInvincibility = true;
+
+	auto _ScreenBloodQuad = ScreenBloodQuad.lock();
+	_ScreenBloodQuad->AlphaFactor = 1.f;
 }
 
 void Player::StandBigFrontState(const FSMControlInformation& FSMControlInfo)&
@@ -1622,6 +1633,9 @@ void Player::StandBigLeftTransition(const FSMControlInformation& FSMControlInfo)
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::StandBigLeft;
 	bInvincibility = true;
+
+	auto _ScreenBloodQuad = ScreenBloodQuad.lock();
+	_ScreenBloodQuad->AlphaFactor = 1.f;
 }
 
 void Player::StandBigLeftState(const FSMControlInformation& FSMControlInfo)&
@@ -1644,6 +1658,9 @@ void Player::StandBigRightTransition(const FSMControlInformation& FSMControlInfo
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::StandBigRight;
 	bInvincibility = true;
+
+	auto _ScreenBloodQuad = ScreenBloodQuad.lock();
+	_ScreenBloodQuad->AlphaFactor = 1.f;
 };
 
 void Player::StandBigRightState(const FSMControlInformation& FSMControlInfo)&
@@ -1989,6 +2006,9 @@ void Player::StandUpRollingTransition(const FSMControlInformation& FSMControlInf
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::StandUpRolling;
 	FSMControlInfo.MyTransform->AddVelocity(DashDirection * StateableSpeed.Rolling);
+
+	auto _CenterLineQuad = CenterLineQuad.lock();
+	_CenterLineQuad->AlphaFactor = 1.f;
 }
 
 void Player::DashComboTransition(const FSMControlInformation& FSMControlInfo)&
@@ -2022,10 +2042,18 @@ void Player::HitNotify(Object* const Target, const Vector3 PushDir,
 
 			if (bNPCInteraction==false)
 			{
-				CameraTargetInfo.TargetObject = this;
-				CameraTargetInfo = PlayerTargetInfo;
-				CameraTargetInfo.DistancebetweenTarget = 30.f;
-				CameraTargetInfo.ViewDirection = -GetComponent<Engine::Transform>()->GetRight();
+				CurrentTPCamera->RefTargetInformation().TargetObject = this;
+				CurrentTPCamera->RefTargetInformation().DistancebetweenTarget = 45.f;
+				CurrentTPCamera->RefTargetInformation().MaxDistancebetweenTarget = PlayerTargetInfo.MaxDistancebetweenTarget;
+				CurrentTPCamera->RefTargetInformation().RotateResponsiveness = PlayerTargetInfo.RotateResponsiveness;
+				CurrentTPCamera->RefTargetInformation().TargetLocationOffset = PlayerTargetInfo.TargetLocationOffset;
+				CurrentTPCamera->RefTargetInformation().ViewDirection = -_Transform->GetForward();
+				CurrentTPCamera->RefTargetInformation().ZoomInOutScale = PlayerTargetInfo.ZoomInOutScale;
+
+				//CameraTargetInfo.TargetObject = this;
+				//CameraTargetInfo = PlayerTargetInfo;
+				//CameraTargetInfo.DistancebetweenTarget = 30.f;
+				//CameraTargetInfo.ViewDirection = -GetComponent<Engine::Transform>()->GetRight();
 			}
 		}
 
@@ -2065,6 +2093,8 @@ void Player::HitEnd(Object* const Target)&
 
 void Player::CreatePlayerSkillUI()&
 {
+	ShowCursor(false);
+
 	std::filesystem::path UIPath = std::filesystem::current_path();
 
 	  KarmaSlot = RefRenderer().
@@ -2078,7 +2108,7 @@ void Player::CreatePlayerSkillUI()&
 		MakeUI({ 43.f,43.f }, { -530.f,0.f },
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"Icon_Karma_TS.tga",
-			0.02);
+			0.2);
 	KarmaIcon.lock()->Flag = 0u;
 	KarmaIcon.lock()->bRender = false;
 	KarmaIcon.lock()->CoolTimeHeight = 0.0f;
@@ -2087,7 +2117,7 @@ void Player::CreatePlayerSkillUI()&
 		MakeUI({ 63.f,63.f }, { -550.f,-340.f},
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"GUI_Skill_icon_slot.tga",
-			0.01);
+			0.1);
 	DoubleSlashSlot.lock()->AddColor = {1.f,45.f/255.f,45.f/255.f};
 
 	
@@ -2095,77 +2125,77 @@ void Player::CreatePlayerSkillUI()&
 		MakeUI({ 63.f,63.f }, { -550.f,-340.f},
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"Icon_RageSkill_TS_DoubleSlash.tga",
-			0.02);
+			0.2);
 	DoubleSlashIcon.lock()->Flag = 0u;
 
 	 LeapAttackSlot = RefRenderer().
 		MakeUI({ 38.f,38.f }, { -443.f ,-302.f },
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"GUI_HexagonSlot_L_Normal.tga",
-			0.01);
+			0.1);
 	 LeapAttackSlot.lock()->AddColor = Engine::UI::UISkillIconBlue;
 
 	 LeapAttackIcon = RefRenderer().
 		MakeUI({ 38.f,38.f }, { -443.f ,-302.f },
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"Icon_NormalSkill_TS_LeapAttack.tga",
-			0.02);
+			0.2);
 	 LeapAttackIcon.lock()->Flag = 0u;
 
 	 AvoidSlot = RefRenderer().
 		MakeUI({ 38.f,38.f }, { -407.f ,-372.f},
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"GUI_HexagonSlot_L_Normal.tga",
-			0.01);
+			0.1);
 	 AvoidSlot.lock()->AddColor = Engine::UI::UISkillIconGreen;
 
 	 AvoidIcon = RefRenderer().
 		MakeUI({ 38.f,38.f }, { -407.f ,-372.f},
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"Icon_Avoid.tga",
-			0.02);
+			0.2);
 	 AvoidIcon.lock()->Flag = 0u;
 
 	 OutRangeSlot = RefRenderer().
 		MakeUI({ 38.f,38.f }, { -354 ,-302},
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"GUI_HexagonSlot_L_Normal.tga",
-			0.01);
+			0.1);
 	 OutRangeSlot.lock()->AddColor = Engine::UI::UISkillIconBlue;
 
 	 OutRangeIcon = RefRenderer().
 		MakeUI({ 38.f,38.f }, { -354 ,-302 },
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"Icon_NormalSkill_TS_OutRage.tga",
-			0.02);
+			0.2);
 	 OutRangeIcon.lock()->Flag = 0u;
 
 	 RockShotSlot = RefRenderer().
 		MakeUI({ 38.f,38.f }, { -265 , -302 },
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"GUI_HexagonSlot_L_Normal.tga",
-			0.01);
+			0.1);
 	 RockShotSlot.lock()->AddColor = Engine::UI::UISkillIconBlue;
 
 	 RockShotIcon = RefRenderer().
 		MakeUI({ 38.f,38.f }, { -265 , -302 },
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"Icon_NormalSkill_TS_RockShot.tga",
-			0.02);
+			0.2);
 	 RockShotIcon.lock()->Flag = 0u;
 
 	 RockBreakSlot = RefRenderer().
 		MakeUI({ 38.f,38.f }, { -318.f ,-372.f },
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"GUI_HexagonSlot_L_Normal.tga",
-			0.01);
+			0.1);
 	 RockBreakSlot.lock()->AddColor = Engine::UI::UISkillIconRed;
 
 	 RockBreakIcon  = RefRenderer().
 		MakeUI({ 38.f,38.f }, { -318.f ,-372.f },
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"Icon_NormalSkill_TS_RockBreak.tga",
-			0.02);
+			0.2);
 	 RockBreakIcon.lock()->Flag = 0u;
 
 	 PlayerKarmaInfoGUI = RefRenderer().
@@ -2176,14 +2206,30 @@ void Player::CreatePlayerSkillUI()&
 	 PlayerKarmaInfoGUI.lock()->bRender = false;
 	 PlayerKarmaInfoGUI.lock()->WorldUI = FMath::Identity();
 	 PlayerKarmaInfoGUI.lock()->AlphaFactor = 0.0f;
-
+	 
 	 CenterLineQuad =
-		 RefRenderer().MakeUI({ 0,0 }, {
-			 App::ClientSize<float>.first,
-			 App::ClientSize<float>.second }  ,
-	App::ResourcePath / L"Texture"/L"UI"/
+		 RefRenderer().MakeUI({ App::ClientSize<float>.first /2.f,
+								App::ClientSize<float>.second/2.f}, 
+			{0,0},
+				App::ResourcePath / L"Texture"/L"UI"/
 		 L"Center_Line.tga", 0.9);
 	 CenterLineQuad.lock()->bRender = false;
+	 CenterLineQuad.lock()->AlphaFactor = 0.0f;
+
+	 ScreenBloodQuad = RefRenderer().MakeUI({ App::ClientSize<float>.first / 2.f ,
+											App::ClientSize<float>.second / 2.f },
+		 { 0,0 },
+		 App::ResourcePath / L"Texture" / L"UI" / L"T_Screen_Blood.tga", 0.9);
+	 ScreenBloodQuad.lock()->bRender = false;
+	 ScreenBloodQuad.lock()->AlphaFactor = 0.0f;
+
+	 MouseUI = RefRenderer().MakeUI({ 48.f * (App::ClientSize<float>.first/1920.f),
+									  48.f * (App::ClientSize<float>.second/1080.f)}, { 0,0 },
+		 App::ResourcePath / L"Texture" / L"UI" / L"GUI_MouseCursor_Default.tga", 0.99f);
+	 MouseUI.lock()->bRender = false;
+	 MouseUI.lock()->AlphaFactor = 1.f;
+	 MouseUI.lock()->AddColor = { 0,0,0 };
+	 MouseUI.lock()->Flag = 0u;
 };
 
 std::function<Engine::Object::SpawnReturnValue(
@@ -2216,6 +2262,21 @@ std::function<Engine::Object::SpawnReturnValue(
 void Player::LateUpdate(const float DeltaTime)&
 {
 	Super::LateUpdate(DeltaTime);
+
+	if (CurrentTPCamera->bCursorMode)
+	{
+		POINT Pt{};
+		GetCursorPos(&Pt);
+		ScreenToClient(App::Hwnd, &Pt);
+		MouseUI.lock()->Position = {
+			static_cast<float>(Pt.x) - App::ClientSize<float>.first / 2.f,
+			-static_cast<float>(Pt.y) + (App::ClientSize<float>.second / 2.f) };
+		MouseUI.lock()->bRender = true;
+	}
+	else
+	{
+		MouseUI.lock()->bRender= false;
+	}
 
 	CurrentStandUpRollingCoolTime = (std::max)(CurrentStandUpRollingCoolTime - DeltaTime, 0.0f);
 

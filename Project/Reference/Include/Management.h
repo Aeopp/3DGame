@@ -57,6 +57,8 @@ namespace Engine
 		auto FindObjects();
 		template<typename LayerSubType, typename ObjectSubType>
 		auto FindObject(const std::wstring& TargetName)&;
+
+		auto& GetCurrentScene()& { return _CurrentScene; };
 	private:
 		void CreateStaticResource()&;
 		void CreateCollisionDebugResource()&;
