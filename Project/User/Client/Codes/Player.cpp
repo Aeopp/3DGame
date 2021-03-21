@@ -1754,7 +1754,6 @@ void Player::LeafAttackReadyTransition(const FSMControlInformation& FSMControlIn
 
 	const Vector3 Location=FSMControlInfo.MyTransform->GetLocation();
 	RefRenderer().RefLandscape().AuraPosition =  { Location .x , Location .z};
-
 }
 
 void Player::LeafAttackStartState(const FSMControlInformation& FSMControlInfo)&

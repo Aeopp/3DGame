@@ -328,6 +328,7 @@ private:
 	
 	float CurrentStandUpRollingCoolTime = StandUpRollingCoolTime;
 private:
+	bool bAura = false;
 	class Engine::AnimEffect* _BasicCombo01{ nullptr };
 
 	AttackForceInformation _AttackForce{};
