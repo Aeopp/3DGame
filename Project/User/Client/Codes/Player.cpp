@@ -382,8 +382,8 @@ void Player::Edit()&
 		}
 
 		ImGui::SliderFloat("LeafAttackAxisDelta", &LeafAttackInformation::LeafAttackAxisDelta, 0.f, 1.f);
-		ImGui::SliderFloat("LeafAttackHightest", &StateableSpeed.LeafAttackHightest, 0.f, 200.f);
-		ImGui::SliderFloat("LeafAttackHightestTime", &StateableSpeed.LeafAttackHightestTime, 0.f, 1.f);
+	/*	ImGui::SliderFloat("LeafAttackHightest", &StateableSpeed.LeafAttackHightest, 0.f, 200.f);
+		ImGui::SliderFloat("LeafAttackHightestTime", &StateableSpeed.LeafAttackHightestTime, 0.f, 1.f);*/
 
 		ImGui::SliderFloat("JumpVelocityY", &StateableSpeed.JumpVelocity.y, 0.f, 300.f);
 		ImGui::SliderFloat("Gravity", &_Physic.Gravity, 0.f, 300.f);
@@ -1711,15 +1711,19 @@ void Player::LeafAttackReadyState(const FSMControlInformation& FSMControlInfo)&
 
 	if (FSMControlInfo._Controller.IsUp(DIK_R))
 	{
-		const Vector3 ProjectionLocation = FMath::ProjectionPointFromFace(
-			RefNaviMesh().GetCellFromXZLocation(TargetLocation)->_Plane._Plane,
-			{ TargetLocation.x , 0.0f ,TargetLocation.y });
+		auto TargetCell = RefNaviMesh().GetCellFromXZLocation(TargetLocation);
+		if (TargetCell)
+		{
+			const Vector3 ProjectionLocation = FMath::ProjectionPointFromFace(
+				TargetCell->_Plane._Plane,
+				{ TargetLocation.x , 0.0f ,TargetLocation.y });
 
-		_LeafAttackInfo.Reset(
-			FSMControlInfo.MyTransform->GetLocation(), ProjectionLocation, StateableSpeed.LeafAttackHightest,
-			StateableSpeed.LeafAttackHightestTime);
-		// 여기서 마법진 위치로 계산해서 날아가게 하는 처리를 하면 좋을듯 ! 
-		LeafAttackStartTransition(FSMControlInfo);
+			_LeafAttackInfo.Reset(
+				FSMControlInfo.MyTransform->GetLocation(), ProjectionLocation, 50.f,
+				1.f);
+			// 여기서 마법진 위치로 계산해서 날아가게 하는 처리를 하면 좋을듯 ! 
+			LeafAttackStartTransition(FSMControlInfo);
+		}
 	}
 };
 

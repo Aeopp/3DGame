@@ -58,9 +58,6 @@ public:
 		float Dash = 140.f;
 		float LeafReady = 20.f;
 
-		float LeafAttackHightest = 100.f;
-		float LeafAttackHightestTime = 1.f;
-
 		Vector3 JumpVelocity = { 0.f,125.f,0.f };
 		Vector3 AirCombo01Velocity = { 0.f, 80.f,0.f };
 		Vector3 AirCombo02Velocity = { 0.f, 80.f,0.f };
@@ -265,18 +262,7 @@ private:
 	void LeafAttackLandingState(const FSMControlInformation& FSMControlInfo)&;
 	void LeafAttackLandingTransition(const FSMControlInformation& FSMControlInfo)&;
 
-	//C1 0.08 ~0.13
-	//C20.14~0.18
-	//C3 0.11~0.26o
-	//Ex01 0.11 0.26
-	//Ex02 Start o0.3~1.0
-	//Ex02 end 0.08 0.145
-	//Dashcombo 0.1 0.2
-	//AC1 0.16 0.235
-	//ac2 0.18 0.35
-	//ac3 0.06 0.23
-	//ac4 0.3 1.0
-
+	
 private:
 	std::optional<Player::MoveControlInformation> 
 		 CheckTheMoveableState  (const FSMControlInformation& FSMControlInfo)&;

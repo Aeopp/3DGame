@@ -1,0 +1,9 @@
+diff a/Resource/Shader/DeferredLightFx.hlsl b/Resource/Shader/DeferredLightFx.hlsl	(rejected hunks)
+@@ -36,7 +36,6 @@
+ 
+ texture Albedo3_Contract1;
+ texture Normal3_Power1;
+-texture WorldPos3_Depth1;
+ texture Velocity2_OutlineRedFactor_Depth1;
+ texture CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1;
+ texture ShadowDepth;
