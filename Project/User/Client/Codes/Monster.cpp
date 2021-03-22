@@ -176,5 +176,5 @@ void Monster::LockingToWardsFromDirection(Vector3 Direction)&
 bool Monster::CheckTheLandingStatable(const float CurLocationY, const float CurGroundY)&
 {
 	const float      CorrectionLocationY = (CurLocationY - LandCheckHighRange);
-	return (CorrectionLocationY < CurGroundY) && ((CurGroundY - CorrectionLocationY) >= 1.f);
+	return (CorrectionLocationY < CurGroundY) && (CurAirTime < 0.0f);
 };

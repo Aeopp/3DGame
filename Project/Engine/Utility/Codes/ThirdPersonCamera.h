@@ -21,7 +21,7 @@ namespace Engine
 			float RotateResponsiveness = 1.f;
 			float ZoomInOutScale = 1.f;
 
-			float LocationLerpSpeed = 3.f;
+			float LocationLerpSpeed = 4.f;
 
 			Vector3 CurrentViewDirection{ 1,0,0 };
 			Vector3 CurrentTargetLocation{ 0,0,0 };

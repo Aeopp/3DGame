@@ -212,10 +212,11 @@ void Belatos::HitBegin(Object* const Target, const Vector3 PushDir, const float 
 		auto* TpCamera =
 			dynamic_cast<Engine::ThirdPersonCamera*>(
 				dynamic_cast<Player*>(_PlayerWeapon->GetAttackOwner())->CurrentTPCamera);
-
+		TpCamera->Shake(4.f, FMath::Random(Vector3{ -1,-1,-1 }, Vector3{ 1,1,1 }), 0.25f);
 		const Vector3 Forward = FMath::Normalize(_Transform->GetForward());
 		const Vector3 ForwardProjectionXZ = FMath::Normalize({ Forward.x,0.f,Forward.z });
 
+		
 		const Vector3 Right = FMath::Normalize(_Transform->GetRight());
 		const Vector3 RightProjectionXZ = FMath::Normalize({ Right.x, 0.f , Right.z }); 
 		// 앞,뒤 판별
@@ -242,29 +243,32 @@ void Belatos::HitBegin(Object* const Target, const Vector3 PushDir, const float 
 			_CurRTAxis =Monster::RTAxis::Right;
 		}
 		
-		static constexpr float CameraStopTime = 0.25f;
-		static constexpr float FloatMin = (std::numeric_limits<float>::min)(); 
-		// 카메라의 업데이트를 잠시 정지 . 
-		TpCamera->bCameraUpdate = false;
-		// 카메라 업데이트 정지가 풀리면 몬스터에게 힘을 가하고 정지를 해제함 . 
-		RefTimer().TimerRegist(CameraStopTime, 0.0f,  CameraStopTime+ FloatMin, 
-			[TpCamera, HitVelocity, _Transform]() {
-			_Transform->AddVelocity(HitVelocity);
-			TpCamera->bCameraUpdate = true;
-			return true;
-			});
-
-		static constexpr float ForceTime = 0.25f;
-		// 공중에 띄워지는 공격이 아니라면 일정시간 이후에 가해지던 힘을 초기화 ... 
-		static constexpr float ForceClearTime = CameraStopTime + ForceTime;
+		_Transform->AddVelocity(HitVelocity);
+		static constexpr float ForceTime = 0.21f;
 		if (bAirAttack == false)
 		{
-			RefTimer().TimerRegist(ForceClearTime, 0.0f, ForceClearTime+FloatMin, [this, TpCamera]()
+			RefTimer().TimerRegist(ForceTime, 0.0f, ForceTime+0.001f, [this]()
 				{
 					this->GetComponent<Engine::Transform>()->ClearVelocity();
 					return true;
 				});
 		}
+		else
+		{
+			CurAirTime = 0.1f;
+		}
+		//static constexpr float CameraStopTime = 0.25f;
+		//static constexpr float FloatMin = (std::numeric_limits<float>::min)(); 
+		//// 카메라의 업데이트를 잠시 정지 . 
+		//TpCamera->bCameraUpdate = false;
+		//// 카메라 업데이트 정지가 풀리면 몬스터에게 힘을 가하고 정지를 해제함 . 
+		//RefTimer().TimerRegist(CameraStopTime, 0.0f,  CameraStopTime+ FloatMin, 
+		//	[TpCamera, HitVelocity, _Transform]() {
+		//	
+		//	TpCamera->bCameraUpdate = true;
+		//	return true;
+		//	});
+
 
 		TakeDamage(CurDamage);
 
@@ -354,7 +358,7 @@ std::optional<Engine::Object::SpawnReturnValue> Belatos::InitializeFromEditSpawn
 void Belatos::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
-
+	CurAirTime -= DeltaTime;
 	auto* const _SkeletonMesh = GetComponent<Engine::SkeletonMesh>();
 	if (_SkeletonMesh->_DissolveInfo)
 	{
@@ -1107,6 +1111,7 @@ void Belatos::Initialize(const std::optional<Vector3>& Scale, const std::optiona
 	const Vector3 SpawnLocationAir = { SpawnLocation.x , SpawnLocation.y + 1000.f , SpawnLocation.z };
 
 	_Transform->SetLocation(SpawnLocationAir);
+	_Transform->bLastLandUpdate = true;
 
 	auto _SkeletonMesh = AddComponent<Engine::SkeletonMesh>(L"Belatos");
 

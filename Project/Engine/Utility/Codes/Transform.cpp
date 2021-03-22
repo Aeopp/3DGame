@@ -42,8 +42,11 @@ void Engine::Transform::Update(Object* const Owner, const float DeltaTime)&
 
 		if (Location.y <= _PhysicInfo->CurrentGroundY)
 		{
-			_PhysicInfo->SetLastLandLocation({ Location.x,_PhysicInfo->CurrentGroundY,Location.z });
-			SetLocation(_PhysicInfo->GetLastLandLocation());
+			if (bLastLandUpdate)
+			{
+				_PhysicInfo->SetLastLandLocation({ Location.x,_PhysicInfo->CurrentGroundY,Location.z });
+				SetLocation(_PhysicInfo->GetLastLandLocation());
+			}
 			
 			_PhysicInfo->Velocity.y =0.0f ;
 			_PhysicInfo->Velocity.x *= 0.99f;

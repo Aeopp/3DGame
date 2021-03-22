@@ -55,12 +55,13 @@ public:
 protected:
 	bool CheckTheLandingStatable(const float CurLocationY, const float CurGroundY)&;
 protected:
+	float CurAirTime = 0.0f;
 	RTAxis _CurRTAxis{};
 	float AttackRange = 23.f;
 	float ResetInvincibilityTime = 0.1f;
 	float CurInvincibilityTime = ResetInvincibilityTime;
 	Status _Status{}; 
-	float LandCheckHighRange = 1.2f;
+	float LandCheckHighRange = 7.f;
 	const Engine::Cell* CurrentCell{nullptr};
 	IDirect3DDevice9* Device{ nullptr };
 };

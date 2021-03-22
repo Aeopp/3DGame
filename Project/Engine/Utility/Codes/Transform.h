@@ -30,6 +30,8 @@ namespace Engine
 			Vector3 Rotation{ 0,0,0 }; 
 		};
 	public :
+		bool bLastLandUpdate = false;
+
 		using Super = Component;
 		void Initialize(const std::string& OwnerClassIdentifier)&;
 		virtual void Update(class Object* const Owner,

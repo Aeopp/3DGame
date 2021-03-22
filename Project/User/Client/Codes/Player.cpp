@@ -31,6 +31,7 @@
 #include "FontManager.h"
 #include "ObjectEdit.h"
 #include "Landscape.h"
+#include "Sound.h"
 
 void Player::Initialize(
 	const std::optional<Vector3>& Scale,
@@ -52,7 +53,8 @@ void Player::Initialize(
 	}
 	
 	_Transform->SetLocation(SpawnLocation);
-	
+	_Transform->bLastLandUpdate = true;
+
 	auto _SkeletonMesh = AddComponent<Engine::SkeletonMesh>(L"Player");
 
 	auto _Collision =    AddComponent<Engine::Collision>
@@ -349,6 +351,12 @@ void Player::Event()&
 	if (_Control.IsDown(DIK_O))
 	{
 		bControl = !bControl;
+	}
+
+	if (_Control.IsDown(DIK_F5) )
+	{
+		ObjectEdit::CaptureObjectLoad(
+			App::ResourcePath / "SceneObjectCapture" / "BelatosWaveStart.json");
 	}
 }
 
@@ -1953,7 +1961,7 @@ void Player::LeafAttackStartTransition(const FSMControlInformation& FSMControlIn
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::LeafAttackStart;
 
-	CurrentTPCamera->RefTargetInformation().LocationLerpSpeed = 5.f;
+	CurrentTPCamera->RefTargetInformation().LocationLerpSpeed = 8.f;
 }
 
 void Player::LeafAttackUpState(const FSMControlInformation& FSMControlInfo)&
@@ -2025,7 +2033,7 @@ void Player::LeafAttackLandingTransition(const FSMControlInformation& FSMControl
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::LeafAttackLanding;
 
-	CurrentTPCamera->RefTargetInformation().LocationLerpSpeed = 3.f;
+	CurrentTPCamera->RefTargetInformation().LocationLerpSpeed = 8.f;
 }
 
 
@@ -2132,6 +2140,8 @@ void Player::WeaponAcquisition()&
 			Vector3{ 1.1f,1.1f,1.1f },
 			Vector3{ 0,0,0 }, 
 			Vector3{ 0,0,0 });
+
+	RefSound().Play("EFF_OBJ_LogIn_Rune_01_D", 1.f,true);
 
 	WeaponPut();
 }
