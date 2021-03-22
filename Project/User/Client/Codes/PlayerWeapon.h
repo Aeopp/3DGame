@@ -42,7 +42,7 @@ public:
 private:
 	Engine::Object* AttackOwner{ nullptr };
 	float SliceAmountSpeed = 1.f;
-	std::pair<float, float >DamageRange{ 700.f, 1000.f };
+	std::pair<float, float >DamageRange{ 800.f, 1000.f };
 	IDirect3DDevice9* Device{ nullptr };
 };
 

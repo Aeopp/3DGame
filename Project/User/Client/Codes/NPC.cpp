@@ -80,25 +80,24 @@ void NPC::Initialize(const std::optional<Vector3>& Scale, const std::optional<Ve
 
 	// Name , Ment ,Position ,Color  ;
 	static const Vector2 DefaultPosition = { 500,100};
-	static const D3DXCOLOR DefaultColor = D3DXCOLOR{ 0.0f,0.0f,0.0f,1.f } ;
-
+	static const D3DXCOLOR DefaultColor = { 117.f / 255.f,1.f,160.f / 255.f,1.f };
 	EventMents[NPC::InteractionEvent::FirstEncounter] = 
 	{
-		{L" 오! 새로운 모험가인가. ",DefaultPosition,DefaultColor } ,
-		{L" 에르테시아에 온걸 환영하네 ! ",DefaultPosition,DefaultColor } ,
-		{L" 자네 무기가 없는 모양이로군 ? ",DefaultPosition,DefaultColor } ,
-		{L" 마침 다른 모험가가 남기고 간 무기가 있지  ",DefaultPosition,DefaultColor } ,
-		{L" 정원의 남쪽 방향으로 가면 도움이 될 걸세 ",DefaultPosition,DefaultColor }
+		{L"오! 새로운 모험가인가. ",DefaultPosition,DefaultColor } ,
+		{L"에르테시아에 온걸 환영하네 ! ",DefaultPosition,DefaultColor } ,
+		{L"자네 무기가 없는 모양이로군 ? ",DefaultPosition,DefaultColor } ,
+		{L"마침 다른 모험가가 남기고 간 무기가 있지 ",DefaultPosition,DefaultColor } ,
+		{L"정원의 남쪽 방향으로 가면 도움이 될 걸세 ",DefaultPosition,DefaultColor }
 	};
 	EventMents[NPC::InteractionEvent::SecondEncounter] = 
 	{
-		{L" 자네의 카르마는 대검 이로군 ! ",DefaultPosition,DefaultColor } ,
-		{L" 곧 제국군이 올테니 무기의 힘을 시험 해보게 ! ",DefaultPosition,DefaultColor }
+		{L"자네의 카르마는 대검 이로군 ! ",DefaultPosition,DefaultColor } ,
+		{L"곧 제국군이 올테니 무기의 힘을 시험 해보게 ! ",DefaultPosition,DefaultColor }
 	};
 	EventMents[NPC::InteractionEvent::ThirdEncounter] = 
 	{
-		{L" 고생 많았네 ! ",DefaultPosition,DefaultColor } ,
-		{L" 내가 포탈을 열어줄테니 그곳으로 가서 모험을 시작하시게.",DefaultPosition,DefaultColor } ,
+		{L"고생 많았네 ! ",DefaultPosition,DefaultColor } ,
+		{L"내가 포탈을 열어줄테니 그곳으로 가서 모험을 시작하시게.",DefaultPosition,DefaultColor } ,
 	};
 }
 

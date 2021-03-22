@@ -441,7 +441,7 @@ void Engine::Management::CreateStaticResource()&
 		_FontManager->AddFont(Device.get(), L"Font_Default", L"바탕", 15, 20, FW_HEAVY);
 		_FontManager->AddFont(Device.get(), L"Font_Jinji", L"궁서", 15, 20, FW_THIN);
 		_FontManager->AddFont(Device.get(), 
-			L"Font_Sandoll", L"Sandoll 삼립호빵체 Basic", 40, 30, FW_THIN);
+			L"Font_Sandoll", L"Sandoll 삼립호빵체 Basic", 35, 27, FW_THIN);
 	}
 
 	{

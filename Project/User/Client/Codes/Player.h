@@ -149,42 +149,42 @@ private:
 	};
 	struct AttackForceInformation
 	{
-		float BasicCombo = 0.1f;
-		float BasicComboEx03_1 = 0.2f;
-		float BasicComboEx03_1_Jump = 55.f;
+		float BasicCombo = 10.f;
+		float BasicComboEx03_1 = 10.f;
+		float BasicComboEx03_1_Jump = 120.f;
 
-		float BasicComboEx03_2 = 0.2f;
-		float BasicComboEx03_2_Jump = 100.f;
+		float BasicComboEx03_2 = 20.f;
+		float BasicComboEx03_2_Jump = 150.f;
 
-		float Ex01firstCombo = 0.5f;
-		float Ex01firstComboJump = 65.f;
+		float Ex01firstCombo = 50.f;
+		float Ex01firstComboJump = 90.f;
 
-		float Ex01SecondCombo = 1.f;
-		float Ex01SecondComboJump = 78.f;
+		float Ex01SecondCombo = 35.f;
+		float Ex01SecondComboJump = 220.f;
 
-		float Ex02Start = 0.1f;
+		float Ex02Start = 20.f;
 		float Ex02StartJump = 0.0f;
 
-		float Ex02Loop = 0.1f;
+		float Ex02Loop = 20.f;
 		float Ex02LoopJump = 0.0f;
 
-		float Ex02End = 0.1f;
+		float Ex02End = 20.f;
 		float Ex02EndJump = 45.f;
 
 		float Dash = 1.f;
-		float DashComboJump= 70.f;
+		float DashComboJump= 220.f;
 
-		float Air01 = 0.3f;
-		float Air01Jump = 45.f;
+		float Air01 = 10.f;
+		float Air01Jump = 80.f;
 
-		float Air02 = 0.3f;
-		float Air02Jump = 45.f;
+		float Air02 = 10.f;
+		float Air02Jump = 80.f;
 
-		float Air03 = 0.3f;
-		float Air03Jump = 45.f;
+		float Air03 = 10.f;
+		float Air03Jump = 80.f;
 
-		float Air04 = 0.3f;
-		float Air04Jump = 45.f;
+		float Air04 = 10.f;
+		float Air04Jump = 0.f;
 	};
 	void FSM(const float DeltaTime)&;
 private:
@@ -329,6 +329,9 @@ private:
 	std::weak_ptr<Engine::UI> RockShotSlot{};
 
 	std::weak_ptr<Engine::UI> PlayerKarmaInfoGUI{};
+	std::weak_ptr<Engine::UI> ChaserInfo_Icon{};
+	std::weak_ptr<Engine::UI> HPBar{};
+
 	std::weak_ptr<Engine::UI> CenterLineQuad{};
 
 	std::weak_ptr<Engine::UI> ScreenBloodQuad{};
@@ -369,6 +372,8 @@ private:
 	Vector3 NPCInteractionLocationOffset{ -7.080f,14.159f,3.540f};
 	Vector3 PlayerCameraTargetLocationOffset{ 0.f,13.f,0.f };
 	
+	float RunSoundDuration = 0.0f;
+
 	bool  bWeaponAcquisition = false;
 	float LandCheckHighRange = 7.f;
 	const Engine::Cell* CurrentCell{nullptr};

@@ -27,9 +27,7 @@ public:
 
 		std::wstring Ment{L"NPC ¿« ¥Î»≠ ∏‡∆Æ"}; 
 		Vector2 Position{ 0.f,0.f };
-		D3DXCOLOR Color = {1.f,1.f,1.f,1.f};
-		/*RefFontManager().RenderRegist(L"Font_Sandoll", L"NPC ¿« ¥Î»≠ ∏‡∆Æ.",
-			{ -300,-300 }, D3DXCOLOR{ 1.f,1.f,1.f,1.f });*/
+		D3DXCOLOR Color = {117.f/255.f,1.f,160.f/255.f,1.f};
 	};
 public:
 

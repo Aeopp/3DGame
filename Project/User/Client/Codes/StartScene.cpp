@@ -158,7 +158,7 @@ void StartScene::Event()&
 
 			
 
-			RefSound().Play("BGM_TrainingRoom_01_B", 1.f, true, true);
+			RefSound().Play("BGM_Result_Score_01_A", 0.6f, true, true);
 
 			bGameStart = true;
 		}

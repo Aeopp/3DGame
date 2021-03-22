@@ -130,8 +130,8 @@ void Player::Initialize(
 
 	auto& Manager = RefManager(); 
 
-	PlayerTargetInfo.CurrentDistancebetweenTarget = 780.f;
-	PlayerTargetInfo.DistancebetweenTarget = 644.f;
+	PlayerTargetInfo.CurrentDistancebetweenTarget = 400.f;
+	PlayerTargetInfo.DistancebetweenTarget = 300.f;
 	PlayerTargetInfo.TargetLocationOffset = PlayerCameraTargetLocationOffset;
 	PlayerTargetInfo.TargetObject = this;
 	PlayerTargetInfo.ViewDirection = { -0.224299625f,-0.518758416f,0.824972391f};
@@ -147,8 +147,8 @@ void Player::Initialize(
 
 		CurrentTPCamera = Manager.NewObject<Engine::NormalLayer,
 			Engine::ThirdPersonCamera>(L"Static", L"ThirdPersonCamera",
-				FMath::PI / 4.f, 0.1f, 1000.f, Aspect).get();
-
+				FMath::PI / 4.f, 0.1f, 1333.f, Aspect).get();
+		
 		Manager.FindObject<Engine::NormalLayer, Engine::ThirdPersonCamera>(L"ThirdPersonCamera")->SetUpTarget(PlayerTargetInfo);
 	}
 
@@ -691,6 +691,12 @@ void Player::RunState(const FSMControlInformation& FSMControlInfo)&
 		JumpStartTransition(FSMControlInfo);
 		return;
 	}
+	RunSoundDuration -= FSMControlInfo.DeltaTime;
+	if (RunSoundDuration < 0.0f)
+	{
+		RunSoundDuration = 0.3f;
+		RefSound().RandSoundKeyPlay("FST_CHR_Run_Heel_Cloth_01", { 1,6 },0.5,true);
+	}
 
 	if (CheckTheAttackableState(FSMControlInfo))
 	{
@@ -863,6 +869,8 @@ void Player::JumpStartTransition(const FSMControlInformation& FSMControlInfo)&
 	CurLocation += (StateableSpeed.JumpVelocity * FSMControlInfo.DeltaTime);
 	FSMControlInfo.MyTransform->SetLocation(CurLocation);
 	FSMControlInfo.MyTransform->AddVelocity(StateableSpeed.JumpVelocity);
+
+	RefSound().Play("CHR_TSword_Jump_02_B", 0.66f, true);
 };
 
 void Player::JumpUpState(const FSMControlInformation& FSMControlInfo)&
@@ -1010,6 +1018,7 @@ void Player::JumpLandingTransition(const FSMControlInformation& FSMControlInfo)&
 	_AnimNotify.Name = "JumpLanding";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::JumpLanding;
+	RefSound().Play("FST_CHR_Jump_Heel_Cloth_01_A", 0.8f, true);
 }
 
 void Player::ComboEx02StartState(const FSMControlInformation& FSMControlInfo)&
@@ -1078,6 +1087,9 @@ void Player::ComboEx02StartTransition(const FSMControlInformation& FSMControlInf
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::ComboEx02Start;
 	SwordCameraShake();
+
+	RefSound().Play("CHR_TSword_Slash_03_A", 0.8f, true);
+
 }; 
 
 void Player::ComboEx02LoopState(const FSMControlInformation& FSMControlInfo)&
@@ -1104,6 +1116,14 @@ void Player::ComboEx02LoopState(const FSMControlInformation& FSMControlInfo)&
 		GetWeapon()->EndAttack(this);
 		ComboEx02EndTransition(FSMControlInfo);
 		return;
+	}
+
+	static float SoundCoolTime = 0.2f;
+	SoundCoolTime -= FSMControlInfo.DeltaTime;
+	if (SoundCoolTime < 0.0f)
+	{
+		SoundCoolTime = 0.2f;
+		RefSound().RandSoundKeyPlay("CHR_TSword_Idle_01", { 1,1 }, 0.8f, true);
 	}
 }
 
@@ -1157,6 +1177,10 @@ void Player::ComboEx02EndTransition(const FSMControlInformation& FSMControlInfo)
 		false,true ,1.f,
 		{ 0.f,1.f });
 	SwordCameraShake();
+
+	RefSound().Play("CHR_TSword_Slash_05_A", 0.8f, true);
+
+	
 };
 
 
@@ -1184,7 +1208,7 @@ void Player::ComboEx01State(const FSMControlInformation& FSMControlInfo)&
 		GetWeapon()->EndAttack(this);
 	}
 
-	if (AnimTimeNormal < 0.7f)
+	if (AnimTimeNormal < 0.95f)
 	{
 		if (CheckTheJumpableState(FSMControlInfo))
 		{
@@ -1211,6 +1235,8 @@ void Player::ComboEx01Transition(const FSMControlInformation& FSMControlInfo)&
 	_AnimNotify.Name = "ComboEx01";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::ComboEx01;
+
+	RefSound().Play("CHR_TSword_Slash_01_D", 0.8f, true);
 }
 
 PlayerWeapon* const  Player:: GetWeapon()const & 
@@ -1324,6 +1350,10 @@ void Player::AirCombo01Transition(const FSMControlInformation& FSMControlInfo)&
 		{ 0,12.f,0 },
 		1.f, false, true, 1.f,
 		{ 1.f,1.f });
+
+	RefSound().Play("CHR_TSword_Slash_06_A", 0.8f, true);
+
+	
 };
 
 void Player::AirCombo02State(const FSMControlInformation& FSMControlInfo)& 
@@ -1390,6 +1420,10 @@ void Player::AirCombo02Transition(const FSMControlInformation& FSMControlInfo)&
 		1.f, false, true, 1.f,
 		{ 1.f,1.f });
 
+
+	RefSound().Play("CHR_TSword_Slash_06_B", 0.8f, true);
+
+
 };
 void Player::AirCombo03State(const FSMControlInformation& FSMControlInfo)& 
 {
@@ -1453,6 +1487,9 @@ void Player::AirCombo03Transition(const FSMControlInformation& FSMControlInfo)&
 		1.f, false, true, 1.f,
 		{ 1.f,1.f });
 
+
+	RefSound().Play("CHR_TSword_Slash_06_C", 0.8f, true);
+
 };
 void Player::AirCombo04State(const FSMControlInformation& FSMControlInfo)& 
 {
@@ -1497,6 +1534,9 @@ void Player::AirCombo04Transition(const FSMControlInformation& FSMControlInfo)&
 		{ 0,0,0 },
 		1.f/2.f, false, true, 1.f,
 		{ 1.f,1.f });
+
+	RefSound().Play("CHR_TSword_Slash_02_B", 0.6f, true);
+
 };
 void Player::AirCombo04LandingState(const FSMControlInformation& FSMControlInfo)& 
 {
@@ -1537,9 +1577,10 @@ void Player::BasicCombo01Transition(const FSMControlInformation& FSMControlInfo)
 	_AnimNotify.bLoop = true;
 
 
-	
-	SwordEffectPlay(LeapAttack01, FSMControlInfo, Vector3{ FMath::ToRadian(-22.5f),0.f,FMath::ToRadian(22.5f) });
-	
+	RefSound().Play("CHR_TSword_Slash_01_A", 0.8f, true);
+
+	/*SwordEffectPlay(LeapAttack01, FSMControlInfo, Vector3{ FMath::ToRadian(-22.5f),0.f,FMath::ToRadian(22.5f) });
+	*/
 	SwordEffectPlay(_BasicCombo01, FSMControlInfo, Vector3{ FMath::ToRadian(-22.5f),0.f,FMath::ToRadian(22.5f) });
 	SwordCameraShake();
 
@@ -1607,6 +1648,7 @@ void Player::BasicCombo02Transition(const FSMControlInformation& FSMControlInfo)
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::BasicCombo02;
 	WeaponHand();
+	RefSound().Play("CHR_TSword_Slash_01_B", 0.8f, true);
 
 	SwordEffectPlay(_BasicCombo02, FSMControlInfo, Vector3{ 0.f,0.f,FMath::ToRadian(12.0f) }, Vector3{0,0.f,0.f});
 	SwordCameraShake();
@@ -1656,7 +1698,8 @@ void Player::BasicCombo03Transition(const FSMControlInformation& FSMControlInfo)
 	_AnimNotify.Name = "BasicCombo03";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::BasicCombo03;
-	
+	RefSound().Play("CHR_TSword_Slash_01_C", 0.8f, true);
+
 	/*SwordEffectPlay(_BasicCombo03, FSMControlInfo, Vector3{ 0.f,0.f,FMath::ToRadian(0.0f) });
 	SwordCameraShake();*/
 };
@@ -1668,6 +1711,9 @@ void Player::RunEndTransition(const FSMControlInformation& FSMControlInfo)&
 	_AnimNotify.Name = "RunEnd";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::RunEnd;
+
+	RefSound().Play("FST_CHR_RunEnd_Fast_Common_Cloth_01_A", 1.f, true);
+
 };
 
 
@@ -1734,6 +1780,8 @@ void Player::DashTransition(const FSMControlInformation& FSMControlInfo,
 
 	auto _CenterLineQuad = CenterLineQuad.lock();
 	_CenterLineQuad->AlphaFactor = 1.f;
+
+	RefSound().Play("CHR_TSword_Jump_02_B", 0.8f, true);
 }
 
 std::optional<Player::MoveControlInformation>   
@@ -2342,6 +2390,8 @@ void Player::StandUpRollingTransition(const FSMControlInformation& FSMControlInf
 
 	auto _CenterLineQuad = CenterLineQuad.lock();
 	_CenterLineQuad->AlphaFactor = 1.f;
+
+	RefSound().Play("CHR_TSword_Jump_02_A", 0.8f, true);
 }
 
 void Player::DashComboTransition(const FSMControlInformation& FSMControlInfo)&
@@ -2372,11 +2422,14 @@ void Player::HitNotify(Object* const Target, const Vector3 PushDir,
 	if (auto _NPC = dynamic_cast<NPC* const>(Target);
 		_NPC)
 	{
+		
 		auto& CameraTargetInfo = CurrentTPCamera->RefTargetInformation();
 	// 	_NPC->GetComponent<Engine::SkeletonMesh>()->OutlineRedFactor = 0.f;
 
 		if (Control.IsDown(DIK_BACKSPACE))
 		{
+			RefSound().Play("UI_PopUp_05_A", 0.7f, true);
+
 			_NPC->bInteraction = !_NPC->bInteraction;
 			if (_NPC->bInteraction ==false)
 			{
@@ -2409,8 +2462,14 @@ void Player::HitNotify(Object* const Target, const Vector3 PushDir,
 
 			if (Control.IsDown(DIK_L))
 			{
+				RefSound().Play("UI_PopUp_11_A-2", 1.f, true);
+
 				_NPC->NextInteraction();
 			}
+		}
+		else
+		{
+			RefSound().Play("UI_Text_Emotion_Icon_01_A", 0.68f, false);
 		}
 	}
 };
@@ -2540,6 +2599,25 @@ void Player::CreatePlayerSkillUI()&
 	 PlayerKarmaInfoGUI.lock()->bRender = false;
 	 PlayerKarmaInfoGUI.lock()->WorldUI = FMath::Identity();
 	 PlayerKarmaInfoGUI.lock()->AlphaFactor = 0.0f;
+
+	 HPBar = RefRenderer().
+		 MakeUI({ 38.f,38.f }, { -318.f ,-372.f },
+			 App::ResourcePath / L"Texture" / L"UI" /
+			 L"GUI_Common_btn_01.tga",
+			 0.02);
+	 HPBar.lock()->bRender = true;
+	 HPBar.lock()->WorldUI = FMath::Identity();
+	 HPBar.lock()->AlphaFactor = 1.f;
+
+     ChaserInfo_Icon = RefRenderer().
+		 MakeUI({ 38.f,38.f }, { -318.f ,-372.f },
+			 App::ResourcePath / L"Texture" / L"UI" /
+			 L"ChaserInfo_Icon.tga",
+			 0.02);
+	 ChaserInfo_Icon.lock()->bRender = false;
+	 ChaserInfo_Icon.lock()->WorldUI = FMath::Identity();
+	 ChaserInfo_Icon.lock()->AlphaFactor = 0.0f;
+
 	 
 	 CenterLineQuad =
 		 RefRenderer().MakeUI({ App::ClientSize<float>.first /2.f,

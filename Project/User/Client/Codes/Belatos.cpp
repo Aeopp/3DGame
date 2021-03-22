@@ -24,6 +24,8 @@
 #include "NormalLayer.h"
 #include "Player.h"
 #include "Timer.h"
+#include "Sound.h"
+
 
 // Point_GS_Root
 
@@ -187,6 +189,8 @@ void Belatos::HitBegin(Object* const Target, const Vector3 PushDir, const float 
 	if (auto _PlayerWeapon = dynamic_cast<PlayerWeapon* const>(Target);
 		_PlayerWeapon && !IsInvincibility())
 	{
+		RefSound().RandSoundKeyPlay("HIT_MON_Att_T_Sword_Metal_01", { 1,8 }, 0.7f,true);
+
 		auto _Transform = GetComponent<Engine::Transform>();
 		auto& Physic= _Transform->RefPhysic();
 		_Transform->ClearVelocity();
