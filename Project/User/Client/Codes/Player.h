@@ -361,6 +361,8 @@ private:
 	class Engine::AnimEffect* AirCombo03{ nullptr };
 	class Engine::AnimEffect* AirCombo04{ nullptr };
 
+	class Engine::AnimEffect* LeapAttack01{ nullptr };
+
 	
 	AttackForceInformation _AttackForce{};
 	float WeaponDissolveTime = -1.f / 2.f;

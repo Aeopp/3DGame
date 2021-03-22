@@ -27,6 +27,10 @@ namespace Engine
 		RenderTarget DeferredTarget{};
 		RenderTarget VelocityMap{};
 		RenderTarget MotionBlur{};
+
+		RenderTarget EmissiveTarget{};
+		RenderTarget EmissiveBlurX{};
+		RenderTarget EmissiveBlurY{};
 	private:
 		IDirect3DDevice9* Device{ nullptr };
 	};

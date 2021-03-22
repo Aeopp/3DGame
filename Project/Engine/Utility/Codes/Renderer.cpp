@@ -33,6 +33,13 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 
 	
 	EffectSys.Initialize(Device.get());
+
+	GaussianBlurFx.Initialize(L"GaussianBlurFx");
+	auto& ResourceSys = ResourceSystem::Instance;
+	VtxBuf = ResourceSys->Get<IDirect3DVertexBuffer9>(L"LightVertexBuffer");
+	IdxBuf = ResourceSys->Get<IDirect3DIndexBuffer9>(L"LightIndexBuffer");
+	VtxDecl = ResourceSys->Get<IDirect3DVertexDeclaration9>(L"LightVertexDecl");
+
 	// CreateUIFromUIPath();
 };
 
@@ -41,7 +48,6 @@ void Engine::Renderer::Initialize(const DX::SharedPtr<IDirect3DDevice9>& Device)
 void Engine::Renderer::Update(const float DeltaTime)&
 {
 	EffectSys.Update(DeltaTime);
-
 };
 
 void Engine::Renderer::Render()&
@@ -57,6 +63,14 @@ void Engine::Renderer::Render()&
 	RenderShadowDepth();
 	BindVelocity();
 	RenderVelocity();
+	BindEmissive();
+	RenderEffectEmissive();
+	
+	// 여기서 이미시브 렌더링 객체들
+
+	// 
+	RenderEmissiveBlur();
+
 	RestoreBackBuffer();
 	BindDeferredTarget();
 	RenderDeferredTarget();
@@ -68,7 +82,7 @@ void Engine::Renderer::Render()&
 	RenderAlphaBlend();
 	RenderSky();
 	RenderEffect();
-	// RenderUI();
+	// RestoreBackBuffer();
 	
 	NavigationMesh::Instance->Render(Device.get());
 	RenderDebugCollision();
@@ -201,15 +215,27 @@ void Engine::Renderer::RestoreBackBuffer()&
 }
 void Engine::Renderer::ClearAllRenderTarget()&
 {
+
+
 	_DeferredPass.ShadowDepth.ClearWithDepthStencil(D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER);
 	_DeferredPass.VelocityMap.ClearWithDepthStencil(D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER);
 	_DeferredPass.Albedo3_Contract1.Clear();
 	_DeferredPass.Normal3_Power1.Clear();
 	_DeferredPass.Velocity2_None1_Depth1.Clear();
 	_DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.Clear();
+	_DeferredPass.MotionBlur.Clear();
 
+
+	_DeferredPass.EmissiveTarget.Clear();
+	_DeferredPass.EmissiveBlurX.Clear();
+	_DeferredPass.EmissiveBlurY.Clear();
 	
 	_DeferredPass.DeferredTarget.Clear();
+
+
+
+
+
 }
 void Engine::Renderer::BindDeferredPass()&
 {
@@ -329,6 +355,21 @@ void Engine::Renderer::RenderShadowDepth()&
 	}
 }
 
+void Engine::Renderer::BindEmissive()&
+{
+	_DeferredPass.EmissiveTarget.BindGraphicDevice(0u);
+}
+
+void Engine::Renderer::BindEmissiveBlurX()&
+{
+	_DeferredPass.EmissiveBlurX.BindGraphicDevice(0u);
+}
+
+void Engine::Renderer::BindEmissiveBlurY()&
+{
+	_DeferredPass.EmissiveBlurY.BindGraphicDevice(0u);
+}
+
 void Engine::Renderer::RenderDeferredDebugBuffer()&
 {
 	if (Engine::Global::bDebugMode)
@@ -338,10 +379,16 @@ void Engine::Renderer::RenderDeferredDebugBuffer()&
 		_DeferredPass.Velocity2_None1_Depth1.RenderDebugBuffer();
 		_DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.RenderDebugBuffer();
 
+
 		_DeferredPass.VelocityMap.RenderDebugBuffer();
 		_DeferredPass.ShadowDepth.RenderDebugBuffer();
 		_DeferredPass.DeferredTarget.RenderDebugBuffer();
 		_DeferredPass.MotionBlur.RenderDebugBuffer();
+
+		_DeferredPass.EmissiveTarget.RenderDebugBuffer();
+		_DeferredPass.EmissiveBlurX.RenderDebugBuffer();
+		_DeferredPass.EmissiveBlurY.RenderDebugBuffer();
+
 	}
 }
 void Engine::Renderer::RenderSky()&
@@ -353,6 +400,11 @@ void Engine::Renderer::RenderSky()&
 void Engine::Renderer::RenderEffect()&
 {
 	EffectSys.Render(this);
+}
+
+void Engine::Renderer::RenderEffectEmissive()&
+{
+	EffectSys.RenderEmissive(this);
 }
 
 Engine::Landscape& Engine::Renderer::RefLandscape()&
@@ -392,6 +444,10 @@ void Engine::Renderer::CreateStaticLightResource()&
 	Engine::ShaderFx::Load(Device.get(), 
 		Engine::Global::ResourcePath / L"Shader" / L"DeferredLightFx.hlsl", L"DeferredLightFx");
 
+	Engine::ShaderFx::Load(Device.get(),
+		Engine::Global::ResourcePath / L"Shader" / L"GaussianBlurFx.hlsl", L"GaussianBlurFx");
+
+	
 
 	Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"MotionBlurFx.hlsl", L"MotionBlurFx");
 
@@ -541,7 +597,60 @@ void Engine::Renderer::RenderUI()&
 	{
 		CurUI->Render(this);
 	}
-};
+}
+void Engine::Renderer::RenderEmissiveBlur()&
+{
+	BindEmissiveBlurX();
+
+	auto Fx =GaussianBlurFx.GetHandle();
+
+	const auto& CurRenderInfo = GetCurrentRenderInformation();
+	const auto& PrevRenderInfo = GetPrevRenderInformation();
+
+	uint32 Pass = 0u;
+	Fx->Begin(&Pass, NULL);
+	static constexpr uint32 BlurXPassIdx = 0u;
+	{
+		const float MapSizeX = static_cast<float> (_DeferredPass.EmissiveTarget.Width);
+		const float MapSizeY = static_cast<float> (_DeferredPass.EmissiveTarget.Height);
+
+		Fx->SetFloat("TexSizeX", MapSizeX);
+		Fx->SetFloat("TexSizeY", MapSizeY);
+
+		Fx->BeginPass(BlurXPassIdx);
+		Fx->SetTexture("Emissive", _DeferredPass.EmissiveTarget.GetTexture());
+		Fx->CommitChanges();
+		Device->SetIndices(IdxBuf);
+		Device->SetStreamSource(0u, VtxBuf, 0u, sizeof(Vertex::Screen));
+		Device->SetVertexDeclaration(VtxDecl);
+		Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, 4u, 0u, 2u);
+		Fx->EndPass();
+	}
+
+	BindEmissiveBlurY();
+
+	{
+		static constexpr uint32 BlurYPassIdx = 1u;
+		const float MapSizeX = static_cast<float> (_DeferredPass.EmissiveBlurX.Width);
+		const float MapSizeY = static_cast<float> (_DeferredPass.EmissiveBlurX.Height);
+
+		Fx->SetFloat("TexSizeX", MapSizeX);
+		Fx->SetFloat("TexSizeY", MapSizeY);
+		Fx->BeginPass(BlurYPassIdx);
+		Fx->SetTexture("Emissive",
+			_DeferredPass.EmissiveBlurX.GetTexture());
+		Fx->CommitChanges();
+		Device->SetIndices(IdxBuf);
+		Device->SetStreamSource(0u, VtxBuf, 0u, sizeof(Vertex::Screen));
+		Device->SetVertexDeclaration(VtxDecl);
+		Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u, 4u, 0u, 2u);
+		Fx->EndPass();
+	}
+
+
+	Fx->End();
+}
+
 
 void Engine::Renderer::SkyInitialize(const std::filesystem::path& FullPath)&
 {

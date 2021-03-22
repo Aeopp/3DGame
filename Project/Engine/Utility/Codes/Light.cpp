@@ -95,6 +95,7 @@ void Engine::Light::Render(
 		Fx->SetTexture("Velocity2_OutlineRedFactor_Depth1", Velocity2_None1_Depth1);
 		Fx->SetTexture("CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1", CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1);
 		Fx->SetTexture("ShadowDepth", ShadowDepth);
+		Fx->SetTexture("EmissiveMap", Renderer::Instance->RefDeferredPass().EmissiveBlurY.GetTexture());
 		Fx->CommitChanges();
 		Device->SetIndices(IdxBuf);
 		Device->SetStreamSource(0u, VtxBuf, 0u, sizeof(Vertex::Screen));

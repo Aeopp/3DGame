@@ -17,7 +17,6 @@ texture AddColorMap;
 texture UVDistorMap;
 texture GradientMap;
 
-
 // 소프트 파티클
 texture VelocityNoneDepthMap;
 float SoftParticleDepthScale = 30000.f;
@@ -183,7 +182,7 @@ struct PS_IN
 
 struct PS_OUT
 {
-    vector Color : COLOR0;
+    vector Color    : COLOR0;
 };
 
 
@@ -220,11 +219,6 @@ PS_OUT PS_MAIN(PS_IN In)
     
     Out.Color.a = Out.Color.a * saturate(((fViewZ - In.ClipPosition.z / In.ClipPosition.w) * SoftParticleDepthScale));
     
-    
-    
-
-    
-    
     return Out;
 }
 
@@ -239,6 +233,10 @@ technique Default_Device
         zwriteenable = false;
         cullmode = none;
         fillmode = solid;
+        StencilEnable = true;
+        StencilFunc = always;
+        StencilPass = replace;
+        StencilRef = 1;
         vertexshader = compile vs_3_0 VS_MAIN();
         pixelshader = compile ps_3_0 PS_MAIN();
     }

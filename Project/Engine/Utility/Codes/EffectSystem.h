@@ -25,7 +25,8 @@ namespace Engine
 		void Update(const float DeltaTime)&;
 		void RenderReady(class Renderer* const _Renderer)&;
 		void Render(class Renderer* const _Renderer)&;
-
+		void RenderEmissive(class Renderer* const _Renderer)&;
+		
 		std::unordered_map<std::wstring, IDirect3DTexture9*> EffectTextures{};
 
 		float SoftParticleDepthScale = 30000.f;

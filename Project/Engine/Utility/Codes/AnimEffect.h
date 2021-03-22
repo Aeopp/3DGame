@@ -44,6 +44,8 @@ namespace Engine
 
 		void RenderReady(Engine::Renderer* const _Renderer)&;
 		void Render(Engine::Renderer* const _Renderer)&;
+		void RenderEmissive(Engine::Renderer* const _Renderer)&;
+		
 		void Update(const float DeltaTime)&;
 	public:
 		struct DLL_DECL AnimNotify
@@ -74,9 +76,10 @@ namespace Engine
 		double PrevAnimMotionTime{ 0.0 };
 		double TransitionRemainTime = -1.0;
 		double TransitionDuration = 0.0;
-
 		
 		uint32 MaxAnimIdx{ 0u };
+
+		
 	public:
 		Vector3 Scale{ 1,1,1 };
 		Vector3 Rotation{ 0, 0, 0 };
@@ -88,8 +91,8 @@ namespace Engine
 			float AlphaFactor = 0.0f;
 			float Brightness = 1.f;
 			bool bRender = true;
+			bool bAnimation = true;
 			Vector2 GradientUVOffsetFactor{ 0.f,1.f };
-
 			IDirect3DTexture9* DiffuseMap{ nullptr };
 			IDirect3DTexture9* PatternMap{ nullptr };
 			IDirect3DTexture9* AddColorMap{ nullptr };
@@ -115,6 +118,11 @@ namespace Engine
 
 		std::vector<Matrix> RenderBoneMatricies{};
 		Engine::ShaderFx AnimEffectFx{};
+		Engine::ShaderFx StaticEffectFx{};
+		
+		Engine::ShaderFx AnimEffectEmissiveFx{};
+		Engine::ShaderFx StaticEffectEmissiveFx{};
+
 		IDirect3DDevice9* Device{ nullptr };
 		std::vector<AnimationInformation>                          AnimInfoTable{ };
 		std::unordered_map<std::string, uint32>                     AnimIdxFromName{};

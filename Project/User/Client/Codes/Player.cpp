@@ -228,6 +228,12 @@ void Player::Initialize(
 		AirCombo04->_CurAnimEffectInfo.bRender = false;
 	}
 
+	{
+		LeapAttack01 = RefRenderer().RefEffectSystem().MakeEffect(L"LeapAttack01", Engine::EffectSystem::EffectType::AnimEffect);
+		LeapAttack01->_CurAnimEffectInfo.bRender = false;
+		LeapAttack01->_CurAnimEffectInfo.bAnimation = false;
+	}
+
 	CreatePlayerSkillUI();
 };
 
@@ -269,6 +275,9 @@ void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
 
 	RefRenderer().RefEffectSystem().LoadEffect
 	(Device, App::ResourcePath / L"Effect" / L"SK_TS_Combo_Air03_Renewal.fbx", L"Combo_Air03", Engine::EffectSystem::EffectType::AnimEffect);
+
+	RefRenderer().RefEffectSystem().LoadEffect
+	(Device, App::ResourcePath / L"Effect" / L"SK_LeapAttack_Ready_01.fbx", L"LeapAttack01", Engine::EffectSystem::EffectType::AnimEffect);
 }
 
 void Player::Event()&
@@ -1520,6 +1529,8 @@ void Player::BasicCombo01Transition(const FSMControlInformation& FSMControlInfo)
 	_AnimNotify.bLoop = true;
 
 
+	
+	SwordEffectPlay(LeapAttack01, FSMControlInfo, Vector3{ FMath::ToRadian(-22.5f),0.f,FMath::ToRadian(22.5f) });
 	
 	SwordEffectPlay(_BasicCombo01, FSMControlInfo, Vector3{ FMath::ToRadian(-22.5f),0.f,FMath::ToRadian(22.5f) });
 	SwordCameraShake();

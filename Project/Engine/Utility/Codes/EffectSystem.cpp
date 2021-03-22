@@ -84,3 +84,11 @@ void Engine::EffectSystem::Render(Renderer* const _Renderer)&
 	}
 }
 
+void Engine::EffectSystem::RenderEmissive(Renderer* const _Renderer)&
+{
+	for (auto& _CurAnimEffect : AnimEffects)
+	{
+		_CurAnimEffect->RenderEmissive(_Renderer);
+	}
+}
+

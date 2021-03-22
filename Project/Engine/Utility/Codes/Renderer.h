@@ -78,6 +78,9 @@ namespace Engine
 		void BindShadowDepthPass()&;
 		void RenderShadowDepth()&;
 
+		void BindEmissive()&;
+		void BindEmissiveBlurX()&;
+		void BindEmissiveBlurY()&;
 		void BindDeferredTarget()&;
 		void RenderDeferredTarget()&;
 
@@ -88,11 +91,15 @@ namespace Engine
 		void RenderSky()&;
 
 		void RenderEffect()&;
+		void RenderEffectEmissive()&;
+
 
 		void RenderDebugCollision()&;
 		void RenderAlphaBlend()&;
 		void RenderAlphaTest()&;
 		void RenderUI()&;
+
+		void RenderEmissiveBlur()&;
 	public:
 		Vector3 FogColor{ 0.2901f,0.2901f,0.2901f };
 		float FogDistance = 1024.465f;
@@ -101,6 +108,11 @@ namespace Engine
 		float MotionBlurLengthMin = 0.000f;
 		RenderInformation CurrentRenderInformation{};
 	private:
+		IDirect3DVertexBuffer9* VtxBuf{ nullptr };
+		IDirect3DIndexBuffer9* IdxBuf{ nullptr };
+		IDirect3DVertexDeclaration9* VtxDecl{ nullptr };
+
+		Engine::ShaderFx GaussianBlurFx{};
 		std::multimap<float,std::shared_ptr<UI>> _UIs{};
 		EffectSystem EffectSys{};
 		IDirect3DTexture9* BurnTexture{ nullptr };

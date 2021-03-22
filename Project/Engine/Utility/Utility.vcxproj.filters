@@ -302,6 +302,18 @@
     <ClInclude Include="..\..\..\Resource\Shader\DefaultUI.hlsl">
       <Filter>Shader\HLSL</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Resource\Shader\StaticEffectFx.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Resource\Shader\GaussianBlurFx.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Resource\Shader\AnimEffectEmissiveFx.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Resource\Shader\StaticEffectEmissiveFx.hlsl">
+      <Filter>Shader\HLSL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\Management.cpp">

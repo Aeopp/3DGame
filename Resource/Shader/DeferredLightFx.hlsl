@@ -39,7 +39,17 @@ texture Normal3_Power1;
 texture Velocity2_OutlineRedFactor_Depth1;
 texture CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1;
 texture ShadowDepth;
+texture EmissiveMap;
 
+
+sampler EmissiveSampler = sampler_state
+{
+    texture = EmissiveMap;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
+};
 
 
 sampler Albedo3_Contract1Sampler= sampler_state
@@ -254,6 +264,7 @@ PS_OUT PS_MAIN(PS_IN In)
     Out.BackBufferColor.rgb = Out.BackBufferColor.rgb * (FogFactor) + ((1.0f - FogFactor) * FogColor);
     // 외곽선 더하기
     Out.BackBufferColor.rgb *=Ret;
+     Out.BackBufferColor.rgb += tex2D(EmissiveSampler, In.UV).rgb;
     Out.DeferredTargetColor = Out.BackBufferColor;
     
     return Out;

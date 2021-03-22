@@ -448,6 +448,10 @@ void Engine::Management::CreateStaticResource()&
 		// 상위 셰이더 로딩
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"DefaultFx.hlsl", L"DefaultFx");
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"AnimEffectFx.hlsl", L"AnimEffectFx");
+		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"StaticEffectFx.hlsl", L"StaticEffectFx");
+		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"AnimEffectEmissiveFx.hlsl", L"AnimEffectEmissiveFx");
+		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"StaticEffectEmissiveFx.hlsl", L"StaticEffectEmissiveFx");
+
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"DeferredAlbedoNormalVelocityDepthSpecularRimFx.hlsl", L"DeferredAlbedoNormalVelocityDepthSpecularRimFx");
 		Engine::ShaderFx::Load(Device.get(), Engine::Global::ResourcePath / L"Shader" / L"DeferredAlbedoNormalVelocityDepthSpecularRimSkeletonFx.hlsl", L"DeferredAlbedoNormalVelocityDepthSpecularRimSkeletonFx");
 

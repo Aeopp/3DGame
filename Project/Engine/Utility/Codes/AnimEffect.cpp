@@ -282,6 +282,11 @@ void Engine::AnimEffect::Initialize()&
 	InitTextureForVertexTextureFetch();
 
 	AnimEffectFx.Initialize(L"AnimEffectFx");
+	StaticEffectFx.Initialize(L"StaticEffectFx");
+	AnimEffectEmissiveFx.Initialize(L"AnimEffectEmissiveFx");
+	StaticEffectEmissiveFx.Initialize(L"StaticEffectEmissiveFx");
+
+
 	RenderBoneMatricies.resize(BoneTable.size());
 }
 
@@ -313,41 +318,29 @@ void Engine::AnimEffect::Render(Engine::Renderer* const _Renderer)&
 	
 	if (!_CurAnimEffectInfo.bRender)return;
 
-	//matrix World;
-	//matrix View;
-	//matrix Projection;
-	//texture DiffuseMap;
+	ID3DXEffect* Fx{ nullptr };
 
-	auto Fx = AnimEffectFx.GetHandle();
-	Fx->SetTexture("VTF", BoneAnimMatrixInfo);
-	Fx->SetInt("VTFPitch", VTFPitch);	
+	if (_CurAnimEffectInfo.bAnimation)
+	{
+		Fx = AnimEffectFx.GetHandle();
+		Fx->SetTexture("VTF", BoneAnimMatrixInfo);
+		Fx->SetInt("VTFPitch", VTFPitch);
+	}
+	else
+	{
+		Fx = StaticEffectFx.GetHandle();
+	}
+
 	if (nullptr == Device)
 		return;
-
-
-	// 테스팅.. 
-	//static Matrix World;
-	//static Vector3 Scale{ 1,1,1 };
-	//static Vector3 Rotation{ 0,0,0 };
-	//static Vector3 Location{ 0,0,0 };
-	//{
-	//	if (Engine::Global::bDebugMode)
-	//	{
-	//		ImGui::SliderFloat3("TestScale", Scale, 0.1f, 10.f);
-	//		ImGui::SliderFloat3("TestRotation", Rotation, -FMath::PI, FMath::PI);
-	//		ImGui::SliderFloat3("TestLocation", Location, -1000.f, +1000.f);
-	//	}
-	//	World = FMath::WorldMatrix(Scale, Rotation, Location);
-	//}
-	//.
 
 	const auto& RenderInfo = _Renderer->GetCurrentRenderInformation();
 	const auto& _RefDeferredPass = _Renderer->RefDeferredPass();
 	Fx->SetMatrix("World", &World);
 	Fx->SetMatrix("View", &RenderInfo.View);
 	Fx->SetMatrix("Projection", &RenderInfo.Projection);
-	Fx->SetFloat("AlphaFactor", _CurAnimEffectInfo.AlphaFactor);
-	Fx->SetFloat("Brightness", _CurAnimEffectInfo.Brightness);
+	Fx->SetFloat ("AlphaFactor", _CurAnimEffectInfo.AlphaFactor);
+	Fx->SetFloat ("Brightness", _CurAnimEffectInfo.Brightness);
 
 	Fx->SetFloat("Time", _CurAnimEffectInfo.Time);
 	Fx->SetFloat("Far", RenderInfo.Far);
@@ -405,6 +398,76 @@ void Engine::AnimEffect::Render(Engine::Renderer* const _Renderer)&
 	}
 }
 
+void Engine::AnimEffect::RenderEmissive(Engine::Renderer* const _Renderer)&
+{
+	if (!_CurAnimEffectInfo.bRender)return;
+
+	ID3DXEffect* Fx{ nullptr };
+
+	if (_CurAnimEffectInfo.bAnimation)
+	{
+		Fx = AnimEffectEmissiveFx.GetHandle();
+		Fx->SetTexture("VTF", BoneAnimMatrixInfo);
+		Fx->SetInt("VTFPitch", VTFPitch);
+	}
+	else
+	{
+		Fx = StaticEffectEmissiveFx.GetHandle();
+	}
+
+	if (nullptr == Device)
+		return;
+
+	const auto& RenderInfo = _Renderer->GetCurrentRenderInformation();
+	const auto& _RefDeferredPass = _Renderer->RefDeferredPass();
+	Fx->SetMatrix("World", &World);
+	Fx->SetMatrix("View", &RenderInfo.View);
+	Fx->SetMatrix("Projection", &RenderInfo.Projection);
+	Fx->SetFloat("AlphaFactor", _CurAnimEffectInfo.AlphaFactor);
+	Fx->SetFloat("Brightness", _CurAnimEffectInfo.Brightness);
+
+	Fx->SetFloat("Time", _CurAnimEffectInfo.Time);
+	Fx->SetFloat("Far", RenderInfo.Far);
+	Fx->SetFloat("SoftParticleDepthScale", _Renderer->RefEffectSystem().SoftParticleDepthScale);
+
+	Fx->SetFloatArray("GradientUVOffsetFactor", _CurAnimEffectInfo.GradientUVOffsetFactor, 2u);
+	Fx->SetTexture("VelocityNoneDepthMap", _RefDeferredPass.Velocity2_None1_Depth1.GetTexture());
+	Device->SetVertexDeclaration(VtxDecl);
+	uint32 PassNum = 0u;
+	Fx->Begin(&PassNum, 0);
+	for (auto& CurrentRenderMesh : MeshContainer)
+	{
+		Device->SetStreamSource(0, CurrentRenderMesh.VertexBuffer, 0, CurrentRenderMesh.Stride);
+		Device->SetIndices(CurrentRenderMesh.IndexBuffer);
+		if (_CurAnimEffectInfo.DiffuseMap)
+		{
+			Fx->SetTexture("DiffuseMap", _CurAnimEffectInfo.DiffuseMap);
+		}
+		else
+		{
+			Fx->SetTexture("DiffuseMap", CurrentRenderMesh.Diffuse);
+		}
+
+		Fx->SetTexture("PatternMap", _CurAnimEffectInfo.PatternMap);
+		Fx->SetTexture("AddColorMap", _CurAnimEffectInfo.AddColorMap);
+		Fx->SetTexture("UVDistorMap", _CurAnimEffectInfo.UVDistorMap);
+		Fx->SetTexture("GradientMap", _CurAnimEffectInfo.GradientMap);
+
+		Fx->CommitChanges();
+
+		for (uint32 i = 0; i < PassNum; ++i)
+		{
+			Fx->BeginPass(i);
+
+			Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0u, 0u,
+				CurrentRenderMesh.VtxCount, 0u, CurrentRenderMesh.PrimitiveCount);
+
+			Fx->EndPass();
+		}
+	}
+	Fx->End();
+}
+
 void Engine::AnimEffect::Update(const float DeltaTime)&
 {
 	static const Matrix Identity = FMath::Identity();
@@ -415,58 +478,63 @@ void Engine::AnimEffect::Update(const float DeltaTime)&
 
 	AnimationNotify();
 
-	if (TransitionRemainTime > 0.0)
+	if (_CurAnimEffectInfo.bAnimation)
 	{
-		std::optional<Bone::AnimationBlendInfo> IsAnimationBlend = std::nullopt;
 
-		if (PrevAnimMotionTime > AnimInfoTable[PrevAnimIndex].Duration)
+		if (TransitionRemainTime > 0.0)
 		{
-			PrevAnimMotionTime = AnimInfoTable[PrevAnimIndex].Duration;
-		}
+			std::optional<Bone::AnimationBlendInfo> IsAnimationBlend = std::nullopt;
 
-		if (AnimIdx < AnimInfoTable.size())
-		{
-			const double PrevAnimationWeight = TransitionRemainTime / TransitionDuration;
+			if (PrevAnimMotionTime > AnimInfoTable[PrevAnimIndex].Duration)
+			{
+				PrevAnimMotionTime = AnimInfoTable[PrevAnimIndex].Duration;
+			}
 
-			IsAnimationBlend.emplace(Bone::AnimationBlendInfo
+			if (AnimIdx < AnimInfoTable.size())
+			{
+				const double PrevAnimationWeight = TransitionRemainTime / TransitionDuration;
+
+				IsAnimationBlend.emplace(Bone::AnimationBlendInfo
+					{
+						PrevAnimIndex,
+						PrevAnimationWeight , PrevAnimMotionTime ,
+						_AnimationTrack->ScaleTimeLine[PrevAnimIndex] ,
+						_AnimationTrack->QuatTimeLine[PrevAnimIndex],
+						_AnimationTrack->PosTimeLine[PrevAnimIndex]
+					});
+
+				Bone* RootBone = BoneTable.front().get();
+				RootBone->BoneMatrixUpdate(Identity,
+					CurrentAnimMotionTime,
+					_AnimationTrack->ScaleTimeLine[AnimIdx],
+					_AnimationTrack->QuatTimeLine[AnimIdx],
+					_AnimationTrack->PosTimeLine[AnimIdx], IsAnimationBlend);
+
+				if (CurrentAnimMotionTime > AnimInfoTable[AnimIdx].Duration)
 				{
-					PrevAnimIndex,
-					PrevAnimationWeight , PrevAnimMotionTime ,
-					_AnimationTrack->ScaleTimeLine[PrevAnimIndex] ,
-					_AnimationTrack->QuatTimeLine[PrevAnimIndex],
-					_AnimationTrack->PosTimeLine[PrevAnimIndex]
-				});
-
-			Bone* RootBone = BoneTable.front().get();
-			RootBone->BoneMatrixUpdate(Identity,
-				CurrentAnimMotionTime,
-				_AnimationTrack->ScaleTimeLine[AnimIdx],
-				_AnimationTrack->QuatTimeLine[AnimIdx],
-				_AnimationTrack->PosTimeLine[AnimIdx], IsAnimationBlend);
-
-			if (CurrentAnimMotionTime > AnimInfoTable[AnimIdx].Duration)
-			{
-				AnimationEnd();
+					AnimationEnd();
+				}
 			}
 		}
-	}
-	else
-	{
-		if (AnimIdx < AnimInfoTable.size())
+		else
 		{
-			if (CurrentAnimMotionTime > AnimInfoTable[AnimIdx].Duration)
+			if (AnimIdx < AnimInfoTable.size())
 			{
-				AnimationEnd();
-			}
-			Bone* RootBone = BoneTable.front().get();
+				if (CurrentAnimMotionTime > AnimInfoTable[AnimIdx].Duration)
+				{
+					AnimationEnd();
+				}
+				Bone* RootBone = BoneTable.front().get();
 
-			RootBone->BoneMatrixUpdate(Identity,
-				CurrentAnimMotionTime,
-				_AnimationTrack->ScaleTimeLine[AnimIdx],
-				_AnimationTrack->QuatTimeLine[AnimIdx],
-				_AnimationTrack->PosTimeLine[AnimIdx], std::nullopt);
+				RootBone->BoneMatrixUpdate(Identity,
+					CurrentAnimMotionTime,
+					_AnimationTrack->ScaleTimeLine[AnimIdx],
+					_AnimationTrack->QuatTimeLine[AnimIdx],
+					_AnimationTrack->PosTimeLine[AnimIdx], std::nullopt);
+			}
 		}
 	}
+	
 
 	if (_AnimEffectUpdateCall)
 		_AnimEffectUpdateCall(_CurAnimEffectInfo ,DeltaTime);
@@ -518,19 +586,22 @@ void Engine::AnimEffect::AnimationEnd()&
 
 void Engine::AnimEffect::AnimationNotify()&
 {
-	const float AnimDurationNormalize = CurrentAnimMotionTime / AnimInfoTable[AnimIdx].Duration;
-	auto EventIter = CurrentNotify.AnimTimeEventCallMapping.lower_bound(AnimDurationNormalize);
-
-	bool bTiming = (std::end(CurrentNotify.AnimTimeEventCallMapping) != EventIter) &&
-		AnimDurationNormalize >= EventIter->first;
-
-	if (bTiming)
+	if (_CurAnimEffectInfo.bAnimation)
 	{
-		// 과거에 호출 한 적이 없으며 함수가 유효한가요 ? 
-		if (!CurrentNotify.HavebeenCalledEvent.contains(EventIter->first) && EventIter->second)
+		const float AnimDurationNormalize = CurrentAnimMotionTime / AnimInfoTable[AnimIdx].Duration;
+		auto EventIter = CurrentNotify.AnimTimeEventCallMapping.lower_bound(AnimDurationNormalize);
+
+		bool bTiming = (std::end(CurrentNotify.AnimTimeEventCallMapping) != EventIter) &&
+			AnimDurationNormalize >= EventIter->first;
+
+		if (bTiming)
 		{
-			CurrentNotify.HavebeenCalledEvent.insert(EventIter->first);
-			EventIter->second(this);
+			// 과거에 호출 한 적이 없으며 함수가 유효한가요 ? 
+			if (!CurrentNotify.HavebeenCalledEvent.contains(EventIter->first) && EventIter->second)
+			{
+				CurrentNotify.HavebeenCalledEvent.insert(EventIter->first);
+				EventIter->second(this);
+			}
 		}
 	}
 }

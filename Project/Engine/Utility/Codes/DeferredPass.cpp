@@ -61,7 +61,7 @@ void Engine::DeferredPass::DefaultInitialize()&
 	VelocityMap.DepthStencilInitialize(Device, CurViewPort.Width, CurViewPort.Height, D3DFMT_D24X8);
 	VelocityMap.DebugBufferInitialize(
 		{ CurViewPort.Width / -2.f + (RenderTargetDebugRenderSize.x * 3.f),
-		  CurViewPort.Height / +2.f - (RenderTargetDebugRenderSize.y * 5.f) },
+		  CurViewPort.Height / +2.f - (RenderTargetDebugRenderSize.y * 3.f) },
 		RenderTargetDebugRenderSize);
 
 	DeferredTarget.Initialize(Device,CurViewPort.Width,CurViewPort.Height,
@@ -69,7 +69,7 @@ void Engine::DeferredPass::DefaultInitialize()&
 		D3DXCOLOR(0.f, 0.f, 0.f, 1.f));
 	DeferredTarget.DebugBufferInitialize(
 		{ CurViewPort.Width / -2.f + (RenderTargetDebugRenderSize.x * 3.f),
-		  CurViewPort.Height / +2.f - (RenderTargetDebugRenderSize.y * 7.f) },
+		  CurViewPort.Height / +2.f - (RenderTargetDebugRenderSize.y * 5.f) },
 		RenderTargetDebugRenderSize);
 
 	MotionBlur.Initialize(Device,CurViewPort.Width, CurViewPort.Height,
@@ -77,6 +77,36 @@ void Engine::DeferredPass::DefaultInitialize()&
 		D3DXCOLOR(0.f, 0.f, 0.f, 0.0f));
 	MotionBlur.DebugBufferInitialize(
 		{ CurViewPort.Width / -2.f + (RenderTargetDebugRenderSize.x * 3.f),
-		  CurViewPort.Height / +2.f - (RenderTargetDebugRenderSize.y * 9.f) },
+		  CurViewPort.Height / +2.f - (RenderTargetDebugRenderSize.y * 7.f) },
+		RenderTargetDebugRenderSize);
+	 
+	EmissiveTarget.Initialize(Device, 
+		 CurViewPort.Width, CurViewPort.Height,
+		D3DFMT_A16B16G16R16F,
+		D3DXCOLOR(0.f, 0.f, 0.f, 0.0f));
+	EmissiveTarget.DebugBufferInitialize(
+		{ CurViewPort.Width / -2.f + (RenderTargetDebugRenderSize.x * 5.f),
+		  CurViewPort.Height / +2.f - (RenderTargetDebugRenderSize.y * 1.f) },
+		RenderTargetDebugRenderSize);
+
+	EmissiveBlurX.Initialize(Device, 
+		CurViewPort.Width, CurViewPort.Height,
+		D3DFMT_A16B16G16R16F,
+		D3DXCOLOR(0.f, 0.f, 0.f, 0.0f));
+
+	EmissiveBlurX.DebugBufferInitialize(
+		{ CurViewPort.Width / -2.f + (RenderTargetDebugRenderSize.x * 5.f),
+		  CurViewPort.Height / +2.f - (RenderTargetDebugRenderSize.y * 3.f) },
+		RenderTargetDebugRenderSize);
+
+
+	EmissiveBlurY.Initialize(Device,
+		CurViewPort.Width, CurViewPort.Height,
+		D3DFMT_A16B16G16R16F,
+		D3DXCOLOR(0.f, 0.f, 0.f, 0.0f));
+
+	EmissiveBlurY.DebugBufferInitialize(
+		{ CurViewPort.Width / -2.f + (RenderTargetDebugRenderSize.x * 5.f),
+		  CurViewPort.Height / +2.f - (RenderTargetDebugRenderSize.y * 5.f) },
 		RenderTargetDebugRenderSize);
 }
