@@ -77,7 +77,7 @@ namespace Engine
 		double TransitionRemainTime = -1.0;
 		double TransitionDuration = 0.0;
 
-		bool bRender = true;
+		
 		uint32 MaxAnimIdx{ 0u };
 	public:
 		Vector3 Scale{ 1,1,1 };
@@ -89,7 +89,13 @@ namespace Engine
 			float Time = 0.0f;
 			float AlphaFactor = 0.0f;
 			float Brightness = 1.f;
+			bool bRender = true;
+			IDirect3DTexture9* DiffuseMap{ nullptr };
 			IDirect3DTexture9* PatternMap{ nullptr };
+			IDirect3DTexture9* AddColorMap{ nullptr };
+			IDirect3DTexture9* UVDistorMap{ nullptr };
+			IDirect3DTexture9* GradientMap{ nullptr };
+			
 		};
 		std::function<void(AnimEffectInfo&,float)> _AnimEffectUpdateCall{};
 		AnimEffectInfo _CurAnimEffectInfo{};

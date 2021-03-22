@@ -4,11 +4,17 @@ matrix Projection;
 
 float AlphaFactor = 1.f;
 float Brightness = 1.f;
+float Time;
+
+
 texture DiffuseMap;
 // VTF ÅØ½ºÃÄ
 int VTFPitch;
 texture VTF;
 texture PatternMap;
+texture AddColorMap;
+texture UVDistorMap;
+texture GradientMap;
 
 sampler VTFSampler = sampler_state
 {
@@ -17,6 +23,43 @@ sampler VTFSampler = sampler_state
     minfilter = point;
     magfilter = point;
     mipfilter = point;
+};
+
+
+sampler GradientSampler = sampler_state
+{
+    texture = GradientMap;
+
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
+    addressu = clamp;
+    addressv = clamp;
+};
+
+sampler UVDistorSampler = sampler_state
+{
+    texture = UVDistorMap;
+
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
+    addressu = wrap;
+    addressv = wrap;
+};
+
+sampler AddColorSampler = sampler_state
+{
+    texture = AddColorMap;
+
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    MaxAnisotropy = 16;
+    addressu = wrap;
+    addressv = wrap;
 };
 
 sampler PatternSampler = sampler_state
@@ -129,9 +172,17 @@ PS_OUT PS_MAIN(PS_IN In)
 {
     PS_OUT Out = (PS_OUT) 0;
     
-    float4 DiffuseColor = tex2D(DiffuseSampler, In.UV);
-    float4 Pattern = tex2D(PatternSampler, In.UV);
-    Out.Color = DiffuseColor * Pattern;
+    float2 CurUV = (In.UV + Time);
+    float4 Noise = tex2D(UVDistorSampler, CurUV);
+    float2 GradientUV = float2(1.f, Time);
+    float4 Gradient = tex2D(GradientSampler, GradientUV);
+    
+    float4 DiffuseColor = tex2D(DiffuseSampler, In.UV + Noise.xy);
+    float4 AddColor = tex2D(AddColorSampler, In.UV);
+    float4 Pattern = tex2D(PatternSampler, In.UV + Noise.xy);
+    
+    Out.Color = (DiffuseColor + AddColor) * Pattern;
+    Out.Color *= Gradient;
     
     Out.Color.rgb *= Brightness;
     Out.Color.a *= AlphaFactor;
@@ -157,4 +208,4 @@ technique Default_Device
         vertexshader = compile vs_3_0 VS_MAIN();
         pixelshader = compile ps_3_0 PS_MAIN();
     }
-}
+};

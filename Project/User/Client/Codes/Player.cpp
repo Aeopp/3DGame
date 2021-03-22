@@ -176,7 +176,8 @@ void Player::Initialize(
 	_Transform->EnablePhysic(InitPhysic);
 
 	_BasicCombo01 = RefRenderer().RefEffectSystem().MakeEffect(L"BasicCombo01", Engine::EffectSystem::EffectType::AnimEffect);
-	_BasicCombo01->bRender = false;
+	// T_UV_Distort
+	_BasicCombo01->_CurAnimEffectInfo.bRender = false;
 
 	
 
@@ -1365,25 +1366,37 @@ void Player::BasicCombo01Transition(const FSMControlInformation& FSMControlInfo)
 
 	Engine::AnimEffect::AnimNotify _EftAnimNotify{};
 	_EftAnimNotify.AnimTimeEventCallMapping[0.99f] = [](Engine::AnimEffect*const _AnimEffect) {
-		_AnimEffect->bRender = false;
+		// _AnimEffect->bRender = false;
 	};
 
 	_AnimNotify.bLoop = true;
 
-	_BasicCombo01->Scale = FSMControlInfo.MyTransform->GetScale() * 1.0f;
+	_BasicCombo01->Scale = FSMControlInfo.MyTransform->GetScale() * 1.1f;
 	_BasicCombo01->Rotation= FSMControlInfo.MyTransform->GetRotation();
 	_BasicCombo01->Location = FSMControlInfo.MyTransform->GetLocation() + Vector3{ 0,10,0 };
 	_BasicCombo01->PlayAnimation(0u, 30.f, 0.25f, _EftAnimNotify);
 
-	_BasicCombo01->bRender = true;
 	_BasicCombo01->_CurAnimEffectInfo.PatternMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"type_39")->second;
-	// T_HF_Trace01
+	_BasicCombo01->_CurAnimEffectInfo.AddColorMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"S_BasicAttack02_1_T03")->second;
+	_BasicCombo01->_CurAnimEffectInfo.GradientMap=	RefRenderer().RefEffectSystem().EffectTextures.find(L"Gradient")->second;
+	_BasicCombo01->_CurAnimEffectInfo.UVDistorMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"Cartoon_Distortion_0003")->second;
+
 	_BasicCombo01->_CurAnimEffectInfo.Time = 0.0f;
-	_BasicCombo01->_CurAnimEffectInfo.AlphaFactor = 1.33f;
+	_BasicCombo01->_CurAnimEffectInfo.AlphaFactor = 0.0f;
+	_BasicCombo01->_CurAnimEffectInfo.bRender = true;
+	_BasicCombo01->_CurAnimEffectInfo.Brightness = 1.5f;
+
 	_BasicCombo01->_AnimEffectUpdateCall = [](Engine::AnimEffect::AnimEffectInfo& _EffectInfo, float DeltaTime)
 	{
-		_EffectInfo.Time += DeltaTime * 2.f;
-		const float Factor = std::fabsf(std::cosf(_EffectInfo.Time));
+		_EffectInfo.Time += DeltaTime * 1.33f;
+		// const float Factor = std::fabsf(std::sinf(_EffectInfo.Time));
+		const float Factor = std::fabsf(std::sinf(_EffectInfo.Time));
+		_EffectInfo.AlphaFactor = 1.f- _EffectInfo.Time;
+		_EffectInfo.AlphaFactor *= 2.0f;
+
+		if(_EffectInfo.Time>1.f)
+			_EffectInfo.bRender = false;
+
 		// _EffectInfo.AlphaFactor = Factor;
 		// _EffectInfo.Brightness = Factor;
 	};
