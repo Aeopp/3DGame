@@ -20,7 +20,7 @@ void App::Initialize(const HWND _Hwnd, const HINSTANCE HInstance)&
 		HInstance,
 		false,
 		ClientSize<uint32>,
-		1.f/1.f,
+		1.f/30.f,
 		ResourcePath);
 
 	Device = RefGraphic().GetDevice().get();
