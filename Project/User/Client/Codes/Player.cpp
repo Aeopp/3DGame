@@ -175,9 +175,24 @@ void Player::Initialize(
 
 	_Transform->EnablePhysic(InitPhysic);
 
-	_BasicCombo01 = RefRenderer().RefEffectSystem().MakeEffect(L"BasicCombo01", Engine::EffectSystem::EffectType::AnimEffect);
-	// T_UV_Distort
-	_BasicCombo01->_CurAnimEffectInfo.bRender = false;
+	{
+		_BasicCombo01 = RefRenderer().RefEffectSystem().MakeEffect(L"BasicCombo01", Engine::EffectSystem::EffectType::AnimEffect);
+		_BasicCombo01->_CurAnimEffectInfo.bRender = false;
+	}
+
+	{
+		_BasicCombo02 = RefRenderer().RefEffectSystem().MakeEffect(L"BasicCombo02", Engine::EffectSystem::EffectType::AnimEffect);
+		_BasicCombo02->_CurAnimEffectInfo.bRender = false;
+	}
+
+	{
+		_BasicCombo03_1 = RefRenderer().RefEffectSystem().MakeEffect(L"BasicCombo03", Engine::EffectSystem::EffectType::AnimEffect);
+		_BasicCombo03_1->_CurAnimEffectInfo.bRender = false;
+
+		_BasicCombo03_2 = RefRenderer().RefEffectSystem().MakeEffect(L"BasicCombo03", Engine::EffectSystem::EffectType::AnimEffect);
+		_BasicCombo03_2->_CurAnimEffectInfo.bRender = false;
+	}
+	
 
 	
 
@@ -202,6 +217,12 @@ void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
 
 	RefRenderer().RefEffectSystem().LoadEffect
 	(Device, App::ResourcePath / L"Effect" / L"SK_TS_BasicCombo_01_Renewal.fbx", L"BasicCombo01", Engine::EffectSystem::EffectType::AnimEffect);
+
+	RefRenderer().RefEffectSystem().LoadEffect
+	(Device, App::ResourcePath / L"Effect" / L"SK_TS_BasicCombo_02_Renewal.fbx", L"BasicCombo02", Engine::EffectSystem::EffectType::AnimEffect);
+
+	RefRenderer().RefEffectSystem().LoadEffect
+	(Device, App::ResourcePath / L"Effect" / L"SK_TS_BasicCombo_03_Renewal.fbx", L"BasicCombo03", Engine::EffectSystem::EffectType::AnimEffect);
 }
 
 void Player::Event()&
@@ -432,8 +453,12 @@ void Player::Edit()&
 			ImGui::SliderFloat("BasicCombo", &_AttackForce.BasicCombo, Min, Max);
 			ImGui::Separator();
 
-			ImGui::SliderFloat("BasicComboSmall", &_AttackForce.BasicComboSmall, Min, Max);
-			ImGui::SliderFloat("BasicComboSmallJump", &_AttackForce.BasicComboSmallJump, Min, Max);
+			ImGui::SliderFloat("BasicComboEx03_1", &_AttackForce.BasicComboEx03_1, Min, Max);
+			ImGui::SliderFloat("BasicComboEx03_1_Jump", &_AttackForce.BasicComboEx03_1_Jump, Min, Max);
+			ImGui::Separator();
+
+			ImGui::SliderFloat("BasicComboEx03_2", &_AttackForce.BasicComboEx03_2, Min, Max);
+			ImGui::SliderFloat("BasicComboEx03_2_Jump", &_AttackForce.BasicComboEx03_2_Jump, Min, Max);
 			ImGui::Separator();
 			
 			ImGui::SliderFloat("Dash", &_AttackForce.Dash, Min, Max);
@@ -1363,45 +1388,13 @@ void Player::BasicCombo01Transition(const FSMControlInformation& FSMControlInfo)
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::BasicCombo01;
 	WeaponHand();
-
-
-
-
-	Engine::AnimEffect::AnimNotify _EftAnimNotify{};
-	_EftAnimNotify.AnimTimeEventCallMapping[0.99f] = [](Engine::AnimEffect*const _AnimEffect) {
-	};
-
 	_AnimNotify.bLoop = true;
 
-	_BasicCombo01->Scale = FSMControlInfo.MyTransform->GetScale() * 1.1f;
-	_BasicCombo01->Rotation= FSMControlInfo.MyTransform->GetRotation();
-	_BasicCombo01->Location = FSMControlInfo.MyTransform->GetLocation() + Vector3{ 0,10,0 };
-	_BasicCombo01->PlayAnimation(0u, 30.f, 0.25f, _EftAnimNotify);
 
-	_BasicCombo01->_CurAnimEffectInfo.DiffuseMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"T_HF_Trace01")->second;
-	_BasicCombo01->_CurAnimEffectInfo.PatternMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"type_39")->second;
-	_BasicCombo01->_CurAnimEffectInfo.AddColorMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"S_BasicAttack02_1_T03")->second;
-	_BasicCombo01->_CurAnimEffectInfo.GradientMap=	RefRenderer().RefEffectSystem().EffectTextures.find(L"Gradient")->second;
-	_BasicCombo01->_CurAnimEffectInfo.UVDistorMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"Cartoon_Distortion_0003")->second;
+	
+	SwordEffectPlay(_BasicCombo01, FSMControlInfo, Vector3{ FMath::ToRadian(-22.5f),0.f,FMath::ToRadian(22.5f) });
+	SwordCameraShake();
 
-	_BasicCombo01->_CurAnimEffectInfo.Time = 0.0f;
-	_BasicCombo01->_CurAnimEffectInfo.AlphaFactor = 0.0f;
-	_BasicCombo01->_CurAnimEffectInfo.bRender = true;
-	_BasicCombo01->_CurAnimEffectInfo.Brightness = 1.5f;
-
-	_BasicCombo01->_AnimEffectUpdateCall = [](Engine::AnimEffect::AnimEffectInfo& _EffectInfo, float DeltaTime)
-	{
-		_EffectInfo.Time += DeltaTime * 1.33f;
-		const float Factor = std::fabsf(std::sinf(_EffectInfo.Time));
-		_EffectInfo.AlphaFactor = 1.f- _EffectInfo.Time;
-		_EffectInfo.AlphaFactor *= 1.33f;
-
-		if(_EffectInfo.Time>1.f)
-			_EffectInfo.bRender = false;
-	};
-
-
-	CurrentTPCamera->Shake(4.f, FMath::Random<Vector3>({ -1,-1,-1 }, { 1,1,1 }), 0.2f);
 }
 
 void Player::BasicCombo02State(const FSMControlInformation& FSMControlInfo)&
@@ -1465,6 +1458,9 @@ void Player::BasicCombo02Transition(const FSMControlInformation& FSMControlInfo)
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::BasicCombo02;
 	WeaponHand();
+
+	SwordEffectPlay(_BasicCombo02, FSMControlInfo, Vector3{ 0.f,0.f,FMath::ToRadian(12.0f) }, Vector3{0,0.f,0.f});
+	SwordCameraShake();
 }
 
 void Player::BasicCombo03State(const FSMControlInformation& FSMControlInfo)&
@@ -1472,9 +1468,17 @@ void Player::BasicCombo03State(const FSMControlInformation& FSMControlInfo)&
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
 
-	if (FMath::IsRange(0.11f, 0.26f, AnimTimeNormal))
+	if (FMath::IsRange(0.08f, 0.15f, AnimTimeNormal))
 	{
-		GetWeapon()->StartAttack(this ,_AttackForce.BasicComboSmall, _AttackForce.BasicComboSmallJump);
+		GetWeapon()->StartAttack(this ,_AttackForce.BasicComboEx03_1, _AttackForce.BasicComboEx03_1_Jump);
+		SwordCameraShake(0.88f, FSMControlInfo.DeltaTime);
+		SwordEffectPlay(_BasicCombo03_1, FSMControlInfo, Vector3{ 0.f,0.f,0.f } , {0.f,5.f,0.f}, 2.f);
+	}
+	else if (FMath::IsRange(0.17f, 0.24f, AnimTimeNormal))
+	{
+		GetWeapon()->StartAttack(this, _AttackForce.BasicComboEx03_2, _AttackForce.BasicComboEx03_2_Jump);
+		SwordCameraShake(2.f, FSMControlInfo.DeltaTime);
+		SwordEffectPlay(_BasicCombo03_2, FSMControlInfo, Vector3{ FMath::ToRadian(41.5f),0.f,FMath::ToRadian(12.0f) }, {}, 1.5f);
 	}
 	else
 	{
@@ -1503,6 +1507,9 @@ void Player::BasicCombo03Transition(const FSMControlInformation& FSMControlInfo)
 	_AnimNotify.Name = "BasicCombo03";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::BasicCombo03;
+	
+	/*SwordEffectPlay(_BasicCombo03, FSMControlInfo, Vector3{ 0.f,0.f,FMath::ToRadian(0.0f) });
+	SwordCameraShake();*/
 };
 
 void Player::RunEndTransition(const FSMControlInformation& FSMControlInfo)&
@@ -2025,6 +2032,42 @@ void Player::LeafAttackCameraUpdate(const FSMControlInformation& FSMControlInfo)
 		FMath::Normalize(FMath::RotationVecNormal(FSMControlInfo.MyTransform->GetRight (),
 			FSMControlInfo.MyTransform->GetForward(), -FMath::ToRadian(22.5f)));
 	CurrentTPCamera->RefTargetInformation().DistancebetweenTarget = 40.f;
+}
+void Player::SwordEffectPlay(Engine::AnimEffect* _AnimEffect, const FSMControlInformation& FSMControlInfo,
+				const Vector3 RotationOffset, const Vector3 LocationOffset , const float TimeAcceleration)&
+{
+	Engine::AnimEffect::AnimNotify _EftAnimNotify{};
+	_EftAnimNotify.AnimTimeEventCallMapping[0.99f] = [](Engine::AnimEffect* const _AnimEffect) {
+	};
+
+	_AnimEffect->Scale = FSMControlInfo.MyTransform->GetScale() * 1.1f;
+	_AnimEffect->Rotation = FSMControlInfo.MyTransform->GetRotation() + RotationOffset;
+	_AnimEffect->Location = FSMControlInfo.MyTransform->GetLocation() + Vector3{ 0,10,0 } + LocationOffset;
+	_AnimEffect->PlayAnimation(0u, 30.f * TimeAcceleration, 0.25f, _EftAnimNotify);
+	_AnimEffect->_CurAnimEffectInfo.DiffuseMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"T_HF_Trace01")->second;
+	_AnimEffect->_CurAnimEffectInfo.PatternMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"type_39")->second;
+	_AnimEffect->_CurAnimEffectInfo.AddColorMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"S_BasicAttack02_1_T03")->second;
+	_AnimEffect->_CurAnimEffectInfo.GradientMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"Gradient")->second;
+	_AnimEffect->_CurAnimEffectInfo.UVDistorMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"Cartoon_Distortion_0003")->second;
+	_AnimEffect->_CurAnimEffectInfo.Time = 0.0f;
+	_AnimEffect->_CurAnimEffectInfo.AlphaFactor = 0.0f;
+	_AnimEffect->_CurAnimEffectInfo.bRender = true;
+	_AnimEffect->_CurAnimEffectInfo.Brightness = 1.5f;
+	_AnimEffect->_AnimEffectUpdateCall = [TimeAcceleration](Engine::AnimEffect::AnimEffectInfo& _EffectInfo, float DeltaTime)
+	{
+		_EffectInfo.Time += DeltaTime * 1.33f * TimeAcceleration;
+		const float Factor = std::fabsf(std::sinf(_EffectInfo.Time));
+		_EffectInfo.AlphaFactor = 1.f - _EffectInfo.Time;
+		_EffectInfo.AlphaFactor *= 1.33f;
+
+		if (_EffectInfo.Time > 1.f)
+			_EffectInfo.bRender = false;
+	};
+
+}
+void Player::SwordCameraShake(const float Force,const float Duration)&
+{
+	CurrentTPCamera->Shake(Force, FMath::Random<Vector3>({ -1,-1,-1 }, { 1,1,1 }), Duration);
 };
 
 

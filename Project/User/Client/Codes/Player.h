@@ -150,8 +150,12 @@ private:
 	struct AttackForceInformation
 	{
 		float BasicCombo = 0.1f;
-		float BasicComboSmall = 0.2f;
-		float BasicComboSmallJump = 55.f;
+		float BasicComboEx03_1 = 0.2f;
+		float BasicComboEx03_1_Jump = 55.f;
+
+		float BasicComboEx03_2 = 0.2f;
+		float BasicComboEx03_2_Jump = 100.f;
+
 		float Ex01firstCombo = 0.5f;
 		float Ex01firstComboJump = 65.f;
 
@@ -283,7 +287,10 @@ private:
 	void LeafReadyCameraUpdate(const FSMControlInformation& FSMControlInfo)&;
 	void LeafAttackCameraUpdate(const FSMControlInformation& FSMControlInfo)&;
 private:
-		
+	void SwordEffectPlay(class Engine::AnimEffect* _AnimEffect , const FSMControlInformation& FSMControlInfo ,
+		const Vector3 RotationOffset, const Vector3 LocationOffset = { 0,0,0 },
+		const float TimeAcceleration=1.f)&;
+	void SwordCameraShake(const float Force = 4.f, const float Duration = 0.2f)&;
 private:
 	class PlayerWeapon* const  GetWeapon()const &;
 public:
@@ -332,6 +339,9 @@ private:
 private:
 	bool bAura = false;
 	class Engine::AnimEffect* _BasicCombo01{ nullptr };
+	class Engine::AnimEffect* _BasicCombo02{ nullptr };
+	class Engine::AnimEffect* _BasicCombo03_1{ nullptr };
+	class Engine::AnimEffect* _BasicCombo03_2{ nullptr };
 
 	AttackForceInformation _AttackForce{};
 	float WeaponDissolveTime = -1.f / 2.f;

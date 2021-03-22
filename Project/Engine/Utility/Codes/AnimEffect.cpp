@@ -597,5 +597,5 @@ void Engine::AnimEffect::InitTextureForVertexTextureFetch()&
 
 	ResourceSystem::Instance->Insert<IDirect3DTexture9>
 		(
-			L"AnimEffect_VTF_" + std::to_wstring(BoneAnimMatrixInfoTextureResourceID), BoneAnimMatrixInfo);
+			L"AnimEffect_VTF_" + std::to_wstring(BoneAnimMatrixInfoTextureResourceID++), BoneAnimMatrixInfo);
 };
