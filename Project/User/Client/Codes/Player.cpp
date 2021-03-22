@@ -1376,12 +1376,13 @@ void Player::BasicCombo01Transition(const FSMControlInformation& FSMControlInfo)
 	_BasicCombo01->PlayAnimation(0u, 30.f, 0.25f, _EftAnimNotify);
 
 	_BasicCombo01->bRender = true;
-	_BasicCombo01->_CurAnimEffectInfo.PatternMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"type_31")->second;
+	_BasicCombo01->_CurAnimEffectInfo.PatternMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"type_39")->second;
+	// T_HF_Trace01
 	_BasicCombo01->_CurAnimEffectInfo.Time = 0.0f;
-	_BasicCombo01->_CurAnimEffectInfo.AlphaFactor = 1.f;
+	_BasicCombo01->_CurAnimEffectInfo.AlphaFactor = 1.33f;
 	_BasicCombo01->_AnimEffectUpdateCall = [](Engine::AnimEffect::AnimEffectInfo& _EffectInfo, float DeltaTime)
 	{
-		_EffectInfo.Time += DeltaTime * 3.f;
+		_EffectInfo.Time += DeltaTime * 2.f;
 		const float Factor = std::fabsf(std::cosf(_EffectInfo.Time));
 		// _EffectInfo.AlphaFactor = Factor;
 		// _EffectInfo.Brightness = Factor;

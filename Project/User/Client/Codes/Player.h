@@ -334,7 +334,7 @@ private:
 	AttackForceInformation _AttackForce{};
 	float WeaponDissolveTime = -1.f / 2.f;
 	Vector3 NPCInteractionLocationOffset{ -7.080f,14.159f,3.540f};
-	Vector3 PlayerCameraTargetLocationOffset{ 0.f,20.f,0.f };
+	Vector3 PlayerCameraTargetLocationOffset{ 0.f,13.f,0.f };
 	
 	bool  bWeaponAcquisition = false;
 	float LandCheckHighRange = 7.f;
