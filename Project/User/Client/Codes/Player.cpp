@@ -1364,9 +1364,11 @@ void Player::BasicCombo01Transition(const FSMControlInformation& FSMControlInfo)
 	CurrentState = Player::State::BasicCombo01;
 	WeaponHand();
 
+
+
+
 	Engine::AnimEffect::AnimNotify _EftAnimNotify{};
 	_EftAnimNotify.AnimTimeEventCallMapping[0.99f] = [](Engine::AnimEffect*const _AnimEffect) {
-		// _AnimEffect->bRender = false;
 	};
 
 	_AnimNotify.bLoop = true;
@@ -1376,6 +1378,7 @@ void Player::BasicCombo01Transition(const FSMControlInformation& FSMControlInfo)
 	_BasicCombo01->Location = FSMControlInfo.MyTransform->GetLocation() + Vector3{ 0,10,0 };
 	_BasicCombo01->PlayAnimation(0u, 30.f, 0.25f, _EftAnimNotify);
 
+	_BasicCombo01->_CurAnimEffectInfo.DiffuseMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"T_HF_Trace01")->second;
 	_BasicCombo01->_CurAnimEffectInfo.PatternMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"type_39")->second;
 	_BasicCombo01->_CurAnimEffectInfo.AddColorMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"S_BasicAttack02_1_T03")->second;
 	_BasicCombo01->_CurAnimEffectInfo.GradientMap=	RefRenderer().RefEffectSystem().EffectTextures.find(L"Gradient")->second;
@@ -1389,16 +1392,12 @@ void Player::BasicCombo01Transition(const FSMControlInformation& FSMControlInfo)
 	_BasicCombo01->_AnimEffectUpdateCall = [](Engine::AnimEffect::AnimEffectInfo& _EffectInfo, float DeltaTime)
 	{
 		_EffectInfo.Time += DeltaTime * 1.33f;
-		// const float Factor = std::fabsf(std::sinf(_EffectInfo.Time));
 		const float Factor = std::fabsf(std::sinf(_EffectInfo.Time));
 		_EffectInfo.AlphaFactor = 1.f- _EffectInfo.Time;
-		_EffectInfo.AlphaFactor *= 2.0f;
+		_EffectInfo.AlphaFactor *= 1.33f;
 
 		if(_EffectInfo.Time>1.f)
 			_EffectInfo.bRender = false;
-
-		// _EffectInfo.AlphaFactor = Factor;
-		// _EffectInfo.Brightness = Factor;
 	};
 
 
@@ -1878,7 +1877,7 @@ void Player::LeafAttackLandingTransition(const FSMControlInformation& FSMControl
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::LeafAttackLanding;
 
-	CurrentTPCamera->RefTargetInformation().LocationLerpSpeed = 1.f;
+	CurrentTPCamera->RefTargetInformation().LocationLerpSpeed = 3.f;
 }
 
 

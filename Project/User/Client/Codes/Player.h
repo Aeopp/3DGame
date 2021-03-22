@@ -283,6 +283,8 @@ private:
 	void LeafReadyCameraUpdate(const FSMControlInformation& FSMControlInfo)&;
 	void LeafAttackCameraUpdate(const FSMControlInformation& FSMControlInfo)&;
 private:
+		
+private:
 	class PlayerWeapon* const  GetWeapon()const &;
 public:
 	bool bInvincibility = false;
