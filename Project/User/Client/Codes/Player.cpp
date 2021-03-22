@@ -1304,7 +1304,7 @@ void Player::AirCombo01Transition(const FSMControlInformation& FSMControlInfo)&
 	
 	SwordCameraShake(7.f, 0.25f);
 	SwordEffectPlay(AirCombo01, FSMControlInfo, Vector3{ FMath::ToRadian(-35.f),0.f,FMath::ToRadian(11.f) } ,
-		{ 0,7.f,0 },
+		{ 0,12.f,0 },
 		1.f, false, true, 1.f,
 		{ 1.f,1.f });
 };
@@ -1369,7 +1369,7 @@ void Player::AirCombo02Transition(const FSMControlInformation& FSMControlInfo)&
 
 	SwordCameraShake(7.f, 0.25f);
 	SwordEffectPlay(AirCombo02, FSMControlInfo, Vector3{ FMath::ToRadian(35.f),0.f,FMath::ToRadian(11.f) },
-		{ 0,7.f,0 },
+		{ 0,12.f,0 },
 		1.f, false, true, 1.f,
 		{ 1.f,1.f });
 
@@ -1432,7 +1432,7 @@ void Player::AirCombo03Transition(const FSMControlInformation& FSMControlInfo)&
 
 	SwordCameraShake(7.f, 0.25f);
 	SwordEffectPlay(AirCombo03, FSMControlInfo, Vector3{ FMath::ToRadian(90.f),0.f,FMath::ToRadian(13.5f) },
-		{ 0,0,0 },
+		{ 0,12.f,0 },
 		1.f, false, true, 1.f,
 		{ 1.f,1.f });
 
@@ -1445,9 +1445,9 @@ void Player::AirCombo04State(const FSMControlInformation& FSMControlInfo)&
 	const auto & Physic  = FSMControlInfo.MyTransform->RefPhysic();
 
 	bool bLandingChange = (CurAnimNotify.bAnimationEnd | CheckTheLandingStatable(Location.y, Physic.CurrentGroundY));
-
 	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
 
+	AirCombo04->Location = FSMControlInfo.MyTransform->GetLocation() + Vector3{ 0.f,12.f,0.f };
 	if (FMath::IsRange(0.3f, 1.0f, AnimTimeNormal))
 	{
 		GetWeapon()->StartAttack(this, _AttackForce.Air04, _AttackForce.Air04Jump);
@@ -1475,11 +1475,10 @@ void Player::AirCombo04Transition(const FSMControlInformation& FSMControlInfo)&
 	FSMControlInfo.MyTransform->ClearVelocity();
 	FSMControlInfo.MyTransform->AddVelocity(StateableSpeed.AirCombo04Velocity);
 
-
-	SwordCameraShake(7.f, 0.25f);
-	SwordEffectPlay(AirCombo04, FSMControlInfo, Vector3{ FMath::ToRadian(-35.f),0.f,FMath::ToRadian(11.f) },
+	SwordCameraShake(7.f, 0.35f);
+	SwordEffectPlay(AirCombo04, FSMControlInfo, Vector3{ FMath::ToRadian(-90.f),FMath::ToRadian ( 7.00f),FMath::ToRadian(7.00f) },
 		{ 0,0,0 },
-		1.f, false, true, 1.f,
+		1.f/2.f, false, true, 1.f,
 		{ 1.f,1.f });
 };
 void Player::AirCombo04LandingState(const FSMControlInformation& FSMControlInfo)& 
@@ -1603,7 +1602,7 @@ void Player::BasicCombo03State(const FSMControlInformation& FSMControlInfo)&
 	{
 		GetWeapon()->StartAttack(this ,_AttackForce.BasicComboEx03_1, _AttackForce.BasicComboEx03_1_Jump);
 		SwordCameraShake(0.88f, FSMControlInfo.DeltaTime);
-		SwordEffectPlay(_BasicCombo03_1, FSMControlInfo, Vector3{ 0.f,0.f,0.f } , {0.f,5.f,0.f}, 2.f );
+		SwordEffectPlay(_BasicCombo03_1, FSMControlInfo, Vector3{ 0.f,0.f,0.f } , {0.f,5.f,0.f}, 1.0f );
 	}
 	else if (FMath::IsRange(0.17f, 0.24f, AnimTimeNormal))
 	{

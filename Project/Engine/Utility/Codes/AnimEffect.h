@@ -17,10 +17,8 @@
 #include "Bone.h"
 #include "AnimationInformation.h"
 
-
 // 월드 지정 해줘야함.
-// 그리는 순서 포워드랑 같이하면 될듯 ?
-
+// 그리는 순서 포워드랑 같이하면 될듯?
 namespace Engine
 {
 	class DLL_DECL AnimEffect
@@ -97,7 +95,6 @@ namespace Engine
 			IDirect3DTexture9* AddColorMap{ nullptr };
 			IDirect3DTexture9* UVDistorMap{ nullptr };
 			IDirect3DTexture9* GradientMap{ nullptr };
-			
 		};
 		std::function<void(AnimEffectInfo&,float)> _AnimEffectUpdateCall{};
 		AnimEffectInfo _CurAnimEffectInfo{};
