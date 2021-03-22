@@ -348,9 +348,13 @@ void Engine::AnimEffect::Render(Engine::Renderer* const _Renderer)&
 	Fx->SetMatrix("Projection", &RenderInfo.Projection);
 	Fx->SetFloat("AlphaFactor", _CurAnimEffectInfo.AlphaFactor);
 	Fx->SetFloat("Brightness", _CurAnimEffectInfo.Brightness);
+
 	Fx->SetFloat("Time", _CurAnimEffectInfo.Time);
+	Fx->SetFloat("Far", RenderInfo.Far);
+	Fx->SetFloat("SoftParticleDepthScale", _Renderer->RefEffectSystem().SoftParticleDepthScale);
+
 	Fx->SetFloatArray("GradientUVOffsetFactor", _CurAnimEffectInfo.GradientUVOffsetFactor,2u);
-	
+	Fx->SetTexture("VelocityNoneDepthMap", _RefDeferredPass.Velocity2_None1_Depth1.GetTexture());
 	Device->SetVertexDeclaration(VtxDecl);
 	uint32 PassNum = 0u;
 	Fx->Begin(&PassNum, 0);

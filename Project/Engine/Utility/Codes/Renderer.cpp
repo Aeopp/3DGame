@@ -93,6 +93,12 @@ void Engine::Renderer::Render()&
 	if (Engine::Global::bDebugMode)
 	{
 		ImGui::Begin("ShaderOption");
+		if (ImGui::TreeNode("SoftParticle"))
+		{
+			ImGui::InputFloat("SoftParticleDepthScale", 
+				&EffectSys.SoftParticleDepthScale);
+			ImGui::TreePop();
+		}
 		if (ImGui::TreeNode("MotionBlur"))
 		{
 			ImGui::SliderFloat("VelocityScale", &MotionBlurVelocityScale, 0.00f, 1.f);

@@ -289,12 +289,15 @@ private:
 private:
 	void SwordEffectPlay(class Engine::AnimEffect* _AnimEffect , const FSMControlInformation& FSMControlInfo ,
 		const Vector3 RotationOffset, const Vector3 LocationOffset = { 0,0,0 },
-		const float TimeAcceleration=0.9f , const bool bLoop=false , const bool bLinearAlpha=true ,const float AlphaFactor=1.f,
-		const Vector2& GradientUVOffsetFactor = { 0.f,1.f } , 
-		const std::wstring& DiffuseMap = L"T_HF_Trace01",
-		const std::wstring& PatternMap = L"type_39",
-		const std::wstring& AddColorMap = L"S_BasicAttack02_1_T03",
-		const std::wstring& UVDistorMap = L"Cartoon_Distortion_0003")&;
+		const float TimeAcceleration=0.9f ,
+		const bool bLoop=false , 
+		const bool bLinearAlpha=true ,
+		const float AlphaFactor=1.f,
+		const Vector2& GradientUVOffsetFactor = { 1.f,1.f } , 
+		const std::wstring& DiffuseMap = L"iceImage",
+		const std::wstring& PatternMap = L"type_37",
+		const std::wstring& AddColorMap = L"T_HFH_Basic_Attack_Front",
+		const std::wstring& UVDistorMap = L"Cartoon_Distortion_0008")&;
 	void SwordCameraShake(const float Force = 4.f, const float Duration = 0.2f)&;
 private:
 	class PlayerWeapon* const  GetWeapon()const &;
@@ -374,5 +377,7 @@ private:
 	class PlayerWeapon* CurrentWeapon{ nullptr };
 	State   CurrentState{ Player::State::CombatWait};
 	IDirect3DDevice9* Device{ nullptr };
+
+	float HP = 100.f;
 };
 

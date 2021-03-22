@@ -27,6 +27,8 @@ namespace Engine
 		void Render(class Renderer* const _Renderer)&;
 
 		std::unordered_map<std::wstring, IDirect3DTexture9*> EffectTextures{};
+
+		float SoftParticleDepthScale = 30000.f;
 	private:
 		std::unordered_map<std::wstring, std::shared_ptr<AnimEffect>> ProtoAnimEffects{};
 		std::vector<std::shared_ptr<AnimEffect>> AnimEffects{};

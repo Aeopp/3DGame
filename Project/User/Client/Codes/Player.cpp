@@ -32,8 +32,6 @@
 #include "ObjectEdit.h"
 #include "Landscape.h"
 
-
-
 void Player::Initialize(
 	const std::optional<Vector3>& Scale,
 	const std::optional<Vector3>& Rotation,
@@ -216,9 +214,7 @@ void Player::Initialize(
 		_Ex02_End->_CurAnimEffectInfo.bRender = false;
 	}
 
-
 	{
-
 		AirCombo03 = RefRenderer().RefEffectSystem().MakeEffect(L"Combo_Air03", Engine::EffectSystem::EffectType::AnimEffect);
 		AirCombo03->_CurAnimEffectInfo.bRender = false;
 		  
@@ -233,7 +229,6 @@ void Player::Initialize(
 	}
 
 	CreatePlayerSkillUI();
-
 };
 
 void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
@@ -1164,13 +1159,8 @@ void Player::ComboEx01State(const FSMControlInformation& FSMControlInfo)&
 		GetWeapon()->StartAttack(this, _AttackForce.Ex01SecondCombo, _AttackForce.Ex01SecondComboJump);
 		SwordCameraShake(2.f, FSMControlInfo.DeltaTime);
 		SwordEffectPlay(_Ex01_2, FSMControlInfo, Vector3{ FMath::ToRadian(63.f),0.f,FMath::ToRadian(12.0f) }, { 0.f,0.f,0.f }, 1.5f,
-			
 			false, true, 1.f,
-			{ 1.f,1.f }, 
-			L"iceImage",
-			L"type_37",
-			L"T_HFH_Basic_Attack_Front",
-			L"Cartoon_Distortion_0008");
+			{ 1.f,1.f });
 	}
 	else
 	{
@@ -1313,11 +1303,7 @@ void Player::AirCombo01Transition(const FSMControlInformation& FSMControlInfo)&
 	SwordEffectPlay(AirCombo01, FSMControlInfo, Vector3{ FMath::ToRadian(-35.f),0.f,FMath::ToRadian(11.f) } ,
 		{ 0,7.f,0 },
 		1.f, false, true, 1.f,
-		{ 1.f,1.f },
-		L"iceImage",
-		L"type_37",
-		L"T_HFH_Basic_Attack_Front",
-		L"Cartoon_Distortion_0008");
+		{ 1.f,1.f });
 };
 
 void Player::AirCombo02State(const FSMControlInformation& FSMControlInfo)& 
@@ -1380,11 +1366,7 @@ void Player::AirCombo02Transition(const FSMControlInformation& FSMControlInfo)&
 	SwordEffectPlay(AirCombo02, FSMControlInfo, Vector3{ FMath::ToRadian(35.f),0.f,FMath::ToRadian(11.f) },
 		{ 0,7.f,0 },
 		1.f, false, true, 1.f,
-		{ 1.f,1.f },
-		L"iceImage",
-		L"type_37",
-		L"T_HFH_Basic_Attack_Front",
-		L"Cartoon_Distortion_0008");
+		{ 1.f,1.f });
 
 };
 void Player::AirCombo03State(const FSMControlInformation& FSMControlInfo)& 
@@ -1445,11 +1427,7 @@ void Player::AirCombo03Transition(const FSMControlInformation& FSMControlInfo)&
 	SwordEffectPlay(AirCombo03, FSMControlInfo, Vector3{ FMath::ToRadian(-35.f),0.f,FMath::ToRadian(11.f) },
 		{ 0,0,0 },
 		1.f, false, true, 1.f,
-		{ 1.f,1.f },
-		L"iceImage",
-		L"type_37",
-		L"T_HFH_Basic_Attack_Front",
-		L"Cartoon_Distortion_0008");
+		{ 1.f,1.f });
 
 };
 void Player::AirCombo04State(const FSMControlInformation& FSMControlInfo)& 
@@ -1495,11 +1473,7 @@ void Player::AirCombo04Transition(const FSMControlInformation& FSMControlInfo)&
 	SwordEffectPlay(AirCombo04, FSMControlInfo, Vector3{ FMath::ToRadian(-35.f),0.f,FMath::ToRadian(11.f) },
 		{ 0,0,0 },
 		1.f, false, true, 1.f,
-		{ 1.f,1.f },
-		L"iceImage",
-		L"type_37",
-		L"T_HFH_Basic_Attack_Front",
-		L"Cartoon_Distortion_0008");
+		{ 1.f,1.f });
 };
 void Player::AirCombo04LandingState(const FSMControlInformation& FSMControlInfo)& 
 {
@@ -1898,7 +1872,6 @@ void Player::LeafAttackReadyState(const FSMControlInformation& FSMControlInfo)&
 
 	RefRenderer().RefLandscape().AuraPosition += RightXZ * -ZAxisDelta;
 	const Vector2 TargetLocation = RefRenderer().RefLandscape().AuraPosition += ForwardXZ * -XAxisDelta;
-
 
 	if (FSMControlInfo._Controller.IsUp(DIK_R))
 	{
@@ -2354,11 +2327,7 @@ void Player::DashComboTransition(const FSMControlInformation& FSMControlInfo)&
 	SwordCameraShake(8.f,0.4f);
 	SwordEffectPlay(_BasicCombo01, FSMControlInfo, Vector3{ FMath::ToRadian(90.f),0.f,0.f }, { 0,0,0 },
 		0.9f, false, true, 1.f,
-		{ 1.f,1.f },
-		L"iceImage",
-		L"type_37",
-		L"T_HFH_Basic_Attack_Front",
-		L"Cartoon_Distortion_0008");
+		{ 1.f,1.f } );
 }; 
 
 void Player::HitNotify(Object* const Target, const Vector3 PushDir,
@@ -2697,6 +2666,7 @@ void Player::Hit(Object* const Target, const Vector3 PushDir, const float CrossA
 		auto& Control = RefControl();
 		auto* const _SkeletonMesh = GetComponent<Engine::SkeletonMesh>();
 		const float DeltaTime = RefTimer().GetDelta();  
+		HP -= 5.f;
 		FSMControlInformation FSMControlInfo{ _Transform  ,Control  ,_SkeletonMesh  , DeltaTime  };
 		if (FMath::Dot(-HitDirection , Right) <= Rad45)
 		{

@@ -4,13 +4,13 @@
 #include "FMath.hpp"
 #include "Controller.h"
 #include "UtilityGlobal.h"
+#include "Renderer.h"
 
 void Engine::ThirdPersonCamera::Initialize(
 	const float FovY,
 	const float Near,
 	const float Far,
-	const float Aspect
-)&
+	const float Aspect)&
 {
 	Super::Initialize();
 	this->FovY = FovY;
@@ -29,8 +29,8 @@ void Engine::ThirdPersonCamera::Event()&
 	if (Engine::Global::bDebugMode)
 	{
 		ImGui::SliderFloat3("TargetLocationOffset",_TargetInformation .TargetLocationOffset, 0.0f, 1000.f);
-		ImGui::SliderFloat("RotateResponsiveness", &_TargetInformation.RotateResponsiveness, 0.0f, 1.f);
-		ImGui::SliderFloat("ZoomInOutScale",       &_TargetInformation.ZoomInOutScale, 0.0f, 1.f);
+		ImGui::SliderFloat("RotateResponsiveness",&_TargetInformation.RotateResponsiveness, 0.0f, 1.f);
+		ImGui::SliderFloat("ZoomInOutScale",&_TargetInformation.ZoomInOutScale, 0.0f, 1.f);
 	}
 
 	auto& _Control = Controller::Instance;
@@ -39,6 +39,8 @@ void Engine::ThirdPersonCamera::Event()&
 	{
 		bCursorMode = !bCursorMode;
 	}
+
+	Renderer::Instance->CurrentRenderInformation.Far = Far;
 }
 
 void Engine::ThirdPersonCamera::Update(const float DeltaTime)&

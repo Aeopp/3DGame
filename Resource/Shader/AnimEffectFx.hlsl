@@ -2,6 +2,7 @@ matrix World;
 matrix View;
 matrix Projection;
 
+
 float AlphaFactor = 1.f;
 float Brightness = 1.f;
 float Time;
@@ -15,6 +16,21 @@ texture PatternMap;
 texture AddColorMap;
 texture UVDistorMap;
 texture GradientMap;
+
+
+// 소프트 파티클
+texture VelocityNoneDepthMap;
+float SoftParticleDepthScale = 30000.f;
+float Far = 1000.f;
+//
+sampler VelocityNoneDepthSampler = sampler_state
+{
+    texture = VelocityNoneDepthMap;
+
+    minfilter = point;
+    magfilter = point;
+    mipfilter = point;
+};
 
 sampler VTFSampler = sampler_state
 {
@@ -101,6 +117,7 @@ struct VS_OUT
 {
     vector Position : POSITION;
     float2 UV : TEXCOORD0;
+    float4 ClipPosition : TEXCOORD1;
 };
 
 // 정점 쉐이더
@@ -150,6 +167,7 @@ VS_OUT VS_MAIN(VS_IN In)
     WorldViewProjection = mul(WorldView, Projection);
 
     Out.Position = mul(vector(AnimPos.xyz, 1.f), WorldViewProjection);
+    Out.ClipPosition = Out.Position;
     Out.UV = In.UV;
 //    Out.Normal = mul(float4(AnimNormal.xyz, 0.f), World);
     
@@ -160,6 +178,7 @@ VS_OUT VS_MAIN(VS_IN In)
 struct PS_IN
 {
     float2 UV : TEXCOORD0;
+    float4 ClipPosition : TEXCOORD1;
 };
 
 struct PS_OUT
@@ -187,6 +206,24 @@ PS_OUT PS_MAIN(PS_IN In)
     
     Out.Color.rgb *= Brightness;
     Out.Color.a *= AlphaFactor;
+    
+    
+    float2 vDepthUV = (float2) 0.f;
+
+	// -1 -> 0, 1 -> 1 (z나누기 이후에 투영 좌표를 텍스쳐 uv로 변환하는 작업)
+    vDepthUV.x = (In.ClipPosition.x / In.ClipPosition.w) * 0.5f + 0.5f;
+
+	// 1 -> 0, -1 -> 1 (z나누기 이후에 투영 좌표를 텍스쳐 uv로 변환하는 작업)
+    vDepthUV.y = (In.ClipPosition.y / In.ClipPosition.w) * -0.5f + 0.5f;
+
+    float fViewZ = tex2D(VelocityNoneDepthSampler, vDepthUV).w;
+    
+    Out.Color.a = Out.Color.a * saturate(((fViewZ - In.ClipPosition.z / In.ClipPosition.w) * SoftParticleDepthScale));
+    
+    
+    
+
+    
     
     return Out;
 }

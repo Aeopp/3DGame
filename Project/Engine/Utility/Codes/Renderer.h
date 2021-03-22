@@ -31,6 +31,7 @@ namespace Engine
 			Vector4 CameraLocation4D{};  
 			Matrix  LightViewProjection{};
 			Matrix  OrthoProjection{};
+			float Far{};
 		};
 
 		void Initialize(
@@ -98,6 +99,7 @@ namespace Engine
 		float MotionBlurVelocityScale = 0.030f;
 		float MotionBlurDepthBias = 0.0001f;
 		float MotionBlurLengthMin = 0.000f;
+		RenderInformation CurrentRenderInformation{};
 	private:
 		std::multimap<float,std::shared_ptr<UI>> _UIs{};
 		EffectSystem EffectSys{};
@@ -107,7 +109,7 @@ namespace Engine
 		IDirect3DSurface9* CurBackBufSurface{ nullptr };
 		IDirect3DSurface9* CurBackDepthStencil{ nullptr };
 		D3DVIEWPORT9 CurViewPort{};
-		RenderInformation CurrentRenderInformation{};  
+		  
 		RenderInformation PrevRenderInformation{};
 		DeferredPass _DeferredPass{};
 		Sky _Sky{};
