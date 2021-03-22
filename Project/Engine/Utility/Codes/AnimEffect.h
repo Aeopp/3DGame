@@ -90,6 +90,8 @@ namespace Engine
 			float AlphaFactor = 0.0f;
 			float Brightness = 1.f;
 			bool bRender = true;
+			Vector2 GradientUVOffsetFactor{ 0.f,1.f };
+
 			IDirect3DTexture9* DiffuseMap{ nullptr };
 			IDirect3DTexture9* PatternMap{ nullptr };
 			IDirect3DTexture9* AddColorMap{ nullptr };

@@ -214,7 +214,7 @@ private:
 	void BasicCombo03State(     const FSMControlInformation& FSMControlInfo)&;
 	void BasicCombo03Transition(const FSMControlInformation& FSMControlInfo)&;
 
-	void AirCombo01State(const FSMControlInformation& FSMControlInfo)&;
+	void AirCombo01State(     const FSMControlInformation& FSMControlInfo)&;
 	void AirCombo01Transition(const FSMControlInformation& FSMControlInfo)&;
 	void AirCombo02State(            const FSMControlInformation& FSMControlInfo)&;
 	void AirCombo02Transition(       const FSMControlInformation& FSMControlInfo)&;
@@ -289,7 +289,12 @@ private:
 private:
 	void SwordEffectPlay(class Engine::AnimEffect* _AnimEffect , const FSMControlInformation& FSMControlInfo ,
 		const Vector3 RotationOffset, const Vector3 LocationOffset = { 0,0,0 },
-		const float TimeAcceleration=1.f , const bool bLoop=false , const bool bLinearAlpha=true)&;
+		const float TimeAcceleration=0.9f , const bool bLoop=false , const bool bLinearAlpha=true ,const float AlphaFactor=1.f,
+		const Vector2& GradientUVOffsetFactor = { 0.f,1.f } , 
+		const std::wstring& DiffuseMap = L"T_HF_Trace01",
+		const std::wstring& PatternMap = L"type_39",
+		const std::wstring& AddColorMap = L"S_BasicAttack02_1_T03",
+		const std::wstring& UVDistorMap = L"Cartoon_Distortion_0003")&;
 	void SwordCameraShake(const float Force = 4.f, const float Duration = 0.2f)&;
 private:
 	class PlayerWeapon* const  GetWeapon()const &;
@@ -346,7 +351,12 @@ private:
 	class Engine::AnimEffect* _Ex01_2{ nullptr };
 	class Engine::AnimEffect* _Ex02_Start01{ nullptr };
 	class Engine::AnimEffect* _Ex02_Loop{ nullptr };
+	class Engine::AnimEffect* _Ex02_End{ nullptr };
 
+	class Engine::AnimEffect* AirCombo01{ nullptr };
+	class Engine::AnimEffect* AirCombo02{ nullptr };
+	class Engine::AnimEffect* AirCombo03{ nullptr };
+	class Engine::AnimEffect* AirCombo04{ nullptr };
 
 	
 	AttackForceInformation _AttackForce{};

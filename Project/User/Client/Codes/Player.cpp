@@ -210,10 +210,27 @@ void Player::Initialize(
 		_Ex02_Loop = RefRenderer().RefEffectSystem().MakeEffect(L"Combo_Ex02_Loop", Engine::EffectSystem::EffectType::AnimEffect);
 		_Ex02_Loop->_CurAnimEffectInfo.bRender = false;
 	}
-	
+
+	{
+		_Ex02_End = RefRenderer().RefEffectSystem().MakeEffect(L"Combo_Ex02_End", Engine::EffectSystem::EffectType::AnimEffect);
+		_Ex02_End->_CurAnimEffectInfo.bRender = false;
+	}
 
 
-	
+	{
+
+		AirCombo03 = RefRenderer().RefEffectSystem().MakeEffect(L"Combo_Air03", Engine::EffectSystem::EffectType::AnimEffect);
+		AirCombo03->_CurAnimEffectInfo.bRender = false;
+		  
+		AirCombo01 = RefRenderer().RefEffectSystem().MakeEffect(L"BasicCombo01", Engine::EffectSystem::EffectType::AnimEffect);
+		AirCombo01->_CurAnimEffectInfo.bRender = false;
+
+		AirCombo02 = RefRenderer().RefEffectSystem().MakeEffect(L"BasicCombo01", Engine::EffectSystem::EffectType::AnimEffect);
+		AirCombo02->_CurAnimEffectInfo.bRender = false;
+
+		AirCombo04 = RefRenderer().RefEffectSystem().MakeEffect(L"BasicCombo01", Engine::EffectSystem::EffectType::AnimEffect);
+		AirCombo04->_CurAnimEffectInfo.bRender = false;
+	}
 
 	CreatePlayerSkillUI();
 
@@ -252,6 +269,11 @@ void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
 	RefRenderer().RefEffectSystem().LoadEffect
 	(Device, App::ResourcePath / L"Effect" / L"SK_TS_Combo_Ex02_Loop_Renewal.fbx", L"Combo_Ex02_Loop", Engine::EffectSystem::EffectType::AnimEffect);
 	
+	RefRenderer().RefEffectSystem().LoadEffect
+	(Device, App::ResourcePath / L"Effect" / L"SK_TS_BasicComboEX2_02_End.fbx", L"Combo_Ex02_End", Engine::EffectSystem::EffectType::AnimEffect);
+
+	RefRenderer().RefEffectSystem().LoadEffect
+	(Device, App::ResourcePath / L"Effect" / L"SK_TS_Combo_Air03_Renewal.fbx", L"Combo_Air03", Engine::EffectSystem::EffectType::AnimEffect);
 }
 
 void Player::Event()&
@@ -1024,18 +1046,21 @@ void Player::ComboEx02StartTransition(const FSMControlInformation& FSMControlInf
 	_AnimNotify.bLoop = false;
 	_AnimNotify.Name = "ComboEx02Start";
 
+	;
+
 	_AnimNotify.AnimTimeEventCallMapping[0.27f] = 
 		[this ,FSMControlInfo](Engine::SkeletonMesh*)
 	{
 		SwordCameraShake();
-		SwordEffectPlay(_Ex02_Start01, FSMControlInfo, Vector3{ FMath::ToRadian(-16.5f),0.f,FMath::ToRadian(22.5f) } );
+		SwordEffectPlay(_Ex02_Start01, FSMControlInfo, Vector3{ FMath::ToRadian(-16.5f),0.f,FMath::ToRadian(22.5f) },
+			{ 0,0,0 }, 0.9f, false, true, 1.f,{ 0.f,1.f });
 	};
 
 	_AnimNotify.AnimTimeEventCallMapping[0.58f] =
 		[this, FSMControlInfo](Engine::SkeletonMesh*)
 	{
 		SwordCameraShake();
-		SwordEffectPlay(_Ex02_Loop, FSMControlInfo, Vector3{ 0,0,0 }, Vector3{ 0,5.f,0 },1.f);
+		SwordEffectPlay(_Ex02_Loop, FSMControlInfo, Vector3{ 0,0,0 }, Vector3{ 0,5.f,0 },1.f     , false, true, 1.f,{ 0.f,1.f } );
 	};
 
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
@@ -1081,6 +1106,7 @@ void Player::ComboEx02LoopTransition(const FSMControlInformation& FSMControlInfo
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::ComboEx02Loop;
 
+	
 	SwordEffectPlay(_Ex02_Loop, FSMControlInfo, Vector3{ 0.f,0.f,0.f }, Vector3{ 0,0,0 },35.f/30.f,true,false);
 }; 
 
@@ -1114,6 +1140,11 @@ void Player::ComboEx02EndTransition(const FSMControlInformation& FSMControlInfo)
 	_AnimNotify.Name = "ComboEx02End";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::ComboEx02End;
+
+	SwordEffectPlay(_Ex02_End, FSMControlInfo, Vector3{ FMath::ToRadian(-22.5f),0.f,FMath::ToRadian(0.f) }, { 0,0,0 },0.9f ,
+		false,true ,1.f,
+		{ 0.f,1.f });
+	SwordCameraShake();
 };
 
 
@@ -1132,7 +1163,14 @@ void Player::ComboEx01State(const FSMControlInformation& FSMControlInfo)&
 	{
 		GetWeapon()->StartAttack(this, _AttackForce.Ex01SecondCombo, _AttackForce.Ex01SecondComboJump);
 		SwordCameraShake(2.f, FSMControlInfo.DeltaTime);
-		SwordEffectPlay(_Ex01_2, FSMControlInfo, Vector3{ FMath::ToRadian(63.f),0.f,FMath::ToRadian(12.0f) }, { 0.f,0.f,0.f }, 1.5f);
+		SwordEffectPlay(_Ex01_2, FSMControlInfo, Vector3{ FMath::ToRadian(63.f),0.f,FMath::ToRadian(12.0f) }, { 0.f,0.f,0.f }, 1.5f,
+			
+			false, true, 1.f,
+			{ 1.f,1.f }, 
+			L"iceImage",
+			L"type_37",
+			L"T_HFH_Basic_Attack_Front",
+			L"Cartoon_Distortion_0008");
 	}
 	else
 	{
@@ -1270,6 +1308,16 @@ void Player::AirCombo01Transition(const FSMControlInformation& FSMControlInfo)&
 	FSMControlInfo.MyTransform->ClearVelocity();
 
 	FSMControlInfo.MyTransform->AddVelocity(StateableSpeed.AirCombo01Velocity);
+	
+	SwordCameraShake(7.f, 0.25f);
+	SwordEffectPlay(AirCombo01, FSMControlInfo, Vector3{ FMath::ToRadian(-35.f),0.f,FMath::ToRadian(11.f) } ,
+		{ 0,7.f,0 },
+		1.f, false, true, 1.f,
+		{ 1.f,1.f },
+		L"iceImage",
+		L"type_37",
+		L"T_HFH_Basic_Attack_Front",
+		L"Cartoon_Distortion_0008");
 };
 
 void Player::AirCombo02State(const FSMControlInformation& FSMControlInfo)& 
@@ -1327,6 +1375,17 @@ void Player::AirCombo02Transition(const FSMControlInformation& FSMControlInfo)&
 	CurrentState = Player::State::AirCombo02;
 	FSMControlInfo.MyTransform->ClearVelocity();
 	FSMControlInfo.MyTransform->AddVelocity(StateableSpeed.AirCombo02Velocity);
+
+	SwordCameraShake(7.f, 0.25f);
+	SwordEffectPlay(AirCombo02, FSMControlInfo, Vector3{ FMath::ToRadian(35.f),0.f,FMath::ToRadian(11.f) },
+		{ 0,7.f,0 },
+		1.f, false, true, 1.f,
+		{ 1.f,1.f },
+		L"iceImage",
+		L"type_37",
+		L"T_HFH_Basic_Attack_Front",
+		L"Cartoon_Distortion_0008");
+
 };
 void Player::AirCombo03State(const FSMControlInformation& FSMControlInfo)& 
 {
@@ -1380,6 +1439,18 @@ void Player::AirCombo03Transition(const FSMControlInformation& FSMControlInfo)&
 	FSMControlInfo.MyTransform->ClearVelocity();
 
 	FSMControlInfo.MyTransform->AddVelocity(StateableSpeed.AirCombo03Velocity);
+
+
+	SwordCameraShake(7.f, 0.25f);
+	SwordEffectPlay(AirCombo03, FSMControlInfo, Vector3{ FMath::ToRadian(-35.f),0.f,FMath::ToRadian(11.f) },
+		{ 0,0,0 },
+		1.f, false, true, 1.f,
+		{ 1.f,1.f },
+		L"iceImage",
+		L"type_37",
+		L"T_HFH_Basic_Attack_Front",
+		L"Cartoon_Distortion_0008");
+
 };
 void Player::AirCombo04State(const FSMControlInformation& FSMControlInfo)& 
 {
@@ -1418,6 +1489,17 @@ void Player::AirCombo04Transition(const FSMControlInformation& FSMControlInfo)&
 	CurrentState = Player::State::AirCombo04;
 	FSMControlInfo.MyTransform->ClearVelocity();
 	FSMControlInfo.MyTransform->AddVelocity(StateableSpeed.AirCombo04Velocity);
+
+
+	SwordCameraShake(7.f, 0.25f);
+	SwordEffectPlay(AirCombo04, FSMControlInfo, Vector3{ FMath::ToRadian(-35.f),0.f,FMath::ToRadian(11.f) },
+		{ 0,0,0 },
+		1.f, false, true, 1.f,
+		{ 1.f,1.f },
+		L"iceImage",
+		L"type_37",
+		L"T_HFH_Basic_Attack_Front",
+		L"Cartoon_Distortion_0008");
 };
 void Player::AirCombo04LandingState(const FSMControlInformation& FSMControlInfo)& 
 {
@@ -1539,13 +1621,13 @@ void Player::BasicCombo03State(const FSMControlInformation& FSMControlInfo)&
 	{
 		GetWeapon()->StartAttack(this ,_AttackForce.BasicComboEx03_1, _AttackForce.BasicComboEx03_1_Jump);
 		SwordCameraShake(0.88f, FSMControlInfo.DeltaTime);
-		SwordEffectPlay(_BasicCombo03_1, FSMControlInfo, Vector3{ 0.f,0.f,0.f } , {0.f,5.f,0.f}, 2.f);
+		SwordEffectPlay(_BasicCombo03_1, FSMControlInfo, Vector3{ 0.f,0.f,0.f } , {0.f,5.f,0.f}, 2.f );
 	}
 	else if (FMath::IsRange(0.17f, 0.24f, AnimTimeNormal))
 	{
 		GetWeapon()->StartAttack(this, _AttackForce.BasicComboEx03_2, _AttackForce.BasicComboEx03_2_Jump);
 		SwordCameraShake(2.f, FSMControlInfo.DeltaTime);
-		SwordEffectPlay(_BasicCombo03_2, FSMControlInfo, Vector3{ FMath::ToRadian(41.5f),0.f,FMath::ToRadian(12.0f) }, {}, 1.5f);
+		SwordEffectPlay(_BasicCombo03_2, FSMControlInfo, Vector3{ FMath::ToRadian(41.5f),0.f,FMath::ToRadian(12.0f) }, {}, 1.5f );
 	}
 	else
 	{
@@ -2055,7 +2137,7 @@ void Player::WeaponAcquisition()&
 	std::shared_ptr<PlayerWeapon> _PlayerWeapon =
 		RefManager().NewObject<Engine::NormalLayer,PlayerWeapon>(L"Static",
 			Name + L"_Weapon", 
-			Vector3{ 1.f,1.f,1.f }, 
+			Vector3{ 1.1f,1.1f,1.1f },
 			Vector3{ 0,0,0 }, 
 			Vector3{ 0,0,0 });
 
@@ -2102,7 +2184,12 @@ void Player::LeafAttackCameraUpdate(const FSMControlInformation& FSMControlInfo)
 }
 void Player::SwordEffectPlay(Engine::AnimEffect* _AnimEffect, const FSMControlInformation& FSMControlInfo,
 				const Vector3 RotationOffset, const Vector3 LocationOffset , const float TimeAcceleration,
-				const bool bLoop,const bool bLinearAlpha)&
+				const bool bLoop,const bool bLinearAlpha, const float AlphaFactor ,
+				const Vector2& GradientUVOffsetFactor,
+				const std::wstring& DiffuseMap,
+				const std::wstring& PatternMap,
+				const std::wstring& AddColorMap,
+				const std::wstring& UVDistorMap)&
 {
 	Engine::AnimEffect::AnimNotify _EftAnimNotify{};
 	_EftAnimNotify.bLoop = bLoop;
@@ -2111,16 +2198,22 @@ void Player::SwordEffectPlay(Engine::AnimEffect* _AnimEffect, const FSMControlIn
 	_AnimEffect->Rotation = FSMControlInfo.MyTransform->GetRotation() + RotationOffset;
 	_AnimEffect->Location = FSMControlInfo.MyTransform->GetLocation() + Vector3{ 0,10,0 } + LocationOffset;
 	_AnimEffect->PlayAnimation(0u, 30.f * TimeAcceleration, 0.25f, _EftAnimNotify);
-	_AnimEffect->_CurAnimEffectInfo.DiffuseMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"T_HF_Trace01")->second;
-	_AnimEffect->_CurAnimEffectInfo.PatternMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"type_39")->second;
-	_AnimEffect->_CurAnimEffectInfo.AddColorMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"S_BasicAttack02_1_T03")->second;
+	_AnimEffect->_CurAnimEffectInfo.DiffuseMap = RefRenderer().RefEffectSystem().EffectTextures.find(DiffuseMap)->second;
+		_AnimEffect->_CurAnimEffectInfo.PatternMap = RefRenderer().RefEffectSystem().EffectTextures.find(PatternMap)->second;
+		_AnimEffect->_CurAnimEffectInfo.UVDistorMap = RefRenderer().RefEffectSystem().EffectTextures.find(UVDistorMap)->second;
+		_AnimEffect->_CurAnimEffectInfo.AddColorMap = RefRenderer().RefEffectSystem().EffectTextures.find(AddColorMap)->second;
+
 	_AnimEffect->_CurAnimEffectInfo.GradientMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"Gradient")->second;
-	_AnimEffect->_CurAnimEffectInfo.UVDistorMap = RefRenderer().RefEffectSystem().EffectTextures.find(L"Cartoon_Distortion_0003")->second;
+	
 	_AnimEffect->_CurAnimEffectInfo.Time = 0.0f;
 	_AnimEffect->_CurAnimEffectInfo.AlphaFactor = 0.0f;
 	_AnimEffect->_CurAnimEffectInfo.bRender = true;
-	_AnimEffect->_CurAnimEffectInfo.Brightness = 1.5f;
-	_AnimEffect->_AnimEffectUpdateCall = [TimeAcceleration , bLoop , bLinearAlpha](Engine::AnimEffect::AnimEffectInfo& _EffectInfo, float DeltaTime)
+	_AnimEffect->_CurAnimEffectInfo.Brightness = 1.00f;
+	_AnimEffect->_CurAnimEffectInfo.GradientUVOffsetFactor = GradientUVOffsetFactor;
+
+	
+
+	_AnimEffect->_AnimEffectUpdateCall = [TimeAcceleration , bLoop , bLinearAlpha , _AlphaFactor =AlphaFactor](Engine::AnimEffect::AnimEffectInfo& _EffectInfo, float DeltaTime)
 	{
 		_EffectInfo.Time += DeltaTime * 1.33f * TimeAcceleration;
 		const float Factor = std::fabsf(std::sinf(_EffectInfo.Time));
@@ -2134,7 +2227,7 @@ void Player::SwordEffectPlay(Engine::AnimEffect* _AnimEffect, const FSMControlIn
 			_EffectInfo.AlphaFactor = 1.f;
 		}
 		
-		_EffectInfo.AlphaFactor *= 1.33f;
+		_EffectInfo.AlphaFactor *= _AlphaFactor;
 
 		if (_EffectInfo.Time > 1.f)
 		{
@@ -2257,6 +2350,15 @@ void Player::DashComboTransition(const FSMControlInformation& FSMControlInfo)&
 	_AnimNotify.Name = "DashCombo";
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::DashCombo;
+
+	SwordCameraShake(8.f,0.4f);
+	SwordEffectPlay(_BasicCombo01, FSMControlInfo, Vector3{ FMath::ToRadian(90.f),0.f,0.f }, { 0,0,0 },
+		0.9f, false, true, 1.f,
+		{ 1.f,1.f },
+		L"iceImage",
+		L"type_37",
+		L"T_HFH_Basic_Attack_Front",
+		L"Cartoon_Distortion_0008");
 }; 
 
 void Player::HitNotify(Object* const Target, const Vector3 PushDir,

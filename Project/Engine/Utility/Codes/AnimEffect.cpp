@@ -349,6 +349,8 @@ void Engine::AnimEffect::Render(Engine::Renderer* const _Renderer)&
 	Fx->SetFloat("AlphaFactor", _CurAnimEffectInfo.AlphaFactor);
 	Fx->SetFloat("Brightness", _CurAnimEffectInfo.Brightness);
 	Fx->SetFloat("Time", _CurAnimEffectInfo.Time);
+	Fx->SetFloatArray("GradientUVOffsetFactor", _CurAnimEffectInfo.GradientUVOffsetFactor,2u);
+	
 	Device->SetVertexDeclaration(VtxDecl);
 	uint32 PassNum = 0u;
 	Fx->Begin(&PassNum, 0);

@@ -5,7 +5,7 @@ matrix Projection;
 float AlphaFactor = 1.f;
 float Brightness = 1.f;
 float Time;
-
+float2 GradientUVOffsetFactor;
 
 texture DiffuseMap;
 // VTF ÅØ½ºÃÄ
@@ -174,7 +174,8 @@ PS_OUT PS_MAIN(PS_IN In)
     
     float2 CurUV = (In.UV + Time);
     float4 Noise = tex2D(UVDistorSampler, CurUV);
-    float2 GradientUV = float2(1.f, Time);
+    float2 GradientUV = float2(1.f -  (Time * GradientUVOffsetFactor.x) , 
+    0.f + (Time * GradientUVOffsetFactor.y));
     float4 Gradient = tex2D(GradientSampler, GradientUV);
     
     float4 DiffuseColor = tex2D(DiffuseSampler, In.UV + Noise.xy);
@@ -198,13 +199,9 @@ technique Default_Device
         srcblend = srcalpha;
         destblend = invsrcalpha;
         zenable = true;
-        zwriteenable = true;
-        cullmode = ccw;
+        zwriteenable = false;
+        cullmode = none;
         fillmode = solid;
-        StencilEnable = true;
-        StencilFunc = always;
-        StencilPass = replace;
-        StencilRef = 1;
         vertexshader = compile vs_3_0 VS_MAIN();
         pixelshader = compile ps_3_0 PS_MAIN();
     }
