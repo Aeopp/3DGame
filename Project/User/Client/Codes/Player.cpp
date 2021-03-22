@@ -192,7 +192,26 @@ void Player::Initialize(
 		_BasicCombo03_2 = RefRenderer().RefEffectSystem().MakeEffect(L"BasicCombo03", Engine::EffectSystem::EffectType::AnimEffect);
 		_BasicCombo03_2->_CurAnimEffectInfo.bRender = false;
 	}
+
+	{
+		_Ex01_1 = RefRenderer().RefEffectSystem().MakeEffect(L"BasicCombo01", Engine::EffectSystem::EffectType::AnimEffect);
+		_Ex01_1->_CurAnimEffectInfo.bRender = false;
+
+		_Ex01_2 = RefRenderer().RefEffectSystem().MakeEffect(L"BasicCombo01", Engine::EffectSystem::EffectType::AnimEffect);
+		_Ex01_2->_CurAnimEffectInfo.bRender = false;
+	}
 	
+	{
+		_Ex02_Start01 = RefRenderer().RefEffectSystem().MakeEffect(L"Combo_Ex02_Start01", Engine::EffectSystem::EffectType::AnimEffect);
+		_Ex02_Start01->_CurAnimEffectInfo.bRender = false;
+	}
+
+	{
+		_Ex02_Loop = RefRenderer().RefEffectSystem().MakeEffect(L"Combo_Ex02_Loop", Engine::EffectSystem::EffectType::AnimEffect);
+		_Ex02_Loop->_CurAnimEffectInfo.bRender = false;
+	}
+	
+
 
 	
 
@@ -223,6 +242,16 @@ void Player::PrototypeInitialize(IDirect3DDevice9* const Device)&
 
 	RefRenderer().RefEffectSystem().LoadEffect
 	(Device, App::ResourcePath / L"Effect" / L"SK_TS_BasicCombo_03_Renewal.fbx", L"BasicCombo03", Engine::EffectSystem::EffectType::AnimEffect);
+
+	RefRenderer().RefEffectSystem().LoadEffect
+	(Device, App::ResourcePath / L"Effect" / L"SK_TS_Combo_Ex01_Renewal.fbx", L"Combo_Ex01", Engine::EffectSystem::EffectType::AnimEffect);
+
+	RefRenderer().RefEffectSystem().LoadEffect
+	(Device, App::ResourcePath / L"Effect" / L"SK_TS_Combo_Ex02_Start01_Renewal.fbx", L"Combo_Ex02_Start01", Engine::EffectSystem::EffectType::AnimEffect);
+
+	RefRenderer().RefEffectSystem().LoadEffect
+	(Device, App::ResourcePath / L"Effect" / L"SK_TS_Combo_Ex02_Loop_Renewal.fbx", L"Combo_Ex02_Loop", Engine::EffectSystem::EffectType::AnimEffect);
+	
 }
 
 void Player::Event()&
@@ -954,7 +983,11 @@ void Player::ComboEx02StartState(const FSMControlInformation& FSMControlInfo)&
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
 
-	if (FMath::IsRange(0.3, 1.0, AnimTimeNormal))
+	if (FMath::IsRange(0.3f, 0.4f, AnimTimeNormal))
+	{
+		GetWeapon()->StartAttack(this, _AttackForce.Ex02Start, _AttackForce.Ex02StartJump);	
+	}
+	else if (FMath::IsRange(0.5f, 0.f, AnimTimeNormal))
 	{
 		GetWeapon()->StartAttack(this, _AttackForce.Ex02Start, _AttackForce.Ex02StartJump);
 	}
@@ -990,8 +1023,24 @@ void Player::ComboEx02StartTransition(const FSMControlInformation& FSMControlInf
 	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
 	_AnimNotify.bLoop = false;
 	_AnimNotify.Name = "ComboEx02Start";
+
+	_AnimNotify.AnimTimeEventCallMapping[0.27f] = 
+		[this ,FSMControlInfo](Engine::SkeletonMesh*)
+	{
+		SwordCameraShake();
+		SwordEffectPlay(_Ex02_Start01, FSMControlInfo, Vector3{ FMath::ToRadian(-16.5f),0.f,FMath::ToRadian(22.5f) } );
+	};
+
+	_AnimNotify.AnimTimeEventCallMapping[0.58f] =
+		[this, FSMControlInfo](Engine::SkeletonMesh*)
+	{
+		SwordCameraShake();
+		SwordEffectPlay(_Ex02_Loop, FSMControlInfo, Vector3{ 0,0,0 }, Vector3{ 0,5.f,0 },1.f);
+	};
+
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::ComboEx02Start;
+	SwordCameraShake();
 }; 
 
 void Player::ComboEx02LoopState(const FSMControlInformation& FSMControlInfo)&
@@ -1000,6 +1049,10 @@ void Player::ComboEx02LoopState(const FSMControlInformation& FSMControlInfo)&
 	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
 
 	GetWeapon()->StartAttack(this, _AttackForce.Ex02Loop, _AttackForce.Ex02LoopJump);
+
+	SwordCameraShake(0.25f,FSMControlInfo.DeltaTime+0.0001f);
+
+	_Ex02_Loop->Location = FSMControlInfo.MyTransform->GetLocation() + Vector3{ 0.f,10.f,0.f };
 
 	if (auto bMoveInfo = CheckTheMoveableState(FSMControlInfo);
 		bMoveInfo)
@@ -1010,6 +1063,7 @@ void Player::ComboEx02LoopState(const FSMControlInformation& FSMControlInfo)&
 	if (CurAnimNotify.bAnimationEnd ||
 		!FSMControlInfo._Controller.IsPressing(DIK_MIDCLICK) )
 	{
+		_Ex02_Loop->_CurAnimEffectInfo.bRender = false;
 		GetWeapon()->EndAttack(this);
 		ComboEx02EndTransition(FSMControlInfo);
 		return;
@@ -1022,8 +1076,12 @@ void Player::ComboEx02LoopTransition(const FSMControlInformation& FSMControlInfo
 	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
 	_AnimNotify.bLoop = true;
 	_AnimNotify.Name = "ComboEx02Loop";
+
+
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::ComboEx02Loop;
+
+	SwordEffectPlay(_Ex02_Loop, FSMControlInfo, Vector3{ 0.f,0.f,0.f }, Vector3{ 0,0,0 },35.f/30.f,true,false);
 }; 
 
 void Player::ComboEx02EndState(const FSMControlInformation& FSMControlInfo)&
@@ -1063,9 +1121,18 @@ void Player::ComboEx01State(const FSMControlInformation& FSMControlInfo)&
 {
 	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 	const float AnimTimeNormal = FSMControlInfo.MySkeletonMesh->GetCurrentNormalizeAnimTime();
-	if (FMath::IsRange(0.11f, 0.26f, AnimTimeNormal))
+
+	if (FMath::IsRange(0.12, 0.17, AnimTimeNormal))
 	{
 		GetWeapon()->StartAttack(this,_AttackForce.Ex01firstCombo,_AttackForce.Ex01firstComboJump);
+		SwordCameraShake(0.88f, FSMControlInfo.DeltaTime);
+		SwordEffectPlay(_Ex01_1, FSMControlInfo, Vector3{ FMath::ToRadian(90.f),0.f,0.f }, { 0.f,0.f,0.f }, 2.f);
+	}
+	else if (FMath::IsRange(0.20, 0.25, AnimTimeNormal))
+	{
+		GetWeapon()->StartAttack(this, _AttackForce.Ex01SecondCombo, _AttackForce.Ex01SecondComboJump);
+		SwordCameraShake(2.f, FSMControlInfo.DeltaTime);
+		SwordEffectPlay(_Ex01_2, FSMControlInfo, Vector3{ FMath::ToRadian(63.f),0.f,FMath::ToRadian(12.0f) }, { 0.f,0.f,0.f }, 1.5f);
 	}
 	else
 	{
@@ -2034,11 +2101,11 @@ void Player::LeafAttackCameraUpdate(const FSMControlInformation& FSMControlInfo)
 	CurrentTPCamera->RefTargetInformation().DistancebetweenTarget = 40.f;
 }
 void Player::SwordEffectPlay(Engine::AnimEffect* _AnimEffect, const FSMControlInformation& FSMControlInfo,
-				const Vector3 RotationOffset, const Vector3 LocationOffset , const float TimeAcceleration)&
+				const Vector3 RotationOffset, const Vector3 LocationOffset , const float TimeAcceleration,
+				const bool bLoop,const bool bLinearAlpha)&
 {
 	Engine::AnimEffect::AnimNotify _EftAnimNotify{};
-	_EftAnimNotify.AnimTimeEventCallMapping[0.99f] = [](Engine::AnimEffect* const _AnimEffect) {
-	};
+	_EftAnimNotify.bLoop = bLoop;
 
 	_AnimEffect->Scale = FSMControlInfo.MyTransform->GetScale() * 1.1f;
 	_AnimEffect->Rotation = FSMControlInfo.MyTransform->GetRotation() + RotationOffset;
@@ -2053,17 +2120,34 @@ void Player::SwordEffectPlay(Engine::AnimEffect* _AnimEffect, const FSMControlIn
 	_AnimEffect->_CurAnimEffectInfo.AlphaFactor = 0.0f;
 	_AnimEffect->_CurAnimEffectInfo.bRender = true;
 	_AnimEffect->_CurAnimEffectInfo.Brightness = 1.5f;
-	_AnimEffect->_AnimEffectUpdateCall = [TimeAcceleration](Engine::AnimEffect::AnimEffectInfo& _EffectInfo, float DeltaTime)
+	_AnimEffect->_AnimEffectUpdateCall = [TimeAcceleration , bLoop , bLinearAlpha](Engine::AnimEffect::AnimEffectInfo& _EffectInfo, float DeltaTime)
 	{
 		_EffectInfo.Time += DeltaTime * 1.33f * TimeAcceleration;
 		const float Factor = std::fabsf(std::sinf(_EffectInfo.Time));
-		_EffectInfo.AlphaFactor = 1.f - _EffectInfo.Time;
+
+		if (bLinearAlpha)
+		{
+			_EffectInfo.AlphaFactor = 1.f - _EffectInfo.Time;
+		}
+		else
+		{
+			_EffectInfo.AlphaFactor = 1.f;
+		}
+		
 		_EffectInfo.AlphaFactor *= 1.33f;
 
 		if (_EffectInfo.Time > 1.f)
-			_EffectInfo.bRender = false;
+		{
+			if (!bLoop)
+			{
+				_EffectInfo.bRender = false;
+			}
+			else
+			{
+				_EffectInfo.Time = 0.0f;
+			}
+		}
 	};
-
 }
 void Player::SwordCameraShake(const float Force,const float Duration)&
 {

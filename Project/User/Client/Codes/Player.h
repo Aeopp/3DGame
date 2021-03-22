@@ -289,7 +289,7 @@ private:
 private:
 	void SwordEffectPlay(class Engine::AnimEffect* _AnimEffect , const FSMControlInformation& FSMControlInfo ,
 		const Vector3 RotationOffset, const Vector3 LocationOffset = { 0,0,0 },
-		const float TimeAcceleration=1.f)&;
+		const float TimeAcceleration=1.f , const bool bLoop=false , const bool bLinearAlpha=true)&;
 	void SwordCameraShake(const float Force = 4.f, const float Duration = 0.2f)&;
 private:
 	class PlayerWeapon* const  GetWeapon()const &;
@@ -342,7 +342,13 @@ private:
 	class Engine::AnimEffect* _BasicCombo02{ nullptr };
 	class Engine::AnimEffect* _BasicCombo03_1{ nullptr };
 	class Engine::AnimEffect* _BasicCombo03_2{ nullptr };
+	class Engine::AnimEffect* _Ex01_1{ nullptr };
+	class Engine::AnimEffect* _Ex01_2{ nullptr };
+	class Engine::AnimEffect* _Ex02_Start01{ nullptr };
+	class Engine::AnimEffect* _Ex02_Loop{ nullptr };
 
+
+	
 	AttackForceInformation _AttackForce{};
 	float WeaponDissolveTime = -1.f / 2.f;
 	Vector3 NPCInteractionLocationOffset{ -7.080f,14.159f,3.540f};
