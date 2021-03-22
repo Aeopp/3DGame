@@ -346,7 +346,7 @@ void Player::Event()&
 void Player::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
-	
+	CurrentContinuousAttackCorrectionTime -= DeltaTime;
 	FSM(DeltaTime);
 	auto _CenterLineQuad = CenterLineQuad.lock();
 	_CenterLineQuad->AlphaFactor -= DeltaTime * CenterLineQuadAlphaFactorAcceleration;
@@ -1224,8 +1224,10 @@ void Player::BasicCombo01State(const FSMControlInformation& FSMControlInfo)&
 
 	if (AnimTimeNormal < 0.7f)
 	{
-		if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
+		if (CheckTheAttackableState(FSMControlInfo))
 		{
+			CurrentContinuousAttackCorrectionTime = ContinuousAttackCorrectionTime;
+
 			GetWeapon()->EndAttack(this);
 			BasicCombo02Transition(FSMControlInfo);
 			return;
@@ -1270,8 +1272,9 @@ void Player::AirCombo01State(const FSMControlInformation& FSMControlInfo)&
 		return;
 	}
 
-	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
+	if (CheckTheAttackableState(FSMControlInfo))
 	{
+		CurrentContinuousAttackCorrectionTime = ContinuousAttackCorrectionTime;
 		GetWeapon()->EndAttack(this);
 		AirCombo02Transition(FSMControlInfo);
 		return;
@@ -1336,11 +1339,13 @@ void Player::AirCombo02State(const FSMControlInformation& FSMControlInfo)&
 		return;
 	}
 
-	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
+	if (CheckTheAttackableState(FSMControlInfo))
 	{
+		CurrentContinuousAttackCorrectionTime = ContinuousAttackCorrectionTime;
 		GetWeapon()->EndAttack(this);
 		AirCombo03Transition(FSMControlInfo);
 		return;
+
 	}
 
 
@@ -1396,12 +1401,15 @@ void Player::AirCombo03State(const FSMControlInformation& FSMControlInfo)&
 		return;
 	}
 
-	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
+
+
+	if (CheckTheAttackableState(FSMControlInfo))
 	{
+		CurrentContinuousAttackCorrectionTime = ContinuousAttackCorrectionTime;
 		GetWeapon()->EndAttack(this);
 		AirCombo04Transition(FSMControlInfo);
 		return;
-	}
+	};
 
 
 	if (auto bMoveInfo = CheckTheMoveableState(FSMControlInfo);
@@ -1422,9 +1430,8 @@ void Player::AirCombo03Transition(const FSMControlInformation& FSMControlInfo)&
 
 	FSMControlInfo.MyTransform->AddVelocity(StateableSpeed.AirCombo03Velocity);
 
-
 	SwordCameraShake(7.f, 0.25f);
-	SwordEffectPlay(AirCombo03, FSMControlInfo, Vector3{ FMath::ToRadian(-35.f),0.f,FMath::ToRadian(11.f) },
+	SwordEffectPlay(AirCombo03, FSMControlInfo, Vector3{ FMath::ToRadian(90.f),0.f,FMath::ToRadian(13.5f) },
 		{ 0,0,0 },
 		1.f, false, true, 1.f,
 		{ 1.f,1.f });
@@ -1542,12 +1549,13 @@ void Player::BasicCombo02State(const FSMControlInformation& FSMControlInfo)&
 
 	if (AnimTimeNormal < 0.7f)
 	{
-		if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl)
+		if (CheckTheAttackableState(FSMControlInfo))
 		{
+			CurrentContinuousAttackCorrectionTime = ContinuousAttackCorrectionTime;
 			GetWeapon()->EndAttack(this);
 			BasicCombo03Transition(FSMControlInfo);
 			return;
-		}
+		};
 
 		if (FSMControlInfo._Controller.IsDown(DIK_RIGHTCLICK) && bControl)
 		{
@@ -1762,13 +1770,13 @@ void Player::StandBigBackTransition(const FSMControlInformation& FSMControlInfo)
 
 void Player::StandBigBackState(const FSMControlInformation& FSMControlInfo)&
 {
-	const auto& CurAnimNotify=FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
+	const auto& CurAnimNotify = FSMControlInfo.MySkeletonMesh->GetCurrentAnimNotify();
 	if (CurAnimNotify.bAnimationEnd)
 	{
 		bInvincibility = false;
-		CombatWaitTransition(FSMControlInfo); 
+		CombatWaitTransition(FSMControlInfo);
 	}
-}
+};
 
 void Player::StandBigFrontTransition(const FSMControlInformation& FSMControlInfo)&
 {
@@ -1783,7 +1791,7 @@ void Player::StandBigFrontTransition(const FSMControlInformation& FSMControlInfo
 
 	auto _ScreenBloodQuad = ScreenBloodQuad.lock();
 	_ScreenBloodQuad->AlphaFactor = 1.f;
-}
+};
 
 void Player::StandBigFrontState(const FSMControlInformation& FSMControlInfo)&
 {
@@ -1993,6 +2001,7 @@ void Player::LeafAttackLandingState(const FSMControlInformation& FSMControlInfo)
 	{
 		CenterLineQuad.lock()->AlphaFactor = 0.0f;
 		RefRenderer().RefLandscape().AuraPosition = { FLT_MAX,FLT_MAX };
+		WeaponPutDissolveStart();
 		CombatWaitTransition(FSMControlInfo); 
 		return;
 	}
@@ -2023,7 +2032,7 @@ bool Player::CheckTheJumpableState(const FSMControlInformation& FSMControlInfo)&
 bool Player::CheckTheAttackableState(const FSMControlInformation& FSMControlInfo)&
 {
 	if (FSMControlInfo._Controller.IsDown(DIK_LEFTCLICK) && bControl 
-					&&bWeaponAcquisition)
+					&&bWeaponAcquisition && (CurrentContinuousAttackCorrectionTime<0.0f))
 	{
 		return true;
 	}
@@ -2151,10 +2160,11 @@ void Player::LeafReadyCameraUpdate(const FSMControlInformation& FSMControlInfo)&
 void Player::LeafAttackCameraUpdate(const FSMControlInformation& FSMControlInfo)&
 {
 	CurrentTPCamera->RefTargetInformation().ViewDirection =
-		FMath::Normalize(FMath::RotationVecNormal(FSMControlInfo.MyTransform->GetRight (),
+		FMath::Normalize(FMath::RotationVecNormal(FSMControlInfo.MyTransform->GetRight(),
 			FSMControlInfo.MyTransform->GetForward(), -FMath::ToRadian(22.5f)));
 	CurrentTPCamera->RefTargetInformation().DistancebetweenTarget = 40.f;
-}
+};
+
 void Player::SwordEffectPlay(Engine::AnimEffect* _AnimEffect, const FSMControlInformation& FSMControlInfo,
 				const Vector3 RotationOffset, const Vector3 LocationOffset , const float TimeAcceleration,
 				const bool bLoop,const bool bLinearAlpha, const float AlphaFactor ,

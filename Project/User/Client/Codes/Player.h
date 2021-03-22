@@ -327,14 +327,11 @@ private:
 
 	std::weak_ptr<Engine::UI> RockShotIcon{};
 	std::weak_ptr<Engine::UI> RockShotSlot{};
-	
 
 	std::weak_ptr<Engine::UI> PlayerKarmaInfoGUI{};
-
 	std::weak_ptr<Engine::UI> CenterLineQuad{};
 
 	std::weak_ptr<Engine::UI> ScreenBloodQuad{};
-
 	std::weak_ptr<Engine::UI> MouseUI{};
 
 	static constexpr float CenterLineQuadAlphaFactorAcceleration = 2.f;
@@ -345,6 +342,9 @@ private:
 	
 	float CurrentStandUpRollingCoolTime = StandUpRollingCoolTime;
 private:
+	const float ContinuousAttackCorrectionTime = 0.1f;
+	float CurrentContinuousAttackCorrectionTime = ContinuousAttackCorrectionTime;
+
 	bool bAura = false;
 	class Engine::AnimEffect* _BasicCombo01{ nullptr };
 	class Engine::AnimEffect* _BasicCombo02{ nullptr };
@@ -377,7 +377,6 @@ private:
 	class PlayerWeapon* CurrentWeapon{ nullptr };
 	State   CurrentState{ Player::State::CombatWait};
 	IDirect3DDevice9* Device{ nullptr };
-
 	float HP = 100.f;
 };
 
