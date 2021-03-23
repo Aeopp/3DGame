@@ -344,7 +344,7 @@ private:
 	
 	float CurrentStandUpRollingCoolTime = StandUpRollingCoolTime;
 private:
-	const float ContinuousAttackCorrectionTime = 0.1f;
+	const float ContinuousAttackCorrectionTime = 0.2f;
 	float CurrentContinuousAttackCorrectionTime = ContinuousAttackCorrectionTime;
 
 	bool bAura = false;

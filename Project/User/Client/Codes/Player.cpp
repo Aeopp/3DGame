@@ -34,7 +34,7 @@
 #include "Sound.h"
 
 static float HitCoolTime = 0.1f;
-
+static float InteractionCoolTime = 0.1f;
 void Player::Initialize(
 	const std::optional<Vector3>& Scale,
 	const std::optional<Vector3>& Rotation,
@@ -366,7 +366,7 @@ void Player::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
 	HitCoolTime -= DeltaTime;
-
+	InteractionCoolTime -= DeltaTime;
 
 	CurrentContinuousAttackCorrectionTime -= DeltaTime;
 	FSM(DeltaTime);
@@ -2431,8 +2431,10 @@ void Player::HitNotify(Object* const Target, const Vector3 PushDir,
 		auto& CameraTargetInfo = CurrentTPCamera->RefTargetInformation();
 	// 	_NPC->GetComponent<Engine::SkeletonMesh>()->OutlineRedFactor = 0.f;
 
-		if (Control.IsDown(DIK_BACKSPACE))
+		if (Control.IsDown(DIK_BACKSPACE) && InteractionCoolTime <0.0f)
 		{
+			InteractionCoolTime = 0.3f;
+
 			RefSound().Play("UI_PopUp_05_A", 0.7f, true);
 
 			_NPC->bInteraction = !_NPC->bInteraction;
@@ -2465,8 +2467,10 @@ void Player::HitNotify(Object* const Target, const Vector3 PushDir,
 			CameraTargetInfo.DistancebetweenTarget = Distancebetween + 7.f;
 			CameraTargetInfo.ViewDirection = -Dir;
 
-			if (Control.IsDown(DIK_L))
+			if (Control.IsDown(DIK_L) && InteractionCoolTime <0.0f)
 			{
+				InteractionCoolTime = 0.3f;
+
 				RefSound().Play("UI_PopUp_11_A-2", 1.f, true);
 
 				_NPC->NextInteraction();
@@ -2754,8 +2758,7 @@ void Player::Hit(Object* const Target, const Vector3 PushDir, const float CrossA
 	{
 		if (HitCoolTime < 0.0f)
 		{
-			HitCoolTime = 0.1f;
-
+			HitCoolTime = 0.3f;
 			const Vector3 HitDirection = FMath::Normalize(PushDir);
 			auto* const   _Transform = GetComponent<Engine::Transform>();
 			const float  Rad45 = FMath::PI / 4.f;
