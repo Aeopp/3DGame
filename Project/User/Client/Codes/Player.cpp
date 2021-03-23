@@ -33,6 +33,8 @@
 #include "Landscape.h"
 #include "Sound.h"
 
+static float HitCoolTime = 0.1f;
+
 void Player::Initialize(
 	const std::optional<Vector3>& Scale,
 	const std::optional<Vector3>& Rotation,
@@ -363,6 +365,9 @@ void Player::Event()&
 void Player::Update(const float DeltaTime)&
 {
 	Super::Update(DeltaTime);
+	HitCoolTime -= DeltaTime;
+
+
 	CurrentContinuousAttackCorrectionTime -= DeltaTime;
 	FSM(DeltaTime);
 	auto _CenterLineQuad = CenterLineQuad.lock();
@@ -2747,35 +2752,41 @@ void Player::Hit(Object* const Target, const Vector3 PushDir, const float CrossA
 	if (auto _Monster = dynamic_cast<Monster* const> (Target);
 		_Monster)
 	{
-		const Vector3 HitDirection = FMath::Normalize(PushDir);
-		auto*const _Transform  =GetComponent<Engine::Transform>();
-		const float Rad45 = FMath::PI / 4.f;
+		if (HitCoolTime < 0.0f)
+		{
+			HitCoolTime = 0.1f;
 
-		const Vector3 Right = _Transform->GetRight();
-		const Vector3 Forward = _Transform->GetForward(); 
-		
-		auto& Control = RefControl();
-		auto* const _SkeletonMesh = GetComponent<Engine::SkeletonMesh>();
-		const float DeltaTime = RefTimer().GetDelta();  
-		HP -= 5.f;
-		FSMControlInformation FSMControlInfo{ _Transform  ,Control  ,_SkeletonMesh  , DeltaTime  };
-		if (FMath::Dot(-HitDirection , Right) <= Rad45)
-		{
-			StandBigRightTransition(FSMControlInfo);
+			const Vector3 HitDirection = FMath::Normalize(PushDir);
+			auto* const   _Transform = GetComponent<Engine::Transform>();
+			const float  Rad45 = FMath::PI / 4.f;
+
+			const Vector3 Right = _Transform->GetRight();
+			const Vector3 Forward = _Transform->GetForward();
+
+			auto& Control = RefControl();
+			auto* const _SkeletonMesh = GetComponent<Engine::SkeletonMesh>();
+			const float DeltaTime = RefTimer().GetDelta();
+			HP -= 5.f;
+			FSMControlInformation FSMControlInfo{ _Transform  ,Control  ,_SkeletonMesh  , DeltaTime };
+			if (FMath::Dot(-HitDirection, Right) <= Rad45)
+			{
+				StandBigRightTransition(FSMControlInfo);
+			}
+			else if (FMath::Dot(-HitDirection, -Right) <= Rad45)
+			{
+				StandBigLeftTransition(FSMControlInfo);
+			}
+			else if (FMath::Dot(-HitDirection, Forward) <= Rad45)
+			{
+				StandBigFrontTransition(FSMControlInfo);
+			}
+			else if (FMath::Dot(-HitDirection, -Forward) <= Rad45)
+			{
+				StandBigBackTransition(FSMControlInfo);
+			}
+			return;
 		}
-		else if (FMath::Dot(-HitDirection, -Right) <= Rad45)
-		{
-			StandBigLeftTransition(FSMControlInfo); 
-		}
-		else if (FMath::Dot(-HitDirection, Forward) <= Rad45)
-		{
-			StandBigFrontTransition(FSMControlInfo);
-		}
-		else if (FMath::Dot(-HitDirection, -Forward) <= Rad45)
-		{
-			StandBigBackTransition(FSMControlInfo);
-		}
-		return;
+			
 	}
 };
 

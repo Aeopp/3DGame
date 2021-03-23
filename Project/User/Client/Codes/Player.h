@@ -365,6 +365,7 @@ private:
 
 	class Engine::AnimEffect* LeapAttack01{ nullptr };
 
+
 	
 	AttackForceInformation _AttackForce{};
 	float WeaponDissolveTime = -1.f / 2.f;
@@ -385,4 +386,3 @@ private:
 	IDirect3DDevice9* Device{ nullptr };
 	float HP = 100.f;
 };
-
