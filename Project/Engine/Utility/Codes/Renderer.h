@@ -15,6 +15,8 @@
 #include "DeferredPass.h"
 #include "EffectSystem.h"
 #include "UI.h"
+#include <memory>
+
 
 namespace Engine
 {
@@ -107,7 +109,11 @@ namespace Engine
 		float MotionBlurDepthBias = 0.0001f;
 		float MotionBlurLengthMin = 0.000f;
 		RenderInformation CurrentRenderInformation{};
+		std::vector<std::pair<float, Vector3>> HPBarWorldUIInfos{};
+		std::shared_ptr<Engine::UI> HPBarUI{};
+
 	private:
+		
 		IDirect3DVertexBuffer9* VtxBuf{ nullptr };
 		IDirect3DIndexBuffer9* IdxBuf{ nullptr };
 		IDirect3DVertexDeclaration9* VtxDecl{ nullptr };

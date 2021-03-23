@@ -472,6 +472,16 @@ void Engine::Management::CreateStaticResource()&
 		Engine::ShaderFx::Load(Device.get(),Engine::Global::ResourcePath / L"Shader" / L"SkeletonSkinningDefaultFx.hlsl",L"SkeletonSkinningDefaultFx");
 	}
 
+
+
+
+
+	_Renderer->HPBarUI = std::make_shared<UI>();
+	_Renderer->HPBarUI->Initialize(
+		Device.get(), { 38.f,38.f },
+		{ -318.f ,-372.f }, (Engine::Global::ResourcePath / L"Texture" / L"UI" /
+			L"GUI_Common_bar_03.tga"), 0.9f);
+
 	Engine::MaterialInformation::SetUpDefaultTexture();
 }
 void Engine::Management::CreateCollisionDebugResource()&

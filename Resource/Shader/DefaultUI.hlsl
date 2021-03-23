@@ -2,8 +2,14 @@ texture ColorMap;
 matrix  UIMatrix;
 float3 AddColor;
 float CoolTimeHeight;
-int Flag = 1;
 float AlphaFactor;
+
+
+//
+int Flag = 1;
+
+float XScale;
+
 
 sampler ColorSampler = sampler_state
 {
@@ -57,16 +63,28 @@ PS_OUT PS_MAIN(PS_IN In)
     PS_OUT Out = (PS_OUT) 0;
     Out.Color = tex2D(ColorSampler, In.UV);
     
-    if ((1.0f-In.UV.y) < CoolTimeHeight)
+    if (Flag == 2)
     {
-        if (Flag ==1)
+        float3 HPColor = float3(255.f / 255.f ,55.f / 255.f ,55.f / 255.f);
+        Out.Color = float4(HPColor, 1.f);
+        if (In.UV.x > XScale)
         {
-            Out.Color.rgb *= AddColor;
+            Out.Color.rgb *= 0.2f;
         }
     }
     else
     {
-        Out.Color.rgb *= 0.4f;
+        if ((1.0f - In.UV.y) < CoolTimeHeight)
+        {
+            if (Flag == 1)
+            {
+                Out.Color.rgb *= AddColor;
+            }
+        }
+        else
+        {
+            Out.Color.rgb *= 0.4f;
+        }
     }
     
     Out.Color.a *= AlphaFactor;

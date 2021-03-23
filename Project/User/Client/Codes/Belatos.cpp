@@ -25,10 +25,14 @@
 #include "Player.h"
 #include "Timer.h"
 #include "Sound.h"
+#include "Renderer.h"
+#include "ObjectEdit.h"
+
 
 
 // Point_GS_Root
 
+static bool bFirstEvent = false;
 
 void Belatos::FSM(const float DeltaTime)&
 {
@@ -133,6 +137,10 @@ void Belatos::FSM(const float DeltaTime)&
 		case Belatos::State::Spawn:
 			SpawnState(CurrentFSMControlInfo);
 			break;
+		case Belatos::State::Die:
+			DieState(CurrentFSMControlInfo);
+
+			break;
 		default:
 			break;
 		};
@@ -160,8 +168,8 @@ void Belatos::Edit()&
 	{
 		auto _Transform = GetComponent<Engine::Transform>();
 		auto& _Physic = _Transform->RefPhysic();
-		ImGui::SliderFloat("LandCheckHighRange", &LandCheckHighRange, 0.f, 30.f);
-		ImGui::SliderFloat("SmallAirAttackRange", &SmallAirAttackRange, 0.f, 1000.f);
+		/*ImGui::SliderFloat("LandCheckHighRange", &LandCheckHighRange, 0.f, 30.f);
+		ImGui::SliderFloat("SmallAirAttackRange", &SmallAirAttackRange, 0.f, 1000.f);*/
 
 		/*auto* _SkeletonMesh = GetComponent<Engine::SkeletonMesh>();
 		ImGui::SliderFloat3("WeaponCollisionMin", WeaponLocalMin, -300.f, +300.f);
@@ -189,7 +197,7 @@ void Belatos::HitBegin(Object* const Target, const Vector3 PushDir, const float 
 	if (auto _PlayerWeapon = dynamic_cast<PlayerWeapon* const>(Target);
 		_PlayerWeapon && !IsInvincibility())
 	{
-		RefSound().RandSoundKeyPlay("HIT_MON_Att_T_Sword_Metal_01", { 1,8 }, 0.7f,true);
+		RefSound().RandSoundKeyPlay("HIT_MON_Att_T_Sword_Metal_01", { 1,8 }, 0.5f,true);
 
 		auto _Transform = GetComponent<Engine::Transform>();
 		auto& Physic= _Transform->RefPhysic();
@@ -219,7 +227,6 @@ void Belatos::HitBegin(Object* const Target, const Vector3 PushDir, const float 
 		TpCamera->Shake(4.f, FMath::Random(Vector3{ -1,-1,-1 }, Vector3{ 1,1,1 }), 0.25f);
 		const Vector3 Forward = FMath::Normalize(_Transform->GetForward());
 		const Vector3 ForwardProjectionXZ = FMath::Normalize({ Forward.x,0.f,Forward.z });
-
 		
 		const Vector3 Right = FMath::Normalize(_Transform->GetRight());
 		const Vector3 RightProjectionXZ = FMath::Normalize({ Right.x, 0.f , Right.z }); 
@@ -272,17 +279,12 @@ void Belatos::HitBegin(Object* const Target, const Vector3 PushDir, const float 
 		//	TpCamera->bCameraUpdate = true;
 		//	return true;
 		//	});
-
-
 		TakeDamage(CurDamage);
 
 		if (_Status.HP <= 0.0f)
 		{
-			const float DieTime = 2.f;
-			DissolveStart(1.f  / DieTime, 0.f);
-
-			RefTimer().TimerRegist(DieTime, 0.0f, DieTime+0.1f, [this]() {
-				Kill(); return true;  });
+			DieTransition(std::fabsf(_Transform->RefPhysic().CurrentGroundY -
+				_Transform->GetLocation().y) > 2.f);
 		}
 
 		auto*const _SkeletonMesh = GetComponent<Engine::SkeletonMesh>();
@@ -341,11 +343,15 @@ void Belatos::HitEnd(Object* const Target)&
 void Belatos::Event()&
 {
 	Super::Event();
+
+	auto*const _Transform =GetComponent<Engine::Transform>();
+
 }
 
 std::shared_ptr<Engine::Object> Belatos::GetCopyShared()&
 {
-	std::remove_pointer_t<decltype(this)> Clone = *this;
+	
+	Belatos Clone = *this;
 	return std::make_shared<MyType>(Clone);
 }
 
@@ -390,6 +396,7 @@ void Belatos::WaitTransition(const FSMControlInformation& FSMControlInfo)&
 
 void Belatos::WaitState(const FSMControlInformation& FSMControlInfo)&
 {
+	
 	RunTransition(FSMControlInfo);
 }
 
@@ -1031,6 +1038,64 @@ void Belatos::SpawnState(const FSMControlInformation& FSMControlInfo)&
 	}
 }
 
+void Belatos::DieState(const FSMControlInformation& FSMControlInfo)&
+{
+	
+}
+
+void Belatos::DieTransition(bool bJumping)&
+{
+	const float DieTime = 3.f;
+	DissolveStart(1.f / DieTime, 0.f);
+	RefTimer().TimerRegist(DieTime, 0.0f, DieTime + 0.01f, [this]() {
+		Kill(); return true;  });
+	CurrentState = State::Die;
+
+	Engine::SkeletonMesh::AnimNotify _AnimNotify{};
+	if (!bJumping)
+	{
+		_AnimNotify.bLoop = true;
+		_AnimNotify.Name = "Down_B_Belatos_Twohandedsword";
+		GetComponent<Engine::SkeletonMesh>()->PlayAnimation
+		(_AnimNotify);
+	}
+	else
+	{
+		_AnimNotify.bLoop = true;
+		_AnimNotify.Name = "Air_Belatos_Twohandedsword";
+		GetComponent<Engine::SkeletonMesh>()->PlayAnimation
+		(_AnimNotify);
+	}
+	
+	//static uint8 EventIdx = 0u;
+
+	if (!bFirstEvent)
+	{
+		bFirstEvent = true;
+		RefTimer().TimerRegist(DieTime*2.5f, 0.0f, DieTime * 2.5f + 0.01f, []() {
+			ObjectEdit::CaptureObjectLoad(
+				App::ResourcePath / "SceneObjectCapture" / "BelatosWaveFinal.json");
+			return true;
+			});
+		/*if (EventIdx == 0)
+		{
+			
+			EventIdx++;
+		}*/
+
+		//if (EventIdx == 1)
+		//{
+		//	RefTimer().TimerRegist(DieTime, 0.0f, DieTime + 0.01f, []() {
+		//		ObjectEdit::CaptureObjectLoad(
+		//			App::ResourcePath / "SceneObjectCapture" / "BelatosWaveFinal.json");
+		//		return true;
+		//		});
+		//	EventIdx++;
+		//}
+		
+	}
+}
+
 void Belatos::RotatePitchFromCurVelocity()&
 {
 	auto*const _Transform =GetComponent<Engine::Transform>();
@@ -1093,8 +1158,10 @@ void Belatos::PrototypeInitialize(IDirect3DDevice9* const Device)&
 	AttackRange = 25.f;
 	WeaponLocalMin = { -26.549f  , 31.858f , -17.213f};
 	WeaponLocalMax = { 109.091f , 223.141f , 56.557f};
-	_Status.HP = 100000.f;
+	_Status.HP = 10000.f;
 	ResetInvincibilityTime = 0.1f;
+
+	LandCheckHighRange = 3.f;
 }
 void Belatos::Initialize(const std::optional<Vector3>& Scale, const std::optional<Vector3>& Rotation, const Vector3& SpawnLocation)&
 {
@@ -1199,7 +1266,7 @@ void Belatos::Initialize(const std::optional<Vector3>& Scale, const std::optiona
 		}
 		else
 		{
-			DissolveStart(1.f / 3.f, 0.f);
+			DissolveStart(1.f / 2.0f, 0.f);
 			WaitTransition(InitFSMControlInfo);
 		}
 	}

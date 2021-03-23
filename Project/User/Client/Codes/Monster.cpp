@@ -18,10 +18,12 @@
 #include "ShaderManager.h"
 #include "EnemyLayer.h"
 #include "NavigationMesh.h"
+#include "Renderer.h"
 
 void Monster::MonsterInitialize(const std::optional<Vector3>& Scale, const std::optional<Vector3>& Rotation, const Vector3& SpawnLocation)&
 {
 	Super::Initialize();
+
 }
 
 void Monster::MonsterPrototypeInitialize(IDirect3DDevice9* const Device)&
@@ -50,6 +52,9 @@ void Monster::Event()&
 	Super::Event();
 	auto _Transform = GetComponent<Engine::Transform>();
 	Edit();
+
+
+	RefRenderer().HPBarWorldUIInfos.push_back({  _Status.HP / _Status.MaxHP , _Transform ->GetLocation() } );
 }
 
 void Monster::Update(const float DeltaTime)&

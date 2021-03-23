@@ -138,7 +138,7 @@ void Engine::UI::Render(Engine::Renderer* const _Renderer)&
 	Fx->SetFloat("AlphaFactor", AlphaFactor);
 	Fx->SetMatrix("UIMatrix", &UIMatrix);
 	Fx->SetFloatArray("AddColor", AddColor, 3u);
-	
+	Fx->SetFloat("XScale", XScale);
 	Fx->CommitChanges();
 	uint32 Pass = 0u;
 	Fx->Begin(&Pass, NULL);

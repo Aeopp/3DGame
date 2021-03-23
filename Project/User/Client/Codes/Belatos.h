@@ -55,6 +55,8 @@ public:
 		StandUpFront,//StandUp_F_Belatos_Twohadnedsword 
 
 		Spawn,
+
+		Die,
 	};
 	virtual void FSM(const float DeltaTime)& override;
 	virtual void Edit()& override;
@@ -142,6 +144,9 @@ private:
 
 	void SpawnTransition(const FSMControlInformation& FSMControlInfo)&;
 	void SpawnState(const FSMControlInformation& FSMControlInfo)&;
+
+	void DieState(const FSMControlInformation& FSMControlInfo)&;
+	void DieTransition(bool bJumping)&;
 private:
 	void RotatePitchFromCurVelocity()&;
 

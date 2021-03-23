@@ -349,7 +349,7 @@ PS_OUT PS_MAIN(PS_IN In)
     // ÇÏÇÁ ¶÷¹öÆ®.
     Diffuse = pow(((Diffuse * 0.5) + 0.5), Contract);
     // ¼¿ ½¦ÀÌµù
-    Diffuse = ceil(Diffuse * 6.0f) / 6.0f;
+  //  Diffuse = ceil(Diffuse * 6.0f) / 6.0f;
     
     float3 HalfVec = normalize((-LightDirectionNormal) + (In.ViewDirection));
     Specular = saturate(dot(HalfVec, WorldNormal));

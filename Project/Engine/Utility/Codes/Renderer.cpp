@@ -597,6 +597,32 @@ void Engine::Renderer::RenderUI()&
 	{
 		CurUI->Render(this);
 	}
+
+
+	for (const auto&  [ Factor, Position ]: HPBarWorldUIInfos)
+	{
+		HPBarUI->bRender = true;
+		HPBarUI->AlphaFactor = 1.f;
+		HPBarUI->Flag = 2u;
+		HPBarUI->XScale = Factor;
+
+		Matrix Billboard = FMath::Inverse(GetCurrentRenderInformation().View);
+		Billboard._41 = 0.0f;
+		Billboard._42 = 0.0f;
+		Billboard._43 = 0.0f;
+		const Vector3 UILocation = Position +
+			Vector3{ 0, 10,0 };
+
+		HPBarUI->WorldUI =
+			FMath::Scale({ 10.f,0.8f,1 }) * Billboard *
+			FMath::Translation(UILocation);
+
+		HPBarUI->WorldUI->_42 += 22.f;
+
+		HPBarUI->Render(this);
+	}
+
+	HPBarWorldUIInfos.clear();
 }
 void Engine::Renderer::RenderEmissiveBlur()&
 {

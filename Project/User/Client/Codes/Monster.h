@@ -3,6 +3,7 @@
 #include "Object.h"
 #include "SkeletonMesh.h"
 #include "Cell.h"
+#include "UI.h"
 
 class Monster  : public Engine::Object
 {
@@ -44,10 +45,12 @@ protected:
 	};
 	struct Status
 	{
+		float MaxHP = 10000.f;
 		float HP = 10000.f;
 	};
 	virtual void FSM(const float DeltaTime)&;
 
+	
 	void LockingToWardsFromDirection(Vector3 Direction)&;
 public:
 	bool  bFrontHit =false ;

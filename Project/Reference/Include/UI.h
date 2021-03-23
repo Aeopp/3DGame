@@ -38,6 +38,7 @@ namespace Engine
 		static const inline Vector3 UISkillIconBlue   { 112.f / 255.f, 245.f / 255.f,255.f / 255.f };
 		static const inline Vector3 UISkillIconGreen  { 163.f / 255.f, 255.f / 255.f,163.f / 255.f };
 		float AlphaFactor = 1.f;
+		float XScale = 1.f;
 		bool bRender = true;
 		int Flag = 1;
 		Vector3 AddColor = UISkillIconRed;

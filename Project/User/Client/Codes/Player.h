@@ -329,8 +329,7 @@ private:
 	std::weak_ptr<Engine::UI> RockShotSlot{};
 
 	std::weak_ptr<Engine::UI> PlayerKarmaInfoGUI{};
-	/*std::weak_ptr<Engine::UI> ChaserInfo_Icon{};
-	std::weak_ptr<Engine::UI> HPBar{};*/
+	
 
 	std::weak_ptr<Engine::UI> CenterLineQuad{};
 

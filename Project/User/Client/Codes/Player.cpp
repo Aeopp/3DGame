@@ -2600,23 +2600,6 @@ void Player::CreatePlayerSkillUI()&
 	 PlayerKarmaInfoGUI.lock()->WorldUI = FMath::Identity();
 	 PlayerKarmaInfoGUI.lock()->AlphaFactor = 0.0f;
 
-	 //HPBar = RefRenderer().
-		// MakeUI({ 38.f,38.f }, { -318.f ,-372.f },
-		//	 App::ResourcePath / L"Texture" / L"UI" /
-		//	 L"GUI_Common_btn_01.tga",
-		//	 0.02);
-	 //HPBar.lock()->bRender = true;
-	 //HPBar.lock()->WorldUI = FMath::Identity();
-	 //HPBar.lock()->AlphaFactor = 1.f;
-
-  //   ChaserInfo_Icon = RefRenderer().
-		// MakeUI({ 38.f,38.f }, { -318.f ,-372.f },
-		//	 App::ResourcePath / L"Texture" / L"UI" /
-		//	 L"ChaserInfo_Icon.tga",
-		//	 0.02);
-	 //ChaserInfo_Icon.lock()->bRender = false;
-	 //ChaserInfo_Icon.lock()->WorldUI = FMath::Identity();
-	 //ChaserInfo_Icon.lock()->AlphaFactor = 0.0f;
 
 	 
 	 CenterLineQuad =
