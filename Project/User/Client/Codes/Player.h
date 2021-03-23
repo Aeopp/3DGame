@@ -149,41 +149,41 @@ private:
 	};
 	struct AttackForceInformation
 	{
-		float BasicCombo = 10.f;
-		float BasicComboEx03_1 = 10.f;
-		float BasicComboEx03_1_Jump = 120.f;
+		float BasicCombo = 15;
+		float BasicComboEx03_1 = 12;
+		float BasicComboEx03_1_Jump = 71;
 
-		float BasicComboEx03_2 = 20.f;
-		float BasicComboEx03_2_Jump = 150.f;
+		float BasicComboEx03_2 = 12;
+		float BasicComboEx03_2_Jump = 126;
 
-		float Ex01firstCombo = 50.f;
-		float Ex01firstComboJump = 90.f;
+		float Ex01firstCombo = 0;
+		float Ex01firstComboJump = 117;
 
-		float Ex01SecondCombo = 35.f;
-		float Ex01SecondComboJump = 220.f;
+		float Ex01SecondCombo = 0;
+		float Ex01SecondComboJump = 203;
 
-		float Ex02Start = 20.f;
-		float Ex02StartJump = 0.0f;
+		float Ex02Start = 26;
+		float Ex02StartJump = 36;
 
-		float Ex02Loop = 20.f;
+		float Ex02Loop = 32;
 		float Ex02LoopJump = 0.0f;
 
-		float Ex02End = 20.f;
-		float Ex02EndJump = 45.f;
+		float Ex02End = 36;
+		float Ex02EndJump = 45;
 
 		float Dash = 1.f;
-		float DashComboJump= 220.f;
+		float DashComboJump= 203;
 
-		float Air01 = 10.f;
-		float Air01Jump = 80.f;
+		float Air01 = 29;
+		float Air01Jump = 57;
 
-		float Air02 = 10.f;
-		float Air02Jump = 80.f;
+		float Air02 = 19;
+		float Air02Jump = 57;
 
-		float Air03 = 10.f;
-		float Air03Jump = 80.f;
+		float Air03 = 19;
+		float Air03Jump = 64;
 
-		float Air04 = 10.f;
+		float Air04 = 1.f;
 		float Air04Jump = 0.f;
 	};
 	void FSM(const float DeltaTime)&;
