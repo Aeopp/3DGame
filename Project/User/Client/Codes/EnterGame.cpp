@@ -88,25 +88,24 @@ void EnterGame::Event() &
 {
 	Super::Event();
 	auto& Manager = RefManager();
-	Manager.ChangeScene<StartScene>();
-
-	//if (Engine::Global::bDebugMode)
-	//{
-	//	ImGui::Begin("Select Mode");
-	//	if (ImGui::Button("GameStart"))
-	//	{
-	//		Manager.ChangeScene<StartScene>(); 
-	//	}
-	//	if (ImGui::Button("Editor"))
-	//	{
-	//		Manager.ChangeScene<MapEdit>();
-	//	}
-	//	if (ImGui::Button("ObjectEdit"))
-	//	{
-	//		Manager.ChangeScene<ObjectEdit>();
-	//	}
-	//	ImGui::End(); 
-	//}
+	
+	if (Engine::Global::bDebugMode)
+	{
+		ImGui::Begin("Select Mode");
+		if (ImGui::Button("GameStart"))
+		{
+			Manager.ChangeScene<StartScene>(); 
+		}
+		if (ImGui::Button("Editor"))
+		{
+			Manager.ChangeScene<MapEdit>();
+		}
+		if (ImGui::Button("ObjectEdit"))
+		{
+			Manager.ChangeScene<ObjectEdit>();
+		}
+		ImGui::End(); 
+	}
 }
 void EnterGame::Update(const float DeltaTime)&
 {

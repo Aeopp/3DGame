@@ -79,8 +79,8 @@ void NPC::Initialize(const std::optional<Vector3>& Scale, const std::optional<Ve
 	_SkeletonMesh->PlayAnimation(_AnimNotify);
 
 	// Name , Ment ,Position ,Color  ;
-	static const Vector2 DefaultPosition = { 500,100};
-	static const D3DXCOLOR DefaultColor = { 117.f / 255.f,1.f,160.f / 255.f,1.f };
+	static const Vector2 DefaultPosition = { 980,300};
+	static const D3DXCOLOR DefaultColor = { 255.f / 255.f,255.f / 255.f ,100.f/ 255.f,1.f };
 	EventMents[NPC::InteractionEvent::FirstEncounter] = 
 	{
 		{L"오! 새로운 모험가인가. ",DefaultPosition,DefaultColor } ,

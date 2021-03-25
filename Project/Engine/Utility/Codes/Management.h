@@ -69,18 +69,18 @@ namespace Engine
 		std::unique_ptr<Scene> _CurrentScene{ nullptr };
 		std::function<void()> SceneChangeEvent{};
 	public:
-		std::filesystem::path ResourcePath{};
-		class PrototypeManager* _PrototypeManager{ nullptr };
-		class GraphicDevice* _GraphicDevice{ nullptr };
-		class Sound* _Sound{ nullptr };
-		class Timer* _Timer{ nullptr };
-		class Controller* _Controller{ nullptr };
-		class Renderer* _Renderer{ nullptr };
-		class ShaderManager* _ShaderManager{ nullptr };
-		class FontManager* _FontManager{ nullptr };
-		class ResourceSystem* _ResourceSys{ nullptr };
+		std::filesystem::path  ResourcePath{};
+		class PrototypeManager*_PrototypeManager{ nullptr };
+		class GraphicDevice*   _GraphicDevice{ nullptr };
+		class Sound*           _Sound{ nullptr };
+		class Timer*           _Timer{ nullptr };
+		class Controller*      _Controller{ nullptr };
+		class Renderer*        _Renderer{ nullptr };
+		class ShaderManager*   _ShaderManager{ nullptr };
+		class FontManager*     _FontManager{ nullptr };
+		class ResourceSystem*  _ResourceSys{ nullptr };
 		class CollisionSystem* _CollisionSys{ nullptr };
-		class NavigationMesh* _NaviMesh{ nullptr }; 
+		class NavigationMesh*  _NaviMesh{ nullptr }; 
 	};
 };
 

@@ -7,8 +7,6 @@
 #include "Vertexs.hpp"
 #include "ShaderFx.h"
 
-
-
 class StartScene final : public Engine::Scene
 {
 public:

@@ -140,6 +140,11 @@ void StartScene::Event()&
 
 	if (_Control.IsDown(DIK_F3))
 	{
+		RefRenderer().bDebugRenderTargetRender = !RefRenderer().bDebugRenderTargetRender;
+	}
+
+	if (_Control.IsDown(DIK_F12))
+	{
 		RefTimer().TimerRegist(5.f, 0.0f, 5.1f, []()->bool {
 				ObjectEdit::CaptureObjectLoad(App::ResourcePath / "SceneObjectCapture" / "BelatosWaveStart.json");
 				return true;

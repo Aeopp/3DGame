@@ -86,11 +86,13 @@ void Engine::Renderer::Render()&
 	
 	NavigationMesh::Instance->Render(Device.get());
 	RenderDebugCollision();
-	
 
 	// 디버그 렌더링.... 
 	_Frustum.Render(Device.get());
-	RenderDeferredDebugBuffer();
+	if (bDebugRenderTargetRender)
+	{
+		RenderDeferredDebugBuffer(); 
+	}
 
 	RenderUI();
 

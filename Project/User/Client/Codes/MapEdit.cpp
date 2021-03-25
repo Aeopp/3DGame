@@ -39,6 +39,8 @@
 #include <fstream>
 #include "StringHelper.h"
 #include <array>
+#include "Controller.h"
+#include "Renderer.h"
 
 void MapEdit::Initialize(IDirect3DDevice9* const Device)&
 {
@@ -149,6 +151,22 @@ void MapEdit::Event() &
 	Super::Event();
 	auto& Manager = RefManager();
 
+	auto& _Control = RefControl();
+
+	if (_Control.IsDown(DIK_F1))
+	{
+		Engine::Global::bDebugMode = !Engine::Global::bDebugMode;
+	}
+
+	if (_Control.IsDown(DIK_F2))
+	{
+		RefNaviMesh().bDebugRender = !RefNaviMesh().bDebugRender;
+	}
+
+	if (_Control.IsDown(DIK_F3))
+	{
+		RefRenderer().bDebugRenderTargetRender = !RefRenderer().bDebugRenderTargetRender;
+	}
 
 	if (ImGui::CollapsingHeader("Select"))
 	{

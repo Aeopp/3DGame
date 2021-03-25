@@ -109,6 +109,24 @@ void ObjectEdit::Event()&
 	auto& NaviMesh = RefNaviMesh();
 	auto& Proto = RefProto();
 
+	auto& _Control = RefControl();
+
+	if (_Control.IsDown(DIK_F1))
+	{
+		Engine::Global::bDebugMode = !Engine::Global::bDebugMode;
+	}
+
+	if (_Control.IsDown(DIK_F2))
+	{
+		RefNaviMesh().bDebugRender = !RefNaviMesh().bDebugRender;
+	}
+
+	if (_Control.IsDown(DIK_F3))
+	{
+		Renderer.bDebugRenderTargetRender = !Renderer.bDebugRenderTargetRender;
+	}
+
+
 	const Matrix MapWorld = FMath::WorldMatrix(MapScale, MapRotation, MapLocation);
 
 	ImGui::Begin("Object Editor");

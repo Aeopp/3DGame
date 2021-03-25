@@ -2500,14 +2500,14 @@ void Player::CreatePlayerSkillUI()&
 	std::filesystem::path UIPath = std::filesystem::current_path();
 
 	  KarmaSlot = RefRenderer().
-		MakeUI({ 75.f,75.f }, { -530.f,0.f },
+		MakeUI({ 75.f,75.f }, { -860.f,0.f },
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"GUI_KarmaSlot02_N.tga",
 			0.1);
 	  KarmaSlot.lock()->AddColor = {1.f,1.f,1.f};
 
 	KarmaIcon = RefRenderer().
-		MakeUI({ 43.f,43.f }, { -530.f,0.f },
+		MakeUI({ 43.f,43.f }, { -860.f,0.f },
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"Icon_Karma_TS.tga",
 			0.2);
@@ -2516,7 +2516,7 @@ void Player::CreatePlayerSkillUI()&
 	KarmaIcon.lock()->CoolTimeHeight = 0.0f;
 
 	DoubleSlashSlot = RefRenderer().
-		MakeUI({ 63.f,63.f }, { -550.f,-340.f},
+		MakeUI({ 63.f,63.f }, { -880.f,-340.f},
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"GUI_Skill_icon_slot.tga",
 			0.1);
@@ -2524,84 +2524,84 @@ void Player::CreatePlayerSkillUI()&
 
 	
 	DoubleSlashIcon = RefRenderer().
-		MakeUI({ 63.f,63.f }, { -550.f,-340.f},
+		MakeUI({ 63.f,63.f }, { -880.f,-340.f},
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"Icon_RageSkill_TS_DoubleSlash.tga",
 			0.2);
 	DoubleSlashIcon.lock()->Flag = 0u;
 
 	 LeapAttackSlot = RefRenderer().
-		MakeUI({ 38.f,38.f }, { -443.f ,-302.f },
+		MakeUI({ 38.f,38.f }, { -773.f ,-302.f },
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"GUI_HexagonSlot_L_Normal.tga",
 			0.1);
 	 LeapAttackSlot.lock()->AddColor = Engine::UI::UISkillIconBlue;
 
 	 LeapAttackIcon = RefRenderer().
-		MakeUI({ 38.f,38.f }, { -443.f ,-302.f },
+		MakeUI({ 38.f,38.f }, { -773.f ,-302.f },
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"Icon_NormalSkill_TS_LeapAttack.tga",
 			0.2);
 	 LeapAttackIcon.lock()->Flag = 0u;
 
 	 AvoidSlot = RefRenderer().
-		MakeUI({ 38.f,38.f }, { -407.f ,-372.f},
+		MakeUI({ 38.f,38.f }, { -737.f ,-372.f},
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"GUI_HexagonSlot_L_Normal.tga",
 			0.1);
 	 AvoidSlot.lock()->AddColor = Engine::UI::UISkillIconGreen;
 
 	 AvoidIcon = RefRenderer().
-		MakeUI({ 38.f,38.f }, { -407.f ,-372.f},
+		MakeUI({ 38.f,38.f }, { -737.f ,-372.f},
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"Icon_Avoid.tga",
 			0.2);
 	 AvoidIcon.lock()->Flag = 0u;
 
 	 OutRangeSlot = RefRenderer().
-		MakeUI({ 38.f,38.f }, { -354 ,-302},
+		MakeUI({ 38.f,38.f }, { -684 ,-302},
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"GUI_HexagonSlot_L_Normal.tga",
 			0.1);
 	 OutRangeSlot.lock()->AddColor = Engine::UI::UISkillIconBlue;
 
 	 OutRangeIcon = RefRenderer().
-		MakeUI({ 38.f,38.f }, { -354 ,-302 },
+		MakeUI({ 38.f,38.f }, { -684 ,-302 },
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"Icon_NormalSkill_TS_OutRage.tga",
 			0.2);
 	 OutRangeIcon.lock()->Flag = 0u;
 
 	 RockShotSlot = RefRenderer().
-		MakeUI({ 38.f,38.f }, { -265 , -302 },
+		MakeUI({ 38.f,38.f }, { -595 , -302 },
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"GUI_HexagonSlot_L_Normal.tga",
 			0.1);
 	 RockShotSlot.lock()->AddColor = Engine::UI::UISkillIconBlue;
 
 	 RockShotIcon = RefRenderer().
-		MakeUI({ 38.f,38.f }, { -265 , -302 },
+		MakeUI({ 38.f,38.f }, { -595 , -302 },
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"Icon_NormalSkill_TS_RockShot.tga",
 			0.2);
 	 RockShotIcon.lock()->Flag = 0u;
 
 	 RockBreakSlot = RefRenderer().
-		MakeUI({ 38.f,38.f }, { -318.f ,-372.f },
+		MakeUI({ 38.f,38.f }, { -648.f ,-372.f },
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"GUI_HexagonSlot_L_Normal.tga",
 			0.1);
 	 RockBreakSlot.lock()->AddColor = Engine::UI::UISkillIconRed;
 
 	 RockBreakIcon  = RefRenderer().
-		MakeUI({ 38.f,38.f }, { -318.f ,-372.f },
+		MakeUI({ 38.f,38.f }, { -648.f ,-372.f },
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"Icon_NormalSkill_TS_RockBreak.tga",
 			0.2);
 	 RockBreakIcon.lock()->Flag = 0u;
 
 	 PlayerKarmaInfoGUI = RefRenderer().
-     MakeUI({ 38.f,38.f }, { -318.f ,-372.f },
+     MakeUI({ 38.f,38.f }, { -648.f ,-372.f },
 			 App::ResourcePath / L"Texture" / L"UI" /
 			 L"GUI_karma_player_info_TS_1.tga",
 			 0.02);

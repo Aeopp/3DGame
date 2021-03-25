@@ -111,7 +111,7 @@ namespace Engine
 		RenderInformation CurrentRenderInformation{};
 		std::vector<std::pair<float, Vector3>> HPBarWorldUIInfos{};
 		std::shared_ptr<Engine::UI> HPBarUI{};
-
+		bool bDebugRenderTargetRender = false;
 	private:
 		
 		IDirect3DVertexBuffer9* VtxBuf{ nullptr };
