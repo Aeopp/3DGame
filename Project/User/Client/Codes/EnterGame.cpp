@@ -3,7 +3,7 @@
 #include "PlayerHead.h"
 #include "MapEdit.h"
 #include "StartScene.h"
-
+#include "AnimationTester.h"
 #include "Player.h"
 #include "Shader.h"
 #include "Vertexs.hpp"
@@ -69,6 +69,7 @@ void EnterGame::Initialize(IDirect3DDevice9* const Device)&
 		Proto.LoadPrototype<PlayerHair>(L"Static", Device);
 		Proto.LoadPrototype<PlayerWeapon>(L"Static", Device); 
 		Proto.LoadPrototype<DelasaCenterChain>(L"Static", Device);
+		Proto.LoadPrototype<AnimationTester>(L"Static", Device);
 
 		Proto.LoadPrototype<Belatos>(L"Static", Device);
 		Proto.LoadPrototype<NPC>(L"Static", Device);

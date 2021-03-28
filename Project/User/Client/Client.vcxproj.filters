@@ -106,6 +106,9 @@
     <ClInclude Include="Codes\NPC.h">
       <Filter>Object\NPC</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\AnimationTester.h">
+      <Filter>Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -155,6 +158,9 @@
     </ClCompile>
     <ClCompile Include="Codes\NPC.cpp">
       <Filter>Object\NPC</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\AnimationTester.cpp">
+      <Filter>Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

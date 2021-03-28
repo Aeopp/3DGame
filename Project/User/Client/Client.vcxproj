@@ -200,6 +200,7 @@
       <FileType>CppHeader</FileType>
     </ClInclude>
     <ClInclude Include="Client.h" />
+    <ClInclude Include="Codes\AnimationTester.h" />
     <ClInclude Include="Codes\Belatos.h" />
     <ClInclude Include="Codes\Monster.h" />
     <ClInclude Include="Codes\NPC.h" />
@@ -221,6 +222,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp" />
+    <ClCompile Include="Codes\AnimationTester.cpp" />
     <ClCompile Include="Codes\Belatos.cpp" />
     <ClCompile Include="Codes\Monster.cpp" />
     <ClCompile Include="Codes\NPC.cpp" />
