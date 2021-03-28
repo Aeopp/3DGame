@@ -38,9 +38,9 @@ namespace Engine
 		};
 		struct FloatingInformation
 		{
-			static inline std::pair<float, float>  VibrationWidthRange{ 0.f,2.f};
-			static inline std::pair<float, float > RotationAccRange  { 0.0f,0.001f};
-			static inline std::pair<float, float>  VibrationAccRange  { 0.0f,0.0211f };
+			static inline std::pair<float, float>  VibrationWidthRange{ 0.f,24.f};
+			static inline std::pair<float, float > RotationAccRange  { 0.0f,0.045f};
+			static inline std::pair<float, float>  VibrationAccRange  { 0.0f,0.303f };
 			
 			static void RangeEdit();
 			void Initialize(const Vector3& OriginLocation)&

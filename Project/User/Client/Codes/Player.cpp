@@ -1792,33 +1792,37 @@ void Player::DashTransition(const FSMControlInformation& FSMControlInfo,
 std::optional<Player::MoveControlInformation>   
 	Player::CheckTheMoveableState(const FSMControlInformation& FSMControlInfo)&
 {
-	const auto& ViewPlayerInfo = CurrentTPCamera->GetTargetInformation();
-	Vector3 ViewDirection = ViewPlayerInfo.CurrentViewDirection;
-	ViewDirection.y = 0.0f;
-	ViewDirection = FMath::Normalize(ViewDirection);
-	std::vector<Vector3> ControlDirections{};
+	if (CurrentTPCamera )
+	{
+		const auto& ViewPlayerInfo = CurrentTPCamera->GetTargetInformation();
+		Vector3 ViewDirection = ViewPlayerInfo.CurrentViewDirection;
+		ViewDirection.y = 0.0f;
+		ViewDirection = FMath::Normalize(ViewDirection);
+		std::vector<Vector3> ControlDirections{};
 
-	if (FSMControlInfo._Controller.IsPressing(DIK_W))
-	{
-		ControlDirections.emplace_back(ViewDirection);
-	}
-	if (FSMControlInfo._Controller.IsPressing(DIK_S))
-	{
-		ControlDirections.emplace_back(-ViewDirection);
-	}
-	if (FSMControlInfo._Controller.IsPressing(DIK_D))
-	{
-		ControlDirections.emplace_back(FMath::Normalize(FMath::RotationVecNormal(ViewDirection, { 0,1,0 }, FMath::PI / 2.f)));
-	}
-	if (FSMControlInfo._Controller.IsPressing(DIK_A))
-	{
-		ControlDirections.emplace_back(FMath::Normalize(FMath::RotationVecNormal(ViewDirection, { 0,1,0 }, -FMath::PI / 2.f)));
-	}
+		if (FSMControlInfo._Controller.IsPressing(DIK_W))
+		{
+			ControlDirections.emplace_back(ViewDirection);
+		}
+		if (FSMControlInfo._Controller.IsPressing(DIK_S))
+		{
+			ControlDirections.emplace_back(-ViewDirection);
+		}
+		if (FSMControlInfo._Controller.IsPressing(DIK_D))
+		{
+			ControlDirections.emplace_back(FMath::Normalize(FMath::RotationVecNormal(ViewDirection, { 0,1,0 }, FMath::PI / 2.f)));
+		}
+		if (FSMControlInfo._Controller.IsPressing(DIK_A))
+		{
+			ControlDirections.emplace_back(FMath::Normalize(FMath::RotationVecNormal(ViewDirection, { 0,1,0 }, -FMath::PI / 2.f)));
+		}
 
-	if (ControlDirections.empty() == false)
-	{
-		return { Player::MoveControlInformation{ std::move(ControlDirections) } };
+		if (ControlDirections.empty() == false)
+		{
+			return { Player::MoveControlInformation{ std::move(ControlDirections) } };
+		}
 	}
+	
 	
 	return std::nullopt;
 }
@@ -2014,7 +2018,11 @@ void Player::LeafAttackStartTransition(const FSMControlInformation& FSMControlIn
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::LeafAttackStart;
 
-	CurrentTPCamera->RefTargetInformation().LocationLerpSpeed = 8.f;
+	if (CurrentTPCamera)
+	{
+		CurrentTPCamera->RefTargetInformation().LocationLerpSpeed = 8.f;
+	}
+	
 }
 
 void Player::LeafAttackUpState(const FSMControlInformation& FSMControlInfo)&
@@ -2086,7 +2094,11 @@ void Player::LeafAttackLandingTransition(const FSMControlInformation& FSMControl
 	FSMControlInfo.MySkeletonMesh->PlayAnimation(_AnimNotify);
 	CurrentState = Player::State::LeafAttackLanding;
 
+	if (CurrentTPCamera)
+	{
 	CurrentTPCamera->RefTargetInformation().LocationLerpSpeed = 8.f;
+
+	}
 }
 
 
@@ -2224,18 +2236,26 @@ void Player::WeaponHand()&
 
 void Player::LeafReadyCameraUpdate(const FSMControlInformation& FSMControlInfo)&
 {
+	if (CurrentTPCamera)
+	{
 	CurrentTPCamera->RefTargetInformation().ViewDirection =
 		FMath::Normalize(FMath::RotationVecNormal(FSMControlInfo.MyTransform->GetRight(),
 			 FSMControlInfo.MyTransform->GetForward(), -FMath::ToRadian(22.5f)));
+
+	}
 	// CurrentTPCamera->RefTargetInformation().DistancebetweenTarget = 60.f;
 };
 
 void Player::LeafAttackCameraUpdate(const FSMControlInformation& FSMControlInfo)&
 {
-	CurrentTPCamera->RefTargetInformation().ViewDirection =
-		FMath::Normalize(FMath::RotationVecNormal(FSMControlInfo.MyTransform->GetRight(),
-			FSMControlInfo.MyTransform->GetForward(), -FMath::ToRadian(22.5f)));
-	CurrentTPCamera->RefTargetInformation().DistancebetweenTarget = 40.f;
+	if (CurrentTPCamera)
+	{
+		CurrentTPCamera->RefTargetInformation().ViewDirection =
+			FMath::Normalize(FMath::RotationVecNormal(FSMControlInfo.MyTransform->GetRight(),
+				FSMControlInfo.MyTransform->GetForward(), -FMath::ToRadian(22.5f)));
+		CurrentTPCamera->RefTargetInformation().DistancebetweenTarget = 40.f;
+	};
+
 };
 
 void Player::SwordEffectPlay(Engine::AnimEffect* _AnimEffect, const FSMControlInformation& FSMControlInfo,
@@ -2300,7 +2320,12 @@ void Player::SwordEffectPlay(Engine::AnimEffect* _AnimEffect, const FSMControlIn
 }
 void Player::SwordCameraShake(const float Force,const float Duration)&
 {
+	if (CurrentTPCamera)
+	{
 	CurrentTPCamera->Shake(Force, FMath::Random<Vector3>({ -1,-1,-1 }, { 1,1,1 }), Duration);
+
+	};
+
 };
 
 
@@ -2428,58 +2453,75 @@ void Player::HitNotify(Object* const Target, const Vector3 PushDir,
 		_NPC)
 	{
 		
-		auto& CameraTargetInfo = CurrentTPCamera->RefTargetInformation();
-	// 	_NPC->GetComponent<Engine::SkeletonMesh>()->OutlineRedFactor = 0.f;
-
-		if (Control.IsDown(DIK_BACKSPACE) && InteractionCoolTime <0.0f)
+		if (CurrentTPCamera)
 		{
-			InteractionCoolTime = 0.3f;
+		   auto& CameraTargetInfo = CurrentTPCamera->RefTargetInformation();
 
-			RefSound().Play("UI_PopUp_05_A", 0.7f, true);
+		   // 	_NPC->GetComponent<Engine::SkeletonMesh>()->OutlineRedFactor = 0.f;
 
-			_NPC->bInteraction = !_NPC->bInteraction;
-			if (_NPC->bInteraction ==false)
-			{
-				CurrentTPCamera->RefTargetInformation().TargetObject = this;
-				CurrentTPCamera->RefTargetInformation().DistancebetweenTarget = 45.f;
-				CurrentTPCamera->RefTargetInformation().MaxDistancebetweenTarget = PlayerTargetInfo.MaxDistancebetweenTarget;
-				CurrentTPCamera->RefTargetInformation().RotateResponsiveness = PlayerTargetInfo.RotateResponsiveness;
-				CurrentTPCamera->RefTargetInformation().TargetLocationOffset = PlayerTargetInfo.TargetLocationOffset;
-				CurrentTPCamera->RefTargetInformation().ViewDirection = -_Transform->GetForward();
-				CurrentTPCamera->RefTargetInformation().ZoomInOutScale = PlayerTargetInfo.ZoomInOutScale;
-			}
+		   if (Control.IsDown(DIK_BACKSPACE) && InteractionCoolTime < 0.0f)
+		   {
+			   InteractionCoolTime = 0.3f;
+
+			   RefSound().Play("UI_PopUp_05_A", 0.7f, true);
+
+			   _NPC->bInteraction = !_NPC->bInteraction;
+			   if (_NPC->bInteraction == false)
+			   {
+				   if (CurrentTPCamera)
+				   {
+
+					   CurrentTPCamera->RefTargetInformation().TargetObject = this;
+					   CurrentTPCamera->RefTargetInformation().DistancebetweenTarget = 45.f;
+					   CurrentTPCamera->RefTargetInformation().MaxDistancebetweenTarget = PlayerTargetInfo.MaxDistancebetweenTarget;
+					   CurrentTPCamera->RefTargetInformation().RotateResponsiveness = PlayerTargetInfo.RotateResponsiveness;
+					   CurrentTPCamera->RefTargetInformation().TargetLocationOffset = PlayerTargetInfo.TargetLocationOffset;
+					   CurrentTPCamera->RefTargetInformation().ViewDirection = -_Transform->GetForward();
+					   CurrentTPCamera->RefTargetInformation().ZoomInOutScale = PlayerTargetInfo.ZoomInOutScale;
+				   }
+
+			   }
+		   }
+		   if (_NPC->bInteraction)
+		   {
+			   // _NPC->GetComponent<Engine::SkeletonMesh>()->OutlineRedFactor = 0.f;
+
+			   if (CurrentTPCamera)
+			   {
+
+
+				   CameraTargetInfo.TargetObject = _NPC;
+				   auto NPCTransform = _NPC->GetComponent<Engine::Transform>();
+
+				   Vector3 Distance = (_Transform->GetLocation() + NPCInteractionLocationOffset)
+					   - (NPCTransform->GetLocation() + _NPC->ViewLocationOffset);
+
+				   CameraTargetInfo.TargetLocationOffset = _NPC->ViewLocationOffset;
+
+				   const float Distancebetween = FMath::Length(Distance);
+				   const Vector3 Dir = FMath::Normalize(Distance);
+
+				   CameraTargetInfo.DistancebetweenTarget = Distancebetween + 7.f;
+				   CameraTargetInfo.ViewDirection = -Dir;
+
+				   if (Control.IsDown(DIK_L) && InteractionCoolTime < 0.0f)
+				   {
+					   InteractionCoolTime = 0.3f;
+
+					   RefSound().Play("UI_PopUp_11_A-2", 1.f, true);
+
+					   _NPC->NextInteraction();
+				   }
+			   }
+
+		   }
+		   else
+		   {
+			   RefSound().Play("UI_Text_Emotion_Icon_01_A", 0.68f, false);
+		   }
+
 		}
-		if (_NPC->bInteraction)
-		{
-			// _NPC->GetComponent<Engine::SkeletonMesh>()->OutlineRedFactor = 0.f;
-
-			CameraTargetInfo.TargetObject = _NPC;
-			auto NPCTransform = _NPC->GetComponent<Engine::Transform>();
-
-			Vector3 Distance = (_Transform->GetLocation() + NPCInteractionLocationOffset)
-								- (NPCTransform->GetLocation() + _NPC->ViewLocationOffset);
-
-			CameraTargetInfo.TargetLocationOffset = _NPC->ViewLocationOffset;
-
-			const float Distancebetween = FMath::Length(Distance);
-			const Vector3 Dir = FMath::Normalize(Distance);
-
-			CameraTargetInfo.DistancebetweenTarget = Distancebetween + 7.f;
-			CameraTargetInfo.ViewDirection = -Dir;
-
-			if (Control.IsDown(DIK_L) && InteractionCoolTime <0.0f)
-			{
-				InteractionCoolTime = 0.3f;
-
-				RefSound().Play("UI_PopUp_11_A-2", 1.f, true);
-
-				_NPC->NextInteraction();
-			}
-		}
-		else
-		{
-			RefSound().Play("UI_Text_Emotion_Icon_01_A", 0.68f, false);
-		}
+	
 	}
 };
 
@@ -2630,7 +2672,7 @@ void Player::CreatePlayerSkillUI()&
 	 MouseUI = RefRenderer().MakeUI({ 48.f * (App::ClientSize<float>.first/1920.f),
 									  48.f * (App::ClientSize<float>.second/1080.f)}, { 0,0 },
 		 App::ResourcePath / L"Texture" / L"UI" / L"GUI_MouseCursor_Default.tga", 0.99f);
-	 MouseUI.lock()->bRender = false;
+	 MouseUI.lock()->bRender = true;
 	 MouseUI.lock()->AlphaFactor = 1.f;
 	 MouseUI.lock()->AddColor = { 0,0,0 };
 	 MouseUI.lock()->Flag = 0u;
@@ -2667,20 +2709,26 @@ void Player::LateUpdate(const float DeltaTime)&
 {
 	Super::LateUpdate(DeltaTime);
 
-	if (CurrentTPCamera->bCursorMode)
+	if (CurrentTPCamera)
 	{
-		POINT Pt{};
-		GetCursorPos(&Pt);
-		ScreenToClient(App::Hwnd, &Pt);
-		MouseUI.lock()->Position = {
-			static_cast<float>(Pt.x) - App::ClientSize<float>.first / 2.f,
-			-static_cast<float>(Pt.y) + (App::ClientSize<float>.second / 2.f) };
-		MouseUI.lock()->bRender = true;
+		if (CurrentTPCamera->bCursorMode)
+		{
+			MouseUI.lock()->bRender = true;
+		}
+		else
+		{
+			MouseUI.lock()->bRender = false;
+		}
 	}
-	else
-	{
-		MouseUI.lock()->bRender= false;
-	}
+
+	POINT Pt{};
+	GetCursorPos(&Pt);
+	ScreenToClient(App::Hwnd, &Pt);
+	MouseUI.lock()->Position = {
+		static_cast<float>(Pt.x) - App::ClientSize<float>.first / 2.f,
+		-static_cast<float>(Pt.y) + (App::ClientSize<float>.second / 2.f) };
+
+	
 
 	CurrentStandUpRollingCoolTime = (std::max)(CurrentStandUpRollingCoolTime - DeltaTime, 0.0f);
 

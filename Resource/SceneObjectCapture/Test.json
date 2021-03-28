@@ -1,0 +1,113 @@
+{
+    "Object Instance List": [
+        {
+            "LayerKey": "class EnemyLayer",
+            "ObjectTypeList": [
+                {
+                    "ObjectTypeKey": "class Belatos",
+                    "ObjectInstanceList": [
+                        {
+                            "Name": "Belatos_1",
+                            "PrototypeTag": "Static",
+                            "bCaptureable": true,
+                            "Scale": [
+                                0.5,
+                                0.5,
+                                0.5
+                            ],
+                            "Rotation": [
+                                0.0,
+                                1.703989863395691,
+                                0.0
+                            ],
+                            "Location": [
+                                133.97213745117188,
+                                16.692264556884767,
+                                -1.9739046096801758
+                            ]
+                        },
+                        {
+                            "Name": "Belatos_2",
+                            "PrototypeTag": "Static",
+                            "bCaptureable": true,
+                            "Scale": [
+                                0.10000000149011612,
+                                0.10000000149011612,
+                                0.10000000149011612
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Location": [
+                                -138.26715087890626,
+                                16.692277908325197,
+                                -0.758026123046875
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "LayerKey": "class Engine::NormalLayer",
+            "ObjectTypeList": [
+                {
+                    "ObjectTypeKey": "class Engine::DynamicCamera",
+                    "ObjectInstanceList": []
+                },
+                {
+                    "ObjectTypeKey": "class NPC",
+                    "ObjectInstanceList": [
+                        {
+                            "Name": "NPC_2",
+                            "PrototypeTag": "Static",
+                            "bCaptureable": true,
+                            "Scale": [
+                                0.10000000149011612,
+                                0.10000000149011612,
+                                0.10000000149011612
+                            ],
+                            "Rotation": [
+                                0.0,
+                                3.1679863929748537,
+                                0.0
+                            ],
+                            "Location": [
+                                374.74127197265627,
+                                -3.05094313621521,
+                                11.059415817260743
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ObjectTypeKey": "class DelasaCenterChain",
+                    "ObjectInstanceList": [
+                        {
+                            "Name": "DelasaCenterChain_0",
+                            "PrototypeTag": "Static",
+                            "bCaptureable": true,
+                            "Scale": [
+                                0.029999999329447748,
+                                0.029999999329447748,
+                                0.029999999329447748
+                            ],
+                            "Rotation": [
+                                0.0,
+                                3.565984010696411,
+                                0.0
+                            ],
+                            "Location": [
+                                -2.3834609985351564,
+                                101.29566955566406,
+                                2.8414535522460939
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
