@@ -33,8 +33,6 @@
 #include "StringHelper.h"
 #include "EnemyLayer.h"
 
-
-
 void ObjectEdit::Initialize(IDirect3DDevice9* const Device)&
 {
 	Super::Initialize(Device);
@@ -67,7 +65,7 @@ void ObjectEdit::Initialize(IDirect3DDevice9* const Device)&
 
 	// 랜드스케이프. 
 	{
-		MapScale    = { 0.1f , 0.1f, 0.1f };
+		/*MapScale    = { 0.1f , 0.1f, 0.1f };
 		MapRotation = { 3.14f / 2.f,0.f,0.f };
 		MapLocation = { 0,0,0 };
 
@@ -95,7 +93,7 @@ void ObjectEdit::Initialize(IDirect3DDevice9* const Device)&
 			}
 		}
 
-		RefLandscape.Load(App::ResourcePath / L"MapLoadInfo" / "SkyGarden.json");
+		RefLandscape.Load(App::ResourcePath / L"MapLoadInfo" / "SkyGarden.json");*/
 	}
 	
 }
@@ -175,13 +173,14 @@ void ObjectEdit::Event()&
 		}
 
 	}
+	auto CurSpawnEditEventList = Proto.Editor();
 
 
 	if (ImGui::TreeNode("SpawnInformation"))
 	{
 		if (ImGui::TreeNode("Transform"))
 		{
-			/*ImGui::SliderFloat3("Scale", (float*)(&CurSpawnParam.Scale),
+			ImGui::SliderFloat3("Scale", (float*)(&CurSpawnParam.Scale),
 				0.01f, 10.f);
 
 			Vector3 SliderDegRotation = FMath::ToDegree(CurSpawnParam.Rotation);
@@ -190,19 +189,33 @@ void ObjectEdit::Event()&
 				-180, +180, "%f Deg"))
 			{
 				CurSpawnParam.Rotation = FMath::ToRadian(SliderDegRotation);
-			}*/
-			/*ImGui::SliderFloat3("Location", (float*)(&CurSpawnParam.Location),
-				0.001f, 10000.f);*/
+			}
+			ImGui::SliderFloat3("Location", (float*)(&CurSpawnParam.Location),
+				0.001f, 10000.f);
 
 			ImGui::TreePop();
 		}
+
+
+		if (ImGui::Button("Spawn"))
+		{
+			for (auto& CurSpawnEditEvent : CurSpawnEditEventList)
+			{
+				if (CurSpawnEditEvent)
+				{
+					Engine::Object::SpawnReturnValue
+						_SpawnObjReturnValue = CurSpawnEditEvent(CurSpawnParam);
+				}
+			}
+		}
+
 		ImGui::TreePop();
 	}
 	ImGui::End();
 
-	auto CurSpawnEditEventList = Proto.Editor();
 
 	auto& Control = RefControl();
+
 
 	if (Control.IsDown(DIK_RIGHTCLICK))
 	{

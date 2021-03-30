@@ -74,8 +74,6 @@ namespace Engine
 			const double TransitionDuration, const AnimNotify& _AnimNotify)&;
 		void  PlayAnimation(const AnimNotify& _AnimNotify)&;
 
-	
-
 		inline std::shared_ptr<Engine::Bone> GetBone(const std::string& BoneName) const&;
 		inline std::shared_ptr<Engine::Bone> GetRootBone() const&;
 	private:

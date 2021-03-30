@@ -142,17 +142,19 @@ void AnimationTester::Event()&
 			if (ImGui::Button("Attach"))
 			{
 				auto _SkeletonMesh = GetComponent<Engine::SkeletonMesh>();
-				auto _Transform = GetComponent<Engine::Transform>();
+				auto _Transform    = GetComponent<Engine::Transform>();
 
 				std::string Name = EditBoneNameBuf.data();
 
 				auto* _AttachTargetTransform = _AttackTarget->GetComponent<Engine::Transform>();
-				_AttachTargetTransform->AttachBone(&_SkeletonMesh->GetBone(Name)->ToRoot);
-				_AttachTargetTransform->AttachTransform(&_Transform->UpdateWorld());
+				auto TargetBone=_SkeletonMesh->GetBone(Name);
+				if (TargetBone)
+				{
+					_AttachTargetTransform->AttachBone(&TargetBone->ToRoot);
+					_AttachTargetTransform->AttachTransform(&_Transform->UpdateWorld());
+				}
 			}
-			
 		}
-		
 	}
 }
 
