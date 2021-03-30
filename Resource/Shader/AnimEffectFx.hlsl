@@ -2,7 +2,6 @@ matrix World;
 matrix View;
 matrix Projection;
 
-
 float AlphaFactor = 1.f;
 float Brightness = 1.f;
 float Time;
