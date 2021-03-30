@@ -172,7 +172,7 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 	auto _Bone = std::make_shared<Bone>();
 	Bone* RootBone = _Bone.get();
 	BoneTable.push_back(_Bone);
-	BoneTableIdxFromName.insert({ AiScene->mRootNode->mName.C_Str()  , BoneTable .size()-1u });
+	BoneTableIdxFromName.insert({ AiScene->mRootNode->mName.C_Str()  , BoneTable.size()-1u });
 	RootBone->Name = AiScene->mRootNode->mName.C_Str();
 	RootBone->OriginTransform = RootBone->Transform = FromAssimp(AiScene->mRootNode->mTransformation);
 	RootBone->Parent = nullptr;

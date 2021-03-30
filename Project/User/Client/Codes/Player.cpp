@@ -2553,6 +2553,7 @@ void Player::CreatePlayerSkillUI()&
 			App::ResourcePath / L"Texture" / L"UI" /
 			L"Icon_Karma_TS.tga",
 			0.2);
+
 	KarmaIcon.lock()->Flag = 0u;
 	KarmaIcon.lock()->bRender = false;
 	KarmaIcon.lock()->CoolTimeHeight = 0.0f;
@@ -2650,8 +2651,6 @@ void Player::CreatePlayerSkillUI()&
 	 PlayerKarmaInfoGUI.lock()->bRender = false;
 	 PlayerKarmaInfoGUI.lock()->WorldUI = FMath::Identity();
 	 PlayerKarmaInfoGUI.lock()->AlphaFactor = 0.0f;
-
-
 	 
 	 CenterLineQuad =
 		 RefRenderer().MakeUI({ App::ClientSize<float>.first /2.f,

@@ -19,6 +19,7 @@
 #include <numbers>
 #include "Layer.h"
 #include <iostream>
+#include "AttachTarget.h"
 #include "DynamicCamera.h"
 #include <d3d9.h>
 #include <d3dx9.h>
@@ -70,6 +71,7 @@ void EnterGame::Initialize(IDirect3DDevice9* const Device)&
 		Proto.LoadPrototype<PlayerWeapon>(L"Static", Device); 
 		Proto.LoadPrototype<DelasaCenterChain>(L"Static", Device);
 		Proto.LoadPrototype<AnimationTester>(L"Static", Device);
+		Proto.LoadPrototype<AttachTarget>(L"Static", Device);
 
 		Proto.LoadPrototype<Belatos>(L"Static", Device);
 		Proto.LoadPrototype<NPC>(L"Static", Device);

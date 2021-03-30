@@ -16,7 +16,6 @@
 #include "ShaderFx.h"
 #include "StringHelper.h"
 
-
 namespace Engine
 {
 	class DLL_DECL StaticMesh : public Mesh

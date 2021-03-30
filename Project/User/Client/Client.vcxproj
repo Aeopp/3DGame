@@ -201,6 +201,7 @@
     </ClInclude>
     <ClInclude Include="Client.h" />
     <ClInclude Include="Codes\AnimationTester.h" />
+    <ClInclude Include="Codes\AttachTarget.h" />
     <ClInclude Include="Codes\Belatos.h" />
     <ClInclude Include="Codes\Monster.h" />
     <ClInclude Include="Codes\NPC.h" />
@@ -223,6 +224,7 @@
   <ItemGroup>
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="Codes\AnimationTester.cpp" />
+    <ClCompile Include="Codes\AttachTarget.cpp" />
     <ClCompile Include="Codes\Belatos.cpp" />
     <ClCompile Include="Codes\Monster.cpp" />
     <ClCompile Include="Codes\NPC.cpp" />

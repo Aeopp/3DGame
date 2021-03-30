@@ -107,7 +107,8 @@ namespace Vertex
 		Vector3 Location{ 0,0,0 };
 		Vector3 Normal{ 0 , 0,  0 };
 		Vector2 UV{ 0,0 };
-		static inline LocationNormalUV2D MakeFromAssimpMesh(const aiMesh* const AiMesh,
+		static inline LocationNormalUV2D MakeFromAssimpMesh
+		(const aiMesh* const AiMesh,
 			const uint32 CurrentIdx)
 		{
 			return LocationNormalUV2D

@@ -27,9 +27,7 @@
 #include "Sound.h"
 #include "Renderer.h"
 #include "ObjectEdit.h"
-
-
-
+#include "AttachTarget.h"
 
 void AnimationTester::Initialize(
 	const std::optional<Vector3>& Scale,
@@ -101,7 +99,17 @@ void AnimationTester::Initialize(
 		{
 
 		});
+
+	std::shared_ptr<AttachTarget> _AttachTarget =
+		RefManager().NewObject<Engine::NormalLayer, AttachTarget >(L"Static",
+			Name + L"_AttachTarget", Vector3{ 1,1,1 },
+			Vector3{ 0.f,0.f,0.f },
+			Vector3{0,0,0 });
+	this->_AttackTarget = _AttachTarget.get();
+
+	
 }
+
 
 void AnimationTester::PrototypeInitialize(IDirect3DDevice9* const Device)&
 {
@@ -124,6 +132,28 @@ void AnimationTester::PrototypeInitialize(IDirect3DDevice9* const Device)&
 void AnimationTester::Event()&
 {
 	Super::Event();
+
+	if (Engine::Global::bDebugMode)
+	{
+		if (_AttackTarget)
+		{
+			ImGui::InputText("Bone Name", &EditBoneNameBuf[0],EditBoneNameBuf.size()) ;
+
+			if (ImGui::Button("Attach"))
+			{
+				auto _SkeletonMesh = GetComponent<Engine::SkeletonMesh>();
+				auto _Transform = GetComponent<Engine::Transform>();
+
+				std::string Name = EditBoneNameBuf.data();
+
+				auto* _AttachTargetTransform = _AttackTarget->GetComponent<Engine::Transform>();
+				_AttachTargetTransform->AttachBone(&_SkeletonMesh->GetBone(Name)->ToRoot);
+				_AttachTargetTransform->AttachTransform(&_Transform->UpdateWorld());
+			}
+			
+		}
+		
+	}
 }
 
 void AnimationTester::Update(const float DeltaTime)&

@@ -234,15 +234,15 @@ void Engine::SkeletonMesh::RenderVelocity(Engine::Renderer* const _Renderer)&
 
 
 
-void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
+void Engine::SkeletonMesh::Update(Object* const Owner, const float DeltaTime)&
 {
 	Super::Update(Owner, DeltaTime);
 
 	static const Matrix Identity = FMath::Identity();
 
-	CurrentAnimMotionTime  += (DeltaTime * Acceleration);
-	PrevAnimMotionTime     += (DeltaTime * PrevAnimAcceleration);
-	TransitionRemainTime   -= DeltaTime;
+	CurrentAnimMotionTime += (DeltaTime * Acceleration);
+	PrevAnimMotionTime += (DeltaTime * PrevAnimAcceleration);
+	TransitionRemainTime -= DeltaTime;
 
 	AnimationNotify();
 
@@ -256,7 +256,7 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 			PrevAnimMotionTime = AnimInfoTable[PrevAnimIndex].Duration;
 		}
 
-		if (AnimIdx < AnimInfoTable.size() )
+		if (AnimIdx < AnimInfoTable.size())
 		{
 			const double PrevAnimationWeight = TransitionRemainTime / TransitionDuration;
 
@@ -293,10 +293,10 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 			Bone* RootBone = BoneTable.front().get();
 
 			RootBone->BoneMatrixUpdate(Identity,
-				CurrentAnimMotionTime,  
-				_AnimationTrack->ScaleTimeLine[AnimIdx]    ,
-				_AnimationTrack->QuatTimeLine[AnimIdx]   ,
-				_AnimationTrack->PosTimeLine[AnimIdx]   ,     std::nullopt);
+				CurrentAnimMotionTime,
+				_AnimationTrack->ScaleTimeLine[AnimIdx],
+				_AnimationTrack->QuatTimeLine[AnimIdx],
+				_AnimationTrack->PosTimeLine[AnimIdx], std::nullopt);
 		}
 	}
 }
@@ -308,6 +308,11 @@ Engine::SkeletonMesh::MakeHierarchy(
 	auto TargetBone = std::make_shared<Bone>(); 
 	BoneTable.push_back(TargetBone);
 	const uint64 CurBoneIdx = BoneTable.size() - 1;
+
+	if (BoneTableIdxFromName.contains(AiNode->mName.C_Str()))
+	{
+		std::terminate();
+	}
 
 	BoneTableIdxFromName.insert({ AiNode->mName.C_Str()  ,CurBoneIdx });
 	TargetBone->Name = AiNode->mName.C_Str();

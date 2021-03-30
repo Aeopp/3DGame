@@ -30,5 +30,8 @@ public:
 	virtual std::function< SpawnReturnValue(const SpawnParam&)>
 		PrototypeEdit() & override;
 private:
+	std::array<char, 256u> EditBoneNameBuf{};
+
+	Engine::Object* _AttackTarget{ nullptr };
 	IDirect3DDevice9* Device{ nullptr };
 };
