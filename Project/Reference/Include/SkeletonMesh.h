@@ -36,8 +36,14 @@ namespace Engine
 		void  Load(IDirect3DDevice9* const Device,
 			const std::filesystem::path FilePath,
 			const std::filesystem::path FileName,
-			const std::wstring ResourceName ,
+			const std::wstring ResourceName,
 			const Engine::RenderInterface::Group RenderGroup) &;
+
+		
+		void ChangeModel(IDirect3DDevice9* const Device,
+			const std::filesystem::path& FileFullPath)&;
+
+
 		void  Initialize(const std::wstring& ResourceName)&;
 		void  Event(class Object* Owner) & override;
 		// 기본 쉐이더 . (포워드)
@@ -73,6 +79,8 @@ namespace Engine
 			const double Acceleration,
 			const double TransitionDuration, const AnimNotify& _AnimNotify)&;
 		void  PlayAnimation(const AnimNotify& _AnimNotify)&;
+
+	
 
 		inline std::shared_ptr<Engine::Bone> GetBone(const std::string& BoneName) const&;
 		inline std::shared_ptr<Engine::Bone> GetRootBone() const&;

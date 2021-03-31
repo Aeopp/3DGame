@@ -33,7 +33,7 @@ namespace Engine
 			Vector4 CameraLocation4D{};  
 			Matrix  LightViewProjection{};
 			Matrix  OrthoProjection{};
-			float Far{};
+			float   Far{};
 		};
 
 		void Initialize(

@@ -155,6 +155,16 @@ void AnimationTester::Event()&
 				}
 			}
 		}
+
+		if (ImGui::Button("ChangeModel"))
+		{
+			ImGui::InputText("Model Name", &EditChangeModelBuf[0], EditChangeModelBuf.size());
+			const std::string Name = EditChangeModelBuf.data();
+
+
+		}
+		
+
 	}
 }
 
