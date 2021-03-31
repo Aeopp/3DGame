@@ -156,15 +156,15 @@ void AnimationTester::Event()&
 			}
 		}
 
-		if (ImGui::Button("ChangeModel"))
+		ImGui::InputText("Change Model Name", &EditAddModelNameBuf[0], EditAddModelNameBuf.size());
+
+		if (ImGui::Button("Change Model"))
 		{
-			ImGui::InputText("Model Name", &EditChangeModelBuf[0], EditChangeModelBuf.size());
-			const std::string Name = EditChangeModelBuf.data();
+			auto Path =  App::ResourcePath /"Mesh"/"DynamicMesh"/ EditAddModelNameBuf.data();
 
-
+			auto _SkeletonMesh = GetComponent<Engine::SkeletonMesh>();
+			_SkeletonMesh->ChangeModel( Device , Path);
 		}
-		
-
 	}
 }
 

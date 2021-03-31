@@ -212,7 +212,7 @@ void Engine::Bone::BoneMatrixUpdate(
 				FMath::Translation(CurAnimLocation));
 		}
 	}
-
+	
 	Transform = AnimationTransform;
 	ToRoot = Transform * ParentToRoot;
 	Final = Offset * ToRoot;

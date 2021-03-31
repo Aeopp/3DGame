@@ -37,9 +37,11 @@ namespace Engine
 			const std::filesystem::path FilePath,
 			const std::filesystem::path FileName,
 			const std::wstring ResourceName,
-			const Engine::RenderInterface::Group RenderGroup) &;
+			const Engine::RenderInterface::Group RenderGroup)&;
 
-		
+		void AddModel(IDirect3DDevice9* const Device,
+			const std::filesystem::path& FileFullPath)&;
+		//
 		void ChangeModel(IDirect3DDevice9* const Device,
 			const std::filesystem::path& FileFullPath)&;
 

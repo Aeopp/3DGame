@@ -31,7 +31,7 @@ public:
 		PrototypeEdit() & override;
 private:
 	std::array<char, 256u> EditBoneNameBuf{};
-	std::array<char, 256u> EditChangeModelBuf{};
+	std::array<char, 256u> EditAddModelNameBuf{};
 
 	Engine::Object* _AttackTarget{ nullptr };
 	IDirect3DDevice9* Device{ nullptr };

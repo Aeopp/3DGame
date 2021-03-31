@@ -1,4 +1,5 @@
 #pragma once
+
 #include "TypeAlias.h"
 #include <type_traits>
 #include <iostream>
@@ -10,6 +11,7 @@
 #include <random>
 #include "MathStruct.h"
 #include <optional>
+
 
 class FMath
 {
@@ -114,6 +116,7 @@ public:
 	static inline bool  IsPlaneToSphere(const PlaneInfo& Lhs,
 		const Sphere& Rhs, float& CrossingArea);
 
+
 	static inline bool IsRange(const float Begin, const float End , const float X);
 
 	static inline bool Intersect_1D_Line(const float LhsMin, const float LhsMax, const float RhsMin, const float RhsMax);
@@ -151,6 +154,9 @@ inline float FMath::MaxScala(const Vector3& Lhs)
 {
 	return (std::max)({Lhs.x,Lhs.y,Lhs.z});
 }
+
+
+
 inline void FMath::DebugPrintMatrix(const Matrix& _Matrix)
 {
 	for (uint32 Row = 0u; Row < 4u; ++Row)

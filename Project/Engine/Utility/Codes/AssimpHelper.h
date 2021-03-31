@@ -19,6 +19,9 @@ inline void AssimpDebugPrint(const aiMatrix4x4& AiMatrix)
 	std::cout << std::endl; 
 }
 
+
+
+
 // 열기준 행렬을 전치해 DX의 행기준 행렬로 변환한다.
 inline Matrix FromAssimp(const aiMatrix4x4& AiMatrix)
 {
