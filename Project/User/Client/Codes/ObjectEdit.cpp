@@ -181,19 +181,6 @@ void ObjectEdit::Event()&
 	{
 		if (ImGui::TreeNode("Transform"))
 		{
-			/*ImGui::SliderFloat3("Scale", (float*)(&CurSpawnParam.Scale),
-				0.01f, 10.f);
-
-			Vector3 SliderDegRotation = FMath::ToDegree(CurSpawnParam.Rotation);
-
-			if (ImGui::SliderFloat3("Rotation", (float*)(&SliderDegRotation),
-				-180, +180, "%f Deg"))
-			{
-				CurSpawnParam.Rotation = FMath::ToRadian(SliderDegRotation);
-			}*/
-			/*ImGui::SliderFloat3("Location", (float*)(&CurSpawnParam.Location),
-				0.001f, 10000.f);*/
-
 			ImGui::TreePop();
 		}
 		ImGui::TreePop();
@@ -291,14 +278,14 @@ void ObjectEdit::CaptureObjectLoad(const std::filesystem::path& FullPath)
 
 					const auto& RotationArr = ObjectInstanceIter->FindMember("Rotation")->value.GetArray();
 					_SpawnParam.Rotation = { RotationArr[0].GetFloat(),
-											RotationArr[1].GetFloat(),
-											RotationArr[2].GetFloat() };
+											 RotationArr[1].GetFloat(),
+											 RotationArr[2].GetFloat() };
 
 					const auto& LocationArr = ObjectInstanceIter->FindMember("Location")->value.GetArray();
 					_SpawnParam.Location = { LocationArr[0].GetFloat(),
-											LocationArr[1].GetFloat(),
-											LocationArr[2].GetFloat() };
-
+											 LocationArr[1].GetFloat(),
+											 LocationArr[2].GetFloat() };
+					 
 					Manager.NewObject(LayerKey, ObjectTypeKey, ToW(PrototypeTag), ToW(SpawnObjName), _SpawnParam);
 				}
 			}

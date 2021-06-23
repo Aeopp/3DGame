@@ -148,17 +148,6 @@ std::optional<Engine::Cell::Result>
 			};
 		}
 
-
-		//// 이웃들에서도 이동이 실패 하였으므로 이웃의 이웃에서 검색 시작. (재귀 시작)
-		//for (const auto& NeighborCell : Neighbors)
-		//{
-		//	auto NeighborResult = NeighborCell->Compare(EndPosition);
-		//	if  (NeighborResult)
-		//	{
-		//		return NeighborResult;
-		//	}
-		//}
-
 		// 이웃들 중에서도 검색에서 실패하였다.
 		Vector2 ToTargetLocation = EndPosition2D - bOutLine->Begin;
 		Vector2 Begin = bOutLine->Begin;
@@ -173,40 +162,30 @@ std::optional<Engine::Cell::Result>
 			ToEnd *= -1.f;
 		}
 
-		Vector2 Force = EndPosition2D - Begin;
-		// Vector3 OutlineSegmentSlidingVector =FMath::Sliding(Force, { bOutLine->Normal.x ,0.f,bOutLine->Normal.y} );
+		const Vector2 Force = EndPosition2D - Begin;
 		Vector2 ToEndNormal;
 		D3DXVec2Normalize(&ToEndNormal, &ToEnd);
-		Vector2 OutlineSegmentSlidingVector2D = ToEndNormal * D3DXVec2Dot(&ToEndNormal, &Force);
 
-		Vector3 OutlineSegmentSlidingVector = { OutlineSegmentSlidingVector2D .x ,0.f ,OutlineSegmentSlidingVector2D.y};
+		// 오브젝트가 벗어날려는 선분의 슬라이딩 벡터를 3D로 변환.
+		const Vector2 OutlineSegmentSlidingVector2D = ToEndNormal * D3DXVec2Dot(&ToEndNormal, &Force);
+		const Vector3 OutlineSegmentSlidingVector { OutlineSegmentSlidingVector2D.x,0.f,OutlineSegmentSlidingVector2D.y};
+		// (벗어날려는 선분 시작점 + 슬라이딩 벡터) = 미끄러진 이후의 위치 
+		Vector3 LocationAfterSliding { OutlineSegmentSlidingVector + Vector3{ Begin.x,0.f,Begin.y } };
 
-		const Vector3 ToEnd3D = { ToEnd.x  , 0.f , ToEnd.y  };
-		/*if (FMath::Length(OutlineSegmentSlidingVector) >= FMath::Length(ToEnd3D))
-		{
-			OutlineSegmentSlidingVector = ToEnd3D;
-		}*/
-
-		// Begin + 슬라이딩 벡터이므로 타겟이 미끄러진 이후의 위치 .
-		Vector3 SlidingAfterLocation = OutlineSegmentSlidingVector + 
-								Vector3{ Begin.x , 0.f ,Begin.y };
-
-		// 슬라이딩 시킨 위치에서도 해당 삼각형을 벗어난 상태. 
-		const Vector2 SlidingAfterLocation2D = { SlidingAfterLocation.x , SlidingAfterLocation.z };
-
-		const bool bAfterSlidingOut=FMath::Length(OutlineSegmentSlidingVector) > FMath::Length(ToEnd3D);
+		const Vector3 ToEnd3D { ToEnd.x ,0.f,ToEnd.y };
+		const bool bAfterSlidingOut= FMath::Length(OutlineSegmentSlidingVector) > FMath::Length(ToEnd3D);
 		if (bAfterSlidingOut)
 		{
-			// 슬라이딩 시킨 위치가 이웃중에서는 유효한가?
+			// 슬라이딩 시킨 위치가 이웃 셀 중 어느 하나라도 내부에 존재할까 ?? 
 			for (const auto& NeighborCell : Neighbors)
 			{
-
-				if (auto bNeighborOutLine = NeighborCell->IsOutLine(SlidingAfterLocation2D);
+				if (auto bNeighborOutLine = NeighborCell->IsOutLine(Vector2{ LocationAfterSliding.x,LocationAfterSliding.z });
 					bNeighborOutLine.has_value() == false)
 				{
-					SlidingAfterLocation.y = EndPosition.y;
-					const Vector3 ProjectLocation =
-						FMath::ProjectionPointFromFace(NeighborCell->_Plane._Plane, SlidingAfterLocation);
+					LocationAfterSliding.y = EndPosition.y;
+					//해당 이웃의 내부로 이동해도 유효하니 이웃셀에 미끄러진 이후 위치 투영하고 그 위치를 반환.
+					const Vector3 ProjectLocation
+						{ FMath::ProjectionPointFromFace(NeighborCell->_Plane._Plane, LocationAfterSliding) };
 					return { {NeighborCell,Engine::Cell::CompareType::Stop,ProjectLocation } };
 				};
 			}
@@ -214,13 +193,13 @@ std::optional<Engine::Cell::Result>
 
 		if (bAfterSlidingOut)
 		{
-			SlidingAfterLocation.x = End.x;
-			SlidingAfterLocation.z = End.y;
+			LocationAfterSliding.x = End.x;
+			LocationAfterSliding.z = End.y;
 		}
 
-		SlidingAfterLocation.y = EndPosition.y;
-		SlidingAfterLocation = FMath::ProjectionPointFromFace(_Plane._Plane, SlidingAfterLocation);
-		return  { { this,Engine::Cell::CompareType::Stop, SlidingAfterLocation} };
+		LocationAfterSliding.y = EndPosition.y;
+		LocationAfterSliding = FMath::ProjectionPointFromFace(_Plane._Plane, LocationAfterSliding);
+		return  { { this,Engine::Cell::CompareType::Stop, LocationAfterSliding} };
 	}
 
 	return std::nullopt;
@@ -236,8 +215,10 @@ void Engine::Cell::ReCalculateSegment2D()&
 	_Plane = PlaneInfo::Make({ PointA, PointB, PointC } );
 }
 
- std::optional<Engine::Cell::Segment2DAndNormal> Engine::Cell::IsOutLine(const Vector2& EndPosition2D) const&
+ std::optional<Engine::Cell::Segment2DAndNormal> 
+	 Engine::Cell::IsOutLine(const Vector2& EndPosition2D) const&
 {
+	// 2D 노말 벡터 사용해서 선분기준 노말 방향인지 반대방향인지 검사. 
 	auto IsOutLineImplementation =
 		[EndPosition2D](const Segment2DAndNormal& TargetSegment)
 		->std::optional<Engine::Cell::Segment2DAndNormal>
@@ -253,7 +234,7 @@ void Engine::Cell::ReCalculateSegment2D()&
 			return std::nullopt;
 		}
 	};
-
+	// (2D Point - Segment Start Point)이 전부 다 선분 노말과 예각이여야 삼각형 내부라고 판단.
 	std::optional<Engine::Cell::Segment2DAndNormal>	bOutLine = std::nullopt;
 
 	if (bOutLine = IsOutLineImplementation(Segment2DAB);

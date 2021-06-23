@@ -141,20 +141,20 @@ VS_OUT VS_MAIN(VS_IN In)
     float UVCorrection = 0.5f;
     float FVTFPitch = float(VTFPitch);
     int   IVTFPitch = int(VTFPitch);
-    
+    // 정점당 스키닝 본 개수 4개 제한 . 
     for (int i = 0; i < 4; ++i)
     {
         int Idx = In.BoneIds[i] * 4;
-        
+        // 스키닝 참조 본 ToRoot 행렬 (1,1 ~ 1,4)
         float2 VTFUVRow0 = float2((float(Idx % IVTFPitch) + UVCorrection) / FVTFPitch,
                                   (float(Idx / IVTFPitch) + UVCorrection) / FVTFPitch);
-        
+        // 스키닝 참조 본 ToRoot 행렬 (2,1 ~ 2,4)
         float2 VTFUVRow1 = float2((float((Idx + 1) % IVTFPitch) + UVCorrection) / FVTFPitch,
                                   (float((Idx + 1) / IVTFPitch) + UVCorrection) / FVTFPitch);
-        
+        // 스키닝 참조 본 ToRoot 행렬 (3,1 ~ 3,4)
         float2 VTFUVRow2 = float2((float((Idx + 2) % IVTFPitch) + UVCorrection) / FVTFPitch,
                                   (float((Idx + 2) / IVTFPitch) + UVCorrection) / FVTFPitch);
-        
+        // 스키닝 참조 본 ToRoot 행렬 (4,1 ~ 4,4)
         float2 VTFUVRow3 = float2((float((Idx + 3) % IVTFPitch) + UVCorrection) / FVTFPitch,
                                   (float((Idx + 3) / IVTFPitch) + UVCorrection) / FVTFPitch);
         
@@ -165,7 +165,7 @@ VS_OUT VS_MAIN(VS_IN In)
             tex2Dlod(VTFSampler, float4(VTFUVRow2, 0.f, 0.f)),
             tex2Dlod(VTFSampler, float4(VTFUVRow3, 0.f, 0.f))
         };
-        
+        // 노말 매핑 TBN 행렬과 스키닝 애니메이션 정점 위치계산. 
         AnimTanget   += (mul(float4(In.Tangent, 0.f), AnimMatrix) * In.Weights[i]);
         AnimNormal   += (mul(float4(In.Normal, 0.f), AnimMatrix) * In.Weights[i]);
         AnimBiNormal += (mul(float4(In.BiNormal, 0.f), AnimMatrix) * In.Weights[i]);

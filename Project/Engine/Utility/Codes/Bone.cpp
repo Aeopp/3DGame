@@ -189,39 +189,34 @@ void Engine::Bone::BoneMatrixUpdate(
 						IsAnimationBlend->PosTrack);
 
 				const Vector3 LerpAnimScale =
-					FMath::Lerp(BlendAnimScale, CurAnimScale,
+					    FMath::Lerp(BlendAnimScale, CurAnimScale,
 						1.0 - IsAnimationBlend->PrevAnimationWeight);
 
 				const Quaternion LerpAnimRotation =
-					FMath::SLerp(BlendAnimRotation, CurAnimRotation,
+					    FMath::SLerp(BlendAnimRotation, CurAnimRotation,
 						1.0 - IsAnimationBlend->PrevAnimationWeight);
 
 				const Vector3 LerpAnimLocation =
-					FMath::Lerp(BlendAnimLocation, CurAnimLocation,
+				     	FMath::Lerp(BlendAnimLocation, CurAnimLocation,
 						1.0 - IsAnimationBlend->PrevAnimationWeight);
 
 				AnimationTransform = (FMath::Scale(LerpAnimScale) *
-					FMath::Rotation(LerpAnimRotation) *
-					FMath::Translation(LerpAnimLocation));
+									  FMath::Rotation(LerpAnimRotation) *
+									  FMath::Translation(LerpAnimLocation));
 			}
 		}
 		else
-		{
+		{   // 애니메이션이 1개만 재생 중인 경우 블렌딩 필요 없음.
 			AnimationTransform = (FMath::Scale(CurAnimScale) *
-				FMath::Rotation(CurAnimRotation) *
-				FMath::Translation(CurAnimLocation));
+								  FMath::Rotation(CurAnimRotation) *
+							      FMath::Translation(CurAnimLocation));
 		}
 	}
 
 	Transform = AnimationTransform;
 	ToRoot = Transform * ParentToRoot;
 	Final = Offset * ToRoot;
-
-	/*if (CollisionGeometric)
-	{
-		CollisionGeometric->Update()
-	}*/
-
+	// 자식 본들도 애니메이션 이후로 행렬 업데이트 수행. 
 	for (auto& ChildrenTarget : Childrens)
 	{
 		ChildrenTarget->BoneMatrixUpdate(

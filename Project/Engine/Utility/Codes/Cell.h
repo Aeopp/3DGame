@@ -27,8 +27,6 @@ namespace Engine
 			Vector2 Normal{}; 
 		};
 	public:
-	public:
-		
 		void Initialize(
 			class NavigationMesh* const NaviMesh,
 			const Vector3& PointA,

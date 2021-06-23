@@ -1,8 +1,6 @@
 matrix WorldView;
 matrix PrevWorldView;
-
 matrix Projection;
-
 
 int VTFPitch;
 texture VTF;

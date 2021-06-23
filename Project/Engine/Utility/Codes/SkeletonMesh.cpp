@@ -301,27 +301,25 @@ void Engine::SkeletonMesh::Update(Object* const Owner,const float DeltaTime)&
 	}
 }
 
-Engine::Bone*
-Engine::SkeletonMesh::MakeHierarchy(
-	Bone* BoneParent,const aiNode* const AiNode)
+Engine::Bone* Engine::SkeletonMesh::MakeHierarchy(
+	    Bone* BoneParent,const aiNode* const AiNode)
 {
 	auto TargetBone = std::make_shared<Bone>(); 
-	BoneTable.push_back(TargetBone);
+	BoneTable.push_back(TargetBone);// 이후 빠른 검색을 위해 테이블에 삽입
 	const uint64 CurBoneIdx = BoneTable.size() - 1;
-
-	BoneTableIdxFromName.insert({ AiNode->mName.C_Str()  ,CurBoneIdx });
+	// 초기 행렬 설정과 트리 부모관계 구축
+	BoneTableIdxFromName.insert({ AiNode->mName.C_Str(),CurBoneIdx });
 	TargetBone->Name = AiNode->mName.C_Str();
 	TargetBone->OriginTransform = TargetBone->Transform = FromAssimp(AiNode->mTransformation);
-	// TargetBone->Parent = TargetBone.get(); 
 	TargetBone->Parent = BoneParent;
 	TargetBone->ToRoot = TargetBone->OriginTransform * BoneParent->ToRoot;
-
+	// 자식 뼈대 테이블에 푸시함과 동시에 뼈대 트리 구축을 위해 자식들도 재귀 호출. 
 	for (uint32 i = 0; i < AiNode->mNumChildren; ++i)
 	{
 		TargetBone->Childrens.push_back(MakeHierarchy(TargetBone.get(), AiNode->mChildren[i]));
 	}
-
-	return TargetBone.get();
+	auto * const AssignParent = TargetBone.get();
+	return AssignParent;
 }
 
 Engine::Bone* Engine::SkeletonMesh::MakeHierarchyClone(Bone* BoneParent, const Bone* const PrototypeBone)
@@ -417,27 +415,27 @@ void Engine::SkeletonMesh::InitTextureForVertexTextureFetch()&
 	const float TexPitchPrecision = std::sqrtf(BoneTable.size() * sizeof(Matrix) / 4u);
 
 	const uint8 PowerOfMax = 9u;
-	// 2^9 * 2^9 / 4 = 4096개의 행렬을 저장 가능하며 4096개의 본을 가진 캐릭터가 존재하는 게임을 나는 아직 못만듬.
+	// 2^9 * 2^9 / 4 = 4096 최대 4096개의 본 개수 지원 . 
+	// 현재 캐릭터 본 개수 바탕으로 텍스쳐 사이즈를 알아내기 위해 가장 가까운 2의 승수 찾기.
 	for (uint8 PowerOf2 = 1u; PowerOf2 < PowerOfMax; ++PowerOf2)
 	{
 		VTFPitch = std::powl(2, PowerOf2);
 		if (VTFPitch >= TexPitchPrecision)
 			break;
 	}
-
+	// 텍스쳐 포맷 부동소수점 타입 4개로 만들기 여기에 스키닝 행렬정보 밀어넣기. 
 	Device->CreateTexture
 	(VTFPitch, VTFPitch,1,0, D3DFMT_A32B32G32R32F,D3DPOOL_MANAGED,
 		&BoneAnimMatrixInfo, nullptr);
 
-	Device->CreateTexture
-	(VTFPitch, VTFPitch, 1, 0, D3DFMT_A32B32G32R32F, D3DPOOL_MANAGED,
-		&PrevBoneAnimMatrixInfo, nullptr);
-
 	static uint64 BoneAnimMatrixInfoTextureResourceID = 0u;
 
 	ResourceSystem::Instance->Insert<IDirect3DTexture9>
-		(
-			L"VTF_" + std::to_wstring(BoneAnimMatrixInfoTextureResourceID), BoneAnimMatrixInfo);
+		(L"VTF_" + std::to_wstring(BoneAnimMatrixInfoTextureResourceID), BoneAnimMatrixInfo);
+
+	Device->CreateTexture
+	(VTFPitch, VTFPitch, 1, 0, D3DFMT_A32B32G32R32F, D3DPOOL_MANAGED,
+		&PrevBoneAnimMatrixInfo, nullptr);
 
 	ResourceSystem::Instance->Insert<IDirect3DTexture9>
 		(
