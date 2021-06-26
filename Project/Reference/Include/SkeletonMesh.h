@@ -191,21 +191,21 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 
 		MeshElement CreateMesh{};
 		aiMesh* _AiMesh = AiScene->mMeshes[MeshIdx];
-		// 버텍스 버퍼.
-		std::shared_ptr<std::vector<VertexType>> Verticies = std::make_shared<std::vector<VertexType>>();
-
+		
+		auto Verticies = std::make_shared<std::vector<VertexType>>();
+		// 라이브러리 타입으로 부터 엔진 메쉬 타입으로 변환. 
 		for (uint32 VerticesIdx = 0u; VerticesIdx < _AiMesh->mNumVertices; ++VerticesIdx)
 		{
 			Verticies->push_back(VertexType::MakeFromAssimpMesh(_AiMesh, VerticesIdx));
 			LocalVertexLocations->push_back(FromAssimp(_AiMesh->mVertices[VerticesIdx]));
 		}
-
-		const std::wstring MeshVtxBufResourceName =
-			L"SkeletonMesh_VertexBuffer_" + CurrentResourceName;
+		// 리소스 매니저에 넘길 정점 버퍼 리소스 이름
+		const std::wstring MeshVtxBufResourceName=L"SkeletonMesh_VertexBuffer_" + CurrentResourceName;
 		IDirect3DVertexBuffer9* _VertexBuffer{ nullptr };
+		// 라이브러리 정보로부터 준비가 끝나면 정점 버퍼 생성 . 
 		CreateMesh.VtxBufSize = sizeof(VertexType) * Verticies->size();
-		Device->CreateVertexBuffer(CreateMesh.VtxBufSize, D3DUSAGE_DYNAMIC, NULL,
-			D3DPOOL_DEFAULT, &_VertexBuffer, nullptr);
+		Device->CreateVertexBuffer(CreateMesh.VtxBufSize, D3DUSAGE_DYNAMIC, NULL,D3DPOOL_DEFAULT, &_VertexBuffer, nullptr);
+
 		CreateMesh.VertexBuffer = ResourceSys.Insert<IDirect3DVertexBuffer9>(MeshVtxBufResourceName, _VertexBuffer);
 		CreateMesh.PrimitiveCount = CreateMesh.FaceCount = _AiMesh->mNumFaces;
 
@@ -261,13 +261,13 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 						auto& TargetBone = BoneTable[TargetBoneIdx];
 						for (uint32 WeightIdx = 0u; WeightIdx < CurVtxBone->mNumWeights; ++WeightIdx)
 						{
-							const aiVertexWeight  _AiVtxWit = CurVtxBone->mWeights[WeightIdx];
-							const uint32 VtxIdx = _AiVtxWit.mVertexId;
-							const float _Wit = _AiVtxWit.mWeight;
+							const aiVertexWeight  AiVertexWeight = CurVtxBone->mWeights[WeightIdx];
+							const uint32 VtxIdx = AiVertexWeight.mVertexId;
+							const float CurrentVertexWeight = AiVertexWeight.mWeight;
 							const Matrix OffsetMatrix = FromAssimp(CurVtxBone->mOffsetMatrix);
 							TargetBone->Offset = OffsetMatrix;
 							
-							// 현재 버텍스에서 Vector4 의 float 슬롯중 비어있는 슬롯을 찾아냄.
+							// 현재 버텍스에서 Vector4 의 float 슬롯중 비어있는(0인) 슬롯을 찾아냄.
 							static auto FindVtxCurrentBoneSlot = [](
 								const Vector4& TargetWeights)->uint8
 							{
@@ -281,9 +281,9 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 
 							const uint8 CurSlot = 
 								FindVtxCurrentBoneSlot((*Verticies)[VtxIdx].Weights);
-
-							(*Verticies)[VtxIdx].Weights[CurSlot] = _Wit;
-							(*Verticies)[VtxIdx].BoneIds[CurSlot] =static_cast<int16>(TargetBoneIdx);
+							// 정점에 스키닝 본 인덱스와 가중치 저장 . 
+							(*Verticies)[VtxIdx].Weights[CurSlot] = CurrentVertexWeight;
+							(*Verticies)[VtxIdx].BoneIds[CurSlot] = static_cast<int16>(TargetBoneIdx);
 
 							++WeightMatrixCount;
 						}

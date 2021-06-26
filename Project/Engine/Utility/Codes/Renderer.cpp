@@ -109,6 +109,12 @@ void Engine::Renderer::Render()&
 	if (Engine::Global::bDebugMode)
 	{
 		ImGui::Begin("ShaderOption");
+
+		if (ImGui::Checkbox("ShadowPCF", &bPCF))
+		{
+
+		}
+
 		if (ImGui::TreeNode("SoftParticle"))
 		{
 			ImGui::InputFloat("SoftParticleDepthScale", 
@@ -308,7 +314,8 @@ void Engine::Renderer::RenderDeferredTarget()&
 		_DeferredPass.CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1.GetTexture(),
 		_DeferredPass.ShadowDepth.GetTexture(),
 		FogColor,
-		FogDistance);
+		FogDistance ,
+		bPCF);
 };
 
 void Engine::Renderer::BindMotionBlur()&

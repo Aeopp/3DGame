@@ -200,7 +200,7 @@ void Engine::SkeletonMesh::Load(IDirect3DDevice9* const Device,
 			LocalVertexLocations->push_back(FromAssimp(_AiMesh->mVertices[VerticesIdx]));
 		}
 		// 리소스 매니저에 넘길 정점 버퍼 리소스 이름
-		const std::wstring MeshVtxBufResourceName =L"SkeletonMesh_VertexBuffer_" + CurrentResourceName;
+		const std::wstring MeshVtxBufResourceName=L"SkeletonMesh_VertexBuffer_" + CurrentResourceName;
 		IDirect3DVertexBuffer9* _VertexBuffer{ nullptr };
 		// 라이브러리 정보로부터 준비가 끝나면 정점 버퍼 생성 . 
 		CreateMesh.VtxBufSize = sizeof(VertexType) * Verticies->size();

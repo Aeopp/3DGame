@@ -59,7 +59,7 @@ namespace Engine
 		virtual void Render(IDirect3DDevice9* const Device , const bool bCurrentUpdateCollision) & override;
 		virtual std::optional<std::pair<float, Vector3>> IsCollision(Geometric* const Rhs) & override;
 		std::optional<std::pair<float,Vector3>> IsCollisionOBB(OBB* const Rhs)const&;
-		std::optional<std::pair<float, Vector3>>IsCollisionSphere(GSphere* const Rhs)const&;
+		std::optional<std::pair<float,Vector3>> IsCollisionSphere(GSphere* const Rhs)const&;
 
 		std::array<Vector3,8u> WorldPoints;
 		Vector3 WorldCenter; 

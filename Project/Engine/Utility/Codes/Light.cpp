@@ -43,7 +43,8 @@ void Engine::Light::Render(
 	IDirect3DTexture9* CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1, 
 	IDirect3DTexture9* ShadowDepth ,
 	const Vector3& FogColor,
-	const float FogDistance )&
+	const float FogDistance  ,
+	const bool bPCF)&
 {
 	auto& _Renderer = Engine::Renderer::Instance;
 
@@ -90,6 +91,7 @@ void Engine::Light::Render(
 	for (uint32 i = 0; i < Pass; ++i)
 	{
 		Fx->BeginPass(i);
+		Fx->SetBool("bPCF",bPCF);
 		Fx->SetTexture("Albedo3_Contract1", Albedo3_Contract1);
 		Fx->SetTexture("Normal3_Power1", Normal3_Power1);
 		Fx->SetTexture("Velocity2_OutlineRedFactor_Depth1", Velocity2_None1_Depth1);

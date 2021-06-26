@@ -48,7 +48,8 @@ namespace Engine
 					IDirect3DTexture9* CavityRGB1_RimRGB1_RimInnerWidth1_RimOuterWidth1,
 					IDirect3DTexture9* ShadowDepth ,
 			const Vector3& FogColor,
-			const float FogDistance)&;
+			const float FogDistance ,
+			const bool bPCF)&;
 
 		void MotionBlurRender(IDirect3DDevice9* const Device,class Renderer* const _Renderer);
 

@@ -670,7 +670,7 @@ FMath::IsProjectionIntersectAreaAABB(
 
 	if (Intersect_1D_Line(*LhsMin, *LhsMax, *RhsMin, *RhsMax))
 	{
-		return  { std::tuple<float,float,float,float> { *LhsMin,* LhsMax,* RhsMin,* RhsMax } };
+		return  { { *LhsMin,* LhsMax,* RhsMin,* RhsMax } };
 	}
 	else
 	{

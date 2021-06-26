@@ -23,6 +23,8 @@ float ShadowDepthMapHeight;
 float ShadowDepthMapWidth;
 float ShadowDepthBias;
 
+bool bPCF = true;
+
 // ¿Ü°û¼± °ËÃâ
 float OutlineMask[9] = 
     {   -1,-1,-1 ,
@@ -164,29 +166,43 @@ PS_OUT PS_MAIN(PS_IN In)
     
     float ShadowFactor = 1.15f;
     
-    if (saturate(LightClipPosition.z) == LightClipPosition.z)
+    if (bPCF)
     {
-        float LookUpCount = (PCFCount * 2.0f + 1) * (PCFCount * 2.0f + 1);
-        
-        float Shadow = 0.0;
-        float TexelSizeU = 1.0  / ShadowDepthMapWidth;
-        float TexelSizeV = 1.0  / ShadowDepthMapHeight;
-        for (int x = -PCFCount; x <= PCFCount; ++x)
+        if (saturate(LightClipPosition.z) == LightClipPosition.z)
         {
-            for (int y = -PCFCount; y <= PCFCount; ++y)
+            float LookUpCount = (PCFCount * 2.0f + 1) * (PCFCount * 2.0f + 1);
+
+            float Shadow = 0.0;
+            float TexelSizeU = 1.0 / ShadowDepthMapWidth;
+            float TexelSizeV = 1.0 / ShadowDepthMapHeight;
+            for (int x = -PCFCount; x <= PCFCount; ++x)
             {
-                float2 UVOffset = float2(x * TexelSizeU, y * TexelSizeV);
-                
-                float pcfDepth = tex2D(ShadowDepthSampler, LightClipPosition.xy + UVOffset).x;
-                if (LightClipPosition.z > (pcfDepth + ShadowDepthBias))
+                for (int y = -PCFCount; y <= PCFCount; ++y)
                 {
-                    Shadow += 1.0f;
+                    float2 UVOffset = float2(x * TexelSizeU, y * TexelSizeV);
+
+                    float pcfDepth = tex2D(ShadowDepthSampler, LightClipPosition.xy + UVOffset).x;
+                    if (LightClipPosition.z > (pcfDepth + ShadowDepthBias))
+                    {
+                        Shadow += 1.0f;
+                    }
                 }
             }
+            Shadow /= LookUpCount;
+            ShadowFactor -= Shadow;
         }
-        Shadow /= LookUpCount;
-        ShadowFactor -= Shadow;
     }
+    else
+    {
+        if (saturate(LightClipPosition.z) == LightClipPosition.z)
+        {
+           const float Depth = tex2D(ShadowDepthSampler, LightClipPosition.xy).x;
+           if (LightClipPosition.z > (Depth + ShadowDepthBias))
+           {
+               ShadowFactor -= 1.0f;
+           };
+        }
+    };
     
    
     float4 Normal3_Power1 = tex2D(Normal3_Power1Sampler, In.UV);

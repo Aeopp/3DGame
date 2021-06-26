@@ -135,6 +135,7 @@ namespace Engine
 		std::map<RenderInterface::Group, std::vector<std::reference_wrapper<RenderInterface>>>RenderObjects;
 		DX::SharedPtr<IDirect3DDevice9> Device{ nullptr };
 		Frustum _Frustum;
+		bool bPCF{ true };
 	};
 };
 
